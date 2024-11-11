@@ -1,0 +1,38 @@
+syntax = "proto3";
+package helios.crypto.v1beta1.ethsecp256k1;
+
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+
+option go_package = "helios-core/helios-chain/crypto/ethsecp256k1";
+
+// PubKey defines a type alias for an ecdsa.PublicKey that implements
+// Tendermint's PubKey interface. It represents the 33-byte compressed public
+// key format.
+message PubKey {
+  option (amino.name) = "helios/PubKeyEthSecp256k1";
+  // The Amino encoding is simply the inner bytes field, and not the Amino
+  // encoding of the whole PubKey struct.
+  //
+  // Example (JSON):
+  // s := PubKey{Key: []byte{0x01}}
+  // out := AminoJSONEncoder(s)
+  //
+  // Then we have:
+  // out == `"MQ=="`
+  // out != `{"key":"MQ=="}`
+  option (amino.message_encoding) = "key_field";
+
+  option (gogoproto.goproto_stringer) = false;
+
+  bytes key = 1;
+}
+
+// PrivKey defines a type alias for an ecdsa.PrivateKey that implements
+// Tendermint's PrivateKey interface.
+message PrivKey {
+  option (amino.name) = "helios/PrivKeyEthSecp256k1";
+  option (amino.message_encoding) = "key_field";
+
+  bytes key = 1;
+}

@@ -1,0 +1,35 @@
+package keeper
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/InjectiveLabs/metrics"
+
+	"helios-core/helios-chain/modules/wasmx/types"
+)
+
+// GetParams returns the total set of wasmx parameters.
+func (k *Keeper) GetParams(ctx sdk.Context) types.Params {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := k.getStore(ctx)
+	bz := store.Get(types.ParamsKey)
+	if bz == nil {
+		return types.Params{}
+	}
+
+	var params types.Params
+	k.cdc.MustUnmarshal(bz, &params)
+
+	return params
+}
+
+// SetParams set the params
+func (k *Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := k.getStore(ctx)
+	store.Set(types.ParamsKey, k.cdc.MustMarshal(&params))
+}

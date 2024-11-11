@@ -1,0 +1,21 @@
+syntax = "proto3";
+package helios.tokenfactory.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "helios/tokenfactory/v1beta1/authorityMetadata.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
+
+option go_package = "helios-core/helios-chain/modules/tokenfactory/types";
+
+// Params defines the parameters for the tokenfactory module.
+message Params {
+  option (amino.name) = "helios/tokenfactory/Params";
+
+  repeated cosmos.base.v1beta1.Coin denom_creation_fee = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.moretags) = "yaml:\"denom_creation_fee\"",
+    (gogoproto.nullable) = false
+  ];
+}

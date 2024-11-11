@@ -1,0 +1,14 @@
+syntax = "proto3";
+package helios.types.v1beta1;
+
+option go_package = "helios-core/helios-chain/types";
+
+// base header ak message type, we can cast the bytes into corresponding message
+// response type
+message TxResponseGenericMessage {
+  string header = 1;
+  bytes data = 2;
+}
+
+// improvised message to unpack length prefixed messages in tx response data
+message TxResponseData { repeated TxResponseGenericMessage messages = 1; }
