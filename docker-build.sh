@@ -1,0 +1,1 @@
+docker build -t docker-helios:v0.0.4 .

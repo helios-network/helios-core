@@ -23,8 +23,9 @@ RUN go install github.com/cosmos/gex@latest
 FROM debian:bookworm-slim
 COPY --from=builder /go/bin/* /usr/local/bin/
 COPY --from=builder /src/heliades.sh .
+COPY --from=builder /src/setup.sh .
 
-RUN apt update && apt install -y curl lz4 wget procps
+RUN apt update && apt install -y curl lz4 wget procps jq
 
 RUN apt-get clean && apt-get autoclean && apt-get autoremove && rm -rf /var/lib/apt/lists/\* /tmp/\* /var/tmp/*
 
@@ -34,7 +35,10 @@ ADD https://github.com/CosmWasm/wasmvm/releases/download/v2.1.2/libwasmvm.aarch6
 #configure container
 VOLUME /apps/data
 WORKDIR /apps/data
-EXPOSE 26657 26656 10337 9900 9091 9999
+EXPOSE 26657 26656 10337 9900 9091 9999 1317
 
+COPY --from=builder /src/genesis.json /root/.heliades/config/genesis.json
+
+RUN bash /setup.sh
 #default command
 CMD sh /heliades.sh
