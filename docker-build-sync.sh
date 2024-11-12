@@ -1,0 +1,1 @@
+docker build -t docker-helios-sync:v0.0.1 --progress=plain --no-cache -f ./Dockerfile-sync .
