@@ -1,0 +1,18 @@
+#CLAIM NODE REWARDS
+heliades tx distribution withdraw-all-rewards --from genesis --chain-id 4242 --fees
+ 20000helios
+
+#BALANCE CHECK
+heliades q bank balances WALLET_ADDRESS
+
+#LIST VALIDATORS
+heliades q staking validators
+
+#LIST ALL KEYS INJECTED
+heliades keys list
+
+#EXPORT KEYS TENDERMINT FORMAT
+heliades keys export NAME_WALLET
+
+#EXPORT KEYS ETHER FORMAT
+heliades keys export NAME_WALLET --unarmored-hex --unsafe
