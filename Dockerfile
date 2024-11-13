@@ -35,7 +35,7 @@ ADD https://github.com/CosmWasm/wasmvm/releases/download/v2.1.2/libwasmvm.aarch6
 #configure container
 VOLUME /apps/data
 WORKDIR /apps/data
-EXPOSE 26657 26656 10337 9900 9091 9999 1317
+EXPOSE 26657 26656 10337 9900 9091 9999 1317 8545
 
 COPY --from=builder /src/genesis.json /root/.heliades/config/genesis.json
 
