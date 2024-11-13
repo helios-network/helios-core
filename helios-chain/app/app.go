@@ -171,6 +171,10 @@ import (
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 
+	ethermint "github.com/Helios-Chain-Labs/ethermint/app"
+    evm "github.com/Helios-Chain-Labs/ethermint/x/evm"
+    feemarket "github.com/Helios-Chain-Labs/ethermint/x/feemarket"
+
 	// unnamed import of statik for swagger UI support
 	_ "helios-core/client/docs/statik"
 )
@@ -235,6 +239,9 @@ var (
 		permissionsmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		wasmx.AppModuleBasic{},
+
+		evm.AppModuleBasic{},
+    	feemarket.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -387,6 +394,21 @@ func NewInjectiveApp(
 	app.SetPreBlocker(app.PreBlocker)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+
+	app.EvmKeeper = evm.NewKeeper(
+		appCodec,
+		keys[evm.StoreKey],
+		app.GetSubspace(evm.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.FeeMarketKeeper,
+	)
+	app.FeeMarketKeeper = feemarket.NewKeeper(
+		appCodec,
+		keys[feemarket.StoreKey],
+		app.GetSubspace(feemarket.ModuleName),
+	)
 
 	// use Injective's custom AnteHandler
 	skipAnteHandlers := cast.ToBool(appOpts.Get("SkipAnteHandlers"))
