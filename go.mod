@@ -113,7 +113,6 @@ require (
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/ebitengine/purego v0.6.0-alpha.5 // indirect
 	github.com/emicklei/dot v1.6.1 // indirect
-	github.com/evmos/ethermint v0.25.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/getsentry/sentry-go v0.27.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect

@@ -171,6 +171,13 @@ import (
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 
+	// "github.com/Helios-Chain-Labs/ethermint/x/evm"
+	// evmkeeper "github.com/Helios-Chain-Labs/ethermint/x/evm/keeper"
+	// evmtypes "github.com/Helios-Chain-Labs/ethermint/x/evm/types"
+	// "github.com/Helios-Chain-Labs/ethermint/x/feemarket"
+	// feemarketkeeper "github.com/Helios-Chain-Labs/ethermint/x/feemarket/keeper"
+	// feemarkettypes "github.com/Helios-Chain-Labs/ethermint/x/feemarket/types"
+
 	// unnamed import of statik for swagger UI support
 	_ "helios-core/client/docs/statik"
 )
@@ -257,6 +264,8 @@ var (
 		permissionsmodule.ModuleName:   nil,
 		wasmtypes.ModuleName:           {authtypes.Burner},
 		wasmxtypes.ModuleName:          {authtypes.Burner},
+		// evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
+		// feemarkettypes.ModuleName:      nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -340,6 +349,10 @@ type InjectiveApp struct {
 	// stream server
 	ChainStreamServer *stream.StreamServer
 	EventPublisher    *stream.Publisher
+
+	// ethermint keepers
+	// EvmKeeper       *evmkeeper.Keeper
+	// FeeMarketKeeper feemarketkeeper.Keeper
 }
 
 // NewInjectiveApp returns a reference to a new initialized Injective application.
@@ -1146,6 +1159,29 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	app.GovKeeper.SetLegacyRouter(govRouter)
 	app.ExchangeKeeper.SetWasmKeepers(app.WasmKeeper, app.WasmxKeeper)
 	app.ExchangeKeeper.SetGovKeeper(app.GovKeeper)
+
+	// Create FeeMarket keeper
+	// app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+	// 	app.codec,
+	// 	app.keys[feemarkettypes.StoreKey],
+	// 	app.tKeys[feemarkettypes.TransientKey],
+	// 	app.GetSubspace(feemarkettypes.ModuleName),
+	// )
+
+	// // Create EVM keeper
+	// app.EvmKeeper = evmkeeper.NewKeeper(
+	// 	app.codec,
+	// 	app.keys[evmtypes.StoreKey],
+	// 	app.tKeys[evmtypes.TransientKey],
+	// 	app.GetSubspace(evmtypes.ModuleName),
+	// 	app.AccountKeeper,
+	// 	app.BankKeeper,
+	// 	&app.StakingKeeper,
+	// 	app.FeeMarketKeeper,
+	// )
+
+	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
+	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
 
 	return oracleModule
 }
