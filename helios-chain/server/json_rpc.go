@@ -9,11 +9,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
+	"helios-core/helios-chain/rpc"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
-	"helios-core/helios-chain/rpc"
 
 	svrconfig "helios-core/helios-chain/server/config"
 	evmostypes "helios-core/helios-chain/types"

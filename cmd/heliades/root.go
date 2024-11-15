@@ -59,9 +59,9 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmcli "github.com/CosmWasm/wasmd/x/wasm/client/cli"
 
+	chainclient "helios-core/client"
 	clientcli "helios-core/cmd/heliades/config/cli"
 	"helios-core/helios-chain/app"
-	chainclient "helios-core/helios-chain/client"
 	"helios-core/helios-chain/crypto/hd"
 	injectivekr "helios-core/helios-chain/crypto/keyring"
 	"helios-core/version"

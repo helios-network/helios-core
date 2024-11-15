@@ -48,3 +48,4 @@ injective-chain/modules/exchange/testexchange/test.properties
 
 vendor/
 cmd/heliades/heliades
+cmd/evmosd/evmosd

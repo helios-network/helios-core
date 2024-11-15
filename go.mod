@@ -70,11 +70,13 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-metrics v0.5.3
 	github.com/ledgerwatch/erigon-lib v1.0.0
+	github.com/linxGnu/grocksdb v1.8.14
 	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.26.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/tidwall/btree v1.7.0
 	github.com/tidwall/gjson v1.16.0
+	github.com/tidwall/sjson v1.2.5
 	github.com/tidwall/wal v1.1.8
 	github.com/zbiljic/go-filelock v0.0.0-20170914061330-1dbf7103ab7d
 	golang.org/x/sync v0.7.0
@@ -128,6 +130,7 @@ require (
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
 	github.com/ebitengine/purego v0.6.0-alpha.5 // indirect
+	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/emicklei/dot v1.6.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/getsentry/sentry-go v0.27.0 // indirect
@@ -159,7 +162,6 @@ require (
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/linxGnu/grocksdb v1.8.14 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
@@ -170,6 +172,7 @@ require (
 	github.com/prometheus/tsdb v0.7.1 // indirect
 	github.com/richardartoul/molecule v1.0.1-0.20221107223329-32cfee06a052 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rjeczalik/notify v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -224,7 +227,7 @@ require (
 	github.com/cosmos/iavl v1.2.0
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -244,7 +247,7 @@ require (
 	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/gorilla/websocket v1.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect

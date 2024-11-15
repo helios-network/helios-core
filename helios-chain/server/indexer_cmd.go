@@ -7,12 +7,13 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"helios-core/helios-chain/indexer"
+
 	cmtconfig "github.com/cometbft/cometbft/config"
 	sm "github.com/cometbft/cometbft/state"
 	cmtstore "github.com/cometbft/cometbft/store"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
-	"helios-core/helios-chain/indexer"
 )
 
 // NewIndexTxCmd creates a new Cobra command to index historical Ethereum transactions.

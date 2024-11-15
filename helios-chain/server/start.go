@@ -52,7 +52,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/rosetta"
 
-	"helios-core/helios-chain/cmd/evmosd/opendb"
+	"helios-core/cmd/evmosd/opendb"
 	"helios-core/helios-chain/indexer"
 	ethdebug "helios-core/helios-chain/rpc/namespaces/ethereum/debug"
 	"helios-core/helios-chain/server/config"
@@ -399,7 +399,6 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 			}
 		}()
 	}
-
 	// Add the tx service to the gRPC router. We only need to register this
 	// service if API or gRPC or JSONRPC is enabled, and avoid doing so in the general
 	// case, because it spawns a new local tendermint RPC client.
@@ -463,7 +462,6 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	if apiSrv != nil {
 		defer apiSrv.Close()
 	}
-
 	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress, idxer)
 	if httpSrv != nil {
 		defer func() {
