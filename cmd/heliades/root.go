@@ -72,7 +72,7 @@ import (
 func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used (see root_v2.go)
-	tempApp := app.NewInjectiveApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := app.NewHeliosApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := injcodectypes.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -371,7 +371,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		chainID = appGenesis.ChainID
 	}
 
-	return app.NewInjectiveApp(
+	return app.NewHeliosApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
@@ -404,7 +404,7 @@ func appExport(
 ) (servertypes.ExportedApp, error) {
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
-	var injectiveApp *app.InjectiveApp
+	var HeliosApp *app.HeliosApp
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
@@ -420,20 +420,20 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		injectiveApp = app.NewInjectiveApp(logger, db, traceStore, false, appOpts)
+		HeliosApp = app.NewHeliosApp(logger, db, traceStore, false, appOpts)
 
-		if err := injectiveApp.LoadHeight(height); err != nil {
+		if err := HeliosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		injectiveApp = app.NewInjectiveApp(logger, db, traceStore, true, appOpts)
+		HeliosApp = app.NewHeliosApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return injectiveApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return HeliosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
 var tempDir = func() string {
-	dir, err := os.MkdirTemp("", "injectiveapp")
+	dir, err := os.MkdirTemp("", "HeliosApp")
 	if err != nil {
 		dir = app.DefaultNodeHome
 	}

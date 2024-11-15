@@ -281,10 +281,10 @@ var (
 	}
 )
 
-var _ runtime.AppI = (*InjectiveApp)(nil)
+var _ runtime.AppI = (*HeliosApp)(nil)
 
-// InjectiveApp implements an extended ABCI application.
-type InjectiveApp struct {
+// HeliosApp implements an extended ABCI application.
+type HeliosApp struct {
 	*baseapp.BaseApp
 	amino             *codec.LegacyAmino
 	codec             codec.Codec
@@ -355,22 +355,22 @@ type InjectiveApp struct {
 	// FeeMarketKeeper feemarketkeeper.Keeper
 }
 
-// NewInjectiveApp returns a reference to a new initialized Injective application.
-func NewInjectiveApp(
+// NewHeliosApp returns a reference to a new initialized Injective application.
+func NewHeliosApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *InjectiveApp {
+) *HeliosApp {
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	app := initInjectiveApp(appName, logger, db, traceStore, baseAppOptions...)
+	app := initHeliosApp(appName, logger, db, traceStore, baseAppOptions...)
 
 	oracleModule := app.initKeepers(authority, appOpts, wasmConfig)
 	app.initManagers(oracleModule)
@@ -440,13 +440,13 @@ func NewInjectiveApp(
 	return app
 }
 
-func initInjectiveApp(
+func initHeliosApp(
 	name string,
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *InjectiveApp {
+) *HeliosApp {
 	var (
 		encodingConfig    = injcodectypes.MakeEncodingConfig()
 		appCodec          = encodingConfig.Codec
@@ -498,7 +498,7 @@ func initInjectiveApp(
 	bApp.SetName(version.Name)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	app := &InjectiveApp{
+	app := &HeliosApp{
 		BaseApp:           bApp,
 		amino:             legacyAmino,
 		codec:             appCodec,
@@ -512,18 +512,18 @@ func initInjectiveApp(
 	return app
 }
 
-func (app *InjectiveApp) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
+func (app *HeliosApp) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
 
-func (app *InjectiveApp) GetIBCKeeper() *ibckeeper.Keeper { return app.IBCKeeper }
+func (app *HeliosApp) GetIBCKeeper() *ibckeeper.Keeper { return app.IBCKeeper }
 
-func (app *InjectiveApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+func (app *HeliosApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 	return app.ScopedIBCKeeper
 }
 
-func (app *InjectiveApp) GetTxConfig() client.TxConfig { return app.txConfig }
+func (app *HeliosApp) GetTxConfig() client.TxConfig { return app.txConfig }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *InjectiveApp) AutoCliOpts() autocli.AppOptions {
+func (app *HeliosApp) AutoCliOpts() autocli.AppOptions {
 	modules := make(map[string]appmodule.AppModule, 0)
 	for _, m := range app.mm.Modules {
 		if moduleWithName, ok := m.(module.HasName); ok {
@@ -544,29 +544,29 @@ func (app *InjectiveApp) AutoCliOpts() autocli.AppOptions {
 }
 
 // Name returns the name of the App
-func (app *InjectiveApp) Name() string { return app.BaseApp.Name() }
+func (app *HeliosApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker updates every begin block
-func (app *InjectiveApp) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
+func (app *HeliosApp) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, metrics.Tags{"svc": "app", "height": strconv.Itoa(int(ctx.BlockHeight()))})
 	defer doneFn()
 	return app.mm.BeginBlock(ctx)
 }
 
 // PreBlocker application updates every pre block
-func (app *InjectiveApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+func (app *HeliosApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
 	return app.mm.PreBlock(ctx)
 }
 
 // EndBlocker updates every end block
-func (app *InjectiveApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
+func (app *HeliosApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, metrics.Tags{"svc": "app", "height": strconv.Itoa(int(ctx.BlockHeight()))})
 	defer doneFn()
 	return app.mm.EndBlock(ctx)
 }
 
 // InitChainer updates at chain initialization
-func (app *InjectiveApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+func (app *HeliosApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
 	app.amino.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {
@@ -576,17 +576,17 @@ func (app *InjectiveApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain
 	return app.mm.InitGenesis(ctx, app.codec, genesisState)
 }
 
-func (app *InjectiveApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
+func (app *HeliosApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
 }
 
 // LoadHeight loads state at a particular height
-func (app *InjectiveApp) LoadHeight(height int64) error {
+func (app *HeliosApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *InjectiveApp) ModuleAccountAddrs() map[string]bool {
+func (app *HeliosApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
@@ -597,7 +597,7 @@ func (app *InjectiveApp) ModuleAccountAddrs() map[string]bool {
 
 // BlockedAddrs returns all the app's module account addresses that are not
 // allowed to receive external tokens.
-func (app *InjectiveApp) BlockedAddrs() map[string]bool {
+func (app *HeliosApp) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
@@ -606,73 +606,73 @@ func (app *InjectiveApp) BlockedAddrs() map[string]bool {
 	return blockedAddrs
 }
 
-// LegacyAmino returns InjectiveApp's amino codec.
+// LegacyAmino returns HeliosApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *InjectiveApp) LegacyAmino() *codec.LegacyAmino {
+func (app *HeliosApp) LegacyAmino() *codec.LegacyAmino {
 	return app.amino
 }
 
-// AppCodec returns InjectiveApp's app codec.
+// AppCodec returns HeliosApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *InjectiveApp) AppCodec() codec.Codec {
+func (app *HeliosApp) AppCodec() codec.Codec {
 	return app.codec
 }
 
-// InterfaceRegistry returns InjectiveApp's InterfaceRegistry
-func (app *InjectiveApp) InterfaceRegistry() types.InterfaceRegistry {
+// InterfaceRegistry returns HeliosApp's InterfaceRegistry
+func (app *HeliosApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
 // TxConfig returns SimApp's TxConfig
-func (app *InjectiveApp) TxConfig() client.TxConfig {
+func (app *HeliosApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *InjectiveApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *HeliosApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return app.keys[storeKey]
 }
 
-func (app *InjectiveApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
+func (app *HeliosApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *InjectiveApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+func (app *HeliosApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return app.tKeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *InjectiveApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+func (app *HeliosApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *InjectiveApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *HeliosApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *InjectiveApp) SimulationManager() *module.SimulationManager {
+func (app *HeliosApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *InjectiveApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 
 	// Register new tx routes from grpc-gateway.
@@ -708,15 +708,15 @@ func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) 
 	return nil
 }
 
-func (app *InjectiveApp) RegisterTxService(clientCtx client.Context) {
+func (app *HeliosApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
-func (app *InjectiveApp) RegisterTendermintService(clientCtx client.Context) {
+func (app *HeliosApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
 }
 
-func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOptions, wasmConfig wasmtypes.WasmConfig) oracle.AppModule {
+func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptions, wasmConfig wasmtypes.WasmConfig) oracle.AppModule {
 	app.ParamsKeeper = initParamsKeeper(
 		app.codec,
 		app.amino,
@@ -1177,7 +1177,7 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	// 	app.AccountKeeper,
 	// 	app.BankKeeper,
 	// 	&app.StakingKeeper,
-	// 	nil
+	// 	nil,
 	// 	// app.FeeMarketKeeper,
 	// )
 
@@ -1187,7 +1187,7 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	return oracleModule
 }
 
-func (app *InjectiveApp) initManagers(oracleModule oracle.AppModule) {
+func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
 	// we prefer to be more strict in what arguments the modules expect.
 	// var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))

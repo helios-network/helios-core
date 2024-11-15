@@ -19,7 +19,7 @@ const (
 	upgradeName = "v1.13.2"
 )
 
-func (app *InjectiveApp) registerUpgradeHandlers() {
+func (app *HeliosApp) registerUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(upgradeName,
 		func(ctx context.Context, upgradeInfo upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			mintParams, err := app.MintKeeper.Params.Get(ctx)

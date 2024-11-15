@@ -463,7 +463,7 @@ func startAPIServer(
 	})
 }
 
-func startStatsdMetrics(ctx *server.Context, app *injectivechain.InjectiveApp) error {
+func startStatsdMetrics(ctx *server.Context, app *injectivechain.HeliosApp) error {
 	envName := "chain-" + ctx.Viper.GetString(flags.FlagChainID)
 	if env := os.Getenv("APP_ENV"); env != "" {
 		envName = env
@@ -533,7 +533,7 @@ func startInProcess(svrCtx *server.Context, svrCfg serverconfig.Config, clientCt
 
 	cmtCfg := svrCtx.Config
 
-	if err := startStatsdMetrics(svrCtx, app.(*injectivechain.InjectiveApp)); err != nil {
+	if err := startStatsdMetrics(svrCtx, app.(*injectivechain.HeliosApp)); err != nil {
 		return err
 	}
 
@@ -572,7 +572,7 @@ func startInProcess(svrCtx *server.Context, svrCfg serverconfig.Config, clientCt
 		}
 	}
 
-	if injApp, ok := app.(*injectivechain.InjectiveApp); ok {
+	if injApp, ok := app.(*injectivechain.HeliosApp); ok {
 		// start chainstream server
 		chainStreamServeAddr := cast.ToString(svrCtx.Viper.Get(stream.FlagStreamServer))
 		buffCap := cast.ToUint(svrCtx.Viper.Get(stream.FlagStreamServerBufferCapacity))
@@ -602,7 +602,7 @@ func startInProcess(svrCtx *server.Context, svrCfg serverconfig.Config, clientCt
 			_ = tmNode.Stop()
 		}
 
-		if injApp, ok := app.(*injectivechain.InjectiveApp); ok {
+		if injApp, ok := app.(*injectivechain.HeliosApp); ok {
 			err := injApp.EventPublisher.Stop()
 			if err != nil {
 				svrCtx.Logger.Error("failed to stop event publisher", "error", err)

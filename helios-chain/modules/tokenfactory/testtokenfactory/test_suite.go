@@ -41,7 +41,7 @@ import (
 type KeeperTestHelper struct {
 	suite.Suite
 
-	App         *app.InjectiveApp
+	App         *app.HeliosApp
 	Ctx         sdk.Context
 	QueryHelper *baseapp.QueryServiceTestHelper
 	TestAccs    []sdk.AccAddress
