@@ -88,7 +88,7 @@ import { Address as EthereumUtilsAddress } from 'ethereumjs-util'
 const mnemonic = "indoor dish desk flag debris potato excuse depart ticket judge file exit"
 const privateKey = "afdfd9c3d2095ef696594f6cedcae59e72dcd697e2a7521b1578140422a4f890"
 const defaultDerivationPath = "m/44'/60'/0'/0/0"
-const defaultBech32Prefix = 'inj'
+const defaultBech32Prefix = 'helios'
 const isPrivateKey: boolean = true /* just for the example */
 
 const wallet = isPrivateKey ? Wallet.fromMnemonic(mnemonic, defaultDerivationPath) : new Wallet(privateKey)

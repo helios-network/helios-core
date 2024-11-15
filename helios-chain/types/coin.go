@@ -1,7 +1,10 @@
 package types
 
 import (
+	"math/big"
+
 	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,6 +29,8 @@ const (
 	DisplayDenom        string = "helios"
 	DisplayDenomTestnet string = "helios"
 )
+
+var PowerReduction = sdkmath.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(BaseDenomUnit), nil))
 
 // NewHeliosCoin is a utility function that returns an "inj" coin with the given math.Int amount.
 // The function will panic if the provided amount is negative.

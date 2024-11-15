@@ -101,7 +101,6 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -171,10 +170,24 @@ import (
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 
-	//evmkeeper "helios-core/helios-chain/x/evm/keeper"
+	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	erc20types "helios-core/helios-chain/x/erc20/types"
+	evmkeeper "helios-core/helios-chain/x/evm/keeper"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
+	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
+
+	inflation "helios-core/helios-chain/x/inflation/v1"
+	// stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+	epochstypes "helios-core/helios-chain/x/epochs/types"
+
+	srvflags "helios-core/helios-chain/server/flags"
+
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 func init() {
@@ -259,6 +272,10 @@ var (
 		permissionsmodule.ModuleName:   nil,
 		wasmtypes.ModuleName:           {authtypes.Burner},
 		wasmxtypes.ModuleName:          {authtypes.Burner},
+		inflationtypes.ModuleName:      {authtypes.Minter},
+		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		//ratelimittypes.ModuleName:      nil, TODO: CHECK IF CAUSE ISSUES
 		// evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 		// feemarkettypes.ModuleName:      nil,
 	}
@@ -346,8 +363,14 @@ type HeliosApp struct {
 	EventPublisher    *stream.Publisher
 
 	// ethermint keepers
-	// EvmKeeper       *evmkeeper.Keeper
+	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
+
+	// Evmos keepers
+	InflationKeeper inflationkeeper.Keeper
+	Erc20Keeper     erc20keeper.Keeper
+	EpochsKeeper    epochskeeper.Keeper
+	VestingKeeper   vestingkeeper.Keeper
 }
 
 // NewHeliosApp returns a reference to a new initialized Injective application.
@@ -753,8 +776,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		runtime.NewKVStoreService(app.keys[authtypes.StoreKey]),
 		chaintypes.ProtoAccount, // use custom Ethermint account
 		maccPerms,
-		authcodec.NewBech32Codec(chaintypes.InjectiveBech32Prefix),
-		chaintypes.InjectiveBech32Prefix,
+		authcodec.NewBech32Codec(chaintypes.Bech32Prefix),
+		chaintypes.Bech32Prefix,
 		authority,
 	)
 
@@ -989,7 +1012,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(app.keys[ibchookstypes.StoreKey])
 
 	// ics20WasmHooks.ContractKeeper needs to be set later
-	ics20WasmHooks := ibchooks.NewWasmHooks(&app.IBCHooksKeeper, &app.WasmKeeper, chaintypes.InjectiveBech32Prefix)
+	ics20WasmHooks := ibchooks.NewWasmHooks(&app.IBCHooksKeeper, &app.WasmKeeper, chaintypes.Bech32Prefix)
 	hooksICS4Wrapper := ibchooks.NewICS4Middleware(app.IBCKeeper.ChannelKeeper, ics20WasmHooks)
 
 	// Initialize packet forward middleware router
@@ -1157,6 +1180,15 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	// Create FeeMarket keeper
 
+	// ALL EVM
+
+	// Evmos Keeper
+	app.InflationKeeper = inflationkeeper.NewKeeper(
+		app.keys[inflationtypes.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
@@ -1165,17 +1197,17 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
-	var _ = evmtypes.ModuleName
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
-	// evmKeeper := evmkeeper.NewKeeper(
-	// 	app.codec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
-	// 	app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
-	// 	// FIX: Temporary solution to solve keeper interdependency while new precompile module
-	// 	// is being developed.
-	// 	&app.Erc20Keeper,
-	// 	tracer, app.GetSubspace(evmtypes.ModuleName),
-	// )
-	// app.EvmKeeper = evmKeeper
+	evmKeeper := evmkeeper.NewKeeper(
+		app.codec, app.keys[evmtypes.StoreKey], app.tKeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
+		// is being developed.
+		&app.Erc20Keeper,
+		tracer, app.GetSubspace(evmtypes.ModuleName),
+	)
+	app.EvmKeeper = evmKeeper
 
 	// evmSs := app.GetSubspace(evmtypes.ModuleName)
 	// app.EvmKeeper = evmkeeper.NewKeeper(
@@ -1201,6 +1233,7 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
+
 		// SDK app modules
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app, app.txConfig),
 		auth.NewAppModule(app.codec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
@@ -1238,6 +1271,8 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(app.codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper,
+			app.GetSubspace(inflationtypes.ModuleName)),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1360,6 +1395,10 @@ func initGenesisOrder() []string {
 		wasmtypes.ModuleName,
 		wasmxtypes.ModuleName,
 
+		inflationtypes.ModuleName,
+		erc20types.ModuleName,
+		epochstypes.ModuleName,
+		//ratelimittypes.ModuleName, TODO: CHECK FOR COMPATIBILITY
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	}
