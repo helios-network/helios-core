@@ -16,3 +16,4 @@ heliades keys export NAME_WALLET
 
 #EXPORT KEYS ETHER FORMAT
 heliades keys export NAME_WALLET --unarmored-hex --unsafe
+heliades keys unsafe-export-eth-key NAME_WALLET --keyring-backend test

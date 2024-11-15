@@ -41,7 +41,7 @@ jq '.app_state["ocr"]["params"]["payout_block_interval"]="5"' $GENESIS_CONFIG > 
 #jq '.app_state.bank.balances += [{"address": "helios1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49", "coins": [{"denom": "helios", "amount": "1"}]}]' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Define token denominations and decimals
-HELIOS='{"denom":"helios","decimals":18}'
+HELIOS='{"denom":"helios","decimals":6}'
 
 
 USDT='{"denom":"peggy0xdAC17F958D2ee523a2206206994597C13D831ec7","decimals":6}'
