@@ -170,16 +170,6 @@ import (
 	wasmxtypes "helios-core/helios-chain/modules/wasmx/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
-
-	// "github.com/evmos/ethermint/x/evm"
-	// evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
-	// evmtypes "github.com/evmos/ethermint/x/evm/types"
-	// "helios-core/helios-chain/modules/evm/ethermint/x/feemarket"
-	// feemarketkeeper "helios-core/helios-chain/modules/evm/ethermint/x/feemarket/keeper"
-	// feemarkettypes "/x/feemarket/types"
-
-	// unnamed import of statik for swagger UI support
-	_ "helios-core/client/docs/statik"
 )
 
 func init() {
@@ -1168,18 +1158,16 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	// 	app.GetSubspace(feemarkettypes.ModuleName),
 	// )
 
-	// // Create EVM keeper
+	// evmSs := app.GetSubspace(evmtypes.ModuleName)
 	// app.EvmKeeper = evmkeeper.NewKeeper(
 	// 	app.codec,
-	// 	app.keys[evmtypes.StoreKey],
-	// 	app.tKeys[evmtypes.TransientKey],
-	// 	app.GetSubspace(evmtypes.ModuleName),
-	// 	app.AccountKeeper,
-	// 	app.BankKeeper,
-	// 	&app.StakingKeeper,
+	// 	app.keys[evmtypes.StoreKey], app.okeys[evmtypes.ObjectStoreKey], authtypes.NewModuleAddress(govtypes.ModuleName),
+	// 	app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
+	// 	evmSs,
 	// 	nil,
-	// 	// app.FeeMarketKeeper,
 	// )
+
+	//evmkeeper.foo()
 
 	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)

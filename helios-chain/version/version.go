@@ -6,10 +6,10 @@ import (
 )
 
 // AppName represents the application name as the 'user agent' on the larger Ethereum network.
-const AppName = "injective"
+const AppName = "helios"
 
 // Version contains the application semantic version.
-const Version = "1.6.0"
+const Version = "1.0.0"
 
 // GitCommit contains the git SHA1 short hash set by build flags.
 var GitCommit = ""
