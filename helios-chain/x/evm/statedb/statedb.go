@@ -111,11 +111,9 @@ func (s *StateDB) MultiStoreSnapshot() storetypes.CacheMultiStore {
 	// the cacheCtx multi store is already a CacheMultiStore
 	// so we need to pass a copy of the current state of it
 	cms := s.cacheCtx.MultiStore().(storetypes.CacheMultiStore)
-	return cms
-	//TODO: FIX ONCE DEEP COPY BEEN ADDED
 
-	// snapshot := cms.Copy()
-	// return snapshot
+	snapshot := cms.Copy()
+	return snapshot
 }
 
 // cache creates the stateDB cache context
