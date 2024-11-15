@@ -125,7 +125,6 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
@@ -188,9 +187,17 @@ import (
 	srvflags "helios-core/helios-chain/server/flags"
 
 	epochs "helios-core/helios-chain/x/epochs"
-	// erc20 "helios-core/helios-chain/x/erc20"
+	erc20 "helios-core/helios-chain/x/erc20"
+
+	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
+	transfer "helios-core/helios-chain/x/ibc/transfer"
+
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
+	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/keeper"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 )
 
 func init() {
@@ -278,8 +285,7 @@ var (
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		//ratelimittypes.ModuleName:      nil, TODO: CHECK IF CAUSE ISSUES
-		// evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
+		ratelimittypes.ModuleName:      nil,
 		// feemarkettypes.ModuleName:      nil,
 	}
 
@@ -343,7 +349,7 @@ type HeliosApp struct {
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCFeeKeeper        ibcfeekeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
-	TransferKeeper      ibctransferkeeper.Keeper
+	TransferKeeper      transferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	PacketForwardKeeper *packetforwardkeeper.Keeper
 	IBCHooksKeeper      ibchookskeeper.Keeper
@@ -374,6 +380,8 @@ type HeliosApp struct {
 	Erc20Keeper     erc20keeper.Keeper
 	EpochsKeeper    epochskeeper.Keeper
 	VestingKeeper   vestingkeeper.Keeper
+
+	RateLimitKeeper ratelimitkeeper.Keeper
 }
 
 // NewHeliosApp returns a reference to a new initialized Injective application.
@@ -1041,20 +1049,30 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
+	// Create the rate limit keeper
+	app.RateLimitKeeper = *ratelimitkeeper.NewKeeper(
+		app.codec,
+		runtime.NewKVStoreService(app.keys[ratelimittypes.StoreKey]),
+		app.GetSubspace(ratelimittypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper, // ICS4Wrapper
+	)
+
 	// Create Transfer Keepers
 	app.ScopedTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		app.codec,
-		app.keys[ibctransfertypes.StoreKey],
-		app.GetSubspace(ibctransfertypes.ModuleName),
-		// The ICS4Wrapper is replaced by the PacketForwardKeeper instead of the channel so that sending can be overridden by the middleware
-		app.PacketForwardKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.ScopedTransferKeeper,
-		authority,
+
+	// get authority address
+	authAddr := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+
+	app.TransferKeeper = transferkeeper.NewKeeper(
+		app.codec, app.keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.RateLimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
+		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, app.ScopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+		authAddr,
 	)
 
 	app.PacketForwardKeeper.SetTransferKeeper(app.TransferKeeper)
@@ -1065,7 +1083,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	// See https://github.com/CosmWasm/cosmwasm/blob/main/docs/CAPABILITIES-BUILT-IN.md
-	availableCapabilities := append(wasmkeeper.BuiltInCapabilities(), "injective")
+	availableCapabilities := append(wasmkeeper.BuiltInCapabilities(), "helios")
 	wasmOpts := GetWasmOpts(appOpts)
 	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(
 		&app.AuthzKeeper,
@@ -1133,7 +1151,9 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
-	transferStack = ibctransfer.NewIBCModule(app.TransferKeeper)
+	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
+	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
 	transferStack = ibchooks.NewIBCMiddleware(transferStack, &hooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(transferStack,
@@ -1213,11 +1233,11 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
-	// app.Erc20Keeper = erc20keeper.NewKeeper(
-	// 	app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
-	// 	app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
-	// 	app.AuthzKeeper, &app.TransferKeeper,
-	// )
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AuthzKeeper, &app.TransferKeeper,
+	)
 
 	evmKeeper := evmkeeper.NewKeeper(
 		app.codec, app.keys[evmtypes.StoreKey], app.tKeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
@@ -1237,11 +1257,11 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		),
 	)
 
-	// app.Erc20Keeper = erc20keeper.NewKeeper(
-	// 	app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
-	// 	app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
-	// 	app.AuthzKeeper, &app.TransferKeeper,
-	// )
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AuthzKeeper, &app.TransferKeeper,
+	)
 
 	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
@@ -1255,6 +1275,7 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 	// var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 	skipGenesisInvariants := true
 
+	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -1278,13 +1299,14 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		authzmodule.NewAppModule(app.codec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(app.codec, app.ConsensusParamsKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
-		ibctransfer.NewAppModule(app.TransferKeeper),
+		transferModule,
+		ratelimit.NewAppModule(app.codec, app.RateLimitKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ibctm.NewAppModule(),
 		ibchooks.NewAppModule(app.AccountKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
-		// Injective app modules
+		// Helios app modules
 		exchange.NewAppModule(app.ExchangeKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(exchangetypes.ModuleName)),
 		auction.NewAppModule(app.AuctionKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(auctiontypes.ModuleName)),
 		insurance.NewAppModule(app.InsuranceKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(insurancetypes.ModuleName)),
@@ -1298,8 +1320,8 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
-		//erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
-		//	app.GetSubspace(erc20types.ModuleName)),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
+			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper), //TODO: CHECK IF CREATE ISSUES CAUSE MODIFIED
 	)
@@ -1378,6 +1400,15 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(permissionsmodule.ModuleName)
 	paramsKeeper.Subspace(wasmxtypes.ModuleName)
 
+	// FIX: do we need a keytable?
+	paramsKeeper.Subspace(ratelimittypes.ModuleName)
+	// ethermint subspaces
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
+	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
+	// evmos subspaces
+	paramsKeeper.Subspace(inflationtypes.ModuleName)
+	paramsKeeper.Subspace(erc20types.ModuleName)
+
 	return paramsKeeper
 }
 
@@ -1425,9 +1456,9 @@ func initGenesisOrder() []string {
 		wasmxtypes.ModuleName,
 
 		inflationtypes.ModuleName,
-		//erc20types.ModuleName,
+		erc20types.ModuleName,
 		epochstypes.ModuleName,
-		//ratelimittypes.ModuleName, TODO: CHECK FOR COMPATIBILITY
+		ratelimittypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	}
