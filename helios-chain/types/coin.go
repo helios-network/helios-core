@@ -13,21 +13,28 @@ const (
 	// - Governance parameters: denomination used for spam prevention in proposal deposits
 	// - Crisis parameters: constant fee denomination used for spam prevention to check broken invariant
 	// - EVM parameters: denomination used for running EVM state transitions in Ethermint.
-	InjectiveCoin string = "helios"
+	HeliosCoin string = "helios"
 
-	// BaseDenomUnit defines the base denomination unit for Photons.
-	// 1 photon = 1x10^{BaseDenomUnit} inj
+	BaseDenom        string = "helios"
+	BaseDenomTestnet string = "helios"
+
+	// BaseDenomUnit defines the base denomination unit for Evmos.
+	// 1 evmos = 1x10^{BaseDenomUnit} aevmos
 	BaseDenomUnit = 18
+
+	// DisplayDenom defines the denomination displayed to users in client applications.
+	DisplayDenom        string = "helios"
+	DisplayDenomTestnet string = "helios"
 )
 
-// NewInjectiveCoin is a utility function that returns an "inj" coin with the given math.Int amount.
+// NewHeliosCoin is a utility function that returns an "inj" coin with the given math.Int amount.
 // The function will panic if the provided amount is negative.
-func NewInjectiveCoin(amount math.Int) sdk.Coin {
-	return sdk.NewCoin(InjectiveCoin, amount)
+func NewHeliosCoin(amount math.Int) sdk.Coin {
+	return sdk.NewCoin(HeliosCoin, amount)
 }
 
-// NewInjectiveCoinInt64 is a utility function that returns an "inj" coin with the given int64 amount.
+// NewHeliosCoinInt64 is a utility function that returns an "inj" coin with the given int64 amount.
 // The function will panic if the provided amount is negative.
-func NewInjectiveCoinInt64(amount int64) sdk.Coin {
-	return sdk.NewInt64Coin(InjectiveCoin, amount)
+func NewHeliosCoinInt64(amount int64) sdk.Coin {
+	return sdk.NewInt64Coin(HeliosCoin, amount)
 }

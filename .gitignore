@@ -47,3 +47,4 @@ injective-chain/modules/exchange/testexchange/test.properties
 *.coverprofile
 
 vendor/
+cmd/heliades/heliades

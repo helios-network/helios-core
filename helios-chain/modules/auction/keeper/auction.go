@@ -109,7 +109,7 @@ func (k *Keeper) GetLastAuctionResult(ctx sdk.Context) *types.LastAuctionResult 
 	if bz == nil {
 		return &types.LastAuctionResult{
 			Winner: "",
-			Amount: chaintypes.NewInjectiveCoin(math.ZeroInt()),
+			Amount: chaintypes.NewHeliosCoin(math.ZeroInt()),
 			Round:  0,
 		}
 	}

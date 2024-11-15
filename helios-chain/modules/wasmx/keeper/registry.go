@@ -8,6 +8,7 @@ import (
 
 	"helios-core/helios-chain/modules/wasmx/types"
 	chaintypes "helios-core/helios-chain/types"
+
 	"github.com/InjectiveLabs/metrics"
 )
 
@@ -174,7 +175,7 @@ func (k *Keeper) DeregisterContract(
 		ContractAddress: contractAddress.String(),
 	})
 
-	contractBalance := k.bankKeeper.GetBalance(ctx, contractAddress, chaintypes.InjectiveCoin)
+	contractBalance := k.bankKeeper.GetBalance(ctx, contractAddress, chaintypes.HeliosCoin)
 	maxAvailableGas := contractBalance.Amount.QuoRaw(int64(registeredContract.GasPrice)).Uint64()
 
 	params := k.GetParams(ctx)
@@ -225,7 +226,7 @@ func (k *Keeper) DeactivateContract(
 
 	registeredContract.IsExecutable = false
 	k.SetContract(ctx, contractAddress, *registeredContract)
-	contractBalance := k.bankKeeper.GetBalance(ctx, contractAddress, chaintypes.InjectiveCoin)
+	contractBalance := k.bankKeeper.GetBalance(ctx, contractAddress, chaintypes.HeliosCoin)
 	maxAvailableGas := contractBalance.Amount.QuoRaw(int64(registeredContract.GasPrice)).Uint64()
 	params := k.GetParams(ctx)
 	deactivateHookGas := params.MaxContractGasLimit

@@ -127,7 +127,7 @@ func (k msgServer) refundLastBidder(ctx sdk.Context) error {
 		return err
 	}
 
-	bidAmount := sdk.NewCoins(sdk.NewCoin(chaintypes.InjectiveCoin, lastBidAmount))
+	bidAmount := sdk.NewCoins(sdk.NewCoin(chaintypes.HeliosCoin, lastBidAmount))
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount); err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		k.Logger(ctx).Error("Bidder refund failed", "lastBidderAddr", lastBidder.String(), "coin", bidAmount.String())

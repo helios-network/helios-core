@@ -33,7 +33,7 @@ func (k *Keeper) distributeTradingRewardsForAccount(
 
 		accountRewardAmount := accountPoints.Points.Mul(availableRewardForDenom.ToLegacyDec()).Quo(totalPoints).TruncateInt()
 
-		if coin.Denom == chaintypes.InjectiveCoin && accountRewardAmount.GT(injRewardStakedRequirementThreshold) {
+		if coin.Denom == chaintypes.HeliosCoin && accountRewardAmount.GT(injRewardStakedRequirementThreshold) {
 			maxDelegations := uint16(10)
 			stakedINJ := k.CalculateStakedAmountWithoutCache(ctx, accountPoints.Account, maxDelegations)
 			minRewardAboveThreshold := injRewardStakedRequirementThreshold

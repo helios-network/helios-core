@@ -346,7 +346,7 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 
 		amount := deposit.TotalBalance.TruncateInt()
 
-		if denom == chaintypes.InjectiveCoin {
+		if denom == chaintypes.HeliosCoin {
 			amount = math.MinInt(amount, injSendCap)
 			injAuctionSubaccountAmount = injAuctionSubaccountAmount.Add(amount)
 		}
@@ -370,7 +370,7 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 		}
 
 		amount := balance.Amount
-		if balance.Denom == chaintypes.InjectiveCoin {
+		if balance.Denom == chaintypes.HeliosCoin {
 			if injAuctionSubaccountAmount.GTE(injSendCap) {
 				amount = math.ZeroInt()
 			} else if amount.Add(injAuctionSubaccountAmount).GT(injSendCap) {

@@ -29,7 +29,7 @@ func NewParams(denomCreationFee sdk.Coins) Params {
 // default gamm module parameters.
 func DefaultParams() Params {
 	return Params{
-		DenomCreationFee: sdk.NewCoins(sdk.NewCoin(chaintypes.InjectiveCoin, math.NewIntWithDecimal(10, 18))), // 10 INJ
+		DenomCreationFee: sdk.NewCoins(sdk.NewCoin(chaintypes.HeliosCoin, math.NewIntWithDecimal(10, 18))), // 10 INJ
 	}
 }
 

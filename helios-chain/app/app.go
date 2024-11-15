@@ -170,6 +170,11 @@ import (
 	wasmxtypes "helios-core/helios-chain/modules/wasmx/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
+
+	//evmkeeper "helios-core/helios-chain/x/evm/keeper"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
+	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 )
 
 func init() {
@@ -342,7 +347,7 @@ type HeliosApp struct {
 
 	// ethermint keepers
 	// EvmKeeper       *evmkeeper.Keeper
-	// FeeMarketKeeper feemarketkeeper.Keeper
+	FeeMarketKeeper feemarketkeeper.Keeper
 }
 
 // NewHeliosApp returns a reference to a new initialized Injective application.
@@ -1151,12 +1156,26 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.ExchangeKeeper.SetGovKeeper(app.GovKeeper)
 
 	// Create FeeMarket keeper
-	// app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
-	// 	app.codec,
-	// 	app.keys[feemarkettypes.StoreKey],
-	// 	app.tKeys[feemarkettypes.TransientKey],
-	// 	app.GetSubspace(feemarkettypes.ModuleName),
+
+	// Create Ethermint keepers
+	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.keys[feemarkettypes.StoreKey],
+		app.tKeys[feemarkettypes.TransientKey],
+		app.GetSubspace(feemarkettypes.ModuleName),
+	)
+
+	var _ = evmtypes.ModuleName
+
+	// evmKeeper := evmkeeper.NewKeeper(
+	// 	app.codec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
+	// 	app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+	// 	// FIX: Temporary solution to solve keeper interdependency while new precompile module
+	// 	// is being developed.
+	// 	&app.Erc20Keeper,
+	// 	tracer, app.GetSubspace(evmtypes.ModuleName),
 	// )
+	// app.EvmKeeper = evmKeeper
 
 	// evmSs := app.GetSubspace(evmtypes.ModuleName)
 	// app.EvmKeeper = evmkeeper.NewKeeper(
@@ -1166,8 +1185,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	// 	evmSs,
 	// 	nil,
 	// )
-
-	//evmkeeper.foo()
 
 	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
