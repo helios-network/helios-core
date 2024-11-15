@@ -171,9 +171,9 @@ import (
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 
-	"helios-core/helios-chain/modules/evm"
-	evmkeeper "helios-core/helios-chain/modules/evm/keeper"
-	evmtypes "helios-core/helios-chain/modules/evm/types"
+	// "github.com/evmos/ethermint/x/evm"
+	// evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	// evmtypes "github.com/evmos/ethermint/x/evm/types"
 	// "helios-core/helios-chain/modules/evm/ethermint/x/feemarket"
 	// feemarketkeeper "helios-core/helios-chain/modules/evm/ethermint/x/feemarket/keeper"
 	// feemarkettypes "/x/feemarket/types"
@@ -351,7 +351,7 @@ type InjectiveApp struct {
 	EventPublisher    *stream.Publisher
 
 	// ethermint keepers
-	EvmKeeper       *evmkeeper.Keeper
+	// EvmKeeper       *evmkeeper.Keeper
 	// FeeMarketKeeper feemarketkeeper.Keeper
 }
 
@@ -1169,18 +1169,19 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	// )
 
 	// // Create EVM keeper
-	app.EvmKeeper = evmkeeper.NewKeeper(
-		app.codec,
-		app.keys[evmtypes.StoreKey],
-		app.tKeys[evmtypes.TransientKey],
-		app.GetSubspace(evmtypes.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		&app.StakingKeeper,
-		// app.FeeMarketKeeper,
-	)
+	// app.EvmKeeper = evmkeeper.NewKeeper(
+	// 	app.codec,
+	// 	app.keys[evmtypes.StoreKey],
+	// 	app.tKeys[evmtypes.TransientKey],
+	// 	app.GetSubspace(evmtypes.ModuleName),
+	// 	app.AccountKeeper,
+	// 	app.BankKeeper,
+	// 	&app.StakingKeeper,
+	// 	nil
+	// 	// app.FeeMarketKeeper,
+	// )
 
-	app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
+	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
 
 	return oracleModule
