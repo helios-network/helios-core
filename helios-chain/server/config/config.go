@@ -42,7 +42,7 @@ const (
 	DefaultGRPCWebEnable = false
 
 	// DefaultJSONRPCEnable is the default value for the parameter that defines if the JSON-RPC server is enabled
-	DefaultJSONRPCEnable = false
+	DefaultJSONRPCEnable = true
 
 	// DefaultRosettaEnable is the default value for the parameter that defines if the Rosetta API server is enabled
 	DefaultRosettaEnable = false
@@ -54,10 +54,10 @@ const (
 	DefaultGRPCAddress = "0.0.0.0:9900"
 
 	// DefaultJSONRPCAddress is the default address the JSON-RPC server binds to.
-	DefaultJSONRPCAddress = "127.0.0.1:8545"
+	DefaultJSONRPCAddress = "0.0.0.0:8545"
 
 	// DefaultJSONRPCWsAddress is the default address the JSON-RPC WebSocket server binds to.
-	DefaultJSONRPCWsAddress = "127.0.0.1:8546"
+	DefaultJSONRPCWsAddress = "0.0.0.0:8546"
 
 	// DefaultJsonRPCMetricsAddress is the default address the JSON-RPC Metrics server binds to.
 	DefaultJSONRPCMetricsAddress = "127.0.0.1:6065"
@@ -319,7 +319,7 @@ func (c EVMConfig) Validate() error {
 
 // GetDefaultAPINamespaces returns the default list of JSON-RPC namespaces that should be enabled
 func GetDefaultAPINamespaces() []string {
-	return []string{"eth", "net", "web3"}
+	return []string{"web3", "eth", "personal", "net", "txpool", "debug"}
 }
 
 // GetAPINamespaces returns the all the available JSON-RPC API namespaces.
@@ -330,7 +330,7 @@ func GetAPINamespaces() []string {
 // DefaultJSONRPCConfig returns an EVM config with the JSON-RPC API enabled by default
 func DefaultJSONRPCConfig() *JSONRPCConfig {
 	return &JSONRPCConfig{
-		Enable:                   false,
+		Enable:                   DefaultJSONRPCEnable,
 		API:                      GetDefaultAPINamespaces(),
 		Address:                  DefaultJSONRPCAddress,
 		WsAddress:                DefaultJSONRPCWsAddress,

@@ -2,12 +2,12 @@
 
 set -e
 
-# Build and install the heliades binary
-#make install
+# Build and install the evmosd binary
+# make install
 
-# Stop any running instances of heliades and clean up old data
-killall heliades &>/dev/null || true
-rm -rf ~/.heliades
+# Stop any running instances of evmosd and clean up old data
+killall evmosd &>/dev/null || true
+rm -rf ~/.evmosd
 
 # Define chain parameters
 CHAINID="4242"
@@ -16,15 +16,23 @@ PASSPHRASE="12345678"
 FEEDADMIN="helios1q0d2nv8xpf9qy22djzgrkgrrcst9frcs34fqra"
 
 # Initialize the chain with a moniker and chain ID
-heliades init $MONIKER --chain-id $CHAINID
+evmosd init $MONIKER --chain-id $CHAINID
+
+# echo '[json-rpc]' >> ~/.evmosd/config/app.toml
+# echo '# Enable defines if the JSON-RPC server should be enabled.' >> ~/.evmosd/config/app.toml
+# echo 'enable = true' >> ~/.evmosd/config/app.toml
+# echo '# Address defines the JSON-RPC server address to bind to.' >> ~/.evmosd/config/app.toml
+# echo 'address = "0.0.0.0:8545"' >> ~/.evmosd/config/app.toml
+# echo '# API defines a list of JSON-RPC namespaces that should be enabled' >> ~/.evmosd/config/app.toml
+# echo 'api = ["eth","txpool","personal","net","debug","web3"]' >> ~/.evmosd/config/app.toml
 
 # Update configuration files
-perl -i -pe 's/^timeout_commit = ".*?"/timeout_commit = "2500ms"/' ~/.heliades/config/config.toml
-perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000helios"/' ~/.heliades/config/app.toml
+perl -i -pe 's/^timeout_commit = ".*?"/timeout_commit = "2500ms"/' ~/.evmosd/config/config.toml
+perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000helios"/' ~/.evmosd/config/app.toml
 
 # Update genesis file with new denominations and parameters
-GENESIS_CONFIG="$HOME/.heliades/config/genesis.json"
-TMP_GENESIS="$HOME/.heliades/config/tmp_genesis.json"
+GENESIS_CONFIG="$HOME/.evmosd/config/genesis.json"
+TMP_GENESIS="$HOME/.evmosd/config/tmp_genesis.json"
 
 jq '.app_state["staking"]["params"]["bond_denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["crisis"]["constant_fee"]["denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
@@ -108,8 +116,8 @@ DENOM_DECIMALS='['${HELIOS},${PEGGY_DENOM_DECIMALS},${IBC_DENOM_DECIMALS}']'
 jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Add genesis accounts
-yes $PASSPHRASE | heliades keys add genesis
-yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(yes $PASSPHRASE | heliades keys show genesis -a) 1000000000000000000000000helios
+yes $PASSPHRASE | evmosd keys add genesis
+yes $PASSPHRASE | evmosd add-genesis-account --chain-id $CHAINID $(yes $PASSPHRASE | evmosd keys show genesis -a) 1000000000000000000000000helios
 
 # Define the keys array
 KEYS=(
@@ -146,24 +154,27 @@ MNEMONICS=(
 
 # Import keys from mnemonics
 for i in "${!KEYS[@]}"; do
-    printf "${MNEMONICS[$i]}\n$PASSPHRASE" | heliades keys add ${KEYS[$i]} --recover
+    printf "${MNEMONICS[$i]}\n$PASSPHRASE" | evmosd keys add ${KEYS[$i]} --recover
 done
 
 # Allocate genesis accounts
 for key in "${KEYS[@]}"; do
-    printf $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000helios
+    printf $PASSPHRASE | evmosd add-genesis-account --chain-id $CHAINID $(evmosd keys show $key -a) 1000000000000000000000helios
 done
 
 echo "Signing genesis transaction"
 # Sign genesis transaction
-yes $PASSPHRASE | heliades genesis gentx genesis 1000000000000000000000helios --chain-id $CHAINID
+#yes $PASSPHRASE | evmosd genesis gentx genesis 1000000000000000000000helios --chain-id $CHAINID
+yes $PASSPHRASE | evmosd gentx genesis 1000000000000000000000helios --chain-id $CHAINID
 
 echo "Collecting genesis transaction"
 # Collect genesis tx
-yes $PASSPHRASE | heliades genesis collect-gentxs
+# yes $PASSPHRASE | evmosd genesis collect-gentxs
+yes $PASSPHRASE | evmosd collect-gentxs
 
 echo "Validating genesis"
 # Validate the genesis file
-heliades genesis validate
+# evmosd genesis validate
+evmosd validate-genesis
 
 echo "Setup done!"
