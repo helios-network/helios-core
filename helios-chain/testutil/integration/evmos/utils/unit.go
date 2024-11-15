@@ -10,13 +10,14 @@ import (
 
 	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"helios-core/helios-chain/testutil/integration/evmos/network"
 	evmostypes "helios-core/helios-chain/types"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 )
 
 const (
@@ -64,8 +65,8 @@ func RegisterEvmosERC20Coins(
 		return erc20types.TokenPair{}, err
 	}
 
-	evmosDenomID := network.App.Erc20Keeper.GetDenomMap(network.GetContext(), bondDenom)
-	tokenPair, ok := network.App.Erc20Keeper.GetTokenPair(network.GetContext(), evmosDenomID)
+	heliadesenomID := network.App.Erc20Keeper.GetDenomMap(network.GetContext(), bondDenom)
+	tokenPair, ok := network.App.Erc20Keeper.GetTokenPair(network.GetContext(), heliadesenomID)
 	if !ok {
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos erc20 token pair")
 	}

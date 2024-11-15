@@ -39,7 +39,7 @@ VOLUME /apps/data
 WORKDIR /apps/data
 EXPOSE 26657 26656 10337 9900 9091 9999 1317 8545
 
-COPY --from=builder /src/genesis.json /root/.evmosd/config/genesis.json
+COPY --from=builder /src/genesis.json /root/.heliades/config/genesis.json
 
 RUN bash /setup.sh
 #default command

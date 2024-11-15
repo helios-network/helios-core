@@ -24,6 +24,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/ethclient"
 
+	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	servergrpc "github.com/cosmos/cosmos-sdk/server/grpc"
@@ -36,7 +38,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
 
 	"helios-core/helios-chain/server"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -158,7 +159,7 @@ func collectGenFiles(cfg Config, vals []*Validator, outputDir string) error {
 	for i := 0; i < cfg.NumValidators; i++ {
 		cmtCfg := vals[i].Ctx.Config
 
-		nodeDir := filepath.Join(outputDir, vals[i].Moniker, "evmosd")
+		nodeDir := filepath.Join(outputDir, vals[i].Moniker, "heliades")
 		gentxsDir := filepath.Join(outputDir, "gentxs")
 
 		cmtCfg.Moniker = vals[i].Moniker

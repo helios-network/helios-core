@@ -15,7 +15,7 @@ import (
 	versiondbclient "helios-core/helios-chain/versiondb/client"
 
 	"helios-core/helios-chain/app"
-	"helios-core/helios-chain/cmd/evmosd/opendb"
+	"helios-core/helios-chain/cmd/heliades/opendb"
 )
 
 // ChangeSetCmd returns a Cobra command for interacting with change sets.

@@ -52,7 +52,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/rosetta"
 
-	"helios-core/cmd/evmosd/opendb"
+	"helios-core/cmd/heliades/opendb"
 	"helios-core/helios-chain/indexer"
 	ethdebug "helios-core/helios-chain/rpc/namespaces/ethereum/debug"
 	"helios-core/helios-chain/server/config"

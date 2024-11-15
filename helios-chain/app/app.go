@@ -483,7 +483,7 @@ func initHeliosApp(
 			capabilitytypes.StoreKey, feegrant.StoreKey, authzkeeper.StoreKey,
 			icahosttypes.StoreKey, ibcfeetypes.StoreKey, crisistypes.StoreKey,
 			consensustypes.StoreKey, packetforwardtypes.StoreKey, ibchookstypes.StoreKey,
-			// Injective keys
+			// Helios keys
 			exchangetypes.StoreKey,
 			oracletypes.StoreKey,
 			insurancetypes.StoreKey,
@@ -1236,6 +1236,12 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.InflationKeeper.Hooks(),
 		),
 	)
+
+	// app.Erc20Keeper = erc20keeper.NewKeeper(
+	// 	app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+	// 	app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+	// 	app.AuthzKeeper, &app.TransferKeeper,
+	// )
 
 	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)

@@ -67,7 +67,7 @@ type emptyAppOptions struct{}
 
 func (ao emptyAppOptions) Get(_ string) interface{} { return nil }
 
-// NewRootCmd creates a new root command for evmosd. It is called once in the
+// NewRootCmd creates a new root command for heliades. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration

@@ -19,7 +19,7 @@ func main() {
 
 	rootCmd, _ := NewRootCmd()
 
-	if err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "heliades", app.DefaultNodeHome); err != nil {
 		fmt.Fprintln(rootCmd.OutOrStderr(), err)
 		os.Exit(1)
 	}

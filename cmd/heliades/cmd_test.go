@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"helios-core/helios-chain/app"
-	evmosd "helios-core/helios-chain/cmd/evmosd"
+	heliades "helios-core/helios-chain/cmd/heliades"
 	"helios-core/helios-chain/utils"
 )
 
@@ -19,7 +19,7 @@ func TestInitCmd(t *testing.T) {
 	require.NoError(t, err)
 	target := t.TempDir()
 
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := heliades.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"init",       // Test the init cmd
 		"evmos-test", // Moniker
@@ -28,12 +28,12 @@ func TestInitCmd(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, utils.TestnetChainID+"-1"),
 	})
 
-	err = svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)
+	err = svrcmd.Execute(rootCmd, "heliades", app.DefaultNodeHome)
 	require.NoError(t, err)
 }
 
 func TestAddKeyLedgerCmd(t *testing.T) {
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := heliades.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"keys",
 		"add",
@@ -41,6 +41,6 @@ func TestAddKeyLedgerCmd(t *testing.T) {
 		fmt.Sprintf("--%s", flags.FlagUseLedger),
 	})
 
-	err := svrcmd.Execute(rootCmd, "EVMOSD", app.DefaultNodeHome)
+	err := svrcmd.Execute(rootCmd, "heliades", app.DefaultNodeHome)
 	require.Error(t, err)
 }

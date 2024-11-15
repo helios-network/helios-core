@@ -49,7 +49,7 @@ Voila! You have now successfully setup a full node on the Injective Chain.
 $ cd docs && yarn && yarn run serve
 ```
 ## Generating REST and gRPC Gateway docs
-First, ensure that the `Enable` and `Swagger` values are true in APIConfig set in `cmd/evmosd/config/config.go`.
+First, ensure that the `Enable` and `Swagger` values are true in APIConfig set in `cmd/heliades/config/config.go`.
 
 Then simply run the following command to auto-generate the Swagger UI docs.
 ```bash

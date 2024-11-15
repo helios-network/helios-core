@@ -435,8 +435,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 		runtime.NewKVStoreService(keyAcc), // target store service
 		authtypes.ProtoBaseAccount,        // prototype
 		maccPerms,
-		authcodec.NewBech32Codec(chaintypes.config.Bech32Prefix),
-		chaintypes.config.Bech32Prefix,
+		authcodec.NewBech32Codec(chaintypes.InjectiveBech32Prefix),
+		chaintypes.InjectiveBech32Prefix,
 		authority,
 	)
 

@@ -9,7 +9,7 @@ import (
 
 	"cosmossdk.io/math"
 
-	"helios-core/cmd/evmosd/config"
+	"helios-core/cmd/heliades/config"
 	cmn "helios-core/helios-chain/precompiles/common"
 	evmostypes "helios-core/helios-chain/types"
 

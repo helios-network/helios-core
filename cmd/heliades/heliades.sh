@@ -1,6 +1,6 @@
 #!/bin/bash
 ulimit -n 120000
-yes 12345678 | ./evmosd start \
+yes 12345678 | ./heliades start \
 --chain-id 4242 \
 --log_level "info" \
 --rpc.laddr "tcp://0.0.0.0:26657" \
