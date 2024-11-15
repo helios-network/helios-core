@@ -5,4 +5,5 @@ yes 12345678 | heliades start \
 --rpc.laddr "tcp://0.0.0.0:26657" \
 --api.address="tcp://0.0.0.0:1317" \
 --minimum-gas-prices "0.1helios" \
---grpc.enable=true --grpc.address="0.0.0.0:9090"
+--grpc.enable=true --grpc.address="0.0.0.0:9090" \
+#--json-rpc.api eth,txpool,personal,net,debug,web3 

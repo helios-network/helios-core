@@ -187,6 +187,9 @@ import (
 
 	srvflags "helios-core/helios-chain/server/flags"
 
+	epochs "helios-core/helios-chain/x/epochs"
+	erc20 "helios-core/helios-chain/x/erc20"
+
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
@@ -491,6 +494,12 @@ func initHeliosApp(
 			permissionsmodule.StoreKey,
 			wasmtypes.StoreKey,
 			wasmxtypes.StoreKey,
+			epochstypes.StoreKey,
+			// Add missing EVM-related keys
+			evmtypes.StoreKey,
+			feemarkettypes.StoreKey,
+			erc20types.StoreKey,
+			inflationtypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
@@ -498,6 +507,9 @@ func initHeliosApp(
 			banktypes.TStoreKey,
 			exchangetypes.TStoreKey,
 			ocrtypes.TStoreKey,
+			// Add missing EVM-related transient keys
+			evmtypes.TransientKey,
+			feemarkettypes.TransientKey,
 		)
 
 		memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -1209,14 +1221,13 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	)
 	app.EvmKeeper = evmKeeper
 
-	// evmSs := app.GetSubspace(evmtypes.ModuleName)
-	// app.EvmKeeper = evmkeeper.NewKeeper(
-	// 	app.codec,
-	// 	app.keys[evmtypes.StoreKey], app.okeys[evmtypes.ObjectStoreKey], authtypes.NewModuleAddress(govtypes.ModuleName),
-	// 	app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
-	// 	evmSs,
-	// 	nil,
-	// )
+	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
+	app.EpochsKeeper = *epochsKeeper.SetHooks(
+		epochskeeper.NewMultiEpochHooks(
+			// insert epoch hooks receivers here
+			app.InflationKeeper.Hooks(),
+		),
+	)
 
 	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
@@ -1273,6 +1284,10 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
+			app.GetSubspace(erc20types.ModuleName)),
+		epochs.NewAppModule(app.codec, app.EpochsKeeper),
+		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper), //TODO: CHECK IF CREATE ISSUES CAUSE MODIFIED
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1411,6 +1426,11 @@ func beginBlockerOrder() []string {
 	// NOTE: upgrade module must go first to handle software upgrades.
 	// NOTE: staking module is required if HistoricalEntries param > 0.
 	return []string{
+		capabilitytypes.ModuleName,
+		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
+		epochstypes.ModuleName,
+		feemarkettypes.ModuleName,
+		evmtypes.ModuleName,
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
@@ -1425,7 +1445,6 @@ func beginBlockerOrder() []string {
 		authz.ModuleName,
 		ibctransfertypes.ModuleName,
 		consensustypes.ModuleName,
-		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
