@@ -16,6 +16,8 @@ COPY . .
 #build binary
 RUN LEDGER_ENABLED=false make install-ci
 
+# RUN LEDGER_ENABLED=false make install-evmos
+
 #install gex
 RUN go install github.com/cosmos/gex@latest
 
@@ -35,9 +37,9 @@ ADD https://github.com/CosmWasm/wasmvm/releases/download/v2.1.2/libwasmvm.aarch6
 #configure container
 VOLUME /apps/data
 WORKDIR /apps/data
-EXPOSE 26657 26656 10337 9900 9091 9999 1317
+EXPOSE 26657 26656 10337 9900 9091 9999 1317 8545
 
-COPY --from=builder /src/genesis.json /root/.heliades/config/genesis.json
+COPY --from=builder /src/genesis.json /root/.evmosd/config/genesis.json
 
 RUN bash /setup.sh
 #default command

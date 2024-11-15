@@ -93,6 +93,14 @@ func (k Keeper) CosmosAccount(c context.Context, req *types.QueryCosmosAccountRe
 	return &res, nil
 }
 
+// func (k Keeper) BlockNumber(c context.Context, _ *types.QueryBlockNumberRequest) (*types.QueryBlockNumberResponse, error) {
+// 	ctx := sdk.UnwrapSDKContext(c)
+// 	bn := k.GetBlockHeight(ctx)
+// 	return &types.QueryBlockNumberResponse {
+// 			Number: bn,
+// 	}, nil
+// }
+
 // ValidatorAccount implements the Query/Balance gRPC method
 func (k Keeper) ValidatorAccount(c context.Context, req *types.QueryValidatorAccountRequest) (*types.QueryValidatorAccountResponse, error) {
 	if req == nil {

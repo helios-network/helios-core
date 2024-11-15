@@ -59,13 +59,16 @@ push:
 install: export GOPROXY=direct
 #install: export VERSION_FLAGS="-X $(VERSION_PKG).AppVersion=$(APP_VERSION) -X $(VERSION_PKG).GitCommit=$(GIT_COMMIT)  -X $(VERSION_PKG).BuildDate=$(BUILD_DATE) -X $(COSMOS_VERSION_PKG).Version=$(APP_VERSION) -X $(COSMOS_VERSION_PKG).Name=$(COSMOS_VERSION_NAME) -X $(COSMOS_VERSION_PKG).AppName=heliades -X $(COSMOS_VERSION_PKG).Commit=$(GIT_COMMIT)"
 install:
-#cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS) -ldflags $(VERSION_FLAGS)
-	cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+#cd cmd/evmosd/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS) -ldflags $(VERSION_FLAGS)
+	cd cmd/evmosd/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
 #install-ci: export GOPROXY=https://goproxy.helios.dev,direct
 #install-ci: export VERSION_FLAGS="-X $(VERSION_PKG).AppVersion=$(APP_VERSION) -X $(VERSION_PKG).GitCommit=$(GIT_COMMIT)  -X $(VERSION_PKG).BuildDate=$(BUILD_DATE) -X $(COSMOS_VERSION_PKG).Version=$(APP_VERSION) -X $(COSMOS_VERSION_PKG).Name=$(COSMOS_VERSION_NAME) -X $(COSMOS_VERSION_PKG).AppName=heliades -X $(COSMOS_VERSION_PKG).Commit=$(GIT_COMMIT)"
 install-ci:
-	cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+	cd cmd/evmosd/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+
+# install-evmos:
+# 	cd cmd/evmosd/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
 .PHONY: install image push gen lint test mock cover
 

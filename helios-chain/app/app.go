@@ -188,7 +188,7 @@ import (
 	srvflags "helios-core/helios-chain/server/flags"
 
 	epochs "helios-core/helios-chain/x/epochs"
-	erc20 "helios-core/helios-chain/x/erc20"
+	// erc20 "helios-core/helios-chain/x/erc20"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
@@ -716,6 +716,8 @@ func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.API
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
+	evmtypes.RegisterQueryServer(app.GRPCQueryRouter(), app.EvmKeeper)
+
 	// register swagger API from root so that other applications can override easily
 	if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
@@ -1211,6 +1213,12 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
+	// app.Erc20Keeper = erc20keeper.NewKeeper(
+	// 	app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+	// 	app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+	// 	app.AuthzKeeper, &app.TransferKeeper,
+	// )
+
 	evmKeeper := evmkeeper.NewKeeper(
 		app.codec, app.keys[evmtypes.StoreKey], app.tKeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
@@ -1284,8 +1292,8 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
-		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
-			app.GetSubspace(erc20types.ModuleName)),
+		//erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
+		//	app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper), //TODO: CHECK IF CREATE ISSUES CAUSE MODIFIED
 	)
@@ -1411,7 +1419,7 @@ func initGenesisOrder() []string {
 		wasmxtypes.ModuleName,
 
 		inflationtypes.ModuleName,
-		erc20types.ModuleName,
+		//erc20types.ModuleName,
 		epochstypes.ModuleName,
 		//ratelimittypes.ModuleName, TODO: CHECK FOR COMPATIBILITY
 		// NOTE: crisis module must go at the end to check for invariants on each module

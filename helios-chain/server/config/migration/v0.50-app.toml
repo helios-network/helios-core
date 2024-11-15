@@ -259,14 +259,14 @@ max-tx-gas-wanted = 0
 enable = false
 
 # Address defines the EVM RPC HTTP server address to bind to.
-address = "127.0.0.1:8545"
+address = "0.0.0.0:8545"
 
 # Address defines the EVM WebSocket server address to bind to.
-ws-address = "127.0.0.1:8546"
+ws-address = "0.0.0.0:8546"
 
 # API defines a list of JSON-RPC namespaces that should be enabled
 # Example: "eth,txpool,personal,net,debug,web3"
-api = "eth,net,web3"
+api = "eth,txpool,personal,net,debug,web3"
 
 # GasCap sets a cap on gas that can be used in eth_call/estimateGas (0=infinite). Default: 25,000,000.
 gas-cap = 25000000
