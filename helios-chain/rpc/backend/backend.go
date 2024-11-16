@@ -8,6 +8,11 @@ import (
 	"math/big"
 	"time"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+	"helios-core/helios-chain/server/config"
+	evmostypes "helios-core/helios-chain/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	"cosmossdk.io/log"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -21,10 +26,6 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	"helios-core/helios-chain/server/config"
-	evmostypes "helios-core/helios-chain/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // BackendI implements the Cosmos and EVM backend.
@@ -142,10 +143,16 @@ func NewBackend(
 	allowUnprotectedTxs bool,
 	indexer evmostypes.EVMTxIndexer,
 ) *Backend {
+
 	chainID, err := evmostypes.ParseChainID(clientCtx.ChainID)
 	if err != nil {
 		panic(err)
 	}
+
+	logger.Info("Creating Backend",
+		"chain_id", clientCtx.ChainID,
+		"allow_unprotected_txs", allowUnprotectedTxs,
+	)
 
 	appConf, err := config.GetConfig(ctx.Viper)
 	if err != nil {

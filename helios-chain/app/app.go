@@ -410,11 +410,17 @@ func NewHeliosApp(
 	app.registerUpgradeHandlers()
 
 	app.configurator = module.NewConfigurator(app.codec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+
 	if err := app.mm.RegisterServices(app.configurator); err != nil {
 		panic(err)
 	}
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.mm.Modules))
+
+	evmtypes.RegisterQueryServer(
+		app.GRPCQueryRouter(),
+		app.EvmKeeper,
+	)
 
 	reflectionSvc, err := runtimeservices.NewReflectionService()
 	if err != nil {
@@ -531,7 +537,7 @@ func initHeliosApp(
 		name,
 		logger,
 		db,
-		encodingConfig.TxConfig.TxDecoder(), // NOTE we use custom Injective transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
+		encodingConfig.TxConfig.TxDecoder(), // NOTE we use custom Helios transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
 		baseAppOptions...,
 	)
 
@@ -728,7 +734,7 @@ func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.API
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
-	evmtypes.RegisterQueryServer(app.GRPCQueryRouter(), app.EvmKeeper)
+	//evmtypes.RegisterQueryServer(app.GRPCQueryRouter(), app.EvmKeeper)
 
 	// register swagger API from root so that other applications can override easily
 	if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
@@ -1155,6 +1161,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
+
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
 	transferStack = ibchooks.NewIBCMiddleware(transferStack, &hooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(transferStack,
