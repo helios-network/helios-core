@@ -12,8 +12,12 @@ rm -rf ~/.heliades
 # Define chain parameters
 CHAINID="4242"
 MONIKER="helios"
-PASSPHRASE="12345678"
+PASSPHRASE="yes"
 FEEDADMIN="helios1q0d2nv8xpf9qy22djzgrkgrrcst9frcs34fqra"
+KEYALGO="eth_secp256k1"
+# feemarket params basefee
+BASEFEE=1000000000
+
 
 # Initialize the chain with a moniker and chain ID
 heliades init $MONIKER --chain-id $CHAINID
@@ -45,6 +49,11 @@ jq '.app_state["mint"]["params"]["mint_denom"]="helios"' $GENESIS_CONFIG > $TMP_
 jq '.app_state["auction"]["params"]["auction_period"]="10"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["module_admin"]="'$FEEDADMIN'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["payout_block_interval"]="5"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+# Set gas limit in genesis
+jq '.consensus_params["block"]["max_gas"]="10000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+# Set base fee in genesis
+jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
 # Zero address account (burn)
 #jq '.app_state.bank.balances += [{"address": "helios1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49", "coins": [{"denom": "helios", "amount": "1"}]}]' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
@@ -116,8 +125,8 @@ DENOM_DECIMALS='['${HELIOS},${PEGGY_DENOM_DECIMALS},${IBC_DENOM_DECIMALS}']'
 jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Add genesis accounts
-yes $PASSPHRASE | heliades keys add genesis
-yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(yes $PASSPHRASE | heliades keys show genesis -a) 1000000000000000000000000helios
+yes $PASSPHRASE | heliades keys add genesis --algo "$KEYALGO"
+yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000helios
 
 # Define the keys array
 KEYS=(
@@ -152,9 +161,10 @@ MNEMONICS=(
 "ostrich prefer glad boat slight hedgehog burden manage enforce post wrap pottery daring delay video energy mammal urge enemy prevent wool badge garage thrive"
 )
 
+
 # Import keys from mnemonics
 for i in "${!KEYS[@]}"; do
-    printf "${MNEMONICS[$i]}\n$PASSPHRASE" | heliades keys add ${KEYS[$i]} --recover
+    printf "$PASSPHRASE\n${MNEMONICS[$i]}" | heliades keys add ${KEYS[$i]} --recover --algo "$KEYALGO"
 done
 
 # Allocate genesis accounts
