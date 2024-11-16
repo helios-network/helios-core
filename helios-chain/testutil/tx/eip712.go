@@ -18,7 +18,7 @@ import (
 
 	"helios-core/helios-chain/app"
 	cryptocodec "helios-core/helios-chain/crypto/codec"
-	"helios-core/helios-chain/ethereum/eip712"
+	"helios-core/helios-chain/eip712"
 	"helios-core/helios-chain/types"
 )
 

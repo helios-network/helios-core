@@ -15,14 +15,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/stretchr/testify/require"
 	"helios-core/helios-chain/cmd/config"
+	"helios-core/helios-chain/eip712"
 	"helios-core/helios-chain/encoding"
-	"helios-core/helios-chain/ethereum/eip712"
 	utiltx "helios-core/helios-chain/testutil/tx"
 	"helios-core/helios-chain/types"
 	"helios-core/helios-chain/utils"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	"github.com/stretchr/testify/require"
 )
 
 // Testing Constants

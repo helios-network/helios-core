@@ -6,9 +6,10 @@ import (
 
 	rand "github.com/cometbft/cometbft/libs/rand"
 
+	"helios-core/helios-chain/eip712"
+
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
-	"helios-core/helios-chain/ethereum/eip712"
 )
 
 type EIP712FuzzTestParams struct {

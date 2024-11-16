@@ -59,7 +59,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -139,7 +138,6 @@ import (
 
 	"helios-core/client/docs"
 	"helios-core/helios-chain/app/ante"
-	injcodectypes "helios-core/helios-chain/codec/types"
 	"helios-core/helios-chain/modules/auction"
 	auctionkeeper "helios-core/helios-chain/modules/auction/keeper"
 	auctiontypes "helios-core/helios-chain/modules/auction/types"
@@ -207,6 +205,12 @@ import (
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 
 	staking "helios-core/helios-chain/x/staking"
+
+	encoding "helios-core/helios-chain/encoding"
+
+	evmostypes "helios-core/helios-chain/types"
+
+	ethante "helios-core/helios-chain/app/ante/evm"
 
 	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 )
@@ -450,23 +454,33 @@ func NewHeliosApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 
-	// use Injective's custom AnteHandler
+	// use Helios's custom AnteHandler
 	skipAnteHandlers := cast.ToBool(appOpts.Get("SkipAnteHandlers"))
 	if !skipAnteHandlers {
-		app.SetAnteHandler(ante.NewAnteHandler(ante.HandlerOptions{
-			HandlerOptions: authante.HandlerOptions{
-				AccountKeeper:   app.AccountKeeper,
-				BankKeeper:      app.BankKeeper,
-				SignModeHandler: app.txConfig.SignModeHandler(),
-				FeegrantKeeper:  app.FeeGrantKeeper,
-				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-			},
-			IBCKeeper:             app.IBCKeeper,
-			WasmConfig:            &wasmConfig,
-			WasmKeeper:            &app.WasmKeeper,
-			TXCounterStoreService: runtime.NewKVStoreService(app.keys[wasmtypes.StoreKey]),
-		}))
+		maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
+		//TODO: Merge WASM
+		options := ante.HandlerOptions{
+			Cdc:                    app.codec,
+			AccountKeeper:          app.AccountKeeper,
+			BankKeeper:             app.BankKeeper,
+			ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+			EvmKeeper:              app.EvmKeeper,
+			StakingKeeper:          app.StakingKeeper,
+			FeegrantKeeper:         app.FeeGrantKeeper,
+			DistributionKeeper:     app.DistrKeeper,
+			IBCKeeper:              app.IBCKeeper,
+			FeeMarketKeeper:        app.FeeMarketKeeper,
+			SignModeHandler:        app.txConfig.SignModeHandler(),
+			SigGasConsumer:         ante.SigVerificationGasConsumer,
+			MaxTxGasWanted:         maxGasWanted,
+			TxFeeChecker:           ethante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		}
+
+		if err := options.Validate(); err != nil {
+			panic(err)
+		}
+		app.SetAnteHandler(ante.NewAnteHandler(options))
 		app.setPostHandler()
 		// app.setupUpgradeHandlers()
 	}
@@ -500,7 +514,8 @@ func initHeliosApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *HeliosApp {
 	var (
-		encodingConfig    = injcodectypes.MakeEncodingConfig()
+		// encodingConfig    = injcodectypes.MakeEncodingConfig()
+		encodingConfig    = encoding.MakeConfig()
 		appCodec          = encodingConfig.Codec
 		legacyAmino       = encodingConfig.Amino
 		interfaceRegistry = encodingConfig.InterfaceRegistry

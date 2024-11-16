@@ -7,11 +7,12 @@ import (
 	"crypto/ecdsa"
 	"errors"
 
-	gethaccounts "github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/ethereum/eip712"
+	"helios-core/helios-chain/eip712"
 	"helios-core/helios-chain/wallets/accounts"
 	"helios-core/helios-chain/wallets/ledger/mocks"
+
+	gethaccounts "github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 func RegisterDerive(mockWallet *mocks.Wallet, addr common.Address, publicKey *ecdsa.PublicKey) {
