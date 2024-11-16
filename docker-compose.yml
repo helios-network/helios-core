@@ -8,8 +8,6 @@ services:
       - "26657:26657"
       - "26656:26656"
       - "9090:9090"
-    environment:
-      - NODE_NAME=node1
     volumes:
       - ./data/node1:/root/.evmosd
       - ./genesis.json:/root/.evmosd/config/genesis.json
@@ -18,19 +16,28 @@ services:
     command: sh /heliades.sh
 
   node2:
-    container_name: node2
     build: .
-    depends_on:
-      - node1
-    environment:
-      - BOOTSTRAP_RPC=http://node1:26657
-      - NODE_NAME=node2
+    container_name: node2
     ports:
       - "26667:26657"
       - "26666:26656"
       - "9091:9090"
     volumes:
       - ./data/node2:/root/.evmosd
+      - ./genesis.json:/root/.evmosd/config/genesis.json
+    networks:
+      - evmosnet
+    command: sh /heliades.sh
+
+  node3:
+    build: .
+    container_name: node3
+    ports:
+      - "26677:26657"
+      - "26676:26656"
+      - "9092:9090"
+    volumes:
+      - ./data/node3:/root/.evmosd
       - ./genesis.json:/root/.evmosd/config/genesis.json
     networks:
       - evmosnet
