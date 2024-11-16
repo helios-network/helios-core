@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/ethereum/go-ethereum/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -22,10 +23,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	evmoskr "helios-core/helios-chain/crypto/keyring"
+	// evmoskr "helios-core/helios-chain/crypto/keyring"
 
 	vestingcli "helios-core/helios-chain/x/vesting/client/cli"
 	vestingtypes "helios-core/helios-chain/x/vesting/types"
+
+	"helios-core/helios-chain/crypto/hd"
+	chaintypes "helios-core/helios-chain/types"
 )
 
 const (
@@ -65,7 +69,8 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 						clientCtx.HomeDir,
 						inBuf,
 						clientCtx.Codec,
-						evmoskr.Option(),
+						hd.EthSecp256k1Option(),
+						//evmoskr.Option(),
 					)
 					if err != nil {
 						return err
@@ -201,7 +206,10 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				)
 
 			default:
-				genAccount = baseAccount
+				genAccount = &chaintypes.EthAccount{
+					BaseAccount: baseAccount,
+					CodeHash:    common.BytesToHash(chaintypes.EmptyCodeHash).Bytes(),
+				}
 			}
 
 			if err := genAccount.Validate(); err != nil {
