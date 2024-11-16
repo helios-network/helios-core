@@ -774,7 +774,7 @@ func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) 
 }
 
 func (app *HeliosApp) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
 func (app *HeliosApp) RegisterTendermintService(clientCtx client.Context) {
@@ -810,7 +810,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		runtime.EventService{},
 	)
 
-	app.SetParamStore(app.ConsensusParamsKeeper.ParamsStore)
+	app.BaseApp.SetParamStore(app.ConsensusParamsKeeper.ParamsStore)
 
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
 		app.codec,
@@ -1156,6 +1156,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	)
 
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+
 	app.ICAHostKeeper = icahostkeeper.NewKeeper(
 		app.codec,
 		app.keys[icahosttypes.StoreKey],
@@ -1165,14 +1166,35 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
 		app.ScopedICAHostKeeper,
-		app.MsgServiceRouter(),
+		app.BaseApp.MsgServiceRouter(),
 		authority,
 	)
 
 	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
 
-	// Create Transfer Stack
+	// create host IBC module
+
+	/*
+		Create Transfer Stack
+
+		transfer stack contains (from bottom to top):
+		    - IBC forwards
+		    - IBC Hooks
+		    - IBC Fee
+			- ERC-20 Middleware
+		 	- Recovery Middleware
+			- IBC Transfer
+
+		SendPacket, since it is originating from the application to core IBC:
+		 	transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> erc20.SendPacket -> channel.SendPacket
+
+		RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
+			channel.RecvPacket -> erc20.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+	*/
+
+	// create IBC module from top to bottom of stack
 	var transferStack porttypes.IBCModule
+	
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)

@@ -259,7 +259,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
 	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, types.GetEVMCoinDenom())
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, "helios")//types.GetEVMCoinDenom())
 
 	return coin.Amount.BigInt()
 }
