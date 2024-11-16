@@ -158,6 +158,8 @@ func (k Keeper) Balance(c context.Context, req *types.QueryBalanceRequest) (*typ
 
 	balanceInt := k.GetBalance(ctx, common.HexToAddress(req.Address))
 
+	return nil, status.Error(codes.InvalidArgument, balanceInt.String())
+
 	return &types.QueryBalanceResponse{
 		Balance: balanceInt.String(),
 	}, nil

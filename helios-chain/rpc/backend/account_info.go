@@ -159,10 +159,14 @@ func (b *Backend) GetBalance(address common.Address, blockNrOrHash rpctypes.Bloc
 		return nil, err
 	}
 
+	b.logger.Info("BALANCE", "WALLET", address)
+
 	res, err := b.queryClient.Balance(rpctypes.ContextWithHeight(blockNum.Int64()), req)
 	if err != nil {
 		return nil, err
 	}
+
+	b.logger.Info("BALANCE", "WALLET", address, "BALANCE", res.Balance)
 
 	val, ok := sdkmath.NewIntFromString(res.Balance)
 	if !ok {
