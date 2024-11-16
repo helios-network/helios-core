@@ -61,7 +61,7 @@ import (
 // package-wide network lock to only allow one test network at a time
 var (
 	lock     = new(sync.Mutex)
-	portPool = make(chan string, 200)
+	// portPool = make(chan string, 20000)
 )
 
 // AppConstructor defines a function which accepts a network configuration and
@@ -119,7 +119,7 @@ func DefaultConfig() Config {
 		GenesisState:    nil, //TODO: Fix diffs and set back default
 		TimeoutCommit:   3 * time.Second,
 		ChainID:         chainID,
-		NumValidators:   4,
+		NumValidators:   2,
 		BondDenom:       evmostypes.BaseDenom,
 		MinGasPrices:    fmt.Sprintf("0.000006%s", evmostypes.BaseDenom),
 		AccountTokens:   sdk.TokensFromConsensusPower(1000000000000000000, evmostypes.PowerReduction),
@@ -281,10 +281,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			if cfg.APIAddress != "" {
 				apiListenAddr = cfg.APIAddress
 			} else {
-				if len(portPool) == 0 {
-					return nil, fmt.Errorf("failed to get port for API server")
-				}
-				port := <-portPool
+				port := 10317 - i
 				apiListenAddr = fmt.Sprintf("tcp://0.0.0.0:%s", port)
 			}
 
@@ -298,20 +295,14 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			if cfg.RPCAddress != "" {
 				cmtCfg.RPC.ListenAddress = cfg.RPCAddress
 			} else {
-				if len(portPool) == 0 {
-					return nil, fmt.Errorf("failed to get port for RPC server")
-				}
-				port := <-portPool
+				port := 15000 - i
 				cmtCfg.RPC.ListenAddress = fmt.Sprintf("tcp://0.0.0.0:%s", port)
 			}
 
 			if cfg.GRPCAddress != "" {
 				appCfg.GRPC.Address = cfg.GRPCAddress
 			} else {
-				if len(portPool) == 0 {
-					return nil, fmt.Errorf("failed to get port for GRPC server")
-				}
-				port := <-portPool
+				port := 9090 - i
 				appCfg.GRPC.Address = fmt.Sprintf("0.0.0.0:%s", port)
 			}
 			appCfg.GRPC.Enable = true
@@ -320,10 +311,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			if cfg.JSONRPCAddress != "" {
 				appCfg.JSONRPC.Address = cfg.JSONRPCAddress
 			} else {
-				if len(portPool) == 0 {
-					return nil, fmt.Errorf("failed to get port for JSON-RPC server")
-				}
-				port := <-portPool
+				port := 8545 - i
 				appCfg.JSONRPC.Address = fmt.Sprintf("0.0.0.0:%s", port)
 			}
 			appCfg.JSONRPC.Enable = true
@@ -356,18 +344,13 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		cmtCfg.Moniker = nodeDirName
 		monikers[i] = nodeDirName
 
-		if len(portPool) == 0 {
-			return nil, fmt.Errorf("failed to get port for Proxy server")
-		}
-		port := <-portPool
+		port := i + 10100
+		l.Log("proxyApp", port)
 		proxyAddr := fmt.Sprintf("tcp://0.0.0.0:%s", port)
 		cmtCfg.ProxyApp = proxyAddr
 
-		if len(portPool) == 0 {
-			return nil, fmt.Errorf("failed to get port for Proxy server")
-		}
-		port = <-portPool
-		p2pAddr := fmt.Sprintf("tcp://0.0.0.0:%s", port)
+		port = i + 18500
+		p2pAddr := "tcp://0.0.0.0:18555"//fmt.Sprintf("tcp://0.0.0.0:%s", port)
 		cmtCfg.P2P.ListenAddress = p2pAddr
 		cmtCfg.P2P.AddrBookStrict = false
 		cmtCfg.P2P.AllowDuplicateIP = true
