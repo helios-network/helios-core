@@ -100,7 +100,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -180,9 +179,8 @@ import (
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
 	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
 
-	inflation "helios-core/helios-chain/x/inflation/v1"
-	// stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 	epochstypes "helios-core/helios-chain/x/epochs/types"
+	inflation "helios-core/helios-chain/x/inflation/v1"
 
 	srvflags "helios-core/helios-chain/server/flags"
 
@@ -191,13 +189,19 @@ import (
 
 	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	//stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	transfer "helios-core/helios-chain/x/ibc/transfer"
+
+	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 
 	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
 	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/keeper"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
+
+	staking "helios-core/helios-chain/x/staking"
+
+	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 func init() {
@@ -229,7 +233,7 @@ var (
 		genutil.AppModuleBasic{GenTxValidator: genutiltypes.DefaultMessageValidator},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic([]govclient.ProposalHandler{paramsclient.ProposalHandler}),
@@ -1263,6 +1267,20 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
+			*app.StakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
+			app.Erc20Keeper,
+			app.VestingKeeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.GovKeeper,
+		),
+	)
+
 	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
 	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
 
@@ -1318,7 +1336,7 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(app.codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper,
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
