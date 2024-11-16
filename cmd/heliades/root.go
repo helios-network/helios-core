@@ -99,7 +99,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		WithLedgerHasProtobuf(true)
 
 	rootCmd := &cobra.Command{
-		Use:   "Helios",
+		Use:   "heliades",
 		Short: "Helios Daemon",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
