@@ -1067,16 +1067,13 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	// Create Transfer Keepers
 	app.ScopedTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 
-	// get authority address
-	authAddr := authtypes.NewModuleAddress(govtypes.ModuleName).String()
-
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		app.codec, app.keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.RateLimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
 		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, app.ScopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
-		authAddr,
+		authority,
 	)
 
 	app.PacketForwardKeeper.SetTransferKeeper(app.TransferKeeper)
