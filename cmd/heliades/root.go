@@ -61,7 +61,7 @@ import (
 	evmoskr "helios-core/helios-chain/crypto/keyring"
 )
 
-const EnvPrefix = "EVMOS"
+const EnvPrefix = "helios"
 
 type emptyAppOptions struct{}
 
