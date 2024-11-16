@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"slices"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"helios-core/helios-chain/utils"
 	"helios-core/helios-chain/x/erc20/types"
 	"helios-core/helios-chain/x/evm/statedb"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // RegisterERC20Extension creates and adds an ERC20 precompile interface for an IBC Coin.
@@ -44,7 +45,11 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, erc20Addr common.Address)
 		bytecode = common.FromHex(types.Erc20Bytecode)
 		codeHash = crypto.Keccak256(bytecode)
 	)
-	// check if code was already stored
+
+	if k.evmKeeper == nil {
+		panic("evm keeper is nil")
+	}
+
 	code := k.evmKeeper.GetCode(ctx, common.Hash(codeHash))
 	if len(code) == 0 {
 		k.evmKeeper.SetCode(ctx, codeHash, bytecode)

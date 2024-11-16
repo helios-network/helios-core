@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// INJ defines the default coin denomination used in Ethermint in:
+	// Helios defines the default coin denomination used in Ethermint in:
 	//
 	// - Staking parameters: denomination used as stake in the dPoS chain
 	// - Mint parameters: denomination minted due to fee distribution rewards

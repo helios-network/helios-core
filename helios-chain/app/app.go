@@ -531,6 +531,7 @@ func initHeliosApp(
 			feemarkettypes.StoreKey,
 			erc20types.StoreKey,
 			inflationtypes.StoreKey,
+			ratelimittypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
@@ -1256,12 +1257,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
-	app.Erc20Keeper = erc20keeper.NewKeeper(
-		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
-		app.AuthzKeeper, &app.TransferKeeper,
-	)
-
 	evmKeeper := evmkeeper.NewKeeper(
 		app.codec, app.keys[evmtypes.StoreKey], app.tKeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
@@ -1271,6 +1266,12 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 	app.EvmKeeper = evmKeeper
+
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AuthzKeeper, &app.TransferKeeper,
+	)
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
@@ -1491,7 +1492,6 @@ func initGenesisOrder() []string {
 		consensustypes.ModuleName,
 		packetforwardtypes.ModuleName,
 
-		
 		// Helios modules
 		auctiontypes.ModuleName,
 		oracletypes.ModuleName,

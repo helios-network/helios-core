@@ -11,7 +11,7 @@ rm -rf ~/.heliades
 
 # Define chain parameters
 CHAINID="4242"
-MONIKER="helios"
+MONIKER="helios-main-node"
 PASSPHRASE="yes"
 FEEDADMIN="helios1q0d2nv8xpf9qy22djzgrkgrrcst9frcs34fqra"
 KEYALGO="eth_secp256k1"
@@ -32,20 +32,20 @@ heliades init $MONIKER --chain-id $CHAINID
 
 # Update configuration files
 perl -i -pe 's/^timeout_commit = ".*?"/timeout_commit = "2500ms"/' ~/.heliades/config/config.toml
-perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000helios"/' ~/.heliades/config/app.toml
+perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000ahelios"/' ~/.heliades/config/app.toml
 
 # Update genesis file with new denominations and parameters
 GENESIS_CONFIG="$HOME/.heliades/config/genesis.json"
 TMP_GENESIS="$HOME/.heliades/config/tmp_genesis.json"
 
-jq '.app_state["staking"]["params"]["bond_denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["crisis"]["constant_fee"]["denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["staking"]["params"]["bond_denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["crisis"]["constant_fee"]["denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["gov"]["params"]["min_initial_deposit_ratio"]="0.100000000000000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 echo "NOTE: Setting Governance Voting Period to 10 seconds for easy testing"
 jq '.app_state["gov"]["params"]["voting_period"]="10s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["gov"]["params"]["expedited_voting_period"]="5s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["mint"]["params"]["mint_denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["mint"]["params"]["mint_denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["auction"]["params"]["auction_period"]="10"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["module_admin"]="'$FEEDADMIN'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["payout_block_interval"]="5"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
@@ -58,7 +58,7 @@ jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' $GENESIS_CONFI
 #jq '.app_state.bank.balances += [{"address": "helios1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49", "coins": [{"denom": "helios", "amount": "1"}]}]' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Define token denominations and decimals
-HELIOS='{"denom":"helios","decimals":18}'
+HELIOS='{"denom":"ahelios","decimals":18}'
 
 
 USDT='{"denom":"peggy0xdAC17F958D2ee523a2206206994597C13D831ec7","decimals":6}'
@@ -126,7 +126,7 @@ jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG 
 
 # Add genesis accounts
 yes $PASSPHRASE | heliades keys add genesis --algo "$KEYALGO"
-yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000helios
+yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000ahelios
 
 # Define the keys array
 KEYS=(
@@ -169,13 +169,13 @@ done
 
 # Allocate genesis accounts
 for key in "${KEYS[@]}"; do
-    printf $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000helios
+    printf $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios
 done
 
 echo "Signing genesis transaction"
 # Sign genesis transaction
 #yes $PASSPHRASE | heliades genesis gentx genesis 1000000000000000000000helios --chain-id $CHAINID
-yes $PASSPHRASE | heliades gentx genesis 1000000000000000000000helios --chain-id $CHAINID
+yes $PASSPHRASE | heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID
 
 echo "Collecting genesis transaction"
 # Collect genesis tx

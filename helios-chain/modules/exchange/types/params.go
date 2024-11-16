@@ -192,8 +192,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		SpotMarketInstantListingFee:                  sdk.NewCoin("helios", math.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
-		DerivativeMarketInstantListingFee:            sdk.NewCoin("helios", math.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
+		SpotMarketInstantListingFee:                  sdk.NewCoin("ahelios", math.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
+		DerivativeMarketInstantListingFee:            sdk.NewCoin("ahelios", math.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
 		DefaultSpotMakerFeeRate:                      math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
 		DefaultSpotTakerFeeRate:                      math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
 		DefaultDerivativeMakerFeeRate:                math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees

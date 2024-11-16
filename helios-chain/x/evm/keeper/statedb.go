@@ -5,14 +5,16 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
+
+	"helios-core/helios-chain/x/evm/statedb"
+	"helios-core/helios-chain/x/evm/types"
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/x/evm/statedb"
-	"helios-core/helios-chain/x/evm/types"
 )
 
 var _ statedb.Keeper = &Keeper{}
@@ -83,7 +85,11 @@ func (k Keeper) IterateContracts(ctx sdk.Context, cb func(addr common.Address, c
 
 // GetCode loads contract code from database, implements `statedb.Keeper` interface.
 func (k *Keeper) GetCode(ctx sdk.Context, codeHash common.Hash) []byte {
+	if k == nil {
+		panic(fmt.Sprintf("keeper this is null"))
+	}
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
+
 	return store.Get(codeHash.Bytes())
 }
 

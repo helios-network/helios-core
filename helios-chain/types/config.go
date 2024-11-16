@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	// InjectiveBech32Prefix defines the Bech32 prefix used for EthAccounts on the Injective Chain
+	// HeliosBech32Prefix defines the Bech32 prefix used for EthAccounts on the Helios Chain
 	Bech32Prefix = "helios"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address

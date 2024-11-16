@@ -3,12 +3,6 @@ package keeper_test
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/stretchr/testify/mock"
 	"helios-core/helios-chain/contracts"
 	testfactory "helios-core/helios-chain/testutil/integration/evmos/factory"
 	testutils "helios-core/helios-chain/testutil/integration/evmos/utils"
@@ -16,6 +10,13 @@ import (
 	"helios-core/helios-chain/x/erc20/types"
 	erc20mocks "helios-core/helios-chain/x/erc20/types/mocks"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/mock"
 )
 
 const (
@@ -103,7 +104,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20() {
 			false,
 		},
 		{
-			"denom already registered",
+			"denom already registered erc20",
 			func() {
 				suite.network.App.Erc20Keeper.SetDenomMap(ctx, pair.Denom, pair.GetID())
 			},
