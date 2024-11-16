@@ -39,6 +39,7 @@ import (
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -171,8 +172,12 @@ import (
 	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
+
+	"helios-core/helios-chain/x/evm"
 	evmkeeper "helios-core/helios-chain/x/evm/keeper"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	"helios-core/helios-chain/x/feemarket"
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
@@ -186,6 +191,8 @@ import (
 
 	epochs "helios-core/helios-chain/x/epochs"
 	erc20 "helios-core/helios-chain/x/erc20"
+
+	post "helios-core/helios-chain/app/post"
 
 	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 
@@ -417,11 +424,6 @@ func NewHeliosApp(
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.mm.Modules))
 
-	evmtypes.RegisterQueryServer(
-		app.GRPCQueryRouter(),
-		app.EvmKeeper,
-	)
-
 	reflectionSvc, err := runtimeservices.NewReflectionService()
 	if err != nil {
 		panic(err)
@@ -429,10 +431,18 @@ func NewHeliosApp(
 
 	reflectionv1.RegisterReflectionServiceServer(app.GRPCQueryRouter(), reflectionSvc)
 
+	testdata_pulsar.RegisterQueryServer(app.GRPCQueryRouter(), testdata_pulsar.QueryImpl{})
+
 	// initialize stores
 	app.MountKVStores(app.keys)
 	app.MountTransientStores(app.tKeys)
 	app.MountMemoryStores(app.memKeys)
+
+	// load state streaming if enabled
+	if err := app.RegisterStreamingServices(appOpts, app.keys); err != nil {
+		panic("failed to load state streaming: " + err.Error())
+		os.Exit(1)
+	}
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -456,6 +466,9 @@ func NewHeliosApp(
 			WasmKeeper:            &app.WasmKeeper,
 			TXCounterStoreService: runtime.NewKVStoreService(app.keys[wasmtypes.StoreKey]),
 		}))
+
+		app.setPostHandler()
+		// app.setupUpgradeHandlers()
 	}
 
 	if loadLatest {
@@ -545,6 +558,10 @@ func initHeliosApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetName(version.Name)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+
+	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
+		panic(err)
+	}
 
 	app := &HeliosApp{
 		BaseApp:           bApp,
@@ -733,8 +750,6 @@ func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.API
 
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	//evmtypes.RegisterQueryServer(app.GRPCQueryRouter(), app.EvmKeeper)
 
 	// register swagger API from root so that other applications can override easily
 	if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
@@ -1279,10 +1294,20 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		),
 	)
 
-	// app.mm.Modules[evmtypes.ModuleName] = evm.NewAppModule(app.EvmKeeper, app.AccountKeeper)
-	// app.mm.Modules[feemarkettypes.ModuleName] = feemarket.NewAppModule(app.FeeMarketKeeper)
-
 	return oracleModule
+}
+
+func (app *HeliosApp) setPostHandler() {
+	options := post.HandlerOptions{
+		FeeCollectorName: authtypes.FeeCollectorName,
+		BankKeeper:       app.BankKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	app.SetPostHandler(post.NewPostHandler(options))
 }
 
 func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
@@ -1317,6 +1342,9 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		ratelimit.NewAppModule(app.codec, app.RateLimitKeeper),
+		// Ethermint app modules
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ibctm.NewAppModule(),
 		ibchooks.NewAppModule(app.AccountKeeper),
@@ -1447,6 +1475,11 @@ func initGenesisOrder() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		// Ethermint modules
+		evmtypes.ModuleName,
+		// NOTE: feemarket module needs to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		feemarkettypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -1457,6 +1490,8 @@ func initGenesisOrder() []string {
 		feegrant.ModuleName,
 		consensustypes.ModuleName,
 		packetforwardtypes.ModuleName,
+
+		
 		// Helios modules
 		auctiontypes.ModuleName,
 		oracletypes.ModuleName,
@@ -1552,6 +1587,10 @@ func endBlockerOrder() []string {
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+
+		evmtypes.ModuleName,
+		feemarkettypes.ModuleName,
+
 		peggytypes.ModuleName,
 		exchangetypes.ModuleName,
 		auctiontypes.ModuleName,
@@ -1566,3 +1605,43 @@ func endBlockerOrder() []string {
 		banktypes.ModuleName,
 	}
 }
+
+// func (app *HeliosApp) setupUpgradeHandlers() {
+// 	// v20 upgrade handler
+// 	app.UpgradeKeeper.SetUpgradeHandler(
+// 		v20.UpgradeName,
+// 		v20.CreateUpgradeHandler(
+// 			app.mm, app.configurator,
+// 			app.AccountKeeper,
+// 			app.EvmKeeper,
+// 		),
+// 	)
+
+// 	// When a planned update height is reached, the old binary will panic
+// 	// writing on disk the height and name of the update that triggered it
+// 	// This will read that value, and execute the preparations for the upgrade.
+// 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+// 	if err != nil {
+// 		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+// 	}
+
+// 	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+// 		return
+// 	}
+
+// 	// var storeUpgrades *storetypes.StoreUpgrades
+
+// 	// switch upgradeInfo.Name {
+// 	// case v191.UpgradeName:
+// 	// 	storeUpgrades = &storetypes.StoreUpgrades{
+// 	// 		Added: []string{ratelimittypes.ModuleName},
+// 	// 	}
+// 	// default:
+// 	// // no-op
+// 	// }
+
+// 	// if storeUpgrades != nil {
+// 	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+// 	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+// 	// }
+// }

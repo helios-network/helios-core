@@ -18,8 +18,8 @@ const (
 	// - EVM parameters: denomination used for running EVM state transitions in Ethermint.
 	HeliosCoin string = "helios"
 
-	BaseDenom        string = "helios"
-	BaseDenomTestnet string = "helios"
+	BaseDenom        string = "ahelios"
+	BaseDenomTestnet string = "athelios"
 
 	// BaseDenomUnit defines the base denomination unit for Evmos.
 	// 1 evmos = 1x10^{BaseDenomUnit} aevmos
@@ -27,7 +27,7 @@ const (
 
 	// DisplayDenom defines the denomination displayed to users in client applications.
 	DisplayDenom        string = "helios"
-	DisplayDenomTestnet string = "helios"
+	DisplayDenomTestnet string = "thelios"
 )
 
 var PowerReduction = sdkmath.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(BaseDenomUnit), nil))

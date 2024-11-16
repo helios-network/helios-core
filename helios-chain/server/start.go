@@ -373,7 +373,8 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		logger.Info("starting node with ABCI CometBFT in-process")
 
 		cmtApp := server.NewCometABCIWrapper(app)
-		tmNode, err = node.NewNode(
+		tmNode, err = node.NewNodeWithContext(
+			ctx,
 			cfg,
 			pvm.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 			nodeKey,

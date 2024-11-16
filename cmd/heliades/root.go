@@ -57,8 +57,13 @@ import (
 	servercfg "helios-core/helios-chain/server/config"
 	srvflags "helios-core/helios-chain/server/flags"
 
+	"helios-core/helios-chain/crypto/hd"
+
 	"helios-core/helios-chain/app"
 	evmoskr "helios-core/helios-chain/crypto/keyring"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmcli "github.com/CosmWasm/wasmd/x/wasm/client/cli"
 )
 
 const EnvPrefix = "helios"
@@ -91,8 +96,9 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
+		WithKeyringOptions(hd.EthSecp256k1Option()).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithBroadcastMode(flags.FlagBroadcastMode).
+		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(app.DefaultNodeHome).
 		WithKeyringOptions(evmoskr.Option()).
 		WithViper(EnvPrefix).
@@ -160,9 +166,10 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 
 	a := appCreator{encodingConfig}
 	rootCmd.AddCommand(
-		evmosclient.ValidateChainID(
-			InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
-		),
+		genutilcli.InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
+		// evmosclient.ValidateChainID(
+		// 	InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
+		// ),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
 			app.DefaultNodeHome,
 			genutiltypes.DefaultMessageValidator,
@@ -198,6 +205,8 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		addModuleInitFlags,
 	)
 
+	wasmcli.ExtendUnsafeResetAllCmd(rootCmd)
+
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
 		sdkserver.StatusCommand(),
@@ -226,6 +235,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
+	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {
