@@ -4,6 +4,7 @@
 package keyring
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cosmosLedger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
@@ -44,4 +45,71 @@ func Option() keyring.Option {
 		options.LedgerAppName = AppName
 		options.LedgerSigSkipDERConv = SkipDERConversion
 	}
+}
+
+// EthSecp256k1Option defines a function keys options for the ethereum Secp256k1 curve.
+// It supports eth_secp256k1 keys for accounts
+func EthSecp256k1Option() keyring.Option {
+	return func(options *keyring.Options) {
+		options.SupportedAlgos = SupportedAlgorithms
+		options.SupportedAlgosLedger = SupportedAlgorithmsLedger
+		options.LedgerDerivation = LedgerDerivation
+		options.LedgerCreateKey = CreatePubkey
+		options.LedgerAppName = AppName
+		options.LedgerSigSkipDERConv = SkipDERConversion
+	}
+}
+
+func LedgerPreprocessTxHook(
+	chainID string,
+	key keyring.KeyType,
+	tx client.TxBuilder,
+) error {
+	if key != keyring.TypeLedger {
+		return nil
+	}
+
+	extTxBuilder, ok := tx.(client.ExtendedTxBuilder)
+	if !ok {
+		return nil
+	}
+
+	var typedDataChainID uint64
+	if isMainnet := chainID == "injective-1"; isMainnet {
+		typedDataChainID = 1
+	}
+
+	if isNonMainnet := chainID == "injective-777" || chainID == "injective-888"; isNonMainnet {
+		typedDataChainID = 11155111
+	}
+
+	if typedDataChainID == 0 {
+		return errors.New("unknown chain id")
+	}
+
+	extOptions := &chaintypes.ExtensionOptionsWeb3Tx{
+		TypedDataChainID: typedDataChainID,
+	}
+
+	option, err := codectypes.NewAnyWithValue(extOptions)
+	if err != nil {
+		return err
+	}
+
+	extTxBuilder.SetExtensionOptions(option)
+
+	sigs, err := tx.GetTx().GetSignaturesV2()
+	if err != nil {
+		return err
+	}
+
+	singleSig, isSingle := sigs[0].Data.(*signing.SingleSignatureData)
+	if isSingle {
+		singleSig.SignMode = signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON
+		if err := tx.SetSignatures(sigs[0]); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
