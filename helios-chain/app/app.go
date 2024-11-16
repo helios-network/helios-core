@@ -171,8 +171,10 @@ import (
 	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
+	"helios-core/helios-chain/x/evm"
 	evmkeeper "helios-core/helios-chain/x/evm/keeper"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+	// "helios-core/helios-chain/x/feemarket"
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
@@ -416,11 +418,6 @@ func NewHeliosApp(
 	}
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.mm.Modules))
-
-	evmtypes.RegisterQueryServer(
-		app.GRPCQueryRouter(),
-		app.EvmKeeper,
-	)
 
 	reflectionSvc, err := runtimeservices.NewReflectionService()
 	if err != nil {
@@ -733,8 +730,6 @@ func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.API
 
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	//evmtypes.RegisterQueryServer(app.GRPCQueryRouter(), app.EvmKeeper)
 
 	// register swagger API from root so that other applications can override easily
 	if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
@@ -1317,6 +1312,8 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		ratelimit.NewAppModule(app.codec, app.RateLimitKeeper),
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		// feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ibctm.NewAppModule(),
 		ibchooks.NewAppModule(app.AccountKeeper),
@@ -1355,8 +1352,10 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 
 	app.mm.SetOrderPreBlockers(upgradetypes.ModuleName) // NOTE: upgrade module is required to be prioritized
 	app.mm.SetOrderBeginBlockers(beginBlockerOrder()...)
-	app.mm.SetOrderEndBlockers(endBlockerOrder()...)
-	app.mm.SetOrderInitGenesis(initGenesisOrder()...)
+
+	// TODO A remettre
+	//app.mm.SetOrderEndBlockers(endBlockerOrder()...)
+	//app.mm.SetOrderInitGenesis(initGenesisOrder()...)
 	app.mm.RegisterInvariants(app.CrisisKeeper)
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
@@ -1458,6 +1457,11 @@ func initGenesisOrder() []string {
 		consensustypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		// Helios modules
+		// Ethermint modules
+		//evmtypes.ModuleName,
+		// NOTE: feemarket module needs to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		// feemarkettypes.ModuleName,
 		auctiontypes.ModuleName,
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -1490,7 +1494,7 @@ func beginBlockerOrder() []string {
 		capabilitytypes.ModuleName,
 		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
 		epochstypes.ModuleName,
-		feemarkettypes.ModuleName,
+		// feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -1530,6 +1534,10 @@ func beginBlockerOrder() []string {
 func endBlockerOrder() []string {
 	// NOTE: exchange endblocker must occur after gov endblocker and bank endblocker must be last
 	return []string{
+		//govtypes.ModuleName,
+		//stakingtypes.ModuleName,
+		//evmtypes.ModuleName,
+		// feemarkettypes.ModuleName,
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		paramstypes.ModuleName,
