@@ -12,7 +12,7 @@ rm -rf ~/.heliades
 # Define chain parameters
 CHAINID="4242"
 MONIKER="helios-main-node"
-PASSPHRASE="yes"
+PASSPHRASE="yesyesyes"
 FEEDADMIN="helios1q0d2nv8xpf9qy22djzgrkgrrcst9frcs34fqra"
 KEYALGO="eth_secp256k1"
 # feemarket params basefee
@@ -125,8 +125,8 @@ DENOM_DECIMALS='['${HELIOS},${PEGGY_DENOM_DECIMALS},${IBC_DENOM_DECIMALS}']'
 jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Add genesis accounts
-yes $PASSPHRASE | heliades keys add genesis --algo "$KEYALGO"
-yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000ahelios
+heliades keys add genesis --algo "$KEYALGO" --keyring-backend "test"
+heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a --keyring-backend "test") 1000000000000000000000000ahelios --keyring-backend "test"
 
 # Define the keys array
 KEYS=(
@@ -164,23 +164,23 @@ MNEMONICS=(
 
 # Import keys from mnemonics
 for i in "${!KEYS[@]}"; do
-    printf "$PASSPHRASE\n${MNEMONICS[$i]}" | heliades keys add ${KEYS[$i]} --recover --algo "$KEYALGO"
+    printf "${MNEMONICS[$i]}" | heliades keys add ${KEYS[$i]} --recover --algo "$KEYALGO" --keyring-backend "test"
 done
 
 # Allocate genesis accounts
 for key in "${KEYS[@]}"; do
-    printf $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend "test") 1000000000000000000000ahelios --keyring-backend "test"
 done
 
 echo "Signing genesis transaction"
 # Sign genesis transaction
 #yes $PASSPHRASE | heliades genesis gentx genesis 1000000000000000000000helios --chain-id $CHAINID
-yes $PASSPHRASE | heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID
+heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID --keyring-backend "test"
 
 echo "Collecting genesis transaction"
 # Collect genesis tx
 # yes $PASSPHRASE | heliades genesis collect-gentxs
-yes $PASSPHRASE | heliades collect-gentxs
+heliades collect-gentxs
 
 echo "Validating genesis"
 # Validate the genesis file

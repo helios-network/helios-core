@@ -50,7 +50,8 @@ import (
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	evmosclient "helios-core/client"
+	// evmosclient "helios-core/client"
+	chainclient "helios-core/helios-chain/client"
 	"helios-core/client/block"
 	"helios-core/client/debug"
 	evmosserver "helios-core/helios-chain/server"
@@ -212,7 +213,8 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		sdkserver.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		evmosclient.KeyCommands(app.DefaultNodeHome),
+		// evmosclient.KeyCommands(app.DefaultNodeHome),
+		chainclient.KeyCommands(app.DefaultNodeHome),
 	)
 	rootCmd, err := srvflags.AddTxFlags(rootCmd)
 	if err != nil {

@@ -19,7 +19,7 @@ RUN LEDGER_ENABLED=false make install-ci
 # RUN LEDGER_ENABLED=false make install-evmos
 
 #install gex
-RUN go install github.com/cosmos/gex@latest
+# RUN go install github.com/cosmos/gex@latest
 
 #build main container
 FROM debian:bookworm-slim
