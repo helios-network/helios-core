@@ -24,7 +24,7 @@ import (
 	exchangekeeper "helios-core/helios-chain/modules/exchange/keeper"
 	"helios-core/helios-chain/modules/exchange/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 // type check to ensure the interface is properly implemented

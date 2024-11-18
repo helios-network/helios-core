@@ -3,7 +3,7 @@ package auction
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	auctiontypes "helios-core/helios-chain/modules/auction/types"
 	chaintypes "helios-core/helios-chain/types"

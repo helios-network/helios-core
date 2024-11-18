@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"helios-core/helios-chain/modules/exchange/types"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 func (k *Keeper) HasFeeRewardTransientActiveAccountIndicator(ctx sdk.Context, account sdk.AccAddress) bool {

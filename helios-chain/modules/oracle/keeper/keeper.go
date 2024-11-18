@@ -3,7 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"

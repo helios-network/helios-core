@@ -20,7 +20,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/ocr/client/cli"
 	ocrkeeper "helios-core/helios-chain/modules/ocr/keeper"

@@ -6,7 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/pkg/errors"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"helios-core/helios-chain/modules/wasmx/types"

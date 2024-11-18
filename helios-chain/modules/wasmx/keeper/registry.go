@@ -9,7 +9,7 @@ import (
 	"helios-core/helios-chain/modules/wasmx/types"
 	chaintypes "helios-core/helios-chain/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 func (k *Keeper) HandleContractRegistration(

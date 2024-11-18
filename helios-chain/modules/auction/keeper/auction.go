@@ -6,7 +6,7 @@ import (
 
 	chaintypes "helios-core/helios-chain/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/auction/types"
 )

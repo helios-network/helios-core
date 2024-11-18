@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/modules/exchange/types"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 func (k *Keeper) SetTradingRewardsMarketQualificationForAllQualifyingMarkets(ctx sdk.Context, campaignInfo *types.TradingRewardCampaignInfo) {
