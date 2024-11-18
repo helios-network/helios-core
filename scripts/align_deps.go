@@ -16,7 +16,7 @@ type DepsMap struct {
 func main() {
 	chainDeps := extractDepsMap("CHAIN", "./go.mod")
 	sdkGoDeps := extractDepsMap("SDK", "../sdk-go/go.mod")
-	indexerDeps := extractDepsMap("INDEXER", "../injective-indexer/go.mod")
+	indexerDeps := extractDepsMap("INDEXER", "../helios-indexer/go.mod")
 
 	compareDeps(chainDeps, sdkGoDeps)
 	compareDeps(chainDeps, indexerDeps)

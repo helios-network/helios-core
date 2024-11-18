@@ -19,7 +19,7 @@ rm -fr $TS_BUILD_DIR && mkdir -p $TS_BUILD_DIR && cd $TS_BUILD_DIR
 
 mkdir -p proto
 printf "version: v1\ndirectories:\n  - proto\n  - third_party" > buf.work.yaml
-printf "version: v1\nname: buf.build/HeliosLabs/helios-core\n" > proto/buf.yaml
+printf "version: v1\nname: buf.build/Helios-Chain-Labs/helios-core\n" > proto/buf.yaml
 cp ../$TS_PROTO_TEMPLATE $TS_PROTO_TEMPLATE
 cp -r ../proto/helios proto/
 
@@ -27,8 +27,8 @@ cp -r ../proto/helios proto/
 cosmos_sdk_branch=v0.50.x-inj
 wasmd_branch=v0.50.x-inj
 
-git clone https://github.com/InjectiveLabs/cosmos-sdk.git -b $cosmos_sdk_branch --depth 1 --single-branch > /dev/null
-git clone https://github.com/InjectiveLabs/wasmd -b $wasmd_branch --depth 1 --single-branch > /dev/null
+git clone https://github.com/Helios-Chain-Labs/cosmos-sdk.git -b $cosmos_sdk_branch --depth 1 --single-branch > /dev/null
+git clone https://github.com/Helios-Chain-Labs/wasmd -b $wasmd_branch --depth 1 --single-branch > /dev/null
 
 buf export ./cosmos-sdk --output=third_party
 buf export ./wasmd --exclude-imports --output=./third_party

@@ -27,6 +27,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Params struct {
+	
 	PeggyId                       string                      `protobuf:"bytes,1,opt,name=peggy_id,json=peggyId,proto3" json:"peggy_id,omitempty"`
 	ContractSourceHash            string                      `protobuf:"bytes,2,opt,name=contract_source_hash,json=contractSourceHash,proto3" json:"contract_source_hash,omitempty"`
 	BridgeEthereumAddress         string                      `protobuf:"bytes,3,opt,name=bridge_ethereum_address,json=bridgeEthereumAddress,proto3" json:"bridge_ethereum_address,omitempty"`

@@ -8,6 +8,9 @@ import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // DefaultParamspace defines the default peggy module parameter subspace
@@ -18,12 +21,14 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		PeggyId:                       "injective-peggyid",
-		SignedValsetsWindow:           10000,
-		SignedBatchesWindow:           10000,
-		SignedClaimsWindow:            10000,
+		PeggyId:                       "helios-peggyid",
+		BridgeEthereumAddress:         common.HexToAddress("0x8858eeb3dfffa017d4bce9801d340d36cf895ccf").Hex(),
+		BridgeChainId:                 1,
+		SignedValsetsWindow:           25000,
+		SignedBatchesWindow:           25000,
+		SignedClaimsWindow:            25000,
 		TargetBatchTimeout:            43200000,
-		AverageBlockTime:              5000,
+		AverageBlockTime:              2000,
 		AverageEthereumBlockTime:      15000,
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
@@ -31,9 +36,11 @@ func DefaultParams() *Params {
 		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		CosmosCoinDenom:               "helios",
-		UnbondSlashingValsetsWindow:   10000,
+		CosmosCoinErc20Contract:       "",
+		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		Admins:                        nil,
+		Admins:                        []string{"helios14q3hglvg277m2vzccevnsrjlwd5qj9a9q78wgs"}, // for whitelisting and blacklisting
+		ValsetReward:                  sdktypes.Coin{Denom: "helios", Amount: math.NewInt(0)},
 	}
 }
 

@@ -43,7 +43,7 @@ const defaultHomeDirForTest = "testrun"
 
 // Setup initializes a new HeliosApp. A Nop logger is set in HeliosApp.
 func Setup(isCheckTx bool, appOpts ...simtestutil.AppOptionsMap) *HeliosApp {
-	sdk.DefaultBondDenom = "inj"
+	sdk.DefaultBondDenom = "helios"
 	testAppOpts := simtestutil.AppOptionsMap{"trace": true}
 
 	for _, opts := range appOpts {
