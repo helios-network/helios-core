@@ -407,18 +407,18 @@ This produces an `artifacts` directory with a `PROJECT_NAME.wasm`, as well as
 The Wasm file is compiled deterministically (anyone else running the same
 docker on the same git commit should get the identical file with the same Sha256 hash).
 
-## Install `injectived`
+## Install `heliades`
 
-In this section, you will install `injectived`, create an account programmatically, and fund it to prepare for launching the smart contract on chain.
+In this section, you will install `heliades`, create an account programmatically, and fund it to prepare for launching the smart contract on chain.
 
 :::info
-[`injectived`](../../tools/heliades/02_using.md) is the command-line interface and daemon that connects to Injective and enables you to interact with the Injective blockchain.
+[`heliades`](../../tools/heliades/02_using.md) is the command-line interface and daemon that connects to Injective and enables you to interact with the Injective blockchain.
 :::
 
-A Docker image has been prepared to make this tutorial easier. Alternatively, you can follow the [installation instructions](../../tools/heliades/install) for `injectived` and run it locally.
+A Docker image has been prepared to make this tutorial easier. Alternatively, you can follow the [installation instructions](../../tools/heliades/install) for `heliades` and run it locally.
 
 :::tip
-If you install `injectived` from the binary, ignore the docker commands.
+If you install `heliades` from the binary, ignore the docker commands.
 On the [public endpoints section](https://docs.helios.network/develop/public-endpoints) you can find the right --node info to interact with Mainnet and Testnet.
 :::
 
@@ -450,7 +450,7 @@ Now we can proceed to local chain initialization and add a test user called `tes
 
 ```sh
 # inside the "injective-core-staging" container
-injectived keys add testuser
+heliades keys add testuser
 ```
 
 **OUTPUT**
@@ -494,8 +494,8 @@ curl -X GET "https://k8s.testnet.lcd.helios.network/cosmos/bank/v1beta1/balances
 In this section, we will upload the .wasm file that you compiled in the previous steps to the Injective Testnet.
 
 ```bash
-# inside the "injective-core-staging" container, or from the contract directory if running injectived locally
-yes 12345678 | injectived tx wasm store artifacts/my_first_contract.wasm \
+# inside the "injective-core-staging" container, or from the contract directory if running heliades locally
+yes 12345678 | heliades tx wasm store artifacts/my_first_contract.wasm \
 --from=$(echo $INJ_ADDRESS) \
 --chain-id="injective-888" \
 --yes --fees=1000000000000000inj --gas=2000000 \
@@ -530,13 +530,13 @@ You can see all stored codes on Injective Testnet under [Code](https://testnet.e
 There are different ways to find the code that you just stored:
 
 1. Look for the TxHash on the Injective Explorer [codes list](https://testnet.explorer.helios.network/codes/); it is most likely the most recent.
-2. Use `injectived` to query transaction info.
+2. Use `heliades` to query transaction info.
    :::
 
 To query the transaction use the `txhash` and verify the contract was deployed.
 
 ```sh
-injectived query tx 912458AA8E0D50A479C8CF0DD26196C49A65FCFBEEB67DF8A2EA22317B130E2C --node=https://k8s.testnet.tm.helios.network:443
+heliades query tx 912458AA8E0D50A479C8CF0DD26196C49A65FCFBEEB67DF8A2EA22317B130E2C --node=https://k8s.testnet.tm.helios.network:443
 ```
 
 Inspecting the output more closely, we can see the `code_id` of `290` for the uploaded contract:
@@ -630,7 +630,7 @@ To instantiate the contract, run the following CLI command with the code_id you 
 
 ```bash
 INIT='{"count":99}'
-yes 12345678 | injectived tx wasm instantiate $CODE_ID $INIT \
+yes 12345678 | heliades tx wasm instantiate $CODE_ID $INIT \
 --label="CounterTestInstance" \
 --from=$(echo $INJ_ADDRESS) \
 --chain-id="injective-888" \
@@ -666,7 +666,7 @@ You can find the contract address and metadata by:
 - Querying through the CLI
 
 ```bash
-injectived query wasm contract inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 --node=https://k8s.testnet.tm.helios.network:443
+heliades query wasm contract inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 --node=https://k8s.testnet.tm.helios.network:443
 ```
 
 :::
@@ -677,7 +677,7 @@ As we know from [earlier](#querymsg), the only QueryMsg we have is `get_count`.
 
 ```bash
 GET_COUNT_QUERY='{"get_count":{}}'
-injectived query wasm contract-state smart inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 "$GET_COUNT_QUERY" \
+heliades query wasm contract-state smart inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 "$GET_COUNT_QUERY" \
 --node=https://k8s.testnet.tm.helios.network:443 \
 --output json
 ```
@@ -700,7 +700,7 @@ Let's now interact with the contract by incrementing the counter.
 
 ```bash
 INCREMENT='{"increment":{}}'
-yes 12345678 | injectived tx wasm execute inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 "$INCREMENT" --from=$(echo $INJ_ADDRESS) \
+yes 12345678 | heliades tx wasm execute inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 "$INCREMENT" --from=$(echo $INJ_ADDRESS) \
 --chain-id="injective-888" \
 --yes --fees=1000000000000000inj --gas=2000000 \
 --node=https://k8s.testnet.tm.helios.network:443 \
@@ -713,13 +713,13 @@ If we [query](#querying-the-contract) the contract for the count, we see:
 {"data":{"count":100}}
 ```
 
-- <strong>yes 12345678 | </strong> automatically pipes (passes) the passphrase to the input of <strong>injectived tx wasm execute</strong> so you do not need to enter it manually.
+- <strong>yes 12345678 | </strong> automatically pipes (passes) the passphrase to the input of <strong>heliades tx wasm execute</strong> so you do not need to enter it manually.
 
 To reset the counter:
 
 ```bash
 RESET='{"reset":{"count":999}}'
-yes 12345678 | injectived tx wasm execute inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 "$RESET" \
+yes 12345678 | heliades tx wasm execute inj1ady3s7whq30l4fx8sj3x6muv5mx4dfdlcpv8n7 "$RESET" \
 --from=$(echo $INJ_ADDRESS) \
 --chain-id="injective-888" \
 --yes --fees=1000000000000000inj --gas=2000000 \

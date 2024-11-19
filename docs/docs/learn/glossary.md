@@ -116,11 +116,11 @@ Inter-Blockchain Communication. The technology that enables different [blockchai
 
 The native token of helios.
 
-## injectived
+## heliades
 
 The command-line interface for interacting with an Injective node.
 
-For more information on injectived, see [`injectived` guides](../develop/tools/heliades/02_using.md).
+For more information on heliades, see [`heliades` guides](../develop/tools/heliades/02_using.md).
 
 ## Injective core
 

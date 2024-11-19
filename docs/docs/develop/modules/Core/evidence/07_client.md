@@ -9,7 +9,7 @@ A user can query and interact with the `evidence` module using the CLI.
 The `query` commands allows users to query `evidence` state.
 
 ```bash
-injectived query evidence --help
+heliades query evidence --help
 ```
 
 ### evidence
@@ -19,7 +19,7 @@ The `evidence` command allows users to list all evidence or evidence by hash.
 Usage:
 
 ```bash
-injectived query evidence [flags]
+heliades query evidence [flags]
 ```
 
 To query evidence by hash
@@ -27,7 +27,7 @@ To query evidence by hash
 Example:
 
 ```bash
-injectived query evidence "DF0C23E8634E480F84B9D5674A7CDC9816466DEC28A3358F73260F68D28D7660"
+heliades query evidence "DF0C23E8634E480F84B9D5674A7CDC9816466DEC28A3358F73260F68D28D7660"
 ```
 
 Example Output:
@@ -45,7 +45,7 @@ To get all evidence
 Example:
 
 ```bash
-injectived query evidence
+heliades query evidence
 ```
 
 Example Output:

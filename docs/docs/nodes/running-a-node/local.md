@@ -22,7 +22,7 @@ chmod +x ./setup.sh # Make the script executable
 Start the node by running:
 
 ```bash
-injectived start # Blocks should start coming in after running this
+heliades start # Blocks should start coming in after running this
 ```
 
 For further explanation on what the script is doing and more fine-grained control over the setup process, continue reading below.
@@ -33,10 +33,10 @@ Before running Injective node, we need to initialize the chain as well as the no
 
 ```bash
 # The <moniker> argument is the custom username of your node. It should be human-readable.
-injectived init <moniker> --chain-id=injective-1
+heliades init <moniker> --chain-id=injective-1
 ```
 
-The command above creates all the configuration files needed for your node to run as well as a default genesis file, which defines the initial state of the network. All these configuration files are in `~/.heliades` by default, but you can overwrite the location of this folder by passing the `--home` flag. Note that if you choose to use a different directory other than `~/.heliades`, you must specify the location with the `--home` flag each time an `injectived` command is run. If you already have a genesis file, you can overwrite it with the `--overwrite` or `-o` flag.
+The command above creates all the configuration files needed for your node to run as well as a default genesis file, which defines the initial state of the network. All these configuration files are in `~/.heliades` by default, but you can overwrite the location of this folder by passing the `--home` flag. Note that if you choose to use a different directory other than `~/.heliades`, you must specify the location with the `--home` flag each time an `heliades` command is run. If you already have a genesis file, you can overwrite it with the `--overwrite` or `-o` flag.
 
 The `~/.heliades` folder has the following structure:
 
@@ -73,19 +73,19 @@ The commands above will only work if the default `.heliades` directory is used. 
 
 Before starting the chain, you need to populate the state with at least one account. To do so, first [create a new account in the keyring](./keyring.md#adding-keys-to-the-keyring) named `my_validator` under the `test` keyring backend (feel free to choose another name and another backend):
 ```bash
-injectived keys add my_validator --keyring-backend=test
+heliades keys add my_validator --keyring-backend=test
 
 # Put the generated address in a variable for later use.
-MY_VALIDATOR_ADDRESS=$(injectived keys show my_validator -a --keyring-backend=test)
+MY_VALIDATOR_ADDRESS=$(heliades keys show my_validator -a --keyring-backend=test)
 ```
 
 Now that you have created a local account, go ahead and grant it some `inj` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence from the genesis of the chain:
 
 ```bash
-injectived add-genesis-account $MY_VALIDATOR_ADDRESS 100000000000000000000000000inj --chain-id=injective-1
+heliades add-genesis-account $MY_VALIDATOR_ADDRESS 100000000000000000000000000inj --chain-id=injective-1
 ```
 
-`$MY_VALIDATOR_ADDRESS` is the variable that holds the address of the `my_validator` key in the [keyring](./keyring.md#adding-keys-to-the-keyring). Tokens in Injective have the `{amount}{denom}` format: `amount` is an 18-digit-precision decimal number, and `denom` is the unique token identifier with its denomination key (e.g. `inj`). Here, we are granting `inj` tokens, as `inj` is the token identifier used for staking in `injectived`.
+`$MY_VALIDATOR_ADDRESS` is the variable that holds the address of the `my_validator` key in the [keyring](./keyring.md#adding-keys-to-the-keyring). Tokens in Injective have the `{amount}{denom}` format: `amount` is an 18-digit-precision decimal number, and `denom` is the unique token identifier with its denomination key (e.g. `inj`). Here, we are granting `inj` tokens, as `inj` is the token identifier used for staking in `heliades`.
 
 
 ## Add the Validator to the Chain
@@ -94,22 +94,22 @@ Now that your account has some tokens, you need to add a validator to your chain
 
 ```bash
 # Create a gentx.
-injectived gentx my_validator 1000000000000000000000inj --chain-id=injective-1 --keyring-backend=test
+heliades gentx my_validator 1000000000000000000000inj --chain-id=injective-1 --keyring-backend=test
 
 # Add the gentx to the genesis file.
-injectived collect-gentxs
+heliades collect-gentxs
 ```
 
 A `gentx` does three things:
 
 1. Registers the `validator` account you created as a validator operator account (i.e. the account that controls the validator).
 2. Self-delegates the provided `amount` of staking tokens.
-3. Link the operator account with a Tendermint node pubkey that will be used for signing blocks. If no `--pubkey` flag is provided, it defaults to the local node pubkey created via the `injectived init` command above.
+3. Link the operator account with a Tendermint node pubkey that will be used for signing blocks. If no `--pubkey` flag is provided, it defaults to the local node pubkey created via the `heliades init` command above.
 
 For more information on `gentx`, use the following command:
 
 ```bash
-injectived gentx --help
+heliades gentx --help
 ```
 
 ## Configuring the Node Using `app.toml` and `config.toml`
@@ -135,7 +135,7 @@ One example config to tweak is the `minimum-gas-prices` field inside `app.toml`,
 Now that everything is set up, you can finally start your node:
 
 ```bash
-injectived start # Blocks should start coming in after running this
+heliades start # Blocks should start coming in after running this
 ```
 
 This command allows you to run a single node, which is is enough to interact with the chain through the node, but you may wish to run multiple nodes at the same time to see how consensus occurs between them.

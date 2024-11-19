@@ -41,7 +41,7 @@ tests-solidity/**/cache
 
 /helios-chain/modules/old_exchange/
 **/ginkgo.report
-injective-chain/modules/exchange/testexchange/test.properties
+helios-chain/modules/exchange/testexchange/test.properties
 
 # Go
 *.coverprofile

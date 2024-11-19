@@ -9,7 +9,7 @@ A user can query and interact with the `upgrade` module using the CLI.
 The `query` commands allow users to query `upgrade` state.
 
 ```bash
-injectived query upgrade --help
+heliades query upgrade --help
 ```
 
 #### applied
@@ -17,7 +17,7 @@ injectived query upgrade --help
 The `applied` command allows users to query the block header for height at which a completed upgrade was applied.
 
 ```bash
-injectived query upgrade applied [upgrade-name] [flags]
+heliades query upgrade applied [upgrade-name] [flags]
 ```
 
 If upgrade-name was previously executed on the chain, this returns the header for the block at which it was applied.
@@ -26,7 +26,7 @@ This helps a client determine which binary was valid over a given range of block
 Example:
 
 ```bash
-injectived query upgrade applied "test-upgrade"
+heliades query upgrade applied "test-upgrade"
 ```
 
 Example Output:
@@ -76,13 +76,13 @@ Following the command with a specific module name will return only
 that module's information.
 
 ```bash
-injectived query upgrade module_versions [optional module_name] [flags]
+heliades query upgrade module_versions [optional module_name] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query upgrade module_versions
+heliades query upgrade module_versions
 ```
 
 Example Output:
@@ -152,7 +152,7 @@ regen query upgrade plan [flags]
 Example:
 
 ```bash
-injectived query upgrade plan
+heliades query upgrade plan
 ```
 
 Example Output:

@@ -11,7 +11,7 @@ A user can query and interact with the `auth` module using the CLI.
 The `query` commands allow users to query `auth` state.
 
 ```bash
-injectived query auth --help
+heliades query auth --help
 ```
 
 #### account
@@ -19,13 +19,13 @@ injectived query auth --help
 The `account` command allow users to query for an account by it's address.
 
 ```bash
-injectived query auth account [address] [flags]
+heliades query auth account [address] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query auth account cosmos1...
+heliades query auth account cosmos1...
 ```
 
 Example Output:
@@ -45,13 +45,13 @@ sequence: "1"
 The `accounts` command allow users to query all the available accounts.
 
 ```bash
-injectived query auth accounts [flags]
+heliades query auth accounts [flags]
 ```
 
 Example:
 
 ```bash
-injectived query auth accounts
+heliades query auth accounts
 ```
 
 Example Output:
@@ -144,13 +144,13 @@ pagination:
 The `params` command allow users to query the current auth parameters.
 
 ```bash
-injectived query auth params [flags]
+heliades query auth params [flags]
 ```
 
 Example:
 
 ```bash
-injectived query auth params
+heliades query auth params
 ```
 
 Example Output:
@@ -385,7 +385,7 @@ A user can query and interact with the `vesting` module using the CLI.
 The `tx` commands allow users to interact with the `vesting` module.
 
 ```bash
-injectived tx vesting --help
+heliades tx vesting --help
 ```
 
 #### create-periodic-vesting-account
@@ -393,13 +393,13 @@ injectived tx vesting --help
 The `create-periodic-vesting-account` command creates a new vesting account funded with an allocation of tokens, where a sequence of coins and period length in seconds. Periods are sequential, in that the duration of of a period only starts at the end of the previous period. The duration of the first period starts upon account creation.
 
 ```bash
-injectived tx vesting create-periodic-vesting-account [to_address] [periods_json_file] [flags]
+heliades tx vesting create-periodic-vesting-account [to_address] [periods_json_file] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx vesting create-periodic-vesting-account cosmos1.. periods.json
+heliades tx vesting create-periodic-vesting-account cosmos1.. periods.json
 ```
 
 #### create-vesting-account
@@ -407,11 +407,11 @@ injectived tx vesting create-periodic-vesting-account cosmos1.. periods.json
 The `create-vesting-account` command creates a new vesting account funded with an allocation of tokens. The account can either be a delayed or continuous vesting account, which is determined by the '--delayed' flag. All vesting accouts created will have their start time set by the committed block's time. The end_time must be provided as a UNIX epoch timestamp.
 
 ```bash
-injectived tx vesting create-vesting-account [to_address] [amount] [end_time] [flags]
+heliades tx vesting create-vesting-account [to_address] [amount] [end_time] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx vesting create-vesting-account cosmos1.. 100stake 2592000
+heliades tx vesting create-vesting-account cosmos1.. 100stake 2592000
 ```

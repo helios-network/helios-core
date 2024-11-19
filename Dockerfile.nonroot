@@ -38,9 +38,9 @@ RUN pip3 install --upgrade pip && \
     pip3 install --no-cache-dir awscli && \
     rm -rf /var/cache/apk/*
 
-# Copy the injectived binary and configuration files
+# Copy the heliades binary and configuration files
 COPY --from=builder /go/bin/* /usr/local/bin/
-COPY --from=builder /src/injectived.sh .
+COPY --from=builder /src/heliades.sh .
 
 #configure container
 VOLUME /apps/data
@@ -48,4 +48,4 @@ WORKDIR /apps/data
 EXPOSE 26657 26656 10337 9900 9091 9999
 
 #default command
-CMD sh /injectived.sh
+CMD sh /heliades.sh

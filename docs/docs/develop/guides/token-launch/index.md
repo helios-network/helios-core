@@ -1,17 +1,17 @@
 # Native Token Launch on Injective
 
-To launch a token on Injective, you can do so via the `injectived` CLI, programmatically via a smart contract, or web apps such as [TokenStation](https://www.tokenstation.app/) and [DojoSwap](https://docs.dojo.trading/introduction/market-creation).
+To launch a token on Injective, you can do so via the `heliades` CLI, programmatically via a smart contract, or web apps such as [TokenStation](https://www.tokenstation.app/) and [DojoSwap](https://docs.dojo.trading/introduction/market-creation).
 
 ## 1. Via CLI
 
-### 1. Download `injectived`
+### 1. Download `heliades`
 
 Download the Injective binaries [here](https://docs.helios.network/develop/tools/heliades/install).
 
 ### 2. Create a key
 
 ```bash
-injectived keys add gov
+heliades keys add gov
 ```
 
 :::tip
@@ -26,7 +26,7 @@ The commands below refer to testnet. In order to use mainnet, make the following
 ### 3. Create a `tokenfactory` denom
 
 ```bash
-injectived tx tokenfactory create-denom ak --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
+heliades tx tokenfactory create-denom ak --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
 ```
 
 :::tip
@@ -39,7 +39,7 @@ injectived tx tokenfactory create-denom ak --from=gov --chain-id=injective-888 -
 By submitting the token metadata, your token will be visible on Injective dApps.
 
 ```bash
-injectived tx tokenfactory set-denom-metadata "My Token Description" 'factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak' AKK AKCoin AK '[
+heliades tx tokenfactory set-denom-metadata "My Token Description" 'factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak' AKK AKCoin AK '[
 {"denom":"factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak","exponent":0,"aliases":[]},
 {"denom":"AKK","exponent":6,"aliases":[]}
 ]' --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
@@ -49,7 +49,7 @@ injectived tx tokenfactory set-denom-metadata "My Token Description" 'factory/in
 This command expects the following arguments:
 
 ```bash
-injectived tx tokenfactory set-denom-metadata [description] [base] [display] [name] [symbol] [denom-unit (json)]
+heliades tx tokenfactory set-denom-metadata [description] [base] [display] [name] [symbol] [denom-unit (json)]
 ```
 
 :::
@@ -57,7 +57,7 @@ injectived tx tokenfactory set-denom-metadata [description] [base] [display] [na
 ### 5. Mint tokens
 
 ```bash
-injectived tx tokenfactory mint 1000000factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
+heliades tx tokenfactory mint 1000000factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
 ```
 
 :::tip
@@ -68,7 +68,7 @@ This command will mint 1 token, assuming your token has 6 decimals. Normally, ER
 ### 6. Burn tokens
 
 ```bash
-injectived tx tokenfactory burn 1000000factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
+heliades tx tokenfactory burn 1000000factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
 ```
 
 :::tip
@@ -79,7 +79,7 @@ This command will burn 1 token.
 ### 7. Change admin
 
 ```bash
-injectived tx tokenfactory change-admin factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak NEW_ADDRESS --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
+heliades tx tokenfactory change-admin factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/ak NEW_ADDRESS --from=gov --chain-id=injective-888 --node=https://testnet.tm.helios.network:443 --gas-prices=500000000inj --gas 1000000
 ```
 
 :::tip

@@ -39,10 +39,10 @@ contract (`cw20_base-aarch64.wasm` if compiled on an ARM device).
 
 ## 2. Download Dockerised Injective Binary 
 
-A Docker image has been prepared to make this guide easier. Alternatively, you can follow the [installation instructions](../../tools/heliades/install) for `injectived` and run it locally.
+A Docker image has been prepared to make this guide easier. Alternatively, you can follow the [installation instructions](../../tools/heliades/install) for `heliades` and run it locally.
 
 :::tip
-If you install `injectived` from the binary, ignore the docker commands—the `injectived` commands can be run directly from your command line.
+If you install `heliades` from the binary, ignore the docker commands—the `heliades` commands can be run directly from your command line.
 :::
 
 If you're on Apple silicon make sure to use an ARM image for injective-core.
@@ -80,7 +80,7 @@ We can now add a test user (when prompted use 12345678 as password). We will use
 
 ```bash
 # inside the "injective-core-v1.10.1" container
-injectived keys add testuser
+heliades keys add testuser
 ```
 
 **OUTPUT**
@@ -123,7 +123,7 @@ curl -X GET "https://testnet.sentry.lcd.helios.network:443/cosmos/bank/v1beta1/b
 
 ```bash
 # inside the "injective-core-v1.10.1" container
-yes 12345678 | injectived tx wasm store /var/artifacts/cw20_base.wasm \
+yes 12345678 | heliades tx wasm store /var/artifacts/cw20_base.wasm \
 --from=$(echo $INJ_ADDRESS) \
 --chain-id="injective-888" \
 --yes --gas-prices=160000000inj --gas=20000000 \
@@ -152,7 +152,7 @@ Check your creator address on the [Injective testnet explorer](https://testnet.e
 You can also query the transaction by the `txhash` to verify the contract was indeed deployed. 
 
 ```bash
-injectived query tx 3355ACA991590CB8BB1D819D9ECB6A901C9F1963E2DB73703ECDEB29EE08D5BD --node=https://testnet.sentry.tm.helios.network:443
+heliades query tx 3355ACA991590CB8BB1D819D9ECB6A901C9F1963E2DB73703ECDEB29EE08D5BD --node=https://testnet.sentry.tm.helios.network:443
 ```
 
 **Output:**
@@ -394,7 +394,7 @@ Run the CLI command with the `code_id` we obtained from uploading the contract (
 
 ```bash
 INIT='{"name":"InjectiveTestCoin","symbol":"ITC","decimals":6,"initial_balances":[{"address":"'$INJ_ADDRESS'","amount":"69420"}],"mint":{"minter":"'$INJ_ADDRESS'"},"marketing":{}}'
-yes 12345678 | injectived tx wasm instantiate $CODE_ID $INIT --label="Injective Test" --from=$(echo $INJ_ADDRESS) --chain-id="injective-888" --yes --gas-prices=160000000inj --gas=20000000 --no-admin --node=https://testnet.sentry.tm.helios.network:443
+yes 12345678 | heliades tx wasm instantiate $CODE_ID $INIT --label="Injective Test" --from=$(echo $INJ_ADDRESS) --chain-id="injective-888" --yes --gas-prices=160000000inj --gas=20000000 --no-admin --node=https://testnet.sentry.tm.helios.network:443
 ```
 
 **OUTPUT**
@@ -420,8 +420,8 @@ You can find the contract address and metadata on
 - or by CLI query:
 
 ```bash
-CONTRACT=$(injectived query wasm list-contract-by-code $CODE_ID --node=https://testnet.sentry.tm.helios.network:443 --output json | jq -r '.contracts[-1]')
-injectived query wasm contract $CONTRACT --node=https://testnet.sentry.tm.helios.network:443
+CONTRACT=$(heliades query wasm list-contract-by-code $CODE_ID --node=https://testnet.sentry.tm.helios.network:443 --output json | jq -r '.contracts[-1]')
+heliades query wasm contract $CONTRACT --node=https://testnet.sentry.tm.helios.network:443
 ```
 
 **Output:**
@@ -444,7 +444,7 @@ contract_info:
 The entire contract state can be queried with:
 
 ```bash
-injectived query wasm contract-state all $CONTRACT --node=https://testnet.sentry.tm.helios.network:443
+heliades query wasm contract-state all $CONTRACT --node=https://testnet.sentry.tm.helios.network:443
 ```
 
 **Output:**
@@ -468,7 +468,7 @@ The individual user’s token balance can also be queried with:
 
 ```bash
 BALANCE_QUERY='{"balance": {"address": "inj1gwpnskafpjn4dg5uarh6cc5s68gv86589zcfxp"}}'
-injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=https://testnet.sentry.tm.helios.network:443 --output json
+heliades query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=https://testnet.sentry.tm.helios.network:443 --output json
 ```
 
 **Output:**
@@ -481,7 +481,7 @@ injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=htt
 ```bash
 RECIPIENT=inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz
 TRANSFER='{"transfer":{"recipient":"'$(echo $RECIPIENT)'","amount":"420"}}'
-yes 12345678 | injectived tx wasm execute $CONTRACT "$TRANSFER" --from=$(echo $INJ_ADDRESS) --chain-id="injective-888" --yes --gas-prices=160000000inj --gas=20000000 --node=https://testnet.sentry.tm.helios.network:443
+yes 12345678 | heliades tx wasm execute $CONTRACT "$TRANSFER" --from=$(echo $INJ_ADDRESS) --chain-id="injective-888" --yes --gas-prices=160000000inj --gas=20000000 --node=https://testnet.sentry.tm.helios.network:443
 ```
 
 Then confirm the balance transfer occurred successfully with:
@@ -490,7 +490,7 @@ Then confirm the balance transfer occurred successfully with:
 # inside the "injective-core-v1.10.1" container
 # first address balance query
 BALANCE_QUERY='{"balance": {"address": "'$(echo $INJ_ADDRESS)'"}}'
-injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=https://testnet.sentry.tm.helios.network:443 --output json
+heliades query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=https://testnet.sentry.tm.helios.network:443 --output json
 ```
 
 **Output:**
@@ -502,7 +502,7 @@ injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=htt
 # inside the "injective-core-v1.10.1" container
 # recipient's address balance query
 BALANCE_QUERY='{"balance": {"address": "'$(echo $RECIPIENT)'"}}'
-injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=https://testnet.sentry.tm.helios.network:443 --output json
+heliades query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --node=https://testnet.sentry.tm.helios.network:443 --output json
 ```
 
 **Output:**

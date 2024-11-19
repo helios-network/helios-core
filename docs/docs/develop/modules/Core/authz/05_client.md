@@ -9,7 +9,7 @@ A user can query and interact with the `authz` module using the CLI.
 The `query` commands allow users to query `authz` state.
 
 ```bash
-injectived query authz --help
+heliades query authz --help
 ```
 
 #### grants
@@ -17,13 +17,13 @@ injectived query authz --help
 The `grants` command allows users to query grants for a granter-grantee pair. If the message type URL is set, it selects grants only for that message type.
 
 ```bash
-injectived query authz grants [granter-addr] [grantee-addr] [msg-type-url]? [flags]
+heliades query authz grants [granter-addr] [grantee-addr] [msg-type-url]? [flags]
 ```
 
 Example:
 
 ```bash
-injectived query authz grants cosmos1.. cosmos1.. /cosmos.bank.v1beta1.MsgSend
+heliades query authz grants cosmos1.. cosmos1.. /cosmos.bank.v1beta1.MsgSend
 ```
 
 Example Output:
@@ -44,7 +44,7 @@ pagination: null
 The `tx` commands allow users to interact with the `authz` module.
 
 ```bash
-injectived tx authz --help
+heliades tx authz --help
 ```
 
 #### exec
@@ -52,13 +52,13 @@ injectived tx authz --help
 The `exec` command allows a grantee to execute a transaction on behalf of granter.
 
 ```bash
-  injectived tx authz exec [tx-json-file] --from [grantee] [flags]
+  heliades tx authz exec [tx-json-file] --from [grantee] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx authz exec tx.json --from=cosmos1..
+heliades tx authz exec tx.json --from=cosmos1..
 ```
 
 #### grant
@@ -66,13 +66,13 @@ injectived tx authz exec tx.json --from=cosmos1..
 The `grant` command allows a granter to grant an authorization to a grantee.
 
 ```bash
-injectived tx authz grant <grantee> <authorization_type="send"|"generic"|"delegate"|"unbond"|"redelegate"> --from <granter> [flags]
+heliades tx authz grant <grantee> <authorization_type="send"|"generic"|"delegate"|"unbond"|"redelegate"> --from <granter> [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx authz grant cosmos1.. send --spend-limit=100stake --from=cosmos1..
+heliades tx authz grant cosmos1.. send --spend-limit=100stake --from=cosmos1..
 ```
 
 #### revoke
@@ -80,13 +80,13 @@ injectived tx authz grant cosmos1.. send --spend-limit=100stake --from=cosmos1..
 The `revoke` command allows a granter to revoke an authorization from a grantee.
 
 ```bash
-injectived tx authz revoke [grantee] [msg-type-url] --from=[granter] [flags]
+heliades tx authz revoke [grantee] [msg-type-url] --from=[granter] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx authz revoke cosmos1.. /cosmos.bank.v1beta1.MsgSend --from=cosmos1..
+heliades tx authz revoke cosmos1.. /cosmos.bank.v1beta1.MsgSend --from=cosmos1..
 ```
 
 ## gRPC

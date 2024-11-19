@@ -27,7 +27,7 @@ There are two ways to provide the credential access - a keyring with encrypted k
 
 Update the `PEGGO_COSMOS_FROM` to your validator key name (or account address) and `PEGGO_COSMOS_FROM_PASSPHRASE` to your Cosmos Keyring passphrase. Please note that the default keyring backend is `file` and it will try to locate keys on disk.
 
-Keyring path must be pointing to homedir of your injectived node, if you want reuse the keys from there.
+Keyring path must be pointing to homedir of your heliades node, if you want reuse the keys from there.
 
 Learn more about Cosmos Keyring setup [here](https://docs.cosmos.network/master/run-node/keyring.html).
 
@@ -35,7 +35,7 @@ Learn more about Cosmos Keyring setup [here](https://docs.cosmos.network/master/
 
 Simply update the `PEGGO_COSMOS_PK` with your Validator's Account private key.
 
-To obtain your validator's Cosmos private key, run `injectived keys unsafe-export-eth-key $VALIDATOR_KEY_NAME`.
+To obtain your validator's Cosmos private key, run `heliades keys unsafe-export-eth-key $VALIDATOR_KEY_NAME`.
 
 This method is insecure and is not recommended.
 
@@ -149,7 +149,7 @@ This is an advanced DevOps topic, consult with your sysadmin.
 
 Learn more about Cosmos Keyring setup [here](https://docs.cosmos.network/master/run-node/keyring.html). Once you've launched your node, the default keyring will have the validator operator key stored on disk in the encrypted form. Usually the keyring is located within node's homedir, i.e. `~/.heliades/keyring-file`.
 
-Some sections of the Injective Staking documentation will guide you through using this key for governance purposes, i.e. submitting transactions and setting up an Ethereum bridge. In order to protect the keys from unauthorized access, even when the keyring passphrase is leaked via configs, you can set OS permissions to allow disk access to `injectived` / `peggo` processes only.
+Some sections of the Injective Staking documentation will guide you through using this key for governance purposes, i.e. submitting transactions and setting up an Ethereum bridge. In order to protect the keys from unauthorized access, even when the keyring passphrase is leaked via configs, you can set OS permissions to allow disk access to `heliades` / `peggo` processes only.
 
 In Linux systems like Debian, Ubuntu and RHEL, this can be achieved using POSIX Access Control Lists (ACLs). Before beginning to work with ACLs, the file system must be mounted with ACLs turned on. There are some official guides for each distro:
 
@@ -185,29 +185,29 @@ For isolation purposes, we recommend creating a delegated Cosmos key to send Inj
 
 To create a new key, run
 ```bash
-injectived keys add $ORCHESTRATOR_KEY_NAME
+heliades keys add $ORCHESTRATOR_KEY_NAME
 ```
 
 Then ensure that your orchestrator inj address has INJ balance.
 
 To obtain your orchestrators's inj address, run
 ```bash
-injectived keys list $ORCHESTRATOR_KEY_NAME
+heliades keys list $ORCHESTRATOR_KEY_NAME
 ```
 
 You can transfer INJ from your validator account to orchestrator address using this command
 ```bash
-injectived tx bank send $VALIDATOR_KEY_NAME  $ORCHESTRATOR_INJ_ADDRESS <amount-in-inj> --chain-id=injective-888 --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
+heliades tx bank send $VALIDATOR_KEY_NAME  $ORCHESTRATOR_INJ_ADDRESS <amount-in-inj> --chain-id=injective-888 --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
 ```
 
 Example
 ```bash
-injectived tx bank send genesis inj1u3eyz8nkvym0p42h79aqgf37gckf7szreacy9e 20000000000000000000inj --chain-id=injective-888  --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
+heliades tx bank send genesis inj1u3eyz8nkvym0p42h79aqgf37gckf7szreacy9e 20000000000000000000inj --chain-id=injective-888  --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
 ```
 
 You can then verify that your orchestrator account has INJ balances by running
 ```bash
-injectived q bank balances $ORCHESTRATOR_INJ_ADDRESS
+heliades q bank balances $ORCHESTRATOR_INJ_ADDRESS
 ```
 
 #### Managing Cosmos account keys for `peggo`
@@ -222,7 +222,7 @@ If you are using a delegated account key configuration as recommended above, thi
 
 Please note that the default keyring backend is `file` and that as such peggo will try to locate keys on disk by default.
 
-To use the default injectived key configuration, you should set the keyring path to the home directory of your injectived node, e.g. `~/.heliades`.
+To use the default heliades key configuration, you should set the keyring path to the home directory of your heliades node, e.g. `~/.heliades`.
 
 You can also read more about the Cosmos Keyring setup [here](https://docs.cosmos.network/master/run-node/keyring.html).
 
@@ -234,12 +234,12 @@ If you are using a delegated account key configuration as recommended above, thi
 
 To obtain your orchestrator's Cosmos private key (if applicable), run
 ```bash
-injectived keys unsafe-export-eth-key $ORCHESTRATOR_KEY_NAME
+heliades keys unsafe-export-eth-key $ORCHESTRATOR_KEY_NAME
 ```
 
 To obtain your validator's Cosmos private key (if applicable), run
 ```bash
-injectived keys unsafe-export-eth-key $VALIDATOR_KEY_NAME
+heliades keys unsafe-export-eth-key $VALIDATOR_KEY_NAME
 ````
 
 Again, this method is less secure and is not recommended.
@@ -301,15 +301,15 @@ Then ensure that your Ethereum address has ETH.
 You can register orchestrator and ethereum address only once. It **CANNOT** be updated later.
 So Check twice before running below command.
 ```bash
-injectived tx peggy set-orchestrator-address $VALIDATOR_INJ_ADDRESS $ORCHESTRATOR_INJ_ADDRESS $ETHEREUM_ADDRESS --from $VALIDATOR_KEY_NAME --chain-id=injective-888 --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
+heliades tx peggy set-orchestrator-address $VALIDATOR_INJ_ADDRESS $ORCHESTRATOR_INJ_ADDRESS $ETHEREUM_ADDRESS --from $VALIDATOR_KEY_NAME --chain-id=injective-888 --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
 
 ```
-- To obtain your validator's inj address, run, `injectived keys list $VALIDATOR_KEY_NAME`
-- To obtain your orchestrators's inj address, `injectived keys list $ORCHESTRATOR_KEY_NAME`
+- To obtain your validator's inj address, run, `heliades keys list $VALIDATOR_KEY_NAME`
+- To obtain your orchestrators's inj address, `heliades keys list $ORCHESTRATOR_KEY_NAME`
 
 Example:
 ```bash
-injectived tx peggy set-orchestrator-address inj10m247khat0esnl0x66vu9mhlanfftnvww67j9n inj1x7kvxlz2epqx3hpq6v8j8w859t29pgca4z92l2 0xf79D16a79130a07e77eE36e8067AeA783aBdA3b6 --from validator-key-name --chain-id=injective-888 --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
+heliades tx peggy set-orchestrator-address inj10m247khat0esnl0x66vu9mhlanfftnvww67j9n inj1x7kvxlz2epqx3hpq6v8j8w859t29pgca4z92l2 0xf79D16a79130a07e77eE36e8067AeA783aBdA3b6 --from validator-key-name --chain-id=injective-888 --keyring-backend=file --yes --node=tcp://localhost:26657 --gas-prices=500000000inj
 ```
 
 
@@ -367,7 +367,7 @@ This is an advanced DevOps topic, consult with your sysadmin.
 
 Learn more about Cosmos Keyring setup [here](https://docs.cosmos.network/master/run-node/keyring.html). Once you've launched your node, the default keyring will have the validator operator key stored on disk in the encrypted form. Usually the keyring is located within node's homedir, i.e. `~/.heliades/keyring-file`.
 
-Some sections of the Injective Staking documentation will guide you through using this key for governance purposes, i.e. submitting transactions and setting up an Ethereum bridge. In order to protect the keys from unauthorized access, even when the keyring passphrase is leaked via configs, you can set OS permissions to allow disk access to `injectived` / `peggo` processes only.
+Some sections of the Injective Staking documentation will guide you through using this key for governance purposes, i.e. submitting transactions and setting up an Ethereum bridge. In order to protect the keys from unauthorized access, even when the keyring passphrase is leaked via configs, you can set OS permissions to allow disk access to `heliades` / `peggo` processes only.
 
 In Linux systems like Debian, Ubuntu and RHEL, this can be achieved using POSIX Access Control Lists (ACLs). Before beginning to work with ACLs, the file system must be mounted with ACLs turned on. There are some official guides for each distro:
 

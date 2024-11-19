@@ -13,7 +13,7 @@ Developer tools and resources to get you building on Injective
 |---|---|
 | [Cosmovisor](../develop/tools/cosmovisor.md)  | Small process manager around Cosmos SDK binaries that monitors the governance module  |
 | [Injective 101](https://helios.notion.site/Injective-101-589dedc4c9c04531aae503dbb235d443) | One-stop-shop for Injective resources
-| [Injectived](../develop/tools/heliades/welcome.md)  | Command-line interface and node daemon that connects to Injective
+| [heliades](../develop/tools/heliades/welcome.md)  | Command-line interface and node daemon that connects to Injective
 | [Injective Explorer](https://explorer.helios.network/)  | Analytics platform that enables anyone to search addresses, trades, tokens, transactions, and other activities on Injective |
 | [Injective Local](../develop/tools/local-injective/index.md)  | Injective testnet and ecosystem containerized with Docker and orchestrated with a simple docker-compose file.  |
 | [Injective REST API](https://lcd.helios.network/swagger/)  |  Swagger API explorer |

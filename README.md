@@ -11,7 +11,7 @@
 
 Home of the following services:
 
-* [injectived](/cmd/injectived)
+* [heliades](/cmd/heliades)
 
 ## Architecture
 
@@ -37,9 +37,9 @@ The most convenient way to launch services is by running the setup script:
 ```bash
 $ ./setup.sh
 ```
-Then run an instance of the injectived node.
+Then run an instance of the heliades node.
 ```bash
-$ ./injectived.sh
+$ ./heliades.sh
 ```
 
 Voila! You have now successfully setup a full node on the Injective Chain.

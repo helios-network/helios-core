@@ -9,7 +9,7 @@ A user can query and interact with the `crisis` module using the CLI.
 The `tx` commands allow users to interact with the `crisis` module.
 
 ```bash
-injectived tx crisis --help
+heliades tx crisis --help
 ```
 
 #### invariant-broken
@@ -17,11 +17,11 @@ injectived tx crisis --help
 The `invariant-broken` command submits proof when an invariant was broken to halt the chain
 
 ```bash
-injectived tx crisis invariant-broken [module-name] [invariant-route] [flags]
+heliades tx crisis invariant-broken [module-name] [invariant-route] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx crisis invariant-broken bank total-supply --from=[keyname or address]
+heliades tx crisis invariant-broken bank total-supply --from=[keyname or address]
 ```

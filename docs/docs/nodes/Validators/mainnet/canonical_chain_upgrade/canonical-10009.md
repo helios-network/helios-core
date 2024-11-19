@@ -24,7 +24,7 @@ The following is a short summary of the upgrade steps:
 1. Vote and wait till the node panics at block height **24204000**.
 2. Backing up configs, data, and keys used for running the Injective Canonical Chain.
 3. Install the [Mainnet-10009-1673640888](https://github.com/InjectiveLabs/injective-chain-releases/releases/tag/v1.9.0-1673640888)
-4. Start your node with the new injectived binary to fulfill the upgrade.
+4. Start your node with the new heliades binary to fulfill the upgrade.
 
 Upgrade coordination and support for validators will be available on the `#mainnet-validators` private channel of the [Injective Discord](https://discord.gg/injective).
 
@@ -33,7 +33,7 @@ The network upgrade can take the following potential pathways:
 Validators successfully upgrade chain without purging the blockchain history and all validators are up within 1-2 hours of the scheduled upgrade.
 
 2. **Not-so-happy path**  
-Validators have trouble upgrading to latest Canonical chain. This could be some consensus breaking changes not covered in upgrade handler, or compatibility issue of the migrated state with new injectived binary, but validators can at least export the genesis.
+Validators have trouble upgrading to latest Canonical chain. This could be some consensus breaking changes not covered in upgrade handler, or compatibility issue of the migrated state with new heliades binary, but validators can at least export the genesis.
 
 3. **Abort path**  
 In the rare event that the team becomes aware of unnoticed critical issues, the Injective team will attempt to patch all the breaking states and provide another official binary within 36 hours.  
@@ -57,7 +57,7 @@ Prior to exporting chain state, validators are encouraged to take a full data sn
 export height before proceeding. Snapshotting depends heavily on infrastructure, but generally this
 can be done by backing up the `.heliades` directory.
 
-It is critically important to backup the `.heliades/data/priv_validator_state.json` file after stopping your injectived process. This file is updated every block as your validator participates in a consensus rounds. It is a critical file needed to prevent double-signing, in case the upgrade fails and the previous chain needs to be restarted.
+It is critically important to backup the `.heliades/data/priv_validator_state.json` file after stopping your heliades process. This file is updated every block as your validator participates in a consensus rounds. It is a critical file needed to prevent double-signing, in case the upgrade fails and the previous chain needs to be restarted.
 
 In the event that the upgrade does not succeed, validators and operators must restore the snapshot and downgrade back to [Injective Chain 10008 release](https://github.com/InjectiveLabs/injective-chain-releases/releases/tag/v1.8.0-1668679102) and continue the chain until next upgrade announcement.
 
@@ -66,16 +66,16 @@ In the event that the upgrade does not succeed, validators and operators must re
 ## Notes for Validators
 Validator operators should configure the **timeout_commit** in **config.toml** to `300ms`.
 
-1. Verify you are currently running the correct version (`64c9081`) of `injectived`:
+1. Verify you are currently running the correct version (`64c9081`) of `heliades`:
    ```bash
-   injectived version
+   heliades version
    Version dev (64c9081)
    Compiled at 20221024-1031 using Go go1.18.5 (amd64)
    ```
 
 2. After the chain has halted, make a backup of your `.heliades` directory
     ```bash
-    cp ~/.heliades ./injectived-backup
+    cp ~/.heliades ./heliades-backup
     ```
     **NOTE**: It is recommended for validators and operators to take a full data snapshot at the export
     height before proceeding in case the upgrade does not go as planned or if not enough voting power
@@ -86,20 +86,20 @@ Validator operators should configure the **timeout_commit** in **config.toml** t
    ```bash
    wget https://github.com/InjectiveLabs/injective-chain-releases/releases/download/v1.9.0-1673640888/linux-amd64.zip
    unzip linux-amd64.zip
-   sudo mv injectived peggo /usr/bin
+   sudo mv heliades peggo /usr/bin
    sudo mv libwasmvm.x86_64.so /usr/lib
    ```
 
-4. Verify you are currently running the correct version (`3c87354f5`) of `injectived` after downloading the 10009 release:
+4. Verify you are currently running the correct version (`3c87354f5`) of `heliades` after downloading the 10009 release:
     ```bash
-   injectived version
+   heliades version
    Version dev (3c87354f5)
    Compiled at 20230113-2015 using Go go1.18.3 (amd64)
    ```
 
-5. Coordinate to restart your injectived with other validators
+5. Coordinate to restart your heliades with other validators
    ```bash
-   injectived start
+   heliades start
    ```
    The binary will perform the upgrade automatically and continue the next consensus round if everything goes well.
 
@@ -115,4 +115,4 @@ Validator operators should configure the **timeout_commit** in **config.toml** t
    ```   
 
 ## Notes for DEX relayer providers
-Relayer upgrade will be available after the chain is successfully upgraded as it relies on several other components that work with injectived.
+Relayer upgrade will be available after the chain is successfully upgraded as it relies on several other components that work with heliades.

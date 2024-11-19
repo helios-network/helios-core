@@ -20,7 +20,7 @@ First, run the keygen command with your desired validator key name.
 
 ```bash
 export VALIDATOR_KEY_NAME=[my-validator-key]
-injectived keys add $VALIDATOR_KEY_NAME
+heliades keys add $VALIDATOR_KEY_NAME
 ```
 
 This will derive a new private key and encrypt it to disk. Make sure to remember the password you used.
@@ -55,10 +55,10 @@ Deposit your Mainnet INJ tokens into your validator's account on Injective by us
 
 ![validator-transfer](./bridge-transfer.png)
 
-After a few minutes, you should be able to verify that your deposit was successful on the UI. Alternatively, you can query your account balance using the `injectived` CLI with the following command:
+After a few minutes, you should be able to verify that your deposit was successful on the UI. Alternatively, you can query your account balance using the `heliades` CLI with the following command:
 
 ```bash
-injectived q bank balances <my-validator-inj-address>
+heliades q bank balances <my-validator-inj-address>
 ```
 
 ### Step 4: Create your validator account
@@ -66,7 +66,7 @@ injectived q bank balances <my-validator-inj-address>
 Obtain your node's tendermint validator Bech32 encoded PubKey consensus address.
 
 ```bash
-VALIDATOR_PUBKEY=$(injectived tendermint show-validator)
+VALIDATOR_PUBKEY=$(heliades tendermint show-validator)
 echo $VALIDATOR_PUBKEY
 
 # Example: {"@type": "/cosmos.crypto.ed25519.PubKey", "key": "GWEJv/KSFhUUcKBWuf9TTT3Ful+3xV/1lFhchyW1TZ8="}
@@ -94,7 +94,7 @@ MIN_SELF_DELEGATION_AMOUNT=50000000000000000000 # e.g. for a minimum 50 INJ self
 Then run the following command to create your validator.
 
 ```bash
-injectived tx staking create-validator \
+heliades tx staking create-validator \
 --moniker=$MONIKER \
 --amount=$AMOUNT \
 --gas-prices=500000000inj \
@@ -122,7 +122,7 @@ Extra `create-validator` options to consider:
 You can check that your validator was successfully created by checking the [staking dashboard](https://staking.helios.network/validators) or by entering the following CLI command.
 
 ```bash
-injectived q staking validators
+heliades q staking validators
 ```
 
 If you see your validator in the list of validators, then congratulations, you've officially joined as an Injective Mainnet validator! 🎉
@@ -137,7 +137,7 @@ These steps will allow you to experience the delegation flow using MetaMask Tran
 Alternatively, you can always use the Injective CLI to send a delegation transaction.  
 
 ```bash
-injectived tx staking delegate [validator-addr] [amount] --from $VALIDATOR_KEY_NAME --keyring-backend=file --yes --node=tcp://localhost:26657
+heliades tx staking delegate [validator-addr] [amount] --from $VALIDATOR_KEY_NAME --keyring-backend=file --yes --node=tcp://localhost:26657
 ```
 
 ### Step 6: (Recommended) Connecting Your Validator Identity with Keybase

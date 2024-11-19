@@ -6,7 +6,7 @@ sidebar_position: 2
 
  Nov 8th, 2021
 
- The following document describes the necessary steps involved that validators and full node operators must take in order to upgrade from the Injective Canary Chain to the Canonical Chain. The upgrade will take place via an on-chain software upgrade proposal passed by Injective governance. If passed, this proposal would commit the Injective Mainnet to halting the Canary Chain injectived application binary at approximately 14:00 UTC on Nov 8th and starting the application binary for the Injective Canonical Chain.
+ The following document describes the necessary steps involved that validators and full node operators must take in order to upgrade from the Injective Canary Chain to the Canonical Chain. The upgrade will take place via an on-chain software upgrade proposal passed by Injective governance. If passed, this proposal would commit the Injective Mainnet to halting the Canary Chain heliades application binary at approximately 14:00 UTC on Nov 8th and starting the application binary for the Injective Canonical Chain.
 
  Injective Canary Chain to the Canonical Chain upgrade follows [proposal #65](https://hub.helios.network/proposals/65)
 

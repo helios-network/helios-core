@@ -9,7 +9,7 @@ title: Workflow
 
 To recap, each operator is responsible for maintaining 3 secure processes:
 
-1. An Injective Chain Validator node (`injectived`) to sign blocks
+1. An Injective Chain Validator node (`heliades`) to sign blocks
 2. A fully synced Ethereum full node
 3. The `peggo` orchestrator which runs:
    * An `Eth Signer`, which signs new `Validator Set` updates and `Transaction Batch`es with the `Operator`'s Ethereum keys and submits using [messages](./04_messages.md#Ethereum-Signer-messages). 

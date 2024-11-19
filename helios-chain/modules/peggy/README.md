@@ -28,7 +28,7 @@ This bridge is fully governed by Injective Chain validators.
     - **Valset Relayer** (Submit Valsets to Peggy contract)
     - **Batch Relayer** (Submit Batches to Peggy contract)
 
-Each injective validator runs Injectived node to sign blocks and peggo orchestrator to orchestrate between Peggy
+Each injective validator runs heliades node to sign blocks and peggo orchestrator to orchestrate between Peggy
 Ethereum smart contract and Peggy cosmos module.
 
 ### Functionalities

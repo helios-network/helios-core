@@ -9,7 +9,7 @@ A user can query and interact with the `staking` module using the CLI.
 The `query` commands allows users to query `staking` state.
 
 ```bash
-injectived query staking --help
+heliades query staking --help
 ```
 
 #### delegation
@@ -19,13 +19,13 @@ The `delegation` command allows users to query delegations for an individual del
 Usage:
 
 ```bash
-injectived query staking delegation [delegator-addr] [validator-addr] [flags]
+heliades query staking delegation [delegator-addr] [validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+heliades query staking delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 ```
 
 Example Output:
@@ -47,13 +47,13 @@ The `delegations` command allows users to query delegations for an individual de
 Usage:
 
 ```bash
-injectived query staking delegations [delegator-addr] [flags]
+heliades query staking delegations [delegator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking delegations cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
+heliades query staking delegations cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 ```
 
 Example Output:
@@ -86,13 +86,13 @@ The `delegations-to` command allows users to query delegations on an individual 
 Usage:
 
 ```bash
-injectived query staking delegations-to [validator-addr] [flags]
+heliades query staking delegations-to [validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking delegations-to cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+heliades query staking delegations-to cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 ```
 
 Example Output:
@@ -124,13 +124,13 @@ The `historical-info` command allows users to query historical information at gi
 Usage:
 
 ```bash
-injectived query staking historical-info [height] [flags]
+heliades query staking historical-info [height] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking historical-info 10
+heliades query staking historical-info 10
 ```
 
 Example Output:
@@ -190,13 +190,13 @@ The `params` command allows users to query values set as staking parameters.
 Usage:
 
 ```bash
-injectived query staking params [flags]
+heliades query staking params [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking params
+heliades query staking params
 ```
 
 Example Output:
@@ -216,13 +216,13 @@ The `pool` command allows users to query values for amounts stored in the stakin
 Usage:
 
 ```bash
-injectived q staking pool [flags]
+heliades q staking pool [flags]
 ```
 
 Example:
 
 ```bash
-injectived q staking pool
+heliades q staking pool
 ```
 
 Example Output:
@@ -239,13 +239,13 @@ The `redelegation` command allows users to query a redelegation record based on 
 Usage:
 
 ```bash
-injectived query staking redelegation [delegator-addr] [src-validator-addr] [dst-validator-addr] [flags]
+heliades query staking redelegation [delegator-addr] [src-validator-addr] [dst-validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking redelegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosvaloper1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+heliades query staking redelegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosvaloper1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 ```
 
 Example Output:
@@ -280,13 +280,13 @@ The `redelegations` command allows users to query all redelegation records for a
 Usage:
 
 ```bash
-injectived query staking redelegations [delegator-addr] [flags]
+heliades query staking redelegations [delegator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking redelegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
+heliades query staking redelegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 ```
 
 Example Output:
@@ -335,13 +335,13 @@ The `redelegations-from` command allows users to query delegations that are rede
 Usage:
 
 ```bash
-injectived query staking redelegations-from [validator-addr] [flags]
+heliades query staking redelegations-from [validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking redelegations-from cosmosvaloper1y4rzzrgl66eyhzt6gse2k7ej3zgwmngeleucjy
+heliades query staking redelegations-from cosmosvaloper1y4rzzrgl66eyhzt6gse2k7ej3zgwmngeleucjy
 ```
 
 Example Output:
@@ -390,13 +390,13 @@ The `unbonding-delegation` command allows users to query unbonding delegations f
 Usage:
 
 ```bash
-injectived query staking unbonding-delegation [delegator-addr] [validator-addr] [flags]
+heliades query staking unbonding-delegation [delegator-addr] [validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking unbonding-delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+heliades query staking unbonding-delegation cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 ```
 
 Example Output:
@@ -418,13 +418,13 @@ The `unbonding-delegations` command allows users to query all unbonding-delegati
 Usage:
 
 ```bash
-injectived query staking unbonding-delegations [delegator-addr] [flags]
+heliades query staking unbonding-delegations [delegator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking unbonding-delegations cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
+heliades query staking unbonding-delegations cosmos1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 ```
 
 Example Output:
@@ -451,13 +451,13 @@ The `unbonding-delegations-from` command allows users to query delegations that 
 Usage:
 
 ```bash
-injectived query staking unbonding-delegations-from [validator-addr] [flags]
+heliades query staking unbonding-delegations-from [validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking unbonding-delegations-from cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+heliades query staking unbonding-delegations-from cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 ```
 
 Example Output:
@@ -490,13 +490,13 @@ The `validator` command allows users to query details about an individual valida
 Usage:
 
 ```bash
-injectived query staking validator [validator-addr] [flags]
+heliades query staking validator [validator-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking validator cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+heliades query staking validator cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 ```
 
 Example Output:
@@ -537,13 +537,13 @@ The `validators` command allows users to query details about all validators on a
 Usage:
 
 ```bash
-injectived query staking validators [flags]
+heliades query staking validators [flags]
 ```
 
 Example:
 
 ```bash
-injectived query staking validators
+heliades query staking validators
 ```
 
 Example Output:
@@ -612,7 +612,7 @@ description:
 The `tx` commands allows users to interact with the `staking` module.
 
 ```bash
-injectived tx staking --help
+heliades tx staking --help
 ```
 
 #### create-validator
@@ -622,15 +622,15 @@ The command `create-validator` allows users to create new validator initialized 
 Usage:
 
 ```bash
-injectived tx staking create-validator [flags]
+heliades tx staking create-validator [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx staking create-validator \
+heliades tx staking create-validator \
   --amount=1000000stake \
-  --pubkey=$(injectived tendermint show-validator) \
+  --pubkey=$(heliades tendermint show-validator) \
   --moniker="my-moniker" \
   --website="https://myweb.site" \
   --details="description of your validator" \
@@ -652,13 +652,13 @@ The command `delegate` allows users to delegate liquid tokens to a validator.
 Usage:
 
 ```bash
-injectived tx staking delegate [validator-addr] [amount] [flags]
+heliades tx staking delegate [validator-addr] [amount] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx staking delegate cosmosvaloper1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --from mykey
+heliades tx staking delegate cosmosvaloper1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --from mykey
 ```
 
 #### edit-validator
@@ -668,13 +668,13 @@ The command `edit-validator` allows users to edit an existing validator account.
 Usage:
 
 ```bash
-injectived tx staking edit-validator [flags]
+heliades tx staking edit-validator [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx staking edit-validator --moniker "new_moniker_name" --website "new_webiste_url" --from mykey
+heliades tx staking edit-validator --moniker "new_moniker_name" --website "new_webiste_url" --from mykey
 ```
 
 #### redelegate
@@ -684,13 +684,13 @@ The command `redelegate` allows users to redelegate illiquid tokens from one val
 Usage:
 
 ```bash
-injectived tx staking redelegate [src-validator-addr] [dst-validator-addr] [amount] [flags]
+heliades tx staking redelegate [src-validator-addr] [dst-validator-addr] [amount] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx staking redelegate cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj cosmosvaloper1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 100stake --from mykey
+heliades tx staking redelegate cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj cosmosvaloper1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 100stake --from mykey
 ```
 
 #### unbond
@@ -700,13 +700,13 @@ The command `unbond` allows users to unbond shares from a validator.
 Usage:
 
 ```bash
-injectived tx staking unbond [validator-addr] [amount] [flags]
+heliades tx staking unbond [validator-addr] [amount] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx staking unbond cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100stake --from mykey
+heliades tx staking unbond cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100stake --from mykey
 ```
 
 ## gRPC
@@ -1223,7 +1223,7 @@ Example Output:
         "block": "11",
         "app": "0"
       },
-      "chain_id": "injectived-1",
+      "chain_id": "heliades-1",
       "height": "140142",
       "time": "2021-10-11T10:56:29.720079569Z",
       "last_block_id": {

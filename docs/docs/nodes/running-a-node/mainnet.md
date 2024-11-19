@@ -30,14 +30,14 @@ For a more performant node, the following configuration is recommended:
 
  The more storage allocated, the less frequently data must be pruned from the node. 
 
-## Install `injectived` and `peggo`
+## Install `heliades` and `peggo`
 
 See the [Injective chain releases repo](https://github.com/InjectiveLabs/injective-chain-releases/releases/) for the most recent releases. Non-validator node operators do not need to install `peggo`.
 ```bash
 wget https://github.com/InjectiveLabs/injective-chain-releases/releases/download/v1.12.1-1705909076//linux-amd64.zip
 unzip linux-amd64.zip
 sudo mv peggo /usr/bin
-sudo mv injectived /usr/bin
+sudo mv heliades /usr/bin
 sudo mv libwasmvm.x86_64.so /usr/lib 
 ```
 
@@ -49,10 +49,10 @@ Before running Injective node, we need to initialize the chain as well as the no
 # The argument <moniker> is the custom username of your node. It should be human-readable.
 export MONIKER=<moniker>
 # Injective Mainnet has a chain-id of "injective-1"
-injectived init $MONIKER --chain-id injective-1
+heliades init $MONIKER --chain-id injective-1
 ```
 
-Running the `init` command will create `injectived` default configuration files at `~/.heliades`.
+Running the `init` command will create `heliades` default configuration files at `~/.heliades`.
 
 ## Prepare Configuration to Join Mainnet
 
@@ -78,16 +78,16 @@ cat mainnet-config/10001/seeds.txt
 nano ~/.heliades/config/config.toml
 ```
 
-## Configure `systemd` Service for `injectived`
+## Configure `systemd` Service for `heliades`
 
-Edit the config at `/etc/systemd/system/injectived.service`:
+Edit the config at `/etc/systemd/system/heliades.service`:
 ```bash
 [Unit]
-  Description=injectived
+  Description=heliades
 
 [Service]
   WorkingDirectory=/usr/bin
-  ExecStart=/bin/bash -c '/usr/bin/injectived --log-level=error start'
+  ExecStart=/bin/bash -c '/usr/bin/heliades --log-level=error start'
   Type=simple
   Restart=always
   RestartSec=5
@@ -100,23 +100,23 @@ Edit the config at `/etc/systemd/system/injectived.service`:
 Starting and restarting the systemd service:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl restart injectived
-sudo systemctl status injectived
+sudo systemctl restart heliades
+sudo systemctl status heliades
 
 # enable start on system boot
-sudo systemctl enable injectived
+sudo systemctl enable heliades
 
 # To check Logs
-journalctl -u injectived -f
+journalctl -u heliades -f
 ```
 
 The service should be stopped before and started after the snapshot data has been loaded into the correct directory.
 ```bash
 # to stop the node
-sudo systemctl stop injectived
+sudo systemctl stop heliades
 
 # to start the node
-sudo systemctl start injectived
+sudo systemctl start heliades
 ```
 
 ## Sync with the network
@@ -125,15 +125,15 @@ sudo systemctl start injectived
 
 *To be added soon*
 
-[//]: # (You can use state-sync to join the network by following the below instructions. Note that the `wasm` directory of the `injectived` configuration files will not be synced and must be updated from the snapshot.)
+[//]: # (You can use state-sync to join the network by following the below instructions. Note that the `wasm` directory of the `heliades` configuration files will not be synced and must be updated from the snapshot.)
 
 [//]: # (```bash)
 
 [//]: # (#!/bin/bash)
 
-[//]: # (sudo systemctl stop injectived)
+[//]: # (sudo systemctl stop heliades)
 
-[//]: # (sudo injectived tendermint unsafe-reset-all --home ~/.heliades)
+[//]: # (sudo heliades tendermint unsafe-reset-all --home ~/.heliades)
 
 [//]: # (CUR_HEIGHT=$&#40;curl -sS https://tm.helios.network/block | jq .result.block.header.height | tr -d '"'&#41;)
 
@@ -153,7 +153,7 @@ sudo systemctl start injectived
 
 [//]: # (perl -i -pe 's/^trust_hash = ".*?"/trust_hash = '$TRUSTED_HASH'/' ~/.heliades/config/config.toml)
 
-[//]: # (sudo systemctl start injectived)
+[//]: # (sudo systemctl start heliades)
 
 [//]: # (```)
 
@@ -170,13 +170,13 @@ sudo systemctl start injectived
 Alternatively, you can use the pruned snapshots from Injective Labs on AWS S3.
 
 ```bash
-systemctl stop injectived
-injectived tendermint unsafe-reset-all --home $HOME/.heliades
+systemctl stop heliades
+heliades tendermint unsafe-reset-all --home $HOME/.heliades
 SNAP=$(aws s3 ls --no-sign-request s3://injective-snapshots/mainnet/pruned/ | grep ".tar.lz4" | sort | tail -n 1 | awk '{print $4}')
 aws s3 cp --no-sign-request s3://injective-snapshots/mainnet/pruned/$SNAP .
 lz4 -c -d $SNAP  | tar -x -C $HOME/.heliades/
 rm $SNAP
-systemctl start injectived
+systemctl start heliades
 ```
 
 
@@ -185,11 +185,11 @@ Should the Injective `mainnet-config seeds.txt` list not work (the node fails to
 **Archival** (>20TB)
 
 ```bash
-systemctl stop injectived
-injectived tendermint unsafe-reset-all --home $HOME/.heliades
+systemctl stop heliades
+heliades tendermint unsafe-reset-all --home $HOME/.heliades
 aws s3 sync --no-sign-request --delete s3://injective-snapshots/mainnet/heliades/data $HOME/.heliades/data
 aws s3 sync --no-sign-request --delete s3://injective-snapshots/mainnet/heliades/wasm $HOME/.heliades/wasm
-systemctl start injectived
+systemctl start heliades
 ```
 
 At this point, [GEX](https://github.com/cosmos/gex) can be used to monitor the node's sync status. If the snapshot has been correcly loaded, the number of connected peers should increase from 0 and the latest block should steadily increase, signalling the node syncing with its peers. Note that it may take a few or several hours for the node to catch up to the network's block height depending on the age of the snapshot.

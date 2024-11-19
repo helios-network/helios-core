@@ -5,10 +5,10 @@ title: Commands
 
 # Commands
 
-This section describes the commands available from `injectived`, the command line interface that connects a running `injectived` process (node).
+This section describes the commands available from `heliades`, the command line interface that connects a running `heliades` process (node).
 
 :::tip
-Several `injectived` commands require subcommands, arguments, or flags to operate. To view this information, run the `injectived` command with the `--help` or `-h` flag. See [`query`](#query) or [`tx`](#tx) for usage examples of the help flag.
+Several `heliades` commands require subcommands, arguments, or flags to operate. To view this information, run the `heliades` command with the `--help` or `-h` flag. See [`query`](#query) or [`tx`](#tx) for usage examples of the help flag.
 
 For the `chain-id` argument, `injective-1` should be used for mainnet, and `injective-888` should be used for testnet.
 :::
@@ -21,13 +21,13 @@ Adds a genesis account to `genesis.json`. For more information on `genesis.json`
 **Syntax**
 
 ```bash
-injectived add-genesis-account <address-or-key-name> <amount><coin-denominator>
+heliades add-genesis-account <address-or-key-name> <amount><coin-denominator>
 ```
 
 
 **Example**
 ```bash
-injectived add-genesis-account acc1 100000000000inj
+heliades add-genesis-account acc1 100000000000inj
 ```
 <br/>
 
@@ -39,7 +39,7 @@ Collects genesis transactions and outputs them to `genesis.json`. For more infor
 **Syntax**
 
 ```bash
-injectived collect-gentxs
+heliades collect-gentxs
 ```
 <br/>
 
@@ -49,12 +49,12 @@ injectived collect-gentxs
 Helps debug the application. For a list of syntax and subcommands, run the `debug` command with the `--help` or `-h` flag:
 
 ```bash
-injectived debug -h
+heliades debug -h
 ```
 
 **Subcommands**:
 ```bash
-injectived debug [subcommand]
+heliades debug [subcommand]
 ```
 * **`addr`**: Convert an address between hex and bech32
 * **`pubkey`**: Decode a pubkey from proto JSON
@@ -69,7 +69,7 @@ Exports the state to JSON.
 
 **Syntax**
 ```bash
-injectived export
+heliades export
 ```
 <br/>
 
@@ -85,13 +85,13 @@ The `gentx` command has many flags available. Run the `gentx` command with `--he
 **Syntax**
 
 ```bash
-injectived gentx <key-name> <amount><coin-denominator>
+heliades gentx <key-name> <amount><coin-denominator>
 ```
 
 **Example**
 
 ```bash
-injectived gentx myKey 100000000000inj --home=/path/to/home/dir --keyring-backend=os --chain-id=injective-1 \
+heliades gentx myKey 100000000000inj --home=/path/to/home/dir --keyring-backend=os --chain-id=injective-1 \
     --moniker="myValidator" \
     --commission-max-change-rate=0.01 \
     --commission-max-rate=1.0 \
@@ -110,7 +110,7 @@ Shows an overview of available commands.
 **Syntax**
 
 ```bash
-injectived help
+heliades help
 ```
 <br/>
 
@@ -122,13 +122,13 @@ Initializes the configuration files for a node.
 **Syntax**
 
 ```bash
-injectived init <moniker>
+heliades init <moniker>
 ```
 
 **Example**
 
 ```bash
-injectived init myNode
+heliades init myNode
 ```
 <br/>
 
@@ -139,12 +139,12 @@ Manages Keyring commands. These keys may be in any format supported by the Tende
 
 For a list of syntax and subcommands, run the `keys` command with the `--help` or `-h` flag:
 ```bash
-injectived keys -h
+heliades keys -h
 ```
 
 **Subcommands**:
 ```bash
-injectived keys [subcommand]
+heliades keys [subcommand]
 ```
 * **`add`**: Add an encrypted private key (either newly generated or recovered), encrypt it, and save to the provided file name
 * **`delete`**: Delete the given keys
@@ -168,12 +168,12 @@ Migrates the source genesis into the target version and prints to STDOUT. For mo
 **Syntax**
 
 ```bash
-injectived migrate <target version> <path-to-genesis-file>
+heliades migrate <target version> <path-to-genesis-file>
 ```
 **Example**
 
 ```bash
-injectived migrate v1.9.0 /path/to/genesis.json --chain-id=injective-888 --genesis-time=2023-03-07T17:00:00Z 
+heliades migrate v1.9.0 /path/to/genesis.json --chain-id=injective-888 --genesis-time=2023-03-07T17:00:00Z 
 ```
 <br/>
 
@@ -182,12 +182,12 @@ injectived migrate v1.9.0 /path/to/genesis.json --chain-id=injective-888 --genes
 
 Manages queries. For a list of syntax and subcommands, run the `query` subcommand with the `--help` or `-h` flag:
 ```bash
-injectived query -h
+heliades query -h
 ```
 
 **Subcommands**:
 ```bash
-injectived query [subcommand]
+heliades query [subcommand]
 ```
 * **`account`**: Query for account by address
 * **`auction`**: Querying commands for the `auction` module
@@ -235,7 +235,7 @@ application.
 **Syntax**
 
 ```bash
-injectived rollback
+heliades rollback
 ```
 <br/>
 
@@ -246,7 +246,7 @@ Creates a Rosetta server.
 **Syntax**
 
 ```bash
-injectived rosetta [flags]
+heliades rosetta [flags]
 ```
 <br/>
 
@@ -262,7 +262,7 @@ The `start` command has many flags available. Run the `start` command with `--he
 **Syntax**
 
 ```bash
-injectived start [flags]
+heliades start [flags]
 ```
 <br/>
 
@@ -274,7 +274,7 @@ Displays the status of a remote node. Use the `--node` or `-n` flag to specify a
 **Syntax**
 
 ```bash
-injectived status
+heliades status
 ```
 <br/>
 
@@ -283,12 +283,12 @@ injectived status
 Manages the Tendermint protocol. For a list of syntax and subcommands, run the `query` subcommand with the `--help` or `-h` flag:
 
 ```bash
-injectived tendermint -h
+heliades tendermint -h
 ```
 
 **Subcommands**:
 ```bash
-injectived tendermint [subcommand]
+heliades tendermint [subcommand]
 ```
 * **`reset-state`**: Remove all the data and WAL
 * **`show-address`**: Shows this node's tendermint validator consensus address
@@ -310,30 +310,30 @@ The `testnet` command has many flags available. Run the `testnet` command with `
 **Syntax**
 
 ```bash
-injectived testnet [flags]
+heliades testnet [flags]
 ```
 
 **Example**
 
 ```bash
-injectived testnet --v 4 --keyring-backend test --output-dir ./output --ip-addresses 192.168.10.2
+heliades testnet --v 4 --keyring-backend test --output-dir ./output --ip-addresses 192.168.10.2
 ```
 <br/>
 
 
 ### `tx`
 
-Manages generation, signing, and broadcasting of transactions. See [Using Injectived](02_using.md) for examples. 
+Manages generation, signing, and broadcasting of transactions. See [Using heliades](02_using.md) for examples. 
 
 For more information on syntax and available subcommands and, run the `tx` command with the `--help` or `-h` flag:
 
 ```bash
-injectived tx -h
+heliades tx -h
 ```
 
 **Subcommands**:
 ```bash
-injectived tx [subcommand]
+heliades tx [subcommand]
 ```
 * **`auction`**: Auction transactions subcommands
 * **`authz`**: Authorization transactions subcommands
@@ -373,13 +373,13 @@ Retrieves transactions that match the specified events where results are paginat
 **Syntax**
 
 ```
-injectived query txs --events '<event>' --page <page-number> --limit <number-of-results>
+heliades query txs --events '<event>' --page <page-number> --limit <number-of-results>
 ```
 
 **Example**
 
 ```
-injectived query txs --events 'message.sender=cosmos1...&message.action=withdraw_delegator_reward' --page 1 --limit 30
+heliades query txs --events 'message.sender=cosmos1...&message.action=withdraw_delegator_reward' --page 1 --limit 30
 ```
 -->
 <!--
@@ -390,7 +390,7 @@ Resets the blockchain database, removes address book files, and resets data/priv
 **Syntax**
 
 ```
-injectived unsafe-reset-all
+heliades unsafe-reset-all
 ```
 -->
 <br/>
@@ -403,7 +403,7 @@ Validates the genesis file at the default location or at the location specified.
 **Syntax**
 
 ```bash
-injectived validate-genesis </path-to-file>
+heliades validate-genesis </path-to-file>
 ```
 <br/>
 
@@ -415,5 +415,5 @@ Returns the version of Injective you’re running.
 **Syntax**
 
 ```bash
-injectived version
+heliades version
 ```

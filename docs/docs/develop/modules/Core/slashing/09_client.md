@@ -7,7 +7,7 @@ A user can query and interact with the `slashing` module using the CLI.
 The `query` commands allow users to query `slashing` state.
 
 ```bash
-injectived query slashing --help
+heliades query slashing --help
 ```
 
 #### params
@@ -15,13 +15,13 @@ injectived query slashing --help
 The `params` command allows users to query genesis parameters for the slashing module.
 
 ```bash
-injectived query slashing params [flags]
+heliades query slashing params [flags]
 ```
 
 Example:
 
 ```bash
-injectived query slashing params
+heliades query slashing params
 ```
 
 Example Output:
@@ -39,13 +39,13 @@ slash_fraction_downtime: "0.010000000000000000"
 The `signing-info` command allows users to query signing-info of the validator using consensus public key.
 
 ```bash
-injectived query slashing signing-infos [flags]
+heliades query slashing signing-infos [flags]
 ```
 
 Example:
 
 ```bash
-injectived query slashing signing-info '{"@type":"/cosmos.crypto.ed25519.PubKey","key":"Auxs3865HpB/EfssYOzfqNhEJjzys6jD5B6tPgC8="}'
+heliades query slashing signing-info '{"@type":"/cosmos.crypto.ed25519.PubKey","key":"Auxs3865HpB/EfssYOzfqNhEJjzys6jD5B6tPgC8="}'
 
 ```
 
@@ -65,13 +65,13 @@ tombstoned: false
 The `signing-infos` command allows users to query signing infos of all validators.
 
 ```bash
-injectived query slashing signing-infos [flags]
+heliades query slashing signing-infos [flags]
 ```
 
 Example:
 
 ```bash
-injectived query slashing signing-infos
+heliades query slashing signing-infos
 ```
 
 Example Output:
@@ -94,7 +94,7 @@ pagination:
 The `tx` commands allow users to interact with the `slashing` module.
 
 ```bash
-injectived tx slashing --help
+heliades tx slashing --help
 ```
 
 #### unjail
@@ -102,13 +102,13 @@ injectived tx slashing --help
 The `unjail` command allows users to unjail a validator previously jailed for downtime.
 
 ```bash
-  injectived tx slashing unjail --from mykey [flags]
+  heliades tx slashing unjail --from mykey [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx slashing unjail --from mykey
+heliades tx slashing unjail --from mykey
 ```
 
 ## gRPC

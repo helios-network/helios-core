@@ -18,7 +18,7 @@ If you choose to run a node (either to set up a private network or join the publ
 
 ## Interacting With The Node
 
-Once the node is up and running, there are a few ways to interact with a node, namely using the gPRC endpoints, REST endpoints, or `injectived` CLI.
+Once the node is up and running, there are a few ways to interact with a node, namely using the gPRC endpoints, REST endpoints, or `heliades` CLI.
 
 ## Contents
 

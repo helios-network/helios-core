@@ -15,34 +15,34 @@ Install Go, Rust, and other Cosmwasm dependencies by following the instructions:
 1. [Go](https://docs.cosmwasm.com/docs/getting-started/installation#go)
 2. [Rust](https://docs.cosmwasm.com/docs/getting-started/installation#rust)
 
-### 2. Install the `injectived` Binary
+### 2. Install the `heliades` Binary
 
-The easiest way to install `injectived` and Injective core is by downloading a pre-built binary for your operating system. Download the most recent Injective binaries from [the official releases repo](https://github.com/InjectiveLabs/injective-chain-releases).
+The easiest way to install `heliades` and Injective core is by downloading a pre-built binary for your operating system. Download the most recent Injective binaries from [the official releases repo](https://github.com/InjectiveLabs/injective-chain-releases).
 
 ```bash
 wget https://github.com/InjectiveLabs/injective-chain-releases/releases/download/v1.10.0-1679065799/linux-amd64.zip
 ```
 
 This zip file will contain three binaries and a virtual machine:
-- **`injectived`** - Injective daemon
+- **`heliades`** - Injective daemon
 - **`peggo`** - Injective ERC-20 bridge relayer daemon
 - **`injective-exchange`** - the Injective Exchange daemon
 - **`libwasmvm.x86_64.so`** - the wasm virtual machine which is needed to execute smart contracts.
 
-Unzip and add `injectived`, to your `/usr/bin`. Also add `libwasmvm.x86_64.so` to user library path `/usr/lib`.
+Unzip and add `heliades`, to your `/usr/bin`. Also add `libwasmvm.x86_64.so` to user library path `/usr/lib`.
 
 Note that you do not need `injective-exchange` and `peggo` for deploying and instantiating smart contracts.
 
 ```bash
 unzip linux-amd64.zip
-sudo mv injectived /usr/bin
+sudo mv heliades /usr/bin
 sudo mv libwasmvm.x86_64.so /usr/lib
 ```
 
 Confirm your version matches the output below (your output may be slightly different if a newer version is available):
 
 ```bash
-injectived version
+heliades version
 Version v1.10.0 (bf0b93dca)
 Compiled at 20230317-2113 using Go go1.19.4 (amd64)
 ```
@@ -55,7 +55,7 @@ wget https://raw.githubusercontent.com/InjectiveLabs/injective-chain-releases/ma
 Initialize the chain and start the binary:
 
 ```bash
-./setup.sh && injectived start
+./setup.sh && heliades start
 ```
 
 ### 3. Compile CosmWasm Contracts 
@@ -90,7 +90,7 @@ contract (`cw20_base-aarch64.wasm` if compiled on an ARM device).
 
 ```bash
 # inside the CosmWasm/cw-plus repo 
-yes 12345678 | injectived tx wasm store artifacts/cw20_base.wasm --from=genesis --chain-id="injective-1" --yes --gas-prices=500000000inj --gas=20000000
+yes 12345678 | heliades tx wasm store artifacts/cw20_base.wasm --from=genesis --chain-id="injective-1" --yes --gas-prices=500000000inj --gas=20000000
 ```
 
 **Output:**
@@ -112,7 +112,7 @@ txhash: 4CFB63A47570C4CFBE8E669273B26BEF6EAFF922C07480CA42180C52219CE784
 Then query the transaction by the `txhash` to verify the contract was indeed deployed. 
 
 ```bash
-injectived query tx 4CFB63A47570C4CFBE8E669273B26BEF6EAFF922C07480CA42180C52219CE784
+heliades query tx 4CFB63A47570C4CFBE8E669273B26BEF6EAFF922C07480CA42180C52219CE784
 ```
 
 **Output:**
@@ -345,7 +345,7 @@ Make sure you have the private keys for the address you choose—you won't be ab
 
 To find the genesis address, run:
 ```bash
-yes 12345678 | injectived keys show genesis
+yes 12345678 | heliades keys show genesis
 ```
 
 **Output:**
@@ -362,7 +362,7 @@ Run the CLI command with `code_id` `1` along with the JSON encoded initializatio
 ```bash
 CODE_ID=1
 INIT='{"name":"Albcoin","symbol":"ALB","decimals":6,"initial_balances":[{"address":"inj10cfy5e6qt2zy55q2w2ux2vuq862zcyf4fmfpj3","amount":"69420"}],"mint":{"minter":"inj10cfy5e6qt2zy55q2w2ux2vuq862zcyf4fmfpj3"},"marketing":{}}'
-yes 12345678 | injectived tx wasm instantiate $CODE_ID $INIT --label="Albcoin Token" --from=genesis --chain-id="injective-1" --yes --gas-prices=500000000inj --gas=20000000 --no-admin
+yes 12345678 | heliades tx wasm instantiate $CODE_ID $INIT --label="Albcoin Token" --from=genesis --chain-id="injective-1" --yes --gas-prices=500000000inj --gas=20000000 --no-admin
 ```
 
 Now the address of the instantiated contract can be obtained on [http://localhost:10337/swagger/#/Query/ContractsByCode](http://localhost:10337/swagger/#/Query/ContractsByCode)
@@ -370,13 +370,13 @@ Now the address of the instantiated contract can be obtained on [http://localhos
 And the contract info meta data can be obtained on [http://localhost:10337/swagger/#/Query/ContractInfo](http://localhost:10337/swagger/#/Query/ContractInfo)  or by CLI query 
 
 ```bash
-CONTRACT=$(injectived query wasm list-contract-by-code $CODE_ID --output json | jq -r '.contracts[-1]')
-injectived query wasm contract $CONTRACT
+CONTRACT=$(heliades query wasm list-contract-by-code $CODE_ID --output json | jq -r '.contracts[-1]')
+heliades query wasm contract $CONTRACT
 ```
 
 **Output:**
 ```bash
-injectived query wasm contract $CONTRACT
+heliades query wasm contract $CONTRACT
 address: inj14hj2tavq8fpesdwxxcu44rty3hh90vhujaxlnz
 contract_info:
   admin: ""
@@ -395,7 +395,7 @@ contract_info:
 The entire contract state can be queried with:
 
 ```bash
-injectived query wasm contract-state all $CONTRACT
+heliades query wasm contract-state all $CONTRACT
 ```
 
 **Output:**
@@ -420,7 +420,7 @@ The individual user’s token balance can also be queried with:
 
 ```bash
 BALANCE_QUERY='{"balance": {"address": "inj10cfy5e6qt2zy55q2w2ux2vuq862zcyf4fmfpj3"}}'
-injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output json
+heliades query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output json
 ```
 
 **Output:**
@@ -432,7 +432,7 @@ injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output j
 
 ```bash
 TRANSFER='{"transfer":{"recipient":"inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz","amount":"420"}}'
-yes 12345678 | injectived tx wasm execute $CONTRACT "$TRANSFER" --from genesis --chain-id="injective-1" --yes --gas-prices=500000000inj --gas=20000000
+yes 12345678 | heliades tx wasm execute $CONTRACT "$TRANSFER" --from genesis --chain-id="injective-1" --yes --gas-prices=500000000inj --gas=20000000
 ```
 
 Then confirm the balance transfer occurred successfully with:
@@ -440,7 +440,7 @@ Then confirm the balance transfer occurred successfully with:
 ```bash
 # first address balance query
 BALANCE_QUERY='{"balance": {"address": "inj10cfy5e6qt2zy55q2w2ux2vuq862zcyf4fmfpj3"}}'
-injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output json
+heliades query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output json
 ```
 
 **Output:**
@@ -452,7 +452,7 @@ And confirm the recipient received the funds:
 ```bash
 # recipient's address balance query
 BALANCE_QUERY='{"balance": {"address": "inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz"}}'
-injectived query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output json
+heliades query wasm contract-state smart $CONTRACT "$BALANCE_QUERY" --output json
 ```
 
 **Output:**

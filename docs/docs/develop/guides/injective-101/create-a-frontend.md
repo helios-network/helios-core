@@ -5,7 +5,7 @@ title: Creating a Frontend for Your Contract
 
 ## Building a Web Interface
 
-We've interacted with our contract through the Injective CLI, but this is not ideal for most dApp users. A web UI can provide a much better experience! Rather than sending transaction messages through `injectived`, we can abstract away the complexity and provide the user with two buttons—one to increment the count, and one to reset the count.
+We've interacted with our contract through the Injective CLI, but this is not ideal for most dApp users. A web UI can provide a much better experience! Rather than sending transaction messages through `heliades`, we can abstract away the complexity and provide the user with two buttons—one to increment the count, and one to reset the count.
 
 <div style={{textAlign: 'center'}}>
   <img src="/img/Counter_website.png" />

@@ -9,7 +9,7 @@ A user can query and interact with the `gov` module using the CLI.
 The `query` commands allow users to query `gov` state.
 
 ```bash
-injectived query gov --help
+heliades query gov --help
 ```
 
 #### deposit
@@ -17,13 +17,13 @@ injectived query gov --help
 The `deposit` command allows users to query a deposit for a given proposal from a given depositor.
 
 ```bash
-injectived query gov deposit [proposal-id] [depositer-addr] [flags]
+heliades query gov deposit [proposal-id] [depositer-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov deposit 1 cosmos1..
+heliades query gov deposit 1 cosmos1..
 ```
 
 Example Output:
@@ -41,13 +41,13 @@ proposal_id: "1"
 The `deposits` command allows users to query all deposits for a given proposal.
 
 ```bash
-injectived query gov deposits [proposal-id] [flags]
+heliades query gov deposits [proposal-id] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov deposits 1
+heliades query gov deposits 1
 ```
 
 Example Output:
@@ -69,13 +69,13 @@ pagination:
 The `param` command allows users to query a given parameter for the `gov` module.
 
 ```bash
-injectived query gov param [param-type] [flags]
+heliades query gov param [param-type] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov param voting
+heliades query gov param voting
 ```
 
 Example Output:
@@ -89,13 +89,13 @@ voting_period: "172800000000000"
 The `params` command allows users to query all parameters for the `gov` module.
 
 ```bash
-injectived query gov params [flags]
+heliades query gov params [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov params
+heliades query gov params
 ```
 
 Example Output:
@@ -119,13 +119,13 @@ voting_params:
 The `proposal` command allows users to query a given proposal.
 
 ```bash
-injectived query gov proposal [proposal-id] [flags]
+heliades query gov proposal [proposal-id] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov proposal 1
+heliades query gov proposal 1
 ```
 
 Example Output:
@@ -156,13 +156,13 @@ voting_start_time: "0001-01-01T00:00:00Z"
 The `proposals` command allows users to query all proposals with optional filters.
 
 ```bash
-injectived query gov proposals [flags]
+heliades query gov proposals [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov proposals
+heliades query gov proposals
 ```
 
 Example Output:
@@ -197,13 +197,13 @@ proposals:
 The `proposer` command allows users to query the proposer for a given proposal.
 
 ```bash
-injectived query gov proposer [proposal-id] [flags]
+heliades query gov proposer [proposal-id] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov proposer 1
+heliades query gov proposer 1
 ```
 
 Example Output:
@@ -218,13 +218,13 @@ proposer: cosmos1r0tllwu5c9dtgwg3wr28lpvf76hg85f5zmh9l2
 The `tally` command allows users to query the tally of a given proposal vote.
 
 ```bash
-injectived query gov tally [proposal-id] [flags]
+heliades query gov tally [proposal-id] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov tally 1
+heliades query gov tally 1
 ```
 
 Example Output:
@@ -241,13 +241,13 @@ no_with_veto: "0"
 The `vote` command allows users to query a vote for a given proposal.
 
 ```bash
-injectived query gov vote [proposal-id] [voter-addr] [flags]
+heliades query gov vote [proposal-id] [voter-addr] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov vote 1 cosmos1..
+heliades query gov vote 1 cosmos1..
 ```
 
 Example Output:
@@ -266,13 +266,13 @@ voter: cosmos1..
 The `votes` command allows users to query all votes for a given proposal.
 
 ```bash
-injectived query gov votes [proposal-id] [flags]
+heliades query gov votes [proposal-id] [flags]
 ```
 
 Example:
 
 ```bash
-injectived query gov votes 1
+heliades query gov votes 1
 ```
 
 Example Output:
@@ -295,7 +295,7 @@ votes:
 The `tx` commands allow users to interact with the `gov` module.
 
 ```bash
-injectived tx gov --help
+heliades tx gov --help
 ```
 
 #### deposit
@@ -303,13 +303,13 @@ injectived tx gov --help
 The `deposit` command allows users to deposit tokens for a given proposal.
 
 ```bash
-injectived tx gov deposit [proposal-id] [deposit] [flags]
+heliades tx gov deposit [proposal-id] [deposit] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx gov deposit 1 10000000stake --from cosmos1..
+heliades tx gov deposit 1 10000000stake --from cosmos1..
 ```
 
 #### submit-proposal
@@ -317,25 +317,25 @@ injectived tx gov deposit 1 10000000stake --from cosmos1..
 The `submit-proposal` command allows users to submit a governance proposal and to optionally include an initial deposit.
 
 ```bash
-injectived tx gov submit-proposal [command] [flags]
+heliades tx gov submit-proposal [command] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx gov submit-proposal --title="Test Proposal" --description="testing, testing, 1, 2, 3" --type="Text" --deposit="10000000stake" --from cosmos1..
+heliades tx gov submit-proposal --title="Test Proposal" --description="testing, testing, 1, 2, 3" --type="Text" --deposit="10000000stake" --from cosmos1..
 ```
 
 Example (`cancel-software-upgrade`):
 
 ```bash
-injectived tx gov submit-proposal cancel-software-upgrade --title="Test Proposal" --description="testing, testing, 1, 2, 3" --deposit="10000000stake" --from cosmos1..
+heliades tx gov submit-proposal cancel-software-upgrade --title="Test Proposal" --description="testing, testing, 1, 2, 3" --deposit="10000000stake" --from cosmos1..
 ```
 
 Example (`community-pool-spend`):
 
 ```bash
-injectived tx gov submit-proposal community-pool-spend proposal.json --from cosmos1..
+heliades tx gov submit-proposal community-pool-spend proposal.json --from cosmos1..
 ```
 
 ```json
@@ -351,7 +351,7 @@ injectived tx gov submit-proposal community-pool-spend proposal.json --from cosm
 Example (`param-change`):
 
 ```bash
-injectived tx gov submit-proposal param-change proposal.json --from cosmos1..
+heliades tx gov submit-proposal param-change proposal.json --from cosmos1..
 ```
 
 ```json
@@ -372,7 +372,7 @@ injectived tx gov submit-proposal param-change proposal.json --from cosmos1..
 Example (`software-upgrade`):
 
 ```bash
-injectived tx gov submit-proposal software-upgrade v2 --title="Test Proposal" --description="testing, testing, 1, 2, 3" --upgrade-height 1000000 --from cosmos1..
+heliades tx gov submit-proposal software-upgrade v2 --title="Test Proposal" --description="testing, testing, 1, 2, 3" --upgrade-height 1000000 --from cosmos1..
 ```
 
 #### vote
@@ -380,13 +380,13 @@ injectived tx gov submit-proposal software-upgrade v2 --title="Test Proposal" --
 The `vote` command allows users to submit a vote for a given governance proposal.
 
 ```bash
-injectived tx gov vote [command] [flags]
+heliades tx gov vote [command] [flags]
 ```
 
 Example:
 
 ```bash
-injectived tx gov vote 1 yes --from cosmos1..
+heliades tx gov vote 1 yes --from cosmos1..
 ```
 
 #### weighted-vote
@@ -394,13 +394,13 @@ injectived tx gov vote 1 yes --from cosmos1..
 The `weighted-vote` command allows users to submit a weighted vote for a given governance proposal.
 
 ```bash
-injectived tx gov weighted-vote [proposal-id] [weighted-options]
+heliades tx gov weighted-vote [proposal-id] [weighted-options]
 ```
 
 Example:
 
 ```bash
-injectived tx gov weighted-vote 1 yes=0.5,no=0.5 --from cosmos1
+heliades tx gov weighted-vote 1 yes=0.5,no=0.5 --from cosmos1
 ```
 
 ## gRPC

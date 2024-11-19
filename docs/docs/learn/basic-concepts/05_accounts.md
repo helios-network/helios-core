@@ -56,7 +56,7 @@ You can query an account address using the Cosmos CLI or REST clients:
 
 ```bash
 # NOTE: the --output (-o) flag will define the output format in JSON or YAML (text)
-injectived q auth account $(injectived keys show <MYKEY> -a) -o text
+heliades q auth account $(heliades keys show <MYKEY> -a) -o text
 |
   '@type': /helios.types.v1beta1.EthAccount
   base_account:
@@ -75,7 +75,7 @@ curl -X GET "http://localhost:10337/cosmos/auth/v1beta1/accounts/inj14au322k9mun
 See the [Swagger API](https://lcd.helios.network/swagger/) reference for the full docs on the accounts API.
 
 ::: tip
-The Cosmos SDK Keyring output (i.e `injectived keys`) only supports addresses in Bech32 format.
+The Cosmos SDK Keyring output (i.e `heliades keys`) only supports addresses in Bech32 format.
 :::
 
 ## Deriving Injective Account from a private key/mnemonic

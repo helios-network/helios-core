@@ -1,22 +1,22 @@
 ---
 sidebar_position: 2
-title: Using Injectived
+title: Using heliades
 ---
 
-# Using `injectived` 
+# Using `heliades` 
 
-The following explains what one can do via `injectived`, the command-line interface that connects to Injective, as well as interact with the Injective blockchain. Every active validator and full node runs `injectived` and communicates with their node via `injectived`. In this relationship, `injectived` operates as both the client and the server. You can use `injectived` to interact with the Injective blockchain by uploading smart contracts, querying data, managing staking activities, working with governance proposals, and more.
+The following explains what one can do via `heliades`, the command-line interface that connects to Injective, as well as interact with the Injective blockchain. Every active validator and full node runs `heliades` and communicates with their node via `heliades`. In this relationship, `heliades` operates as both the client and the server. You can use `heliades` to interact with the Injective blockchain by uploading smart contracts, querying data, managing staking activities, working with governance proposals, and more.
 
-For more general information about `injectived`, run: 
+For more general information about `heliades`, run: 
 
 ```bash
-injectived --help
+heliades --help
 ```
 
-For more information about a specific `injectived`  command, append the `-h` or `--help` flag after the command. For example:
+For more information about a specific `heliades`  command, append the `-h` or `--help` flag after the command. For example:
 
 ```bash
-injectived query --help.
+heliades query --help.
 ```
 
 
@@ -29,7 +29,7 @@ An endpoint may be specified using the `--node=<Endpoint Address>` option. For e
 
 Command:
 ```bash
-injectived query bank balances inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt --node=https://k8s.testnet.tm.helios.network:443
+heliades query bank balances inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt --node=https://k8s.testnet.tm.helios.network:443
 ```
 
 Response:
@@ -45,9 +45,9 @@ pagination:
 ```
 :::
 
-## Configuring `injectived`
+## Configuring `heliades`
 
-`injectived` enables you to interact with the node that runs on the Injective network, whether you run it yourself or not. To configure `injectived`, edit the the `config.toml` file in the `~/.injective/config/` directory.
+`heliades` enables you to interact with the node that runs on the Injective network, whether you run it yourself or not. To configure `heliades`, edit the the `config.toml` file in the `~/.injective/config/` directory.
 
 ## Example 1: Querying Blockchain State
 
@@ -56,34 +56,34 @@ For testing purpose, we assume you are connected to a node in your local private
 Now that your very own Injective node is running, it is time to try sending tokens from the first account you created to a second account. In a new terminal window, start by running the following query command:
 
 ```bash
-injectived query bank balances $MY_VALIDATOR_ADDRESS --chain-id=injective-1
+heliades query bank balances $MY_VALIDATOR_ADDRESS --chain-id=injective-1
 ```
 
 You should see the current balance of the account you created, equal to the original balance of `inj` you granted it minus the amount you delegated via the `gentx`. Now, create a second account:
 
 ```bash
-injectived keys add recipient --keyring-backend=file
+heliades keys add recipient --keyring-backend=file
 
 # Put the generated address in a variable for later use.
-RECIPIENT=$(injectived keys show recipient -a --keyring-backend=file)
+RECIPIENT=$(heliades keys show recipient -a --keyring-backend=file)
 ```
 
 The command above creates a local key-pair that is not yet registered on the chain. An account is created the first time it receives tokens from another account. Now, run the following command to send tokens to the `recipient` account:
 
 ```bash
-injectived tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000inj --chain-id=injective-1 --keyring-backend=file
+heliades tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000inj --chain-id=injective-1 --keyring-backend=file
 
 # Check that the recipient account did receive the tokens.
-injectived query bank balances $RECIPIENT --chain-id=injective-1
+heliades query bank balances $RECIPIENT --chain-id=injective-1
 ```
 
 Finally, delegate some of the stake tokens sent to the `recipient` account to the validator:
 
 ```bash
-injectived tx staking delegate $(injectived keys show my_validator --bech val -a --keyring-backend=file) 500inj --from=recipient --chain-id=injective-1 --keyring-backend=file
+heliades tx staking delegate $(heliades keys show my_validator --bech val -a --keyring-backend=file) 500inj --from=recipient --chain-id=injective-1 --keyring-backend=file
 
 # Query the total delegations to `validator`.
-injectived query staking delegations-to $(injectived keys show my_validator --bech val -a --keyring-backend=file) --chain-id=injective-1
+heliades query staking delegations-to $(heliades keys show my_validator --bech val -a --keyring-backend=file) --chain-id=injective-1
 ```
 
 You should see two delegations, the first one made from the `gentx`, and the second one you just performed from the `recipient` account.
@@ -93,7 +93,7 @@ You should see two delegations, the first one made from the `gentx`, and the sec
 Running the following command will execute the following steps:
 
 ```bash
-injectived tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000inj --chain-id=injective-1 --keyring-backend=file
+heliades tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000inj --chain-id=injective-1 --keyring-backend=file
 ```
 
 - Generate a transaction with one `Msg` (`x/bank`'s `MsgSend`), and print the generated transaction to the console.
@@ -109,7 +109,7 @@ The CLI bundles all the necessary steps into a simple-to-use user experience. Ho
 Generating a transaction can simply be done by appending the `--generate-only` flag on any `tx` command, e.g.:
 
 ```bash
-injectived tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000inj --chain-id=injective-1 --generate-only
+heliades tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000inj --chain-id=injective-1 --generate-only
 ```
 
 This will output the unsigned transaction as JSON in the console. We can also save the unsigned transaction to a file (to be passed around between signers more easily) by appending `> unsigned_tx.json` to the above command.
@@ -119,7 +119,7 @@ This will output the unsigned transaction as JSON in the console. We can also sa
 Signing a transaction using the CLI requires the unsigned transaction to be saved in a file. Let's assume the unsigned transaction is in a file called `unsigned_tx.json` in the current directory (see previous paragraph on how to do that). Then, simply run the following command:
 
 ```bash
-injectived tx sign unsigned_tx.json --chain-id=injective-1 --keyring-backend=file --from=$MY_VALIDATOR_ADDRESS
+heliades tx sign unsigned_tx.json --chain-id=injective-1 --keyring-backend=file --from=$MY_VALIDATOR_ADDRESS
 ```
 
 This command will decode the unsigned transaction and sign it with `SIGN_MODE_DIRECT` with `$MY_VALIDATOR_ADDRESS`'s key, which we already set up in the keyring. The signed transaction will be output as JSON to the console, and, as above, we can save it to a file by appending `> signed_tx.json`.
@@ -141,12 +141,12 @@ For example, starting with the `unsigned_tx.json`, and assuming the transaction 
 
 ```bash
 # Let signer1 sign the unsigned tx.
-injectived tx multisignsign unsigned_tx.json signer_key_1 --chain-id=injective-1 --keyring-backend=file > partial_tx_1.json
+heliades tx multisignsign unsigned_tx.json signer_key_1 --chain-id=injective-1 --keyring-backend=file > partial_tx_1.json
 # Now signer1 will send the partial_tx_1.json to the signer2.
 # Signer2 appends their signature:
-injectived tx multisignsign partial_tx_1.json signer_key_2 --chain-id=injective-1 --keyring-backend=file > partial_tx_2.json
+heliades tx multisignsign partial_tx_1.json signer_key_2 --chain-id=injective-1 --keyring-backend=file > partial_tx_2.json
 # Signer2 sends the partial_tx_2.json file to signer3, and signer3 can append his signature:
-injectived tx multisignsign partial_tx_2.json signer_key_3 --chain-id=injective-1 --keyring-backend=file > partial_tx_3.json
+heliades tx multisignsign partial_tx_2.json signer_key_3 --chain-id=injective-1 --keyring-backend=file > partial_tx_3.json
 ```
 
 ### Broadcasting a Transaction
@@ -154,7 +154,7 @@ injectived tx multisignsign partial_tx_2.json signer_key_3 --chain-id=injective-
 Broadcasting a transaction is done using the following command:
 
 ```bash
-injectived tx broadcast tx_signed.json
+heliades tx broadcast tx_signed.json
 ```
 
 You may optionally pass the `--broadcast-mode` flag to specify which response to receive from the node:

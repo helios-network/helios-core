@@ -30,7 +30,7 @@ This decentralized bridge is secured and operated by the validators of the Injec
     - **Valset Relayer** (Submits Validator set updates to the Peggy contract)
     - **Batch Relayer** (Submits batches of token withdrawals to the Peggy contract)
 
-In addition to running an `injectived` node to sign blocks, Injective Chain validators must also run the `peggo` orchestrator to relay data from the Peggy smart contract on Ethereum and the Peggy module on the Injective Chain.
+In addition to running an `heliades` node to sign blocks, Injective Chain validators must also run the `peggo` orchestrator to relay data from the Peggy smart contract on Ethereum and the Peggy module on the Injective Chain.
 
 ### Peggo Functionalities
 

@@ -23,7 +23,7 @@ binary).
 `cosmovisor` reads its configuration from environment variables:
 
 * `DAEMON_HOME` is the location where upgrade binaries should be kept (e.g. `$HOME/.heliades`).
-* `DAEMON_NAME` is the name of the binary itself (eg. `injectived`).
+* `DAEMON_NAME` is the name of the binary itself (eg. `heliades`).
 * `DAEMON_ALLOW_DOWNLOAD_BINARIES` (*optional*) if set to `true` will enable auto-downloading of new binaries
 (for security reasons, this is intended for full nodes rather than validators).
 * `DAEMON_RESTART_AFTER_UPGRADE` (*optional*) if set to `true` it will restart the sub-process with the same
@@ -135,33 +135,33 @@ which should return `29139e1381b8177aec909fab9a75d11381cab5adf7d3af0c05ff1c9c117
 You can also use `sha512sum` if you like longer hashes, or `md5sum` if you like to use broken hashes.
 Make sure to set the hash algorithm properly in the checksum argument to the url.
 
-## Example: injectived
+## Example: heliades
 
-The following instructions provide a demonstration of `cosmovisor`'s integration with the `injectived` application
+The following instructions provide a demonstration of `cosmovisor`'s integration with the `heliades` application
 shipped along the Cosmos SDK's source code.
 
-First compile `injectived`:
+First compile `heliades`:
 
 ```
 cd injective-core/
 make build
 ```
 
-Create a new key and setup the `injectived` node:
+Create a new key and setup the `heliades` node:
 
 ```
 rm -rf $HOME/.heliades
-./build/injectived keys --keyring-backend=file add validator
-./build/injectived init testing --chain-id=injective-1
-./build/injectived add-genesis-account --keyring-backend=file $(./build/injectived keys --keyring-backend=file show validator -a) 1000000000inj
-./build/injectived gentx --keyring-backend=file --chain-id=injective-1 validator 100000inj
-./build/injectived collect-gentxs
+./build/heliades keys --keyring-backend=file add validator
+./build/heliades init testing --chain-id=injective-1
+./build/heliades add-genesis-account --keyring-backend=file $(./build/heliades keys --keyring-backend=file show validator -a) 1000000000inj
+./build/heliades gentx --keyring-backend=file --chain-id=injective-1 validator 100000inj
+./build/heliades collect-gentxs
 ```
 
 Set the required environment variables:
 
 ```
-export DAEMON_NAME=injectived         # binary name
+export DAEMON_NAME=heliades         # binary name
 export DAEMON_HOME=$HOME/.heliades  # daemon's home directory
 ```
 
@@ -169,7 +169,7 @@ Create the `cosmovisor`’s genesis folders and deploy the binary:
 
 ```
 mkdir -p $DAEMON_HOME/cosmovisor/genesis/bin
-cp ./build/injectived $DAEMON_HOME/cosmovisor/genesis/bin
+cp ./build/heliades $DAEMON_HOME/cosmovisor/genesis/bin
 ```
 
 For the sake of this demonstration, we would amend `voting_params.voting_period` in `.heliades/config/genesis.json` to a reduced time ~5 minutes (300s) and eventually launch `cosmosvisor`:
@@ -181,17 +181,17 @@ cosmovisor start
 Submit a software upgrade proposal:
 
 ```
-./build/injectived tx gov submit-proposal software-upgrade test1 --title="upgrade-demo" --description="upgrade"  --from=validator --upgrade-height=100 --deposit=10000000inj --chain-id=injective-1 --keyring-backend=test -y
+./build/heliades tx gov submit-proposal software-upgrade test1 --title="upgrade-demo" --description="upgrade"  --from=validator --upgrade-height=100 --deposit=10000000inj --chain-id=injective-1 --keyring-backend=test -y
 ```
 
 Query the proposal to ensure it was correctly broadcast and added to a block:
 
 ```
-./build/injectived query gov proposal 1
+./build/heliades query gov proposal 1
 ```
 
 Submit a `Yes` vote for the upgrade proposal:
 
 ```
-./build/injectived tx gov vote 1 yes --from=validator --keyring-backend=file --chain-id=injective-1 -y
+./build/heliades tx gov vote 1 yes --from=validator --keyring-backend=file --chain-id=injective-1 -y
 ```

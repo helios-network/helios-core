@@ -12,9 +12,9 @@ There are multiple ways to interact with a node: the CLI, gRPC, or the REST endp
 
 ## Option 1: Using the CLI
 
-You can use the `injectived` CLI to interact with a node. If you are interacting with a node in your local private network, make sure the node is running in the terminal before you use the CLI.
+You can use the `heliades` CLI to interact with a node. If you are interacting with a node in your local private network, make sure the node is running in the terminal before you use the CLI.
 
-For more details on how to use `injectived`, go to [Using `injectived`](../develop/tools/heliades/02_using.md).
+For more details on how to use `heliades`, go to [Using `heliades`](../develop/tools/heliades/02_using.md).
 
 ## Option 2: Using gRPC
 

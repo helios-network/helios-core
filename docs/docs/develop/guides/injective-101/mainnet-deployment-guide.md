@@ -14,10 +14,10 @@ In this section, you will learn how to submit a smart contract code proposal and
 
 Injective network participants can propose smart contracts deployments and vote in governance to enable them. The `wasmd` authorization settings are by on-chain governance, which means deployment of a contract is completely determined by governance. Because of this, a governance proposal is the first step to uploading contracts to Injective mainnet.
 
-Sample usage of `injectived` to start a governance proposal to upload code to the chain:
+Sample usage of `heliades` to start a governance proposal to upload code to the chain:
 
 ```bash
-injectived tx wasm submit-proposal wasm-store artifacts/cw_controller.wasm
+heliades tx wasm submit-proposal wasm-store artifacts/cw_controller.wasm
 --title="Proposal Title" \
 --summary="Proposal Summary" \
 --instantiate-everybody true \
@@ -32,7 +32,7 @@ injectived tx wasm submit-proposal wasm-store artifacts/cw_controller.wasm
 --output json
 ```
 
-The command `injectived tx gov submit-proposal wasm-store` submits a wasm binary proposal. The code will be deployed if the proposal is approved by governance.
+The command `heliades tx gov submit-proposal wasm-store` submits a wasm binary proposal. The code will be deployed if the proposal is approved by governance.
 
 Let’s go through two key flags `instantiate-everybody` and `instantiate-only-address`, which set instantiation permissions of the uploaded code. By default, everyone can instantiate the contract.
 
@@ -45,12 +45,12 @@ Let’s go through two key flags `instantiate-everybody` and `instantiate-only-a
 
 :::tip
 
-In most cases, you don’t need to push another governance proposal to instantiate. Simply instantiate with `injectived tx wasm instantiate`. You only need a governance proposal to *upload* a contract. You don’t need to go through governance to instantiate unless if the contract has the `--instantiate-everybody` flag to set to `false`, and `--instantiate-only-address` flag set to the governance module. The default value for `--instantiate-everybody` is `true`, and in this case you can permissionlessly instantiate via `injectived tx wasm instantiate`.
+In most cases, you don’t need to push another governance proposal to instantiate. Simply instantiate with `heliades tx wasm instantiate`. You only need a governance proposal to *upload* a contract. You don’t need to go through governance to instantiate unless if the contract has the `--instantiate-everybody` flag to set to `false`, and `--instantiate-only-address` flag set to the governance module. The default value for `--instantiate-everybody` is `true`, and in this case you can permissionlessly instantiate via `heliades tx wasm instantiate`.
 
 :::
 
 ```bash
-injectived tx wasm instantiate [code_id_int64] [json_encoded_init_args] --label [text] --admin [address,optional] --amount [coins,optional]  [flags]
+heliades tx wasm instantiate [code_id_int64] [json_encoded_init_args] --label [text] --admin [address,optional] --amount [coins,optional]  [flags]
 ```
 
 ```bash
@@ -87,10 +87,10 @@ Flags:
   -y, --yes                      Skip tx broadcasting prompt confirmation
 ```
 
-An example `injectived tx wasm instantiate` can look something like this:
+An example `heliades tx wasm instantiate` can look something like this:
 
 ```bash
-injectived tx wasm instantiate \
+heliades tx wasm instantiate \
 150 \
 '{"bank": "inj1egl894wme0d4d029hlv3kuqs0mc9atep2s89h8"}' \
 --label="LABEL" \
@@ -132,7 +132,7 @@ The Injective testnet is permissionless by default in order to allow developers 
 ### Contract Instantiation Proposal
 
 ```bash
- injectived tx gov submit-proposal instantiate-contract [code_id_int64] [json_encoded_init_args] --label [text] --title [text] --description [text] --run-as [address] --admin [address,optional] --amount [coins,optional] [flags]
+ heliades tx gov submit-proposal instantiate-contract [code_id_int64] [json_encoded_init_args] --label [text] --title [text] --description [text] --run-as [address] --admin [address,optional] --amount [coins,optional] [flags]
  ```
 
 ```bash

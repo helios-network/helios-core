@@ -1,12 +1,12 @@
 ---
 sidebar_position: 1
-title: Install Injectived
+title: Install heliades
 ---
 
 
-# Install `injectived` 
+# Install `heliades` 
 
-`injectived` is the command-line interface and daemon that connects to Injective and enables you to interact with the Injective blockchain. Injective core is the official Golang reference implementation of the Injective node software.
+`heliades` is the command-line interface and daemon that connects to Injective and enables you to interact with the Injective blockchain. Injective core is the official Golang reference implementation of the Injective node software.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ title: Install Injectived
 
 ## Option 1: From binary
 
-The easiest way to install `injectived` and Injective core is by downloading a pre-built binary for your operating system. Download the most recent Injective binaries from the official [injective-chain-releases repo](https://github.com/InjectiveLabs/injective-chain-releases).
+The easiest way to install `heliades` and Injective core is by downloading a pre-built binary for your operating system. Download the most recent Injective binaries from the official [injective-chain-releases repo](https://github.com/InjectiveLabs/injective-chain-releases).
 
 :::tip
 
@@ -32,23 +32,23 @@ wget https://github.com/InjectiveLabs/injective-chain-releases/releases/download
 ```
 
 This zip file will contain three binaries and a virtual machine:
-- **`injectived`** - Injective daemon
+- **`heliades`** - Injective daemon
 - **`peggo`** - Injective ERC-20 bridge relayer daemon
 - **`injective-exchange`** - the Injective Exchange daemon
 - **`libwasmvm.x86_64.so`** - the wasm virtual machine which is needed to execute smart contracts.
 
-Unzip and add `injectived`, `injective-exchange` and `peggo` to your `/usr/bin`. Also add `libwasmvm.x86_64.so` to user library path `/usr/lib`.
+Unzip and add `heliades`, `injective-exchange` and `peggo` to your `/usr/bin`. Also add `libwasmvm.x86_64.so` to user library path `/usr/lib`.
 
 ```bash
 unzip linux-amd64.zip
-sudo mv injectived peggo injective-exchange /usr/bin
+sudo mv heliades peggo injective-exchange /usr/bin
 sudo mv libwasmvm.x86_64.so /usr/lib
 ```
 
 Check your binary version by running following commands.
 
 ```bash
-injectived version
+heliades version
 peggo version
 injective-exchange version
 ```
@@ -56,7 +56,7 @@ injective-exchange version
 Confirm your version matches the output below
 
 ```bash
-injectived version
+heliades version
 Version dev (f32e524)
 
 peggo version
@@ -68,7 +68,7 @@ Version dev (ca1da5e)
 
 ## Option 2: From source
 
-Note: you will only install `injectived` but not `injective-exchange`, `peggo` or `libwasmvm.x86_64.so` using this option. If you are using MacOS you can only install `injectived` from source.
+Note: you will only install `heliades` but not `injective-exchange`, `peggo` or `libwasmvm.x86_64.so` using this option. If you are using MacOS you can only install `heliades` from source.
 
 ### Get the Injective core source code
 
@@ -82,7 +82,7 @@ git clone https://github.com/InjectiveFoundation/injective-core
 
 ### Build Injective core from source
 
-Build Injective core, and install the `injectived` executable to your GOPATH environment variable.
+Build Injective core, and install the `heliades` executable to your GOPATH environment variable.
 
 ```bash
 cd injective-core
@@ -94,6 +94,6 @@ make install
 Verify that Injective core is installed correctly.
 
 ```bash
-injectived version
+heliades version
 ```
 

@@ -23,7 +23,7 @@ The following is a short summary of the upgrade steps:
 1. Vote and wait till the node panics at block height **82830000**.
 2. Backing up configs, data, and keys used for running the Injective Canonical Chain.
 3. Install the [XXXX](https://github.com/InjectiveLabs/injective-chain-releases/releases/tag/v1.13.2-XXXX)
-4. Start your node with the new injectived binary to fulfill the upgrade.
+4. Start your node with the new heliades binary to fulfill the upgrade.
 
 Upgrade coordination and support for validators will be available on the `#validators` private channel of the [Injective Discord](https://discord.gg/injective).
 
@@ -42,7 +42,7 @@ If the chain is not successfully resumed within 36 hours, the upgrade will be an
 
 Prior to exporting chain state, validators are encouraged to take a full data snapshot at the export height before proceeding. Snapshotting depends heavily on infrastructure, but generally this can be done by backing up the `.heliades` directory.
 
-It is critically important to backup the `.heliades/data/priv_validator_state.json` file after stopping your injectived process. This file is updated every block as your validator participates in a consensus rounds. It is a critical file needed to prevent double-signing, in case the upgrade fails and the previous chain needs to be restarted.
+It is critically important to backup the `.heliades/data/priv_validator_state.json` file after stopping your heliades process. This file is updated every block as your validator participates in a consensus rounds. It is a critical file needed to prevent double-signing, in case the upgrade fails and the previous chain needs to be restarted.
 
 In the event that the upgrade does not succeed, validators and operators must restore the snapshot and downgrade back to [Injective Chain v1.13.2 release](https://github.com/InjectiveLabs/injective-chain-releases/releases/tag/v1.13.2-XXXX) and continue the chain until next upgrade announcement.
 
@@ -52,36 +52,36 @@ In the event that the upgrade does not succeed, validators and operators must re
 
 You must remove the wasm cache before upgrading to the new version (rm -rf .heliades/wasm/wasm/cache/).
 
-1. Verify you are currently running the correct version (`XXXXX`) of `injectived`:
+1. Verify you are currently running the correct version (`XXXXX`) of `heliades`:
    ```bash
-      injectived version
+      heliades version
       Version dev (XXXXX)
       Compiled at XXXX using Go goX.XX.X (amd64)
    ```
 
 2. Make a backup of your `.heliades` directory
     ```bash
-    cp ~/.heliades ./injectived-backup
+    cp ~/.heliades ./heliades-backup
     ```
 
    3. Download and install the injective-chain `v1.13.2 release`
    ```bash
    wget https://github.com/InjectiveLabs/injective-chain-releases/releases/download/v1.13.2-1723753267/linux-amd64.zip
    unzip linux-amd64.zip
-   sudo mv injectived peggo /usr/bin
+   sudo mv heliades peggo /usr/bin
    sudo mv libwasmvm.x86_64.so /usr/lib
    ```
 
-4. Verify you are currently running the correct version (`XXXXX`) of `injectived` after downloading the v1.13.2 release:
+4. Verify you are currently running the correct version (`XXXXX`) of `heliades` after downloading the v1.13.2 release:
     ```bash
-   injectived version
+   heliades version
    Version dev (XXXXX)
    Compiled at XXXXX using Go go1.22.5 (amd64)
    ```
 
-5. Start injectived
+5. Start heliades
     ```bash
-   injectived start
+   heliades start
    ```
 6. Verify you are currently running the correct version (`ead1119`) of `peggo` after downloading the v1.13.0 release:
    ```bash

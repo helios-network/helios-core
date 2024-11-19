@@ -16,7 +16,7 @@ The minimum hardware specifications are as follows, though they might rise as ne
 500 GB+ SSD
 ```
 
-## Install `injectived` and `peggo`
+## Install `heliades` and `peggo`
 
 See the [Injective releases repo](https://github.com/InjectiveLabs/testnet/releases) for the most recent releases. Non-validator node operators do not need to install `peggo`.
 
@@ -24,7 +24,7 @@ See the [Injective releases repo](https://github.com/InjectiveLabs/testnet/relea
 wget https://github.com/InjectiveLabs/testnet/releases/download/v1.12.9-testnet-1703762556/linux-amd64.zip
 unzip linux-amd64.zip
 sudo mv peggo /usr/bin
-sudo mv injectived /usr/bin
+sudo mv heliades /usr/bin
 sudo mv libwasmvm.x86_64.so /usr/lib 
 ```
 
@@ -36,10 +36,10 @@ Before running Injective node, we need to initialize the chain as well as the no
 # The argument <moniker> is the custom username of your node, it should be human-readable.
 export MONIKER=<moniker>
 # Injective Testnet has a chain-id of "injective-888"
-injectived init $MONIKER --chain-id injective-888
+heliades init $MONIKER --chain-id injective-888
 ```
 
-Running the `init` command will create `injectived` default configuration files at `~/.heliades`.
+Running the `init` command will create `heliades` default configuration files at `~/.heliades`.
 
 ## Prepare Configuration to Join Testnet
 
@@ -62,16 +62,16 @@ You can also run verify the checksum of the genesis checksum - a4abe4e1f5511d4c2
 sha256sum ~/.heliades/config/genesis.json
 ```
 
-## Configure `systemd` Service for `injectived`
+## Configure `systemd` Service for `heliades`
 
-Edit the config at `/etc/systemd/system/injectived.service`:
+Edit the config at `/etc/systemd/system/heliades.service`:
 ```bash
 [Unit]
-  Description=injectived
+  Description=heliades
 
 [Service]
   WorkingDirectory=/usr/bin
-  ExecStart=/bin/bash -c '/usr/bin/injectived --log-level=error start'
+  ExecStart=/bin/bash -c '/usr/bin/heliades --log-level=error start'
   Type=simple
   Restart=always
   RestartSec=5
@@ -84,14 +84,14 @@ Edit the config at `/etc/systemd/system/injectived.service`:
 Starting and restarting the systemd service
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl restart injectived
-sudo systemctl status injectived
+sudo systemctl restart heliades
+sudo systemctl status heliades
 
 # enable start on system boot
-sudo systemctl enable injectived
+sudo systemctl enable heliades
 
 # To check Logs
-journalctl -u injectived -f
+journalctl -u heliades -f
 ```
 
 ## Sync with the network

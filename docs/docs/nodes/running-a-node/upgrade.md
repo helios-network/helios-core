@@ -7,7 +7,7 @@ title: Node Upgrades and Maintenance
 
 ## Chain Upgrades
 
-Injective periodically undergoes software upgrades. When a chain upgrade governance proposal is passed, a block height will be specified at which all nodes will automatically panic and stop running. At this point, the upgraded `injectived` binaries  can be installed, and the node can be restarted.
+Injective periodically undergoes software upgrades. When a chain upgrade governance proposal is passed, a block height will be specified at which all nodes will automatically panic and stop running. At this point, the upgraded `heliades` binaries  can be installed, and the node can be restarted.
 
 See [here](https://github.com/InjectiveLabs/injective-chain-releases/releases) for the most recent and prior chain releases.
 
