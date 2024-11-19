@@ -332,8 +332,8 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 	denomDecimals := k.GetAllDenomDecimals(ctx)
 	coinsToSendToAuction := sdk.NewCoins()
 
-	injAuctionSubaccountAmount := math.ZeroInt()
-	injSendCap := k.GetInjAuctionMaxCap(ctx)
+	heliosAuctionSubaccountAmount := math.ZeroInt()
+	heliosSendCap := k.GetHeliosAuctionMaxCap(ctx)
 
 	// collect balances from auction subaccount
 	for idx := range denomDecimals {
@@ -347,8 +347,8 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 		amount := deposit.TotalBalance.TruncateInt()
 
 		if denom == chaintypes.HeliosCoin {
-			amount = math.MinInt(amount, injSendCap)
-			injAuctionSubaccountAmount = injAuctionSubaccountAmount.Add(amount)
+			amount = math.MinInt(amount, heliosSendCap)
+			heliosAuctionSubaccountAmount = heliosAuctionSubaccountAmount.Add(amount)
 		}
 
 		if err := k.DecrementDeposit(ctx, types.AuctionSubaccountID, denom, amount.ToLegacyDec()); err != nil {
@@ -371,10 +371,10 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 
 		amount := balance.Amount
 		if balance.Denom == chaintypes.HeliosCoin {
-			if injAuctionSubaccountAmount.GTE(injSendCap) {
+			if heliosAuctionSubaccountAmount.GTE(heliosSendCap) {
 				amount = math.ZeroInt()
-			} else if amount.Add(injAuctionSubaccountAmount).GT(injSendCap) {
-				amount = injSendCap.Sub(injAuctionSubaccountAmount)
+			} else if amount.Add(heliosAuctionSubaccountAmount).GT(heliosSendCap) {
+				amount = heliosSendCap.Sub(heliosAuctionSubaccountAmount)
 			}
 		}
 

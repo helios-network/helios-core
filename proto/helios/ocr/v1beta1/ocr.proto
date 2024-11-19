@@ -220,7 +220,7 @@ message SetBatchConfigProposal {
 
 message OracleObservationsCounts { repeated uint32 counts = 1; }
 
-// LINK-INJ-denominated reimbursements for gas used by transmitters.
+// LINK-HELIOS-denominated reimbursements for gas used by transmitters.
 message GasReimbursements {
   repeated cosmos.base.v1beta1.Coin reimbursements = 1;
 }

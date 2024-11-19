@@ -693,7 +693,7 @@ func NewPrivilegedExecuteContractTxCmd() *cobra.Command {
 		Long: `Executes any smart contract message with privileged actions for the exchange module as part of the contract's response data.
 
 		Example:
-		$ %s tx exchange privileged-execute-contract inj1zlwdkv49rmsug0pnwu6fmwnl267lfr34yvhwgp '{"origin":"inj17gkuet8f6pssxd8nycm3qr9d9y699rupv6397z", "name":"Subscribe", "args": {"Subscribe":{"args": {"subscriber_subaccount_id":"0xf22dccace9d0610334f32637100cad2934528f81000000000000000000000000"}}}}' --from=wasm --funds=1000000000000000000inj,10000000peggy0xdAC17F958D2ee523a2206206994597C13D831ec7
+		$ %s tx exchange privileged-execute-contract helios1zlwdkv49rmsug0pnwu6fmwnl267lfr34yvhwgp '{"origin":"helios17gkuet8f6pssxd8nycm3qr9d9y699rupv6397z", "name":"Subscribe", "args": {"Subscribe":{"args": {"subscriber_subaccount_id":"0xf22dccace9d0610334f32637100cad2934528f81000000000000000000000000"}}}}' --from=wasm --funds=1000000000000000000helios,10000000peggy0xdAC17F958D2ee523a2206206994597C13D831ec7
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

@@ -2924,7 +2924,7 @@ var xxx_messageInfo_MsgDecreasePositionMarginResponse proto.InternalMessageInfo
 type MsgPrivilegedExecuteContract struct {
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	// funds defines the user's bank coins used to fund the execution (e.g.
-	// 100inj).
+	// 100helios).
 	Funds string `protobuf:"bytes,2,opt,name=funds,proto3" json:"funds,omitempty"`
 	// contract_address defines the contract address to execute
 	ContractAddress string `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`

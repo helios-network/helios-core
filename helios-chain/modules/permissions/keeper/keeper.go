@@ -165,14 +165,14 @@ func (k Keeper) validateWasmHook(ctx context.Context, contract sdk.AccAddress) e
 		return types.ErrUnknownWasmHook
 	}
 
-	userAddr := sdk.MustAccAddressFromBech32("inj1cml96vmptgw99syqrrz8az79xer2pcgp0a885r")
+	userAddr := sdk.MustAccAddressFromBech32("helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r")
 	wasmHookMsg := struct {
 		SendRestriction types.WasmHookMsg `json:"send_restriction"`
 	}{types.WasmHookMsg{
 		From:    userAddr,
 		To:      userAddr,
 		Action:  types.Action_UNSPECIFIED.String(),
-		Amounts: sdk.NewCoins(sdk.NewCoin("inj", math.NewInt(1))),
+		Amounts: sdk.NewCoins(sdk.NewCoin("helios", math.NewInt(1))),
 	}}
 	bz, err := json.Marshal(wasmHookMsg)
 	if err != nil {

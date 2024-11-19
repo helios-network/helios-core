@@ -5,11 +5,11 @@ title: Messages
 
 # Messages
 
-This is a reference document for Peggy message types. For code reference and exact arguments see the [proto definitions](https://github.com/InjectiveLabs/injective-core/blob/master/proto/injective/peggy/v1/msgs.proto). 
+This is a reference document for Peggy message types. For code reference and exact arguments see the [proto definitions](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/peggy/v1/msgs.proto). 
 
 ## User messages
 
-These are messages sent on the Injective Chain peggy module. See [workflow](./02_workflow.md) for a more detailed summary of the entire deposit and withdraw process.
+These are messages sent on the Helios Chain peggy module. See [workflow](./02_workflow.md) for a more detailed summary of the entire deposit and withdraw process.
 
 ### SendToEth
 
@@ -22,7 +22,7 @@ These are messages sent on the Injective Chain peggy module. See [workflow](./02
 // -------------
 // AMOUNT:
 // the coin to send across the bridge, note the restriction that this is a
-// single coin not a set of coins that is normal in other Injective messages
+// single coin not a set of coins that is normal in other Helios messages
 // FEE:
 // the fee paid for the bridge, distinct from the fee paid to the chain to
 // actually send this message in the first place. So a successful send has
@@ -36,7 +36,7 @@ type MsgSendToEth struct {
 
 ```
 SendToEth allows the user to specify an Ethereum destination, a token to send to Ethereum and a fee denominated in that same token
-to pay the relayer. Note that this transaction will contain two fees. One fee amount to submit to the Injective Chain, that can be paid
+to pay the relayer. Note that this transaction will contain two fees. One fee amount to submit to the Helios Chain, that can be paid
 in any token and one fee amount for the Ethereum relayer that must be paid in the same token that is being bridged.
 
 ### CancelSendToEth
@@ -69,7 +69,7 @@ SubmitBadSignatureEvidence allows anyone to submit evidence that a validator has
 
 ## Relayer Messages
 
-These are messages run by relayers. Relayers are unpermissioned and simply work to move things from the Injective Chain to Ethereum.
+These are messages run by relayers. Relayers are unpermissioned and simply work to move things from the Helios Chain to Ethereum.
 
 ### RequestBatch
 
@@ -89,7 +89,7 @@ type MsgRequestBatch struct {
 }
 ```
 
-Relayers use `QueryPendingSendToEth` in [query.proto](https://github.com/InjectiveLabs/injective-core/blob/master/proto/injective/peggy/v1/query.proto) to query the potential fees for a batch of each
+Relayers use `QueryPendingSendToEth` in [query.proto](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/peggy/v1/query.proto) to query the potential fees for a batch of each
 token type. When they find a batch that they wish to relay they send in a RequestBatch message and the Peggy module creates a batch.
 
 This then triggers the Ethereum Signers to send in ConfirmBatch messages, which the signatures required to submit the batch to the Ethereum chain.
@@ -100,9 +100,9 @@ As noted above this message is unpermissioned and it is safe to allow anyone to 
 
 ## Oracle Messages
 
-All validators run two processes in addition to their Injective node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
+All validators run two processes in addition to their Helios node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
 
-The oracle observes the Ethereum chain for events from the [Peggy.sol](https://github.com/InjectiveLabs/peggo/blob/master/solidity/contracts/Peggy.sol) contract before submitting them as messages to the Injective Chain.
+The oracle observes the Ethereum chain for events from the [Peggy.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Peggy.sol) contract before submitting them as messages to the Helios Chain.
 
 ### DepositClaim
 ```go
@@ -110,7 +110,7 @@ The oracle observes the Ethereum chain for events from the [Peggy.sol](https://g
 // EthereumBridgeDepositClaim
 // When more than 66% of the active validator set has
 // claimed to have seen the deposit enter the ethereum blockchain coins are
-// issued to the Injective address in question
+// issued to the Helios address in question
 // -------------
 type MsgDepositClaim struct {
 	EventNonce     uint64                                
@@ -122,7 +122,7 @@ type MsgDepositClaim struct {
 	Orchestrator   string                                 
 }
 ```
-Deposit claims represent a `SendToCosmosEvent` emitted by the Peggy contract. After 2/3 of the validators confirm a deposit claim,  the representative tokens will be issued to the specified `CosmosReceiver` Injective Chain account.
+Deposit claims represent a `SendToCosmosEvent` emitted by the Peggy contract. After 2/3 of the validators confirm a deposit claim,  the representative tokens will be issued to the specified `CosmosReceiver` Helios Chain account.
 
 ### WithdrawClaim
 
@@ -178,9 +178,9 @@ claim representing a `ERC20DeployedEvent` from the Peggy contract. When this pas
 
 ## Ethereum Signer Messages
 
-All validators run two processes in addition to their Injective Chain node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
+All validators run two processes in addition to their Helios Chain node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
 
-The Ethereum signer watches several [query endpoints](https://github.com/InjectiveLabs/injective-core/blob/master/proto/injective/peggy/v1/query.proto) and it's only job is to submit a signature for anything that appears on those endpoints. For this reason the validator must provide a secure RPC to an Injective Chain node following chain consensus. Or they risk being tricked into signing the wrong thing.
+The Ethereum signer watches several [query endpoints](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/peggy/v1/query.proto) and it's only job is to submit a signature for anything that appears on those endpoints. For this reason the validator must provide a secure RPC to an Helios Chain node following chain consensus. Or they risk being tricked into signing the wrong thing.
 
 ### ConfirmBatch
 ```go
@@ -236,10 +236,10 @@ These are messages sent directly using the validator's message key.
 // to a given key. This key is then used as an optional authentication method
 // for sigining oracle claims
 // VALIDATOR
-// The validator field is a injvaloper1... string (i.e. sdk.ValAddress)
+// The validator field is a heliosvaloper1... string (i.e. sdk.ValAddress)
 // that references a validator in the active set
 // ORCHESTRATOR
-// The orchestrator field is a inj1... string  (i.e. sdk.AccAddress) that
+// The orchestrator field is a helios1... string  (i.e. sdk.AccAddress) that
 // references the key that is being delegated to
 // ETH_ADDRESS
 // This is a hex encoded 0x Ethereum public key that will be used by this validator

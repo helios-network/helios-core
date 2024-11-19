@@ -51,15 +51,15 @@ func (m *CustomMessenger) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 		return m.wrapped.DispatchMsg(ctx, contractAddr, contractIBCPortID, msg)
 	}
 
-	var wrappedContractMsg bindings.InjectiveMsgWrapper
+	var wrappedContractMsg bindings.HeliosMsgWrapper
 	if err := json.Unmarshal(msg.Custom, &wrappedContractMsg); err != nil {
 		return nil, nil, nil, errors.Wrap(err, "Error parsing msg data")
 	}
 
-	var contractMsg bindings.InjectiveMsg
+	var contractMsg bindings.HeliosMsg
 
 	if err := json.Unmarshal(wrappedContractMsg.MsgData, &contractMsg); err != nil {
-		return nil, nil, nil, errors.Wrap(err, "injective msg")
+		return nil, nil, nil, errors.Wrap(err, "helios msg")
 	}
 
 	var sdkMsg sdk.LegacyMsg
@@ -180,7 +180,7 @@ func (m *CustomMessenger) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 	case contractMsg.RewardsOptOut != nil:
 		sdkMsg = contractMsg.RewardsOptOut
 	default:
-		return nil, nil, nil, wasmvmtypes.UnsupportedRequest{Kind: fmt.Sprintf("Unknown Injective Wasm Message: %T", contractMsg)}
+		return nil, nil, nil, wasmvmtypes.UnsupportedRequest{Kind: fmt.Sprintf("Unknown Helios Wasm Message: %T", contractMsg)}
 	}
 
 	return m.handleSdkMessageWithResults(ctx, contractAddr, sdkMsg)

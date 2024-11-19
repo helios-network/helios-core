@@ -7,7 +7,7 @@ title: Concepts
 ## Key Concepts
 
 ### Denoms
-Tokens on Injective are referred to as denoms which are tracked and managed by the bank module on helios. The permissions
+Tokens on Helios are referred to as denoms which are tracked and managed by the bank module on helios. The permissions
 module creates and manages assets by representing them as denoms and attaching specific permissions to them, which are then
 managed by different roles. 
 

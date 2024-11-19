@@ -79,7 +79,7 @@ func NewGrantPriceFeederPrivilegeProposalTxCmd() *cobra.Command {
 		Long: `Submit a proposal to grant price feeder privilege.
 
 		Example:
-		$ %s tx oracle grant-price-feeder-privilege-proposal base quote relayer1,relayer2 --title="grant price feeder privilege" --description="XX" --deposit="1000000000000000000inj" --from=genesis --keyring-backend=file --yes
+		$ %s tx oracle grant-price-feeder-privilege-proposal base quote relayer1,relayer2 --title="grant price feeder privilege" --description="XX" --deposit="1000000000000000000helios" --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -134,7 +134,7 @@ func NewRevokePriceFeederPrivilegeProposalTxCmd() *cobra.Command {
 		Long: `Submit a proposal to revoke price feeder privilege.
 
 		Example:
-		$ %s tx oracle revoke-price-feeder-privilege-proposal base quote relayer1,relayer2 --title="revoke price feeder privilege" --description="XX" --deposit="1000000000000000000inj" --from=genesis --keyring-backend=file --yes
+		$ %s tx oracle revoke-price-feeder-privilege-proposal base quote relayer1,relayer2 --title="revoke price feeder privilege" --description="XX" --deposit="1000000000000000000helios" --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -189,7 +189,7 @@ func NewGrantBandOraclePrivilegeProposalTxCmd() *cobra.Command {
 		Long: `Submit a proposal to grant band oracle privilege.
 
 		Example:
-		$ %s tx oracle grant-band-oracle-privilege-proposal relayer1,relayer2 --title="grant band oracle privilege" --description="XX" --deposit="1000000000000000000inj" --from=genesis --keyring-backend=file --yes
+		$ %s tx oracle grant-band-oracle-privilege-proposal relayer1,relayer2 --title="grant band oracle privilege" --description="XX" --deposit="1000000000000000000helios" --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -244,7 +244,7 @@ func NewRevokeBandOraclePrivilegeProposalTxCmd() *cobra.Command {
 		Long: `Submit a proposal to revoke band oracle privilege.
 
 		Example:
-		$ %s tx oracle revoke-band-oracle-privilege-proposal relayer1,relayer2 --title="revoke band oracle privilege" --description="XX" --deposit="1000000000000000000inj" --from=genesis --keyring-backend=file --yes
+		$ %s tx oracle revoke-band-oracle-privilege-proposal relayer1,relayer2 --title="revoke band oracle privilege" --description="XX" --deposit="1000000000000000000helios" --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -351,7 +351,7 @@ func NewRelayPriceFeedPriceTxCmd() *cobra.Command {
 		Long: `Relay price feed price.
 
 		Example:
-		$ %s tx oracle relay-price-feed-price inj usdt 25.00 --from=genesis --keyring-backend=file --yes
+		$ %s tx oracle relay-price-feed-price helios usdt 25.00 --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -480,7 +480,7 @@ func NewEnableBandIBCProposalTxCmd() *cobra.Command {
 		Long: `Submit a proposal to update the Band IBC status and request interval.
 
 		Example:
-		$ %s tx oracle enable-band-ibc-proposal true 10 --port-id "oracle" --channel "channel-0" --ibc-version "bandchain-1" --title="Enable Band IBC with a request interval of 10 blocks" --description="XX" --deposit="1000000000000000000inj" --from=genesis --keyring-backend=file --yes
+		$ %s tx oracle enable-band-ibc-proposal true 10 --port-id "oracle" --channel "channel-0" --ibc-version "bandchain-1" --title="Enable Band IBC with a request interval of 10 blocks" --description="XX" --deposit="1000000000000000000helios" --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

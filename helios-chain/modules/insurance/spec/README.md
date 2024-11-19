@@ -2,9 +2,9 @@
 
 ## Abstract
 
-This paper specifies the insurance module of the Injective Chain. 
+This paper specifies the insurance module of the Helios Chain. 
 
-This module provides insurance funds for derivative markets in the `exchange` module of the Injective Chain to use in order to support higher leverage trading. On a high level, insurance funds for each derivative market are funded by a permissionless group of underwriters who each own a proportional claim (represented through insurance fund share tokens) over the underlying assets in the insurance fund.
+This module provides insurance funds for derivative markets in the `exchange` module of the Helios Chain to use in order to support higher leverage trading. On a high level, insurance funds for each derivative market are funded by a permissionless group of underwriters who each own a proportional claim (represented through insurance fund share tokens) over the underlying assets in the insurance fund.
 
 Each insurance fund grows when positions in its corresponding derivative market are liquidated with positive equity, as half of the positive equity is sent to the insurance fund upon liquidation. When a position with negative equity is liquidated (i.e. the position has surpassed bankruptcy), the insurance fund is utilized to cover the missing equity. 
 

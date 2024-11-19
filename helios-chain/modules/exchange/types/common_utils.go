@@ -83,10 +83,10 @@ func (d *DerivativeLimitOrderDelta) Cid() string {
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
 
-// inj1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49
+// helios1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49
 var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(ZeroSubaccountID.Hex()).Bytes())
 
-// inj1qqq3zyg3zyg3zyg3zyg3zyg3zyg3zyg3c9gg96
+// helios1qqq3zyg3zyg3zyg3zyg3zyg3zyg3zyg3c9gg96
 var AuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 
 var hexRegex = regexp.MustCompile("^(0x)?[0-9a-fA-F]+$")

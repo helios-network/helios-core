@@ -12,11 +12,11 @@ import (
 	"helios-core/helios-chain/modules/wasmx/types"
 )
 
-func (k Keeper) InjectiveExec(
+func (k Keeper) HeliosExec(
 	ctx sdk.Context,
 	contractAddress sdk.AccAddress,
 	funds sdk.Coins,
-	msg *types.InjectiveExecMsg,
+	msg *types.HeliosExecMsg,
 ) ([]byte, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -40,7 +40,7 @@ func (k Keeper) InjectiveExec(
 		return res, err
 	}
 
-	k.Logger(ctx).Debug("InjectiveExec result:", "result", string(res))
+	k.Logger(ctx).Debug("heliosExec result:", "result", string(res))
 	return res, nil
 }
 

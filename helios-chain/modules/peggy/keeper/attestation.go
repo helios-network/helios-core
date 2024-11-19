@@ -245,8 +245,8 @@ func (k *Keeper) ProcessClaimData(ctx sdk.Context, claim types.EthereumClaim) {
 		if claim.Data != "" {
 
 			// Check if the claim data is a valid sdk.Msg. If not, ignore the data
-			ethereumSenderInjAccAddr := sdk.AccAddress(common.FromHex(claim.EthereumSender))
-			claimDataMsg, err := k.ValidateClaimData(ctx, claim.Data, ethereumSenderInjAccAddr)
+			ethereumSenderHeliosAccAddr := sdk.AccAddress(common.FromHex(claim.EthereumSender))
+			claimDataMsg, err := k.ValidateClaimData(ctx, claim.Data, ethereumSenderHeliosAccAddr)
 			if err != nil {
 				k.Logger(ctx).Info("claim data is not a valid sdk.Msg", err)
 				return

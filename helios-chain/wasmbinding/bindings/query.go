@@ -12,8 +12,8 @@ import (
 	oracletypes "helios-core/helios-chain/modules/oracle/types"
 )
 
-// InjectiveQuery contains custom injective queries.
-type InjectiveQuery struct {
+// HeliosQuery contains custom helios queries.
+type HeliosQuery struct {
 	AuctionQuery
 	AuthzQuery
 	ExchangeQuery

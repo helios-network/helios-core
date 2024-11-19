@@ -32,9 +32,9 @@ type Params struct {
 	AuctionPeriod int64 `protobuf:"varint,1,opt,name=auction_period,json=auctionPeriod,proto3" json:"auction_period,omitempty"`
 	// min_next_bid_increment_rate defines the minimum increment rate for new bids
 	MinNextBidIncrementRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=min_next_bid_increment_rate,json=minNextBidIncrementRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_next_bid_increment_rate"`
-	// inj_basket_max_cap defines the maximum cap for INJ contained in an auction
+	// helios_basket_max_cap defines the maximum cap for HELIOS contained in an auction
 	// basket
-	InjBasketMaxCap cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=inj_basket_max_cap,json=injBasketMaxCap,proto3,customtype=cosmossdk.io/math.Int" json:"inj_basket_max_cap"`
+	HeliosBasketMaxCap cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=helios_basket_max_cap,json=heliosBasketMaxCap,proto3,customtype=cosmossdk.io/math.Int" json:"helios_basket_max_cap"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -433,7 +433,7 @@ func (this *Params) Equal(that interface{}) bool {
 	if !this.MinNextBidIncrementRate.Equal(that1.MinNextBidIncrementRate) {
 		return false
 	}
-	if !this.InjBasketMaxCap.Equal(that1.InjBasketMaxCap) {
+	if !this.HeliosBasketMaxCap.Equal(that1.HeliosBasketMaxCap) {
 		return false
 	}
 	return true
@@ -459,9 +459,9 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
-		size := m.InjBasketMaxCap.Size()
+		size := m.HeliosBasketMaxCap.Size()
 		i -= size
-		if _, err := m.InjBasketMaxCap.MarshalTo(dAtA[i:]); err != nil {
+		if _, err := m.HeliosBasketMaxCap.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
 		i = encodeVarintAuction(dAtA, i, uint64(size))
@@ -730,7 +730,7 @@ func (m *Params) Size() (n int) {
 	}
 	l = m.MinNextBidIncrementRate.Size()
 	n += 1 + l + sovAuction(uint64(l))
-	l = m.InjBasketMaxCap.Size()
+	l = m.HeliosBasketMaxCap.Size()
 	n += 1 + l + sovAuction(uint64(l))
 	return n
 }
@@ -915,7 +915,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field InjBasketMaxCap", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field HeliosBasketMaxCap", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -943,7 +943,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.InjBasketMaxCap.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.HeliosBasketMaxCap.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

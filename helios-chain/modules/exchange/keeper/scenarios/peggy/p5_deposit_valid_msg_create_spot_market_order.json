@@ -38,8 +38,8 @@
       "amount": 123456789,
       "token_contract": "0x11A227e1aAb93Ad76646663381A94Fdaa3256FCF",
       "ethereum_sender": "0xAE78bfF1d33023c12Fec7bEC26512fCE9c7c1ea1",
-      "cosmos_receiver": "inj14eutluwnxq3uztlv00kzv5f0e6w8c84p0l3ufw",
-      "arbitrary_data": "{\"sender\": \"inj14eutluwnxq3uztlv00kzv5f0e6w8c84p0l3ufw\",\"order\":{\"market_id\":\"$market.spot[1].id\",\"order_info\":{\"price\":\"1000\", \"quantity\":\"789\"},\"order_type\":2}}",
+      "cosmos_receiver": "helios14eutluwnxq3uztlv00kzv5f0e6w8c84p0l3ufw",
+      "arbitrary_data": "{\"sender\": \"helios14eutluwnxq3uztlv00kzv5f0e6w8c84p0l3ufw\",\"order\":{\"market_id\":\"$market.spot[1].id\",\"order_info\":{\"price\":\"1000\", \"quantity\":\"789\"},\"order_type\":2}}",
       "arbitrary_data_type": "exchangetypes.MsgCreateSpotMarketOrder"
     },
     {

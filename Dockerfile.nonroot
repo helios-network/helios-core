@@ -27,8 +27,8 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make install-ci
 #build main container
 FROM alpine:latest
 
-# Add the "injective" non-root user and group
-RUN addgroup -S injective && adduser -S -G injective injective
+# Add the "helios" non-root user and group
+RUN addgroup -S helios && adduser -S -G helios helios
 
 # Install dependencies
 RUN apk add --no-cache ca-certificates curl tree python3 py3-pip

@@ -1039,7 +1039,7 @@ message MsgPrivilegedExecuteContract {
   string sender = 1;
 
   // funds defines the user's bank coins used to fund the execution (e.g.
-  // 100inj).
+  // 100helios).
   string funds = 2;
 
   // contract_address defines the contract address to execute

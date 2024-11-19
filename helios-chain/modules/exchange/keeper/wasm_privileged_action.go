@@ -16,7 +16,7 @@ func (k *Keeper) handlePrivilegedAction(
 	ctx sdk.Context,
 	contractAddress sdk.AccAddress,
 	origin sdk.AccAddress,
-	action types.InjectiveAction,
+	action types.HeliosAction,
 ) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

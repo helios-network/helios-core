@@ -499,7 +499,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "injective-cosmwasm"
+name = "helios-cosmwasm"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea4feaba1e0816808642abaed4eb369799c863a759f77bb71a15daca076d9874"
@@ -508,7 +508,7 @@ dependencies = [
  "cw-storage-plus",
  "ethereum-types",
  "hex",
- "injective-math",
+ "helios-math",
  "schemars",
  "serde",
  "serde_repr",
@@ -517,7 +517,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "injective-math"
+name = "helios-math"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8b28dc06633a0fc1ac0345d350ff6ecead60989119a985c94053ce9448c1aa9"
@@ -939,7 +939,7 @@ dependencies = [
  "cosmwasm-std",
  "cw-storage-plus",
  "cw2",
- "injective-cosmwasm",
+ "helios-cosmwasm",
  "serde",
  "serde-json-wasm 0.4.1",
  "thiserror",

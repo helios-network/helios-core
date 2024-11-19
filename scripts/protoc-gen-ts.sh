@@ -24,8 +24,8 @@ cp ../$TS_PROTO_TEMPLATE $TS_PROTO_TEMPLATE
 cp -r ../proto/helios proto/
 
 # download third_party API definitions
-cosmos_sdk_branch=v0.50.x-inj
-wasmd_branch=v0.50.x-inj
+cosmos_sdk_branch=v0.50.x-helios
+wasmd_branch=v0.50.x-helios
 
 git clone https://github.com/Helios-Chain-Labs/cosmos-sdk.git -b $cosmos_sdk_branch --depth 1 --single-branch > /dev/null
 git clone https://github.com/Helios-Chain-Labs/wasmd -b $wasmd_branch --depth 1 --single-branch > /dev/null
@@ -65,7 +65,7 @@ echo "Compiling npm packages..."
 
 ## 1. Replace package with our own fork
 search1="@improbable-eng/grpc-web"
-replace1="@injectivelabs/grpc-web"
+replace1="@Helios-Chain-Labs/grpc-web"
 
 FILES=$( find ./$TS_OUTPUT_DIR -type f )
 

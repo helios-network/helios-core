@@ -29,7 +29,7 @@ message MsgBid {
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
-  // amount of the bid in INJ tokens
+  // amount of the bid in HELIOS tokens
   cosmos.base.v1beta1.Coin bid_amount = 2 [ (gogoproto.nullable) = false ];
   // the current auction round being bid on
   uint64 round = 3;

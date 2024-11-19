@@ -36,7 +36,7 @@ var (
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs   = []string{"ethereum_3855"}
 	DefaultEVMChannels = []string{
-		"channel-10", // Injective
+		"channel-10", // Helios
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}

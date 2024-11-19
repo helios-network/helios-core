@@ -7,9 +7,9 @@ title: End-Block
 
 ### Auction Settlement
 
-The settlement of a given auction round occurs when `blockTime ≥ EndingTimeStamp.` If a non-zero INJ bid was placed during this period (i.e. there exists a `LastBid`), the following procedure will take place: 
+The settlement of a given auction round occurs when `blockTime ≥ EndingTimeStamp.` If a non-zero HELIOS bid was placed during this period (i.e. there exists a `LastBid`), the following procedure will take place: 
 
-- The winning INJ bid amount is burned.
+- The winning HELIOS bid amount is burned.
 - The basket of coins held by the auction module is transferred to the winning bidder. 
 - `LastAuctionResult` is written to state and `EventAuctionResult` is emitted.
 - The `LastBid` is cleared.

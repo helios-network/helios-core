@@ -719,7 +719,7 @@ func (m *OracleObservationsCounts) GetCounts() []uint32 {
 	return nil
 }
 
-// LINK-INJ-denominated reimbursements for gas used by transmitters.
+// LINK-HELIOS-denominated reimbursements for gas used by transmitters.
 type GasReimbursements struct {
 	Reimbursements []*types.Coin `protobuf:"bytes,1,rep,name=reimbursements,proto3" json:"reimbursements,omitempty"`
 }

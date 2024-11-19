@@ -61,12 +61,12 @@ func (k WasmMsgServer) PrivilegedExecuteContract(
 		totalFunds = coins
 	}
 
-	execMsg, err := wasmxtypes.NewInjectiveExecMsg(sender, msg.Data)
+	execMsg, err := wasmxtypes.NewHeliosExecMsg(sender, msg.Data)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create exec msg")
 	}
 
-	res, err := k.wasmxExecutionKeeper.InjectiveExec(ctx, contract, totalFunds, execMsg)
+	res, err := k.wasmxExecutionKeeper.HeliosExec(ctx, contract, totalFunds, execMsg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute msg")
 	}

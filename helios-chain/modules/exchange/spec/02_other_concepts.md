@@ -60,7 +60,7 @@ Campaigns will not auto-rollover. If there are no additional campaigns defined i
 
 ## Fee Discounts
 
-Governance approves a **FeeDiscountProposal** which defines a fee discount **schedule** which specifies fee discount **tiers** which each specify the maker and taker discounts rates a trader will receive if they satisfy the specified minimum INJ staked amount AND have had at least the specified trading volume (based on the specified **quote denoms**) over the specified time period (`bucket count * bucket duration seconds`, which should equal 30 days). The schedule also specifies a list of disqualified marketIDs for markets whose trading volume will not count towards the volume contribution.
+Governance approves a **FeeDiscountProposal** which defines a fee discount **schedule** which specifies fee discount **tiers** which each specify the maker and taker discounts rates a trader will receive if they satisfy the specified minimum HELIOS staked amount AND have had at least the specified trading volume (based on the specified **quote denoms**) over the specified time period (`bucket count * bucket duration seconds`, which should equal 30 days). The schedule also specifies a list of disqualified marketIDs for markets whose trading volume will not count towards the volume contribution.
 
 - Spot markets where the base and quote are both in the accepted quote currencies list will not be rewarded (e.g. the USDC/USDT spot market).
 - Maker fills in markets with negative maker fees will NOT give the trader any fee discounts.

@@ -85,7 +85,7 @@ func ForceMarshalJSONAny(msgAny *cdctypes.Any) {
 func (qp QueryPlugin) HandleAuthzQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.AuthzQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective AuthzQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios AuthzQuery")
 	}
 
 	var bz []byte
@@ -163,7 +163,7 @@ func (qp QueryPlugin) HandleAuthzQuery(ctx sdk.Context, queryData json.RawMessag
 func (qp QueryPlugin) HandleStakingQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.StakingQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective StakingQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios StakingQuery")
 	}
 
 	var bz []byte
@@ -180,10 +180,10 @@ func (qp QueryPlugin) HandleStakingQuery(ctx sdk.Context, queryData json.RawMess
 			return nil, err
 		}
 
-		stakedINJ := qp.exchangeKeeper.CalculateStakedAmountWithoutCache(ctx, delegatorAccAddress, req.MaxDelegations)
+		stakedHELIOS := qp.exchangeKeeper.CalculateStakedAmountWithoutCache(ctx, delegatorAccAddress, req.MaxDelegations)
 
 		bz, err = json.Marshal(bindings.StakingDelegationAmountResponse{
-			StakedAmount: stakedINJ,
+			StakedAmount: stakedHELIOS,
 		})
 	default:
 		return nil, wasmvmtypes.UnsupportedRequest{Kind: fmt.Sprintf("unknown staking query variant: %+v", string(queryData))}
@@ -199,7 +199,7 @@ func (qp QueryPlugin) HandleStakingQuery(ctx sdk.Context, queryData json.RawMess
 func (qp QueryPlugin) HandleOracleQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.OracleQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective OracleQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios OracleQuery")
 	}
 
 	var bz []byte
@@ -261,7 +261,7 @@ func (qp QueryPlugin) HandleOracleQuery(ctx sdk.Context, queryData json.RawMessa
 func (qp QueryPlugin) HandleAuctionQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.AuctionQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective AuctionQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios AuctionQuery")
 	}
 
 	var bz []byte
@@ -288,7 +288,7 @@ func (qp QueryPlugin) HandleAuctionQuery(ctx sdk.Context, queryData json.RawMess
 func (qp QueryPlugin) HandleExchangeQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.ExchangeQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective ExchangeQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios ExchangeQuery")
 	}
 
 	var bz []byte
@@ -590,7 +590,7 @@ func (qp QueryPlugin) HandleExchangeQuery(ctx sdk.Context, queryData json.RawMes
 func (qp QueryPlugin) HandleTokenFactoryQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.TokenfactoryQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective TokenfactoryQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios TokenfactoryQuery")
 	}
 
 	var bz []byte
@@ -631,7 +631,7 @@ func (qp QueryPlugin) HandleTokenFactoryQuery(ctx sdk.Context, queryData json.Ra
 func (qp QueryPlugin) HandleWasmxQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.WasmxQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective WasmxQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios WasmxQuery")
 	}
 
 	var bz []byte
@@ -661,7 +661,7 @@ func (qp QueryPlugin) HandleWasmxQuery(ctx sdk.Context, queryData json.RawMessag
 func (qp QueryPlugin) HandleFeeGrantQuery(ctx sdk.Context, queryData json.RawMessage) ([]byte, error) {
 	var query bindings.FeeGrantQuery
 	if err := json.Unmarshal(queryData, &query); err != nil {
-		return nil, errors.Wrap(err, "Error parsing Injective WasmxQuery")
+		return nil, errors.Wrap(err, "Error parsing Helios WasmxQuery")
 	}
 
 	var bz []byte

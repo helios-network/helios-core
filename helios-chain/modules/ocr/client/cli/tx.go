@@ -50,7 +50,7 @@ func NewFundFeedRewardPoolTxCmd() *cobra.Command {
 			Example:
 			$ %s tx ocr fund-feed-reward-pool
 				--feed-id="feed_id"
-				--amount="10inj"
+				--amount="10helios"
 				--from=genesis --keyring-backend=file --yes
 			`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -125,7 +125,7 @@ func NewCreateFeedTxCmd() *cobra.Command {
 				--feed-config-description="BTC/USDT feed" \
 				--feed-admin=$FEEDADMIN \
 				--billing-admin=$FEEDADMIN \
-				--chain-id=injective-1 \
+				--chain-id=4242 \
 				--from=$FEEDADMIN \
 				--yes
 			`,
@@ -190,7 +190,7 @@ func NewSetConfigProposalTxCmd() *cobra.Command {
 		$ heliades tx ocr set-config-proposal \
 			--title="set feed config" \
 			--description="set feed config" \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--feed-id="BTC/USDT" \
 			--signers="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" \
 			--transmitters="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" \
@@ -206,7 +206,7 @@ func NewSetConfigProposalTxCmd() *cobra.Command {
 			--feed-config-description="BTC/USDT feed" \
 			--feed-admin=$FEEDADMIN \
 			--billing-admin=$FEEDADMIN \
-			--chain-id=injective-1 \
+			--chain-id=4242 \
 			--from=$FEEDADMIN \
 			--yes
 		`,

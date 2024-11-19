@@ -32,13 +32,13 @@ const (
 
 var PowerReduction = sdkmath.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(BaseDenomUnit), nil))
 
-// NewHeliosCoin is a utility function that returns an "inj" coin with the given math.Int amount.
+// NewHeliosCoin is a utility function that returns an "helios" coin with the given math.Int amount.
 // The function will panic if the provided amount is negative.
 func NewHeliosCoin(amount math.Int) sdk.Coin {
 	return sdk.NewCoin(HeliosCoin, amount)
 }
 
-// NewHeliosCoinInt64 is a utility function that returns an "inj" coin with the given int64 amount.
+// NewHeliosCoinInt64 is a utility function that returns an "helios" coin with the given int64 amount.
 // The function will panic if the provided amount is negative.
 func NewHeliosCoinInt64(amount int64) sdk.Coin {
 	return sdk.NewInt64Coin(HeliosCoin, amount)

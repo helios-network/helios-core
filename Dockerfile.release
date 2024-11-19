@@ -9,8 +9,8 @@ WORKDIR /src
 COPY go.mod .
 COPY go.sum .
 
-ENV GOPRIVATE=github.com/InjectiveLabs/injective-core/*
-RUN git config --system url."ssh://git@github.com:InjectiveLabs/injective-core".insteadOf "https://github.com/InjectiveLabs/injective-core"
+ENV GOPRIVATE=github.com/Helios-Chain-Labs/helios-core/*
+RUN git config --system url."ssh://git@github.com:Helios-Chain-Labs/helios-core".insteadOf "https://github.com/Helios-Chain-Labs/helios-core"
 RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 RUN --mount=type=ssh go mod download
 RUN touch /mod

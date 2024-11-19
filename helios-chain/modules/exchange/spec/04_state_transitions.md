@@ -348,7 +348,7 @@ Launch of spot market is handled by `SpotMarketLaunchProposal` which consists of
 - `ValidateBasic` for proposal
 - Validate `BaseDenom` and `QuoteDenom` are valid
 - Validate if same market does not exist by `msg.BaseDenom` and `msg.QuoteDenom`
-- Calculate RelayerFeeShareRate based on exchange module params. **Note:** for INJ currency, relayer share rate is set to 100%
+- Calculate RelayerFeeShareRate based on exchange module params. **Note:** for HELIOS currency, relayer share rate is set to 100%
 - Save spot market with calculated `ticker`, `baseDenom`, `quoteDenom`, `exchangeParams.DefaultSpotMakerFeeRate`, `exchangeParams.DefaultSpotTakerFeeRate`, `relayerFeeShareRate`, `minPriceTickSize`, `minQuantityTickSize`, `marketID`, and `MarketStatus_Active`.
 
 ## Perpetual market launch proposal
@@ -379,7 +379,7 @@ Expiry futures market launch is handled by `ExpiryFuturesMarketLaunchProposal` w
 - If expiry time passed `ctx.BlockTime()` already, revert
 - Try getting derivative market price to check price oracle by `oracleBase`, `oracleQuote`, `oracleScaleFactor`, `oracleType`
 - Validate insurance fund exist for `marketID`
-- Calculate RelayerFeeShareRate based on exchange module params. **Note:** for INJ currency, relayer share rate is set to 100%
+- Calculate RelayerFeeShareRate based on exchange module params. **Note:** for HELIOS currency, relayer share rate is set to 100%
 - Execute `SetDerivativeMarketWithInfo` to set market info into the storage with `market`, `marketInfo` objects **Note:** TwapStartTimestamp is set to `expiry - thirtyMinutesInSeconds`.
 
 ## Spot market param update proposal

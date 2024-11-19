@@ -11,7 +11,7 @@
       "params": {
         "auction_period": "10",
         "min_next_bid_increment_rate": "0.002500000000000000",
-        "inj_basket_max_cap": "10000000000000000000000"
+        "helios_basket_max_cap": "10000000000000000000000"
       },
       "auction_round": "0",
       "highest_bid": null,
@@ -346,11 +346,11 @@
     "exchange": {
       "params": {
         "spot_market_instant_listing_fee": {
-          "denom": "inj",
+          "denom": "helios",
           "amount": "20000000000000000000"
         },
         "derivative_market_instant_listing_fee": {
-          "denom": "inj",
+          "denom": "helios",
           "amount": "20000000000000000000"
         },
         "default_spot_maker_fee_rate": "-0.000100000000000000",
@@ -365,11 +365,11 @@
         "default_hourly_funding_rate_cap": "0.000625000000000000",
         "default_hourly_interest_rate": "0.000004166660000000",
         "max_derivative_order_side_count": 20,
-        "inj_reward_staked_requirement_threshold": "100000000000000000000",
+        "helios_reward_staked_requirement_threshold": "100000000000000000000",
         "trading_rewards_vesting_duration": "604800",
         "liquidator_reward_share_rate": "0.050000000000000000",
         "binary_options_market_instant_listing_fee": {
-          "denom": "inj",
+          "denom": "helios",
           "amount": "100000000000000000000"
         },
         "atomic_market_order_access_level": "SmartContractsOnly",
@@ -381,7 +381,7 @@
         "post_only_mode_height_threshold": "0",
         "margin_decrease_price_timestamp_threshold_seconds": "60",
         "exchange_admins": [],
-        "inj_auction_max_cap": "10000000000000000000000"
+        "helios_auction_max_cap": "10000000000000000000000"
       },
       "spot_markets": [],
       "derivative_markets": [],
@@ -867,7 +867,7 @@
     "params": null,
     "peggy": {
       "params": {
-        "peggy_id": "injective-peggyid",
+        "peggy_id": "helios-peggyid",
         "contract_source_hash": "",
         "bridge_ethereum_address": "",
         "bridge_chain_id": "0",
@@ -883,7 +883,7 @@
         "slash_fraction_conflicting_claim": "0.001000000000000000",
         "unbond_slashing_valsets_window": "10000",
         "slash_fraction_bad_eth_signature": "0.001000000000000000",
-        "cosmos_coin_denom": "inj",
+        "cosmos_coin_denom": "helios",
         "cosmos_coin_erc20_contract": "",
         "claim_slashing_enabled": false,
         "bridge_contract_start_height": "0",

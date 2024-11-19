@@ -42,7 +42,7 @@ func NewCreateInsuranceFundTxCmd() *cobra.Command {
 		Example:
 		$ %s tx insurance create-insurance-fund
 			--ticker="ticker"
-			--quote-denom="inj"
+			--quote-denom="helios"
 			--oracle-base="oracle-base"
 			--oracle-quote="oracle-quote"
 			--oracle-type="pricefeed"

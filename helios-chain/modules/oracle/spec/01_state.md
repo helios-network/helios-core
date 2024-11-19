@@ -158,7 +158,7 @@ Note:
 
 1. `BandIbcEnabled` describes the status of band ibc connection
 2. `IbcSourceChannel`, `IbcVersion`, `IbcPortId` are common parameters required for IBC connection.
-3. `IbcRequestInterval` describes the automatic price fetch request interval that is automatically triggered on injective chain on beginblocker.
+3. `IbcRequestInterval` describes the automatic price fetch request interval that is automatically triggered on helios chain on beginblocker.
 
 ## Coinbase
 

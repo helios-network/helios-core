@@ -36,7 +36,7 @@ type Params struct {
 ## `peggy_id`
 
 A random 32 byte value to prevent signature reuse, for example if the
-Injective Chain validators decided to use the same Ethereum keys for another chain
+Helios Chain validators decided to use the same Ethereum keys for another chain
 also running Peggy we would not want it to be possible to play a deposit
 from chain A back on chain B's Peggy. This value IS USED ON ETHEREUM so
 it must be set in your genesis.json before launch and not changed after
@@ -90,7 +90,7 @@ frequency is ahead of time.
 * `average_block_time`
 * `average_ethereum_block_time`
 
-These values are the average Injective Chain block time and Ethereum block time respectively
+These values are the average Helios Chain block time and Ethereum block time respectively
 and they are used to compute what the target batch timeout is. It is important that
 governance updates these in case of any major, prolonged change in the time it takes
 to produce a block

@@ -17,7 +17,7 @@ message MsgBid {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   string sender = 1;
-  // amount of the bid in INJ tokens
+  // amount of the bid in HELIOS tokens
   cosmos.base.v1beta1.Coin bid_amount = 2 [(gogoproto.nullable) = false];
   // the current auction round being bid on
   uint64 round = 3;
@@ -29,4 +29,4 @@ This service message is expected to fail if:
 - `Round` does not equal the current auction round
 - `BidAmount` does not exceed the previous highest bid amount by at least `min_next_increment_rate` percent.
 
-This service message transfers the `BidAmount` of INJ from the `Sender` to the auction module, stores the bid, and refunds the last bidder's bid amount.
+This service message transfers the `BidAmount` of HELIOS from the `Sender` to the auction module, stores the bid, and refunds the last bidder's bid amount.

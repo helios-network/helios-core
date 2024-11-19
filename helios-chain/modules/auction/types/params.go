@@ -15,15 +15,15 @@ var (
 	DefaultAuctionPeriod int64 = 60 * 60 * 24 * 7
 	// DefaultMinNextBidIncrementRate represents default min increment rate 0.25%
 	DefaultMinNextBidIncrementRate = math.LegacyNewDecWithPrec(25, 4)
-	// DefaultInjBasketMaxCap represents default inj basket max cap
-	DefaultInjBasketMaxCap = math.NewIntWithDecimal(10_000, 18)
+	// DefaultHeliosBasketMaxCap represents default helios basket max cap
+	DefaultHeliosBasketMaxCap = math.NewIntWithDecimal(10_000, 18)
 )
 
 // Parameter keys
 var (
 	KeyAuctionPeriod           = []byte("AuctionPeriod")
 	KeyMinNextBidIncrementRate = []byte("MinNextBidIncrementRate")
-	KeyInjBasketMaxCap         = []byte("InjBasketMaxCap")
+	KeyHeliosBasketMaxCap      = []byte("HeliosBasketMaxCap")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -35,12 +35,12 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	auctionPeriod int64,
 	minNextBidIncrementRate math.LegacyDec,
-	injBasketMaxCap math.Int,
+	heliosBasketMaxCap math.Int,
 ) Params {
 	return Params{
 		AuctionPeriod:           auctionPeriod,
 		MinNextBidIncrementRate: minNextBidIncrementRate,
-		InjBasketMaxCap:         injBasketMaxCap,
+		HeliosBasketMaxCap:      heliosBasketMaxCap,
 	}
 }
 
@@ -49,7 +49,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyAuctionPeriod, &p.AuctionPeriod, validateAuctionPeriodDuration),
 		paramtypes.NewParamSetPair(KeyMinNextBidIncrementRate, &p.MinNextBidIncrementRate, validateMinNextBidIncrementRate),
-		paramtypes.NewParamSetPair(KeyInjBasketMaxCap, &p.InjBasketMaxCap, validateInjBasketMaxCap),
+		paramtypes.NewParamSetPair(KeyHeliosBasketMaxCap, &p.HeliosBasketMaxCap, validateHeliosBasketMaxCap),
 	}
 }
 
@@ -58,7 +58,7 @@ func DefaultParams() Params {
 	return Params{
 		AuctionPeriod:           DefaultAuctionPeriod,
 		MinNextBidIncrementRate: DefaultMinNextBidIncrementRate,
-		InjBasketMaxCap:         DefaultInjBasketMaxCap,
+		HeliosBasketMaxCap:      DefaultHeliosBasketMaxCap,
 	}
 }
 
@@ -72,7 +72,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateInjBasketMaxCap(p.InjBasketMaxCap); err != nil {
+	if err := validateHeliosBasketMaxCap(p.HeliosBasketMaxCap); err != nil {
 		return err
 	}
 
@@ -113,17 +113,17 @@ func validateMinNextBidIncrementRate(i interface{}) error {
 	return nil
 }
 
-func validateInjBasketMaxCap(i interface{}) error {
+func validateHeliosBasketMaxCap(i interface{}) error {
 	v, ok := i.(math.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("InjBasketMaxCap cannot be nil")
+		return fmt.Errorf("HeliosBasketMaxCap cannot be nil")
 	}
 	if v.IsNegative() {
-		return fmt.Errorf("InjBasketMaxCap cannot be negative")
+		return fmt.Errorf("HeliosBasketMaxCap cannot be negative")
 	}
 	return nil
 }

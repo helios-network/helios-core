@@ -35,7 +35,7 @@ func (app *HeliosApp) registerUpgradeHandlers() {
 			sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 			auctionParams := app.AuctionKeeper.GetParams(sdkCtx)
-			auctionParams.InjBasketMaxCap = auctiontypes.DefaultInjBasketMaxCap.MulRaw(2) // 2 * cap
+			auctionParams.HeliosBasketMaxCap = auctiontypes.DefaultHeliosBasketMaxCap.MulRaw(2) // 2 * cap
 			app.AuctionKeeper.SetParams(sdkCtx, auctionParams)
 
 			osmoUstPerpMarketID := common.HexToHash("0x8c7fd5e6a7f49d840512a43d95389a78e60ebaf0cde1af86b26a785eb23b3be5")

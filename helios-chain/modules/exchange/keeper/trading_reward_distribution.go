@@ -22,7 +22,7 @@ func (k *Keeper) distributeTradingRewardsForAccount(
 	defer doneFn()
 
 	accountRewards := sdk.NewCoins()
-	injRewardStakedRequirementThreshold := k.GetInjRewardStakedRequirementThreshold(ctx)
+	heliosRewardStakedRequirementThreshold := k.GetHeliosRewardStakedRequirementThreshold(ctx)
 
 	for _, coin := range maxCampaignRewards {
 		availableRewardForDenom := availableRewardsToPayout[coin.Denom]
@@ -33,13 +33,13 @@ func (k *Keeper) distributeTradingRewardsForAccount(
 
 		accountRewardAmount := accountPoints.Points.Mul(availableRewardForDenom.ToLegacyDec()).Quo(totalPoints).TruncateInt()
 
-		if coin.Denom == chaintypes.HeliosCoin && accountRewardAmount.GT(injRewardStakedRequirementThreshold) {
+		if coin.Denom == chaintypes.HeliosCoin && accountRewardAmount.GT(heliosRewardStakedRequirementThreshold) {
 			maxDelegations := uint16(10)
-			stakedINJ := k.CalculateStakedAmountWithoutCache(ctx, accountPoints.Account, maxDelegations)
-			minRewardAboveThreshold := injRewardStakedRequirementThreshold
+			stakedHELIOS := k.CalculateStakedAmountWithoutCache(ctx, accountPoints.Account, maxDelegations)
+			minRewardAboveThreshold := heliosRewardStakedRequirementThreshold
 
-			// at least X amount of INJ (e.g. 100 INJ), but otherwise not more than the staked amount
-			accountRewardAmount = math.MaxInt(minRewardAboveThreshold, math.MinInt(accountRewardAmount, stakedINJ))
+			// at least X amount of HELIOS (e.g. 100 HELIOS), but otherwise not more than the staked amount
+			accountRewardAmount = math.MaxInt(minRewardAboveThreshold, math.MinInt(accountRewardAmount, stakedHELIOS))
 		}
 
 		accountRewards = accountRewards.Add(sdk.NewCoin(coin.Denom, accountRewardAmount))

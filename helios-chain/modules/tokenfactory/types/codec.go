@@ -10,15 +10,15 @@ import (
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgCreateDenom{}, "injective/tokenfactory/create-denom", nil)
-	cdc.RegisterConcrete(&MsgMint{}, "injective/tokenfactory/mint", nil)
-	cdc.RegisterConcrete(&MsgBurn{}, "injective/tokenfactory/burn", nil)
+	cdc.RegisterConcrete(&MsgCreateDenom{}, "helios/tokenfactory/create-denom", nil)
+	cdc.RegisterConcrete(&MsgMint{}, "helios/tokenfactory/mint", nil)
+	cdc.RegisterConcrete(&MsgBurn{}, "helios/tokenfactory/burn", nil)
 	// nolint:all
-	// cdc.RegisterConcrete(&MsgForceTransfer{}, "injective/tokenfactory/force-transfer", nil)
-	cdc.RegisterConcrete(&MsgChangeAdmin{}, "injective/tokenfactory/change-admin", nil)
-	cdc.RegisterConcrete(&MsgUpdateParams{}, "injective/tokenfactory/update-params", nil)
-	cdc.RegisterConcrete(&MsgSetDenomMetadata{}, "injective/tokenfactory/set-denom-metadata", nil)
-	cdc.RegisterConcrete(&Params{}, "injective/tokenfactory/Params", nil)
+	// cdc.RegisterConcrete(&MsgForceTransfer{}, "helios/tokenfactory/force-transfer", nil)
+	cdc.RegisterConcrete(&MsgChangeAdmin{}, "helios/tokenfactory/change-admin", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "helios/tokenfactory/update-params", nil)
+	cdc.RegisterConcrete(&MsgSetDenomMetadata{}, "helios/tokenfactory/set-denom-metadata", nil)
+	cdc.RegisterConcrete(&Params{}, "helios/tokenfactory/Params", nil)
 
 }
 

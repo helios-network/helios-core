@@ -869,7 +869,7 @@ func GetEIP712TypedDataForMsg(signDocBytes []byte) (TypedData, error) {
 	}
 
 	domain := TypedDataDomain{
-		Name:              "Injective Web3",
+		Name:              "helios Web3",
 		Version:           "1.0.0",
 		ChainId:           math.NewHexOrDecimal256(chainID.Int64()),
 		VerifyingContract: "cosmos",

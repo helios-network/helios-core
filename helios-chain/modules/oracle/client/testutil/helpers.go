@@ -25,7 +25,7 @@ var commonArgs = []string{
 	fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 	fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(10))).String()),
-	fmt.Sprintf("--%s=%s", flags.FlagChainID, "injective-1"),
+	fmt.Sprintf("--%s=%s", flags.FlagChainID, "helios-1"),
 }
 
 func FindProposalID(events []abci.Event) string {

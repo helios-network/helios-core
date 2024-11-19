@@ -3,7 +3,7 @@ GIT_COMMIT = $(shell git rev-parse --short HEAD)
 BUILD_DATE = $(shell date -u "+%Y%m%d-%H%M")
 COSMOS_VERSION_PKG = github.com/cosmos/cosmos-sdk/version
 COSMOS_VERSION_NAME = helios
-VERSION_PKG = github.com/InjectiveLabs/helios-core/version
+VERSION_PKG = github.com/Helios-Chain-Labs/helios-core/version
 PACKAGES=$(shell go list ./... | grep -Ev 'vendor|importer|gen|api/design|rpc/tester')
 IMAGE_NAME := gcr.io/helios-core/core
 LEDGER_ENABLED ?= true
@@ -113,7 +113,7 @@ build-release-%: export VERSION_FLAGS="-X $(VERSION_PKG).AppVersion=$(APP_VERSIO
 build-release-%:
 	docker build \
 		--build-arg LDFLAGS=$(VERSION_FLAGS) \
-		--build-arg PKG=github.com/InjectiveLabs/helios-core/cmd/$(TARGET) \
+		--build-arg PKG=github.com/Helios-Chain-Labs/helios-core/cmd/$(TARGET) \
 		--ssh=default -t $(TARGET)-release -f Dockerfile.release .
 
 prepare-release-%: export TARGET=$*

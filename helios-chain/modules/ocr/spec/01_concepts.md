@@ -27,7 +27,7 @@ The transmission protocol then transmits the generated report to the OCR module.
 
 ## Off-chain OCR integration
 
-- Provide means to communicate with Injective using sdk-go
+- Provide means to communicate with Helios using sdk-go
 - Read data from the module, such as a list of approved oracles
 - Submit reports as Msgs (Implement `ContractTransmitter`)
 - Implement `OffchainConfigDigester`
@@ -51,10 +51,10 @@ Chainlink has several [price data feeds](https://data.chain.link/ethereum/mainne
 - 73 ETH pairs (e.g. LINK/ETH)
 - 17 Forex pairs (e.g. GBP/USD, CNY/USD)
 
-A derivative market on Injective specifies the following oracle parameters:
+A derivative market on Helios specifies the following oracle parameters:
 
 - An oracleBase (e.g. BTC)
 - An oracleQuote (e.g. USDT)
 - An oracleType (e.g. Chainlink)
 
-Thus for a BTC/USDT derivative market on Injective, the oracleBase would be BTC/USD, the oracleQuote would be USDT/USD and the oracleType would be Chainlink. The price for the market would then be obtained by dividing the BTC/USD price with the USDT/USD price, leaving the BTC/USDT price.
+Thus for a BTC/USDT derivative market on Helios, the oracleBase would be BTC/USD, the oracleQuote would be USDT/USD and the oracleType would be Chainlink. The price for the market would then be obtained by dividing the BTC/USD price with the USDT/USD price, leaving the BTC/USDT price.

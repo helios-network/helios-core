@@ -66,7 +66,7 @@ func NewContractRegistrationRequestProposalTxCmd() *cobra.Command {
 		Short: "Submit a proposal to register contract",
 		Long: `Submit a proposal to register contract.
 			Example:
-			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --contract-address "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" (--contract-funding-mode=dual) (--granter-address=inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz) --pin-contract=true --from mykey
+			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" (--contract-funding-mode=dual) (--granter-address=helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz) --pin-contract=true --from mykey
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -105,7 +105,7 @@ func NewContractRegistrationRequestProposalTxCmd() *cobra.Command {
 
 	cmd.Flags().Uint64(FlagContractGasLimit, 300000, "Maximum gas to use for the contract execution")
 	cmd.Flags().String(FlagContractAddress, "", "contract address to register")
-	cmd.Flags().Uint64(FlagContractGasPrice, 1000000000, "gas price in inj to use for the contract execution")
+	cmd.Flags().Uint64(FlagContractGasPrice, 1000000000, "gas price in helios to use for the contract execution")
 	cmd.Flags().String(FlagContractFundingMode, "", "funding mode: self-funded, grant-only, dual")
 	cmd.Flags().String(FlagGranterAddress, "", "address that will pay gas fees for contract execution")
 	cmd.Flags().Bool(FlagPinContract, false, "Pin the contract upon registration to reduce the gas usage")
@@ -128,7 +128,7 @@ func NewContractDeregistrationRequestProposalTxCmd() *cobra.Command {
 		Short: "Submit a proposal to deregister contract",
 		Long: `Submit a proposal to deregister contract.
 			Example:
-			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --code-id 1 --contract-address "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y"  --granter-address=inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz --contract-funding-mode self-funded --pin-contract=true --from wasm --chain-id injective-1 
+			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --code-id 1 --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y"  --granter-address=helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz --contract-funding-mode self-funded --pin-contract=true --from wasm --chain-id 4242 
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -327,7 +327,7 @@ $ %s tx xwasm "batch-store-code-proposal \
 	--contract-files="proposal1.wasm,proposal2.wasm" \
 	--batch-upload-proposal="path/to/batch-store-code-proposal.json" \
 	--from=genesis \
-	--deposit="1000000000000000000inj" \
+	--deposit="1000000000000000000helios" \
 	--keyring-backend=file \
 	--yes
 
@@ -411,7 +411,7 @@ func ContractParamsUpdateTxCmd() *cobra.Command {
 		Short: "Update registered contract params",
 		Long: `Update registered contract params (gas price, gas limit, admin address).
 			Example:
-			$ %s tx xwasm contract-params-update inj14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y --contract-gas-limit 20000 --contract-gas-price "1000000000" --contract-admin="inj1p7z8p649xspcey7wp5e4leqf7wa39kjjj6wja8" --from mykey
+			$ %s tx xwasm contract-params-update helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y --contract-gas-limit 20000 --contract-gas-price "1000000000" --contract-admin="helios1p7z8p649xspcey7wp5e4leqf7wa39kjjj6wja8" --from mykey
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -479,7 +479,7 @@ func ContractParamsUpdateTxCmd() *cobra.Command {
 
 	cmd.Flags().Uint64(FlagContractGasLimit, 300000, "Maximum gas to use for the contract execution")
 	cmd.Flags().String(FlagContractAddress, "", "contract address ")
-	cmd.Flags().Uint64(FlagContractGasPrice, 1000000000, "gas price in inj to use for the contract execution")
+	cmd.Flags().Uint64(FlagContractGasPrice, 1000000000, "gas price in helios to use for the contract execution")
 	cmd.Flags().String(FlagContractAdmin, "", "contract admin allowed to perform changes")
 
 	cliflags.AddTxFlagsToCmd(cmd)
@@ -493,7 +493,7 @@ func ContractActivateTxCmd() *cobra.Command {
 		Short: "Activate registered contract",
 		Long: `Activate registered contract to be executed in begin blocker.
 			Example:
-			$ %s tx xwasm contract-activate --contract-address "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" --from mykey
+			$ %s tx xwasm contract-activate --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" --from mykey
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -534,7 +534,7 @@ func ContractDeactivateTxCmd() *cobra.Command {
 		Short: "Deactivate registered contract",
 		Long: `Deactivate registered contract (will no longer be executed in begin blocker, but remains registered).
 			Example:
-			$ %s tx xwasm contract-deactivate --contract-address "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" --from mykey
+			$ %s tx xwasm contract-deactivate --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" --from mykey
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -579,7 +579,7 @@ func RegisterContractTxCmd() *cobra.Command {
 		},
 		cli.ArgsMapping{},
 	)
-	cmd.Example = "heliades tx xwasm register-contract inj1apapy3g66m52mmt2wkyjm6hpyd563t90u0dgmx 4500000 1000000000 true true 1 inj17gkuet8f6pssxd8nycm3qr9d9y699rupv6397z"
+	cmd.Example = "heliades tx xwasm register-contract helios1apapy3g66m52mmt2wkyjm6hpyd563t90u0dgmx 4500000 1000000000 true true 1 helios17gkuet8f6pssxd8nycm3qr9d9y699rupv6397z"
 	cmd.Flags().String(FlagGranterAddress, "", "Granter address")
 	cmd.Flags().Int32(FlagContractFundingMode, 1, "Funding mode (1 for self-funded, 2 for grant-only, 3 for dual")
 	return cmd

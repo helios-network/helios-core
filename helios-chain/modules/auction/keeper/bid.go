@@ -19,7 +19,7 @@ func (k *Keeper) GetHighestBid(ctx sdk.Context) *types.Bid {
 	if bz == nil {
 		return &types.Bid{
 			Bidder: "",
-			Amount: sdk.NewCoin("inj", math.ZeroInt()),
+			Amount: sdk.NewCoin("helios", math.ZeroInt()),
 		}
 	}
 

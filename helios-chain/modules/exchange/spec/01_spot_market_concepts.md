@@ -86,7 +86,7 @@ A market is first created either by the instant launch functionality through `Ms
 ### Listing Fee based Spot Market Creation
 
 Allow anyone to create an active spot market of their choice without requiring governance approval by burning a pre-set
-SpotMarketInstantListingFee of INJ.
+SpotMarketInstantListingFee of HELIOS.
 
 We should still check that the denom is valid though.
 

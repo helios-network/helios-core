@@ -75,4 +75,4 @@ For an example for the limit order matching in FBA fashion, look at the API docs
   3. The order is matched at a better price resulting in a different fee.
      - For buy orders a better price means a lower price and thus a lower fee. We refund the fee price delta.
      - For sell orders a better price means a higher price and thus a higher fee. We charge the fee price delta.
-  - You can find the respective code with an example [here](https://github.com/InjectiveLabs/injective-core/blob/80dbc4e9558847ff0354be5d19a4d8b0bba7da96/helios-chain/modules/exchange/keeper/derivative_orders_processor.go#L502). Please check the master branch for the latest chain code.
+  - You can find the respective code with an example [here](https://github.com/Helios-Chain-Labs/helios-core/blob/80dbc4e9558847ff0354be5d19a4d8b0bba7da96/helios-chain/modules/exchange/keeper/derivative_orders_processor.go#L502). Please check the master branch for the latest chain code.

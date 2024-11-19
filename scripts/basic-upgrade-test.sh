@@ -22,7 +22,7 @@ yes $PASSPHRASE | heliades tx upgrade software-upgrade v1.13.1 \
  --title "Helios Protocol 1.12 Dry Run" \
  --upgrade-height $HALT_HEIGHT \
  --summary "hi" \
- --deposit 500000000000000000000inj $TX_OPTS \
+ --deposit 500000000000000000000helios $TX_OPTS \
  --no-validate
 
 sleep 3

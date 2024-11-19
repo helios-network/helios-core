@@ -16,7 +16,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	injcodectypes "helios-core/helios-chain/codec/types"
+	helioscodectypes "helios-core/helios-chain/codec/types"
 	chaintypes "helios-core/helios-chain/types"
 
 	insurancekeeper "helios-core/helios-chain/modules/insurance/keeper"
@@ -435,8 +435,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 		runtime.NewKVStoreService(keyAcc), // target store service
 		authtypes.ProtoBaseAccount,        // prototype
 		maccPerms,
-		authcodec.NewBech32Codec(chaintypes.InjectiveBech32Prefix),
-		chaintypes.InjectiveBech32Prefix,
+		authcodec.NewBech32Codec(chaintypes.HeliosBech32Prefix),
+		chaintypes.HeliosBech32Prefix,
 		authority,
 	)
 
@@ -635,7 +635,7 @@ func MakeTestCodec() *codec.LegacyAmino {
 
 // MakeTestMarshaler creates a proto codec for use in testing
 func MakeTestMarshaler() codec.Codec {
-	interfaceRegistry := injcodectypes.NewInterfaceRegistry()
+	interfaceRegistry := helioscodectypes.NewInterfaceRegistry()
 	std.RegisterInterfaces(interfaceRegistry)
 	ModuleBasics.RegisterInterfaces(interfaceRegistry)
 	types.RegisterInterfaces(interfaceRegistry)

@@ -9,7 +9,7 @@ import (
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	injcodectypes "helios-core/helios-chain/codec/types"
+	helioscodectypes "helios-core/helios-chain/codec/types"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
@@ -78,7 +78,7 @@ var (
 	// defined at the application level.
 	// ModuleCdc = codec.NewAminoCodec(amino)
 
-	ModuleCdc = codec.NewProtoCodec(injcodectypes.NewInterfaceRegistry())
+	ModuleCdc = codec.NewProtoCodec(helioscodectypes.NewInterfaceRegistry())
 )
 
 func init() {

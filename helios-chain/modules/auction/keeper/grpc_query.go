@@ -43,7 +43,7 @@ func (k *Keeper) CurrentAuctionBasket(c context.Context, _ *types.QueryCurrentAu
 		// We subtract the current highest bid amount from the basket
 		if coin.Denom == chaintypes.HeliosCoin {
 			coin = coin.SubAmount(lastBid.Amount.Amount)
-			maxCap := k.GetParams(ctx).InjBasketMaxCap
+			maxCap := k.GetParams(ctx).HeliosBasketMaxCap
 
 			if coin.Amount.GT(maxCap) {
 				coin.Amount = maxCap

@@ -37,8 +37,8 @@
       "contractId": "scMaster",
       "message": {
         "owner": "$account(1)",
-        "distribution_contract": "inj1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
-        "mito_token": "inj1cml96vmptgw99syqrrz8az79xer2pcgp0a885r"
+        "distribution_contract": "helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
+        "mito_token": "helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r"
       }
     },
     {
@@ -75,7 +75,7 @@
     {
       "actionType": "executeContract",
       "contractId": "scMaster",
-      "executionType": "injective",
+      "executionType": "helios",
       "accountIndex": 1,
       "message": {
         "vault_subaccount_id": "$contractAddress(scMaster).sub(1)",

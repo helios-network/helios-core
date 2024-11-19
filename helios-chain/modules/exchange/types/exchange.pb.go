@@ -230,10 +230,10 @@ func (OrderMask) EnumDescriptor() ([]byte, []int) {
 }
 
 type Params struct {
-	// spot_market_instant_listing_fee defines the expedited fee in INJ required
+	// spot_market_instant_listing_fee defines the expedited fee in HELIOS required
 	// to create a spot market by bypassing governance
 	SpotMarketInstantListingFee types.Coin `protobuf:"bytes,1,opt,name=spot_market_instant_listing_fee,json=spotMarketInstantListingFee,proto3" json:"spot_market_instant_listing_fee"`
-	// derivative_market_instant_listing_fee defines the expedited fee in INJ
+	// derivative_market_instant_listing_fee defines the expedited fee in HELIOS
 	// required to create a derivative market by bypassing governance
 	DerivativeMarketInstantListingFee types.Coin `protobuf:"bytes,2,opt,name=derivative_market_instant_listing_fee,json=derivativeMarketInstantListingFee,proto3" json:"derivative_market_instant_listing_fee"`
 	// default_spot_maker_fee defines the default exchange trade fee for makers on
@@ -271,16 +271,16 @@ type Params struct {
 	// max_derivative_order_side_count defines the maximum number of derivative
 	// active orders a subaccount can have for a given orderbook side
 	MaxDerivativeOrderSideCount uint32 `protobuf:"varint,14,opt,name=max_derivative_order_side_count,json=maxDerivativeOrderSideCount,proto3" json:"max_derivative_order_side_count,omitempty"`
-	// inj_reward_staked_requirement_threshold defines the threshold on INJ
-	// rewards after which one also needs staked INJ to receive more
-	InjRewardStakedRequirementThreshold cosmossdk_io_math.Int `protobuf:"bytes,15,opt,name=inj_reward_staked_requirement_threshold,json=injRewardStakedRequirementThreshold,proto3,customtype=cosmossdk.io/math.Int" json:"inj_reward_staked_requirement_threshold"`
+	// helios_reward_staked_requirement_threshold defines the threshold on HELIOS
+	// rewards after which one also needs staked HELIOS to receive more
+	HeliosRewardStakedRequirementThreshold cosmossdk_io_math.Int `protobuf:"bytes,15,opt,name=helios_reward_staked_requirement_threshold,json=heliosRewardStakedRequirementThreshold,proto3,customtype=cosmossdk.io/math.Int" json:"helios_reward_staked_requirement_threshold"`
 	// the trading_rewards_vesting_duration defines the vesting times for trading
 	// rewards
 	TradingRewardsVestingDuration int64 `protobuf:"varint,16,opt,name=trading_rewards_vesting_duration,json=tradingRewardsVestingDuration,proto3" json:"trading_rewards_vesting_duration,omitempty"`
 	// liquidator_reward_share_rate defines the ratio of the split of the surplus
 	// collateral that goes to the liquidator
 	LiquidatorRewardShareRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=liquidator_reward_share_rate,json=liquidatorRewardShareRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"liquidator_reward_share_rate"`
-	// binary_options_market_instant_listing_fee defines the expedited fee in INJ
+	// binary_options_market_instant_listing_fee defines the expedited fee in HELIOS
 	// required to create a derivative market by bypassing governance
 	BinaryOptionsMarketInstantListingFee types.Coin `protobuf:"bytes,18,opt,name=binary_options_market_instant_listing_fee,json=binaryOptionsMarketInstantListingFee,proto3" json:"binary_options_market_instant_listing_fee"`
 	// atomic_market_order_access_level defines the required access permissions
@@ -306,8 +306,8 @@ type Params struct {
 	MarginDecreasePriceTimestampThresholdSeconds int64 `protobuf:"varint,26,opt,name=margin_decrease_price_timestamp_threshold_seconds,json=marginDecreasePriceTimestampThresholdSeconds,proto3" json:"margin_decrease_price_timestamp_threshold_seconds,omitempty"`
 	// List of addresses that are allowed to perform exchange admin operations
 	ExchangeAdmins []string `protobuf:"bytes,27,rep,name=exchange_admins,json=exchangeAdmins,proto3" json:"exchange_admins,omitempty"`
-	// inj_auction_max_cap defines the maximum cap for INJ sent to auction
-	InjAuctionMaxCap cosmossdk_io_math.Int `protobuf:"bytes,28,opt,name=inj_auction_max_cap,json=injAuctionMaxCap,proto3,customtype=cosmossdk.io/math.Int" json:"inj_auction_max_cap"`
+	// helios_auction_max_cap defines the maximum cap for HELIOS sent to auction
+	HeliosAuctionMaxCap cosmossdk_io_math.Int `protobuf:"bytes,28,opt,name=helios_auction_max_cap,json=heliosAuctionMaxCap,proto3,customtype=cosmossdk.io/math.Int" json:"helios_auction_max_cap"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -465,7 +465,7 @@ func (m *MarketFeeMultiplier) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MarketFeeMultiplier proto.InternalMessageInfo
 
-// An object describing a derivative market in the Injective Futures Protocol.
+// An object describing a derivative market in the Helios Futures Protocol.
 type DerivativeMarket struct {
 	// Ticker for the derivative contract.
 	Ticker string `protobuf:"bytes,1,opt,name=ticker,proto3" json:"ticker,omitempty"`
@@ -547,7 +547,7 @@ func (m *DerivativeMarket) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DerivativeMarket proto.InternalMessageInfo
 
-// An object describing a binary options market in Injective Protocol.
+// An object describing a binary options market in Helios Protocol.
 type BinaryOptionsMarket struct {
 	// Ticker for the derivative contract.
 	Ticker string `protobuf:"bytes,1,opt,name=ticker,proto3" json:"ticker,omitempty"`
@@ -3685,7 +3685,7 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.MaxDerivativeOrderSideCount != that1.MaxDerivativeOrderSideCount {
 		return false
 	}
-	if !this.InjRewardStakedRequirementThreshold.Equal(that1.InjRewardStakedRequirementThreshold) {
+	if !this.HeliosRewardStakedRequirementThreshold.Equal(that1.HeliosRewardStakedRequirementThreshold) {
 		return false
 	}
 	if this.TradingRewardsVestingDuration != that1.TradingRewardsVestingDuration {
@@ -3729,7 +3729,7 @@ func (this *Params) Equal(that interface{}) bool {
 			return false
 		}
 	}
-	if !this.InjAuctionMaxCap.Equal(that1.InjAuctionMaxCap) {
+	if !this.HeliosAuctionMaxCap.Equal(that1.HeliosAuctionMaxCap) {
 		return false
 	}
 	return true
@@ -3755,9 +3755,9 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
-		size := m.InjAuctionMaxCap.Size()
+		size := m.HeliosAuctionMaxCap.Size()
 		i -= size
-		if _, err := m.InjAuctionMaxCap.MarshalTo(dAtA[i:]); err != nil {
+		if _, err := m.HeliosAuctionMaxCap.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
 		i = encodeVarintExchange(dAtA, i, uint64(size))
@@ -3890,9 +3890,9 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		dAtA[i] = 0x80
 	}
 	{
-		size := m.InjRewardStakedRequirementThreshold.Size()
+		size := m.HeliosRewardStakedRequirementThreshold.Size()
 		i -= size
-		if _, err := m.InjRewardStakedRequirementThreshold.MarshalTo(dAtA[i:]); err != nil {
+		if _, err := m.HeliosRewardStakedRequirementThreshold.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
 		i = encodeVarintExchange(dAtA, i, uint64(size))
@@ -7006,7 +7006,7 @@ func (m *Params) Size() (n int) {
 	if m.MaxDerivativeOrderSideCount != 0 {
 		n += 1 + sovExchange(uint64(m.MaxDerivativeOrderSideCount))
 	}
-	l = m.InjRewardStakedRequirementThreshold.Size()
+	l = m.HeliosRewardStakedRequirementThreshold.Size()
 	n += 1 + l + sovExchange(uint64(l))
 	if m.TradingRewardsVestingDuration != 0 {
 		n += 2 + sovExchange(uint64(m.TradingRewardsVestingDuration))
@@ -7041,7 +7041,7 @@ func (m *Params) Size() (n int) {
 			n += 2 + l + sovExchange(uint64(l))
 		}
 	}
-	l = m.InjAuctionMaxCap.Size()
+	l = m.HeliosAuctionMaxCap.Size()
 	n += 2 + l + sovExchange(uint64(l))
 	return n
 }
@@ -8615,7 +8615,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 15:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field InjRewardStakedRequirementThreshold", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field HeliosRewardStakedRequirementThreshold", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -8643,7 +8643,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.InjRewardStakedRequirementThreshold.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.HeliosRewardStakedRequirementThreshold.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -8980,7 +8980,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 28:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field InjAuctionMaxCap", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field HeliosAuctionMaxCap", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -9008,7 +9008,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.InjAuctionMaxCap.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.HeliosAuctionMaxCap.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

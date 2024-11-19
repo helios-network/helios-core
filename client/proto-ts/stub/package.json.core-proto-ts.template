@@ -1,7 +1,7 @@
 {
-  "name": "@injectivelabs/core-proto-ts",
+  "name": "@Helios-Chain-Labs/core-proto-ts",
   "version": "0.0.2",
-  "description": "Injective Chain API Query client with generated gRPC bindings.",
+  "description": "helios Chain API Query client with generated gRPC bindings.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,21 +10,21 @@
   "module": "./esm/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/InjectiveLabs/injective-core.git"
+    "url": "git+https://github.com/Helios-Chain-Labs/helios-core.git"
   },
   "keywords": [
-    "injective-core",
+    "helios-core",
     "grpc",
     "bindings"
   ],
-  "author": "Injective Labs",
+  "author": "helios Labs",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/InjectiveLabs/injective-core/issues"
+    "url": "https://github.com/Helios-Chain-Labs/helios-core/issues"
   },
-  "homepage": "https://github.com/InjectiveLabs/injective-core#readme",
+  "homepage": "https://github.com/Helios-Chain-Labs/helios-core#readme",
   "dependencies": {
-    "@injectivelabs/grpc-web": "^0.0.1",
+    "@Helios-Chain-Labs/grpc-web": "^0.0.1",
     "google-protobuf": "^3.14.0",
     "protobufjs": "^7.0.0",
     "rxjs": "^7.4.0"

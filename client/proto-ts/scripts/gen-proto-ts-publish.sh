@@ -3,7 +3,7 @@
 ## Publish chain-api
 cd ./client/proto-ts/gen/chain-api || exit
 
-v=$(npm view @injectivelabs/chain-api version)
+v=$(npm view @Helios-Chain-Labs/chain-api version)
 echo "current package version: $v"
 
 v1="${v%.*}.$((${v##*.}+1))"
@@ -15,7 +15,7 @@ npm publish
 ## Publish core-proto-ts
 cd ./../core-proto-ts || exit
 
-v=$(npm view @injectivelabs/core-proto-ts version)
+v=$(npm view @Helios-Chain-Labs/core-proto-ts version)
 echo "current package version: $v"
 
 v1="${v%.*}.$((${v##*.}+1))"

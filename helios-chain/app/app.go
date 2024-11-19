@@ -2,8 +2,8 @@ package app
 
 import (
 	"io"
-	"io/fs"
-	"net/http"
+	// "io/fs"
+	// "net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	tx "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
-	"github.com/gorilla/mux"
+	// "github.com/gorilla/mux"
 
 	"github.com/spf13/cast"
 
@@ -136,7 +136,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/client/docs"
+	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
 	"helios-core/helios-chain/modules/auction"
 	auctionkeeper "helios-core/helios-chain/modules/auction/keeper"
@@ -348,7 +348,7 @@ type HeliosApp struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
-	// injective keepers
+	// helios keepers
 	AuctionKeeper      auctionkeeper.Keeper
 	ExchangeKeeper     exchangekeeper.Keeper
 	InsuranceKeeper    insurancekeeper.Keeper
@@ -399,7 +399,7 @@ type HeliosApp struct {
 	RateLimitKeeper ratelimitkeeper.Keeper
 }
 
-// NewHeliosApp returns a reference to a new initialized Injective application.
+// NewHeliosApp returns a reference to a new initialized Helios application.
 func NewHeliosApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -514,7 +514,7 @@ func initHeliosApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *HeliosApp {
 	var (
-		// encodingConfig    = injcodectypes.MakeEncodingConfig()
+		// encodingConfig    = helioscodectypes.MakeEncodingConfig()
 		encodingConfig    = encoding.MakeConfig()
 		appCodec          = encodingConfig.Codec
 		legacyAmino       = encodingConfig.Amino
@@ -768,26 +768,26 @@ func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.API
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API from root so that other applications can override easily
-	if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
-		panic(err)
-	}
+	// if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+	// 	panic(err)
+	// }
 }
 
-// RegisterSwaggerAPI provides a common function which registers swagger route with API Server
-func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) error {
-	if !swaggerEnabled {
-		return nil
-	}
+// // RegisterSwaggerAPI provides a common function which registers swagger route with API Server
+// func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) error {
+// 	if !swaggerEnabled {
+// 		return nil
+// 	}
 
-	root, err := fs.Sub(docs.SwaggerUI, "swagger-ui")
-	if err != nil {
-		return err
-	}
+// 	root, err := fs.Sub(docs.SwaggerUI, "swagger-ui")
+// 	if err != nil {
+// 		return err
+// 	}
 
-	staticServer := http.FileServer(http.FS(root))
-	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
-	return nil
-}
+// 	staticServer := http.FileServer(http.FS(root))
+// 	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
+// 	return nil
+// }
 
 func (app *HeliosApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
@@ -1449,7 +1449,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	// wasm subspace
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
-	// injective subspaces
+	// helios subspaces
 	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	paramsKeeper.Subspace(insurancetypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)

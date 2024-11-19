@@ -50,8 +50,8 @@ func CreateNamespaceCmd() *cobra.Command {
 
 			Where namespace.json contains:
 			{
-				"denom": "inj",
-				"wasm_hook": "inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz",
+				"denom": "helios",
+				"wasm_hook": "helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz",
 				"role_permissions": [
 					{
 						"role": "admin",
@@ -64,11 +64,11 @@ func CreateNamespaceCmd() *cobra.Command {
 				],
 				"address_roles": [
 					{
-						"address": "inj122qtfcjfx9suvgr5s7rtqgfy8xvtjhm8uc4x9f",
+						"address": "helios122qtfcjfx9suvgr5s7rtqgfy8xvtjhm8uc4x9f",
 						"roles": ["whitelisted"]
 					},
 					{
-						"address": "inj1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
+						"address": "helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
 						"roles": ["receiver"]
 					}
 				]
@@ -114,7 +114,7 @@ func DeleteNamespaceCmd() *cobra.Command {
 		&types.MsgDeleteNamespace{}, nil, nil,
 	)
 
-	cmd.Example = `heliades tx permissions delete-namespace inj`
+	cmd.Example = `heliades tx permissions delete-namespace helios`
 
 	return cmd
 }
@@ -177,11 +177,11 @@ func UpdateNamespaceCmd() *cobra.Command {
 	cmd.Flags().Bool(fMintsPaused, false, "Mint tokens paused")
 	cmd.Flags().Bool(fBurnsPaused, false, "Burn tokens paused")
 
-	cmd.Example = `heliades tx permissions update-namespace inj
+	cmd.Example = `heliades tx permissions update-namespace helios
 					--mints-paused false
 					--burns-paused false
 					--sends-paused true
-					--wasm-hook inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz`
+					--wasm-hook helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz`
 
 	cliflags.AddTxFlagsToCmd(cmd)
 
@@ -200,7 +200,7 @@ func UpdateNamespaceRolesCmd() *cobra.Command {
 
 			Where roles.json contains:
 			{
-				"namespace_denom": "inj",
+				"namespace_denom": "helios",
 				"role_permissions": [
 					{
 						"role": "admin",
@@ -213,11 +213,11 @@ func UpdateNamespaceRolesCmd() *cobra.Command {
 				],
 				"address_roles": [
 					{
-						"address": "inj122qtfcjfx9suvgr5s7rtqgfy8xvtjhm8uc4x9f",
+						"address": "helios122qtfcjfx9suvgr5s7rtqgfy8xvtjhm8uc4x9f",
 						"roles": ["whitelisted"]
 					},
 					{
-						"address": "inj1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
+						"address": "helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
 						"roles": ["receiver"]
 					}
 				]
@@ -267,14 +267,14 @@ func RevokeNamespaceRoleCmd() *cobra.Command {
 
 			Where roles.json contains:
 			{
-				"namespace_denom": "inj",
+				"namespace_denom": "helios",
 				"address_roles_to_revoke": [
 					{
-						"address": "inj122qtfcjfx9suvgr5s7rtqgfy8xvtjhm8uc4x9f",
+						"address": "helios122qtfcjfx9suvgr5s7rtqgfy8xvtjhm8uc4x9f",
 						"roles": ["whitelisted"]
 					},
 					{
-						"address": "inj1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
+						"address": "helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r",
 						"roles": ["receiver"]
 					}
 				]
@@ -319,7 +319,7 @@ func ClaimVoucherCmd() *cobra.Command {
 		&types.MsgClaimVoucher{}, nil, nil,
 	)
 
-	cmd.Example = `heliades tx permissions claim-voucher injEXCHANGEMODULEADDRESS`
+	cmd.Example = `heliades tx permissions claim-voucher heliosEXCHANGEMODULEADDRESS`
 
 	return cmd
 }

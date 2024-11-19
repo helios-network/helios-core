@@ -28,7 +28,7 @@ func (am AppModule) EndBlocker(ctx sdk.Context) {
 	lastBid := am.keeper.GetHighestBid(ctx)
 	lastBidAmount := lastBid.Amount.Amount
 
-	maxInjCap := am.keeper.GetParams(ctx).InjBasketMaxCap
+	maxHeliosCap := am.keeper.GetParams(ctx).HeliosBasketMaxCap
 
 	// settle auction round
 	if lastBidAmount.IsPositive() && lastBid.Bidder != "" {
@@ -39,11 +39,11 @@ func (am AppModule) EndBlocker(ctx sdk.Context) {
 			return
 		}
 
-		// burn exactly module's inj amount received from bid
-		injBalanceInAuctionModule := am.bankKeeper.GetBalance(ctx, auctionModuleAddress, chaintypes.HeliosCoin)
-		if injBalanceInAuctionModule.IsPositive() {
-			injBurnAmount := sdk.NewCoin(chaintypes.HeliosCoin, lastBidAmount)
-			err = am.bankKeeper.BurnCoins(ctx, auctiontypes.ModuleName, sdk.NewCoins(injBurnAmount))
+		// burn exactly module's helios amount received from bid
+		heliosBalanceInAuctionModule := am.bankKeeper.GetBalance(ctx, auctionModuleAddress, chaintypes.HeliosCoin)
+		if heliosBalanceInAuctionModule.IsPositive() {
+			heliosBurnAmount := sdk.NewCoin(chaintypes.HeliosCoin, lastBidAmount)
+			err = am.bankKeeper.BurnCoins(ctx, auctiontypes.ModuleName, sdk.NewCoins(heliosBurnAmount))
 
 			if err != nil {
 				metrics.ReportFuncError(am.svcTags)
@@ -54,10 +54,10 @@ func (am AppModule) EndBlocker(ctx sdk.Context) {
 		// send tokens to winner or append to next auction round
 		coins := am.bankKeeper.GetAllBalances(ctx, auctionModuleAddress)
 		for _, coin := range coins {
-			// cap the amount of inj that can be sent to the winner
+			// cap the amount of Helios that can be sent to the winner
 			if coin.Denom == chaintypes.HeliosCoin {
-				if coin.Amount.GT(maxInjCap) {
-					coin.Amount = maxInjCap
+				if coin.Amount.GT(maxHeliosCap) {
+					coin.Amount = maxHeliosCap
 				}
 			}
 
@@ -96,11 +96,11 @@ func (am AppModule) EndBlocker(ctx sdk.Context) {
 
 	newBasket := am.bankKeeper.GetAllBalances(ctx, auctionModuleAddress)
 
-	// for correctness, emit the correct INJ value in the new basket in the event the INJ balances exceed the cap
-	newInjAmount := newBasket.AmountOf(chaintypes.HeliosCoin)
-	if newInjAmount.GT(maxInjCap) {
-		excessInj := newInjAmount.Sub(maxInjCap)
-		newBasket = newBasket.Sub(sdk.NewCoin(chaintypes.HeliosCoin, excessInj))
+	// for correctness, emit the correct HELIOS value in the new basket in the event the HELIOS balances exceed the cap
+	newHeliosAmount := newBasket.AmountOf(chaintypes.HeliosCoin)
+	if newHeliosAmount.GT(maxHeliosCap) {
+		excessHelios := newHeliosAmount.Sub(maxHeliosCap)
+		newBasket = newBasket.Sub(sdk.NewCoin(chaintypes.HeliosCoin, excessHelios))
 	}
 
 	// nolint:errcheck //ignored on purpose
