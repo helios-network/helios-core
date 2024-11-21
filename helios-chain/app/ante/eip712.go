@@ -31,6 +31,7 @@ func init() {
 	registry := helioscodectypes.NewInterfaceRegistry()
 	chaintypes.RegisterInterfaces(registry)
 	chainTypesCodec = codec.NewProtoCodec(registry)
+	//fmt.Printf("Registered interfaces: %v", registry.ListAllInterfaces())
 }
 
 // Verify all signatures for a tx and return an error if any are invalid. Note,

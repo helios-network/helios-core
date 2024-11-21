@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	tx "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+
 	// "github.com/gorilla/mux"
 
 	"github.com/spf13/cast"
@@ -225,8 +226,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, ".heliades")
+	customHomeDir := os.Getenv("HELIADES_HOME")
+	if customHomeDir != "" {
+		DefaultNodeHome = filepath.Join(userHomeDir, customHomeDir)
+	} else {
+		DefaultNodeHome = filepath.Join(userHomeDir, ".heliades")
+	}
 }
 
 const appName = "helios-chain"
@@ -279,7 +284,7 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
+		authtypes.FeeCollectorName:     {authtypes.Burner},
 		distrtypes.ModuleName:          nil,
 		icatypes.ModuleName:            nil,
 		minttypes.ModuleName:           {authtypes.Minter},

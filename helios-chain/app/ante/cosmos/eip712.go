@@ -42,10 +42,10 @@ func init() {
 // CONTRACT: Pubkeys are set in context for all signers before this decorator runs
 // CONTRACT: Tx must implement SigVerifiableTx interface
 type LegacyEip712SigVerificationDecorator struct {
-	ak evmtypes.AccountKeeper
+	ak              evmtypes.AccountKeeper
+	signModeHandler authsigning.SignModeHandler
 }
 
-// Deprecated: NewLegacyEip712SigVerificationDecorator creates a new LegacyEip712SigVerificationDecorator
 func NewLegacyEip712SigVerificationDecorator(
 	ak evmtypes.AccountKeeper,
 ) LegacyEip712SigVerificationDecorator {

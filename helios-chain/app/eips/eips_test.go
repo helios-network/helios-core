@@ -8,8 +8,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/ethereum/go-ethereum/common"
 	"helios-core/helios-chain/app/eips"
 	"helios-core/helios-chain/app/eips/testdata"
 	"helios-core/helios-chain/testutil/integration/evmos/factory"
@@ -17,6 +15,9 @@ import (
 	"helios-core/helios-chain/testutil/integration/evmos/keyring"
 	"helios-core/helios-chain/testutil/integration/evmos/network"
 	integrationutils "helios-core/helios-chain/testutil/integration/evmos/utils"
+
+	"github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	evmtypes "helios-core/helios-chain/x/evm/types"
 

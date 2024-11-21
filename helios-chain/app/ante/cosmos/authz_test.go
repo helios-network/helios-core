@@ -17,11 +17,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	cosmosante "helios-core/helios-chain/app/ante/cosmos"
 	"helios-core/helios-chain/testutil"
 	"helios-core/helios-chain/testutil/integration/common/factory"
 	"helios-core/helios-chain/testutil/integration/evmos/network"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	utiltx "helios-core/helios-chain/testutil/tx"
 	evmtypes "helios-core/helios-chain/x/evm/types"
