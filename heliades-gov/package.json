@@ -1,0 +1,14 @@
+{
+  "name": "heliades-gov",
+  "version": "1.0.0",
+  "main": "dao_proposal.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dao_proposal.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
