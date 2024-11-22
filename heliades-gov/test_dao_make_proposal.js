@@ -1,6 +1,6 @@
 import { Wallet } from '@ethersproject/wallet'
 import { createTxMsgSubmitProposal } from '@helios-chain-labs/transactions'
-import { broadcast, getSender, signTransactionUsingEIP712 } from '@helios-chain-labs/helios-ts-wallet'
+import { broadcast, getSender, signTransaction } from '@helios-chain-labs/helios-ts-wallet'
 // Import Protobuf package
 import protopkg from '@helios-chain-labs/proto'
 
@@ -36,8 +36,8 @@ import protopkg from '@helios-chain-labs/proto'
 
     // Create the TextProposal instance
     const proposal = new protopkg.cosmos.gov.v1beta1.TextProposal(
-      'Update Staking Parameters',
-      'Proposal to update the minimum staking requirement for validators.'
+      'Bisous sur les fesses',
+      'Faire un bisous sur les fesses de Jeremy Guyet.'
     )
 
     // Define proposal parameters
@@ -57,20 +57,15 @@ import protopkg from '@helios-chain-labs/proto'
       proposalParams
     )
 
+
     console.log('Proposal Transaction:', txProposal)
 
     // Sign the transaction
-    const signedTx = await signTransactionUsingEIP712(
+    const signedTx = await signTransaction(
       wallet,
-      sender.accountAddress,
       txProposal,
-      {
-        chainId: LOCALNET_CHAIN.chainId,
-        cosmosChainId: LOCALNET_CHAIN.cosmosChainId,
-      },
       "BROADCAST_MODE_SYNC"
     )
-
     console.log('Signed Transaction:', signedTx)
 
     // Broadcast the transaction

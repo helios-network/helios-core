@@ -4,6 +4,7 @@ import {
   broadcast,
   getSender,
   signTransactionUsingEIP712,
+  signTransaction,
 } from '@helios-chain-labs/helios-ts-wallet'
 
 ;(async () => {
@@ -59,14 +60,9 @@ import {
 
 
   // Enhanced signing with more explicit parameters
-  const resMM = await signTransactionUsingEIP712(
+  const resMM = await signTransaction(
     wallet,
-    sender.accountAddress,
     txSimple,
-    {
-      chainId: 4242,
-      cosmosChainId: 'helios_4242-1', // Use full chain ID
-    },
     "BROADCAST_MODE_SYNC"
   )
 
