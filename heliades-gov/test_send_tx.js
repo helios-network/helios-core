@@ -1,10 +1,10 @@
 import { Wallet } from '@ethersproject/wallet'
-import { createMessageSend } from '@tharsis/transactions'
+import { createMessageSend, createTxMsgSubmitProposal } from '@helios-chain-labs/transactions'
 import {
   broadcast,
   getSender,
   signTransactionUsingEIP712,
-} from '@hanchon/evmos-ts-wallet'
+} from '@helios-chain-labs/helios-ts-wallet'
 
 ;(async () => {
   const LOCALNET_FEE = {

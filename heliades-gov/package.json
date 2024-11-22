@@ -4,11 +4,15 @@
   "main": "dao_proposal.js",
   "type": "module",
   "scripts": {
-    "start": "node dao_proposal.js",
+    "start_test_tx": "node test_send_tx.js",
+    "start_test_dao": "node test_dao_make_proposal.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@ethersproject/wallet": "^5.7.0"
+  },
   "description": ""
 }
