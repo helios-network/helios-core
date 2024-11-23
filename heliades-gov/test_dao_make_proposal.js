@@ -38,6 +38,7 @@ import protopkg from '@helios-chain-labs/proto';
     const textProposal = new protopkg.cosmosbetagov.gov.v1beta1.TextProposal({
       title: 'Bisous sur les fesses',
       description: 'Faire un bisous sur les fesses de Jeremy Guyet.',
+      proposal_type: "RegisterCoinProposal",
     })
 
     const textProposalAny = new protopkg.google.protobuf.Any({

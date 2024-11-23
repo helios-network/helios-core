@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start_test_tx": "node test_send_tx.js",
-    "start_test_dao": "node test_dao_make_proposal.js",
+    "start_test_make_dao": "node test_dao_make_proposal.js",
+    "start_test_vote_dao": "node test_dao_vote_proposal.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
