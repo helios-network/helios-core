@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ethersproject/wallet": "^5.7.0"
+    "@ethersproject/wallet": "^5.7.0",
+    "google-protobuf": "^3.21.4"
   },
   "description": ""
 }

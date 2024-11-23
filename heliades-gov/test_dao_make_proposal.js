@@ -2,14 +2,15 @@ import { Wallet } from '@ethersproject/wallet'
 import { createTxMsgSubmitProposal } from '@helios-chain-labs/transactions'
 import { broadcast, getSender, signTransaction } from '@helios-chain-labs/helios-ts-wallet'
 // Import Protobuf package
-import protopkg from '@helios-chain-labs/proto'
+import {createMsgSubmitProposal } from '@helios-chain-labs/proto'
+import protopkg from '@helios-chain-labs/proto';
 
 ;(async () => {
   try {
     const LOCALNET_FEE = {
       amount: '20000000000000000',
       denom: 'ahelios',
-      gas: '200000',
+      gas: '500000',
       feePayer: '',
       feeGranter: '',
     }
@@ -34,19 +35,40 @@ import protopkg from '@helios-chain-labs/proto'
 
     const sender = await getSender(wallet)
 
-    // Create the TextProposal instance
-    const proposal = new protopkg.cosmos.gov.v1beta1.TextProposal(
-      'Bisous sur les fesses',
-      'Faire un bisous sur les fesses de Jeremy Guyet.'
+    const textProposal = new protopkg.cosmosbetagov.gov.v1beta1.TextProposal({
+      title: 'Bisous sur les fesses',
+      description: 'Faire un bisous sur les fesses de Jeremy Guyet.',
+    })
+
+    const textProposalAny = new protopkg.google.protobuf.Any({
+      type_url: '/cosmos.gov.v1beta1.TextProposal',
+      value: textProposal.serializeBinary(), // Serialize to Protobuf binary
+    });
+
+
+    //   // Create and serialize the initial deposit
+    //   const initialDeposit = [
+    //     new protopkg.cosmosbase.base.v1beta1.Coin({
+    //       denom: 'ahelios',
+    //       amount: '1000000000000000000', // 1 HELIOS
+    //     }),
+    //   ];
+
+
+    // Create the TextProposal instance using the new method
+    const proposal = new createMsgSubmitProposal(
+      textProposalAny,
+      "ahelios",
+      "1000000000000000000",
+      sender.accountAddress
     )
 
-    // Define proposal parameters
-    const proposalParams = {
-      content: proposal, // Pass the Protobuf instance directly
-      initialDepositDenom: 'ahelios',
-      initialDepositAmount: '1000000000000000000', // 1 HELIOS as string
-      proposer: sender.accountAddress,
-    }
+    // const proposal = new protopkg.cosmosgovtx.gov.v1.MsgSubmitProposal({
+    //   messages: [],
+    //   initial_deposit: [],
+    //   proposer: sender.accountAddress,
+    // })
+    
 
     // Create the governance proposal transaction
     const txProposal = createTxMsgSubmitProposal(
@@ -54,9 +76,13 @@ import protopkg from '@helios-chain-labs/proto'
       sender,
       LOCALNET_FEE,
       '', // Optional memo
-      proposalParams
+      {
+        content: textProposalAny,
+        initialDepositDenom: "ahelios",
+        initialDepositAmount: "1000000000000000000",
+        proposer: sender.accountAddress
+      }
     )
-
 
     console.log('Proposal Transaction:', txProposal)
 
