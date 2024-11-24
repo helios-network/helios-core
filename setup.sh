@@ -43,8 +43,8 @@ jq '.app_state["crisis"]["constant_fee"]["denom"]="ahelios"' $GENESIS_CONFIG > $
 jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["gov"]["params"]["min_initial_deposit_ratio"]="0.100000000000000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 echo "NOTE: Setting Governance Voting Period to 10 seconds for easy testing"
-jq '.app_state["gov"]["params"]["voting_period"]="10s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["gov"]["params"]["expedited_voting_period"]="5s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["gov"]["params"]["voting_period"]="30s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["gov"]["params"]["expedited_voting_period"]="10s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["mint"]["params"]["mint_denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["auction"]["params"]["auction_period"]="10"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["module_admin"]="'$FEEDADMIN'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG

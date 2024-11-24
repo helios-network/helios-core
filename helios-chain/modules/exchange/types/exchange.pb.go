@@ -230,8 +230,8 @@ func (OrderMask) EnumDescriptor() ([]byte, []int) {
 }
 
 type Params struct {
-	// spot_market_instant_listing_fee defines the expedited fee in HELIOS required
-	// to create a spot market by bypassing governance
+	// spot_market_instant_listing_fee defines the expedited fee in HELIOS
+	// required to create a spot market by bypassing governance
 	SpotMarketInstantListingFee types.Coin `protobuf:"bytes,1,opt,name=spot_market_instant_listing_fee,json=spotMarketInstantListingFee,proto3" json:"spot_market_instant_listing_fee"`
 	// derivative_market_instant_listing_fee defines the expedited fee in HELIOS
 	// required to create a derivative market by bypassing governance
@@ -280,8 +280,8 @@ type Params struct {
 	// liquidator_reward_share_rate defines the ratio of the split of the surplus
 	// collateral that goes to the liquidator
 	LiquidatorRewardShareRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=liquidator_reward_share_rate,json=liquidatorRewardShareRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"liquidator_reward_share_rate"`
-	// binary_options_market_instant_listing_fee defines the expedited fee in HELIOS
-	// required to create a derivative market by bypassing governance
+	// binary_options_market_instant_listing_fee defines the expedited fee in
+	// HELIOS required to create a derivative market by bypassing governance
 	BinaryOptionsMarketInstantListingFee types.Coin `protobuf:"bytes,18,opt,name=binary_options_market_instant_listing_fee,json=binaryOptionsMarketInstantListingFee,proto3" json:"binary_options_market_instant_listing_fee"`
 	// atomic_market_order_access_level defines the required access permissions
 	// for executing atomic market orders

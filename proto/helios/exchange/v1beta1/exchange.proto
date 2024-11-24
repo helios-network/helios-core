@@ -20,8 +20,8 @@ message Params {
   option (gogoproto.equal) = true;
   option (amino.name) = "exchange/Params";
 
-  // spot_market_instant_listing_fee defines the expedited fee in HELIOS required
-  // to create a spot market by bypassing governance
+  // spot_market_instant_listing_fee defines the expedited fee in HELIOS
+  // required to create a spot market by bypassing governance
   cosmos.base.v1beta1.Coin spot_market_instant_listing_fee = 1
       [ (gogoproto.nullable) = false ];
 
@@ -121,8 +121,8 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // binary_options_market_instant_listing_fee defines the expedited fee in HELIOS
-  // required to create a derivative market by bypassing governance
+  // binary_options_market_instant_listing_fee defines the expedited fee in
+  // HELIOS required to create a derivative market by bypassing governance
   cosmos.base.v1beta1.Coin binary_options_market_instant_listing_fee = 18
       [ (gogoproto.nullable) = false ];
   // atomic_market_order_access_level defines the required access permissions

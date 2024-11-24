@@ -32,8 +32,8 @@ type Params struct {
 	AuctionPeriod int64 `protobuf:"varint,1,opt,name=auction_period,json=auctionPeriod,proto3" json:"auction_period,omitempty"`
 	// min_next_bid_increment_rate defines the minimum increment rate for new bids
 	MinNextBidIncrementRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=min_next_bid_increment_rate,json=minNextBidIncrementRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_next_bid_increment_rate"`
-	// helios_basket_max_cap defines the maximum cap for HELIOS contained in an auction
-	// basket
+	// helios_basket_max_cap defines the maximum cap for HELIOS contained in an
+	// auction basket
 	HeliosBasketMaxCap cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=helios_basket_max_cap,json=heliosBasketMaxCap,proto3,customtype=cosmossdk.io/math.Int" json:"helios_basket_max_cap"`
 }
 

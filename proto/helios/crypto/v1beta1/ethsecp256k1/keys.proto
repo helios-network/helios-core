@@ -1,8 +1,8 @@
 syntax = "proto3";
-package ethermint.crypto.v1.ethsecp256k1;
+package helios.crypto.v1beta1.ethsecp256k1;
 
-import "gogoproto/gogo.proto";
 import "amino/amino.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "helios-core/helios-chain/crypto/ethsecp256k1";
 
