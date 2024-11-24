@@ -27,11 +27,12 @@ var (
 
 const (
 	// Amino names
-	convertERC20Name = "evmos/MsgConvertERC20"
-	convertCoinName  = "evmos/MsgConvertCoin" // keep it for backwards compatibility when querying txs
-	updateParams     = "evmos/erc20/MsgUpdateParams"
-	registerERC20    = "evmos/erc20/MsgRegisterERC20"
-	toggleConversion = "evmos/erc20/MsgToggleConversion"
+	convertERC20Name       = "helios/MsgConvertERC20"
+	convertCoinName        = "helios/MsgConvertCoin" // keep it for backwards compatibility when querying txs
+	updateParams           = "helios/erc20/MsgUpdateParams"
+	registerERC20          = "helios/erc20/MsgRegisterERC20"
+	toggleConversion       = "helios/erc20/MsgToggleConversion"
+	registerAssetConsensus = "helios/erc20/NewAssetConsensusProposal"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -55,6 +56,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&RegisterCoinProposal{}, // Keep interface for backwards compatibility on proposals query
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},
+		&AddNewAssetConsensusProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -69,4 +71,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgConvertCoin{}, convertCoinName, nil)
 	cdc.RegisterConcrete(&MsgRegisterERC20{}, registerERC20, nil)
 	cdc.RegisterConcrete(&MsgToggleConversion{}, toggleConversion, nil)
+	cdc.RegisterConcrete(&AddNewAssetConsensusProposal{}, registerAssetConsensus, nil)
 }

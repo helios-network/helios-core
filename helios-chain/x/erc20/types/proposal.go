@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"strings"
 
+	evmostypes "helios-core/helios-chain/types"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	evmostypes "helios-core/helios-chain/types"
 )
 
 // constants
@@ -20,6 +21,7 @@ const (
 	ProposalTypeRegisterCoin          string = "RegisterCoin"
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
+	ProposalAddNewAssetConsensus      string = "AddNewAssetConsensus"
 )
 
 // Implements Proposal Interface
@@ -28,11 +30,13 @@ var (
 	_ v1beta1.Content = &RegisterCoinProposal{}
 	_ v1beta1.Content = &RegisterERC20Proposal{}
 	_ v1beta1.Content = &ToggleTokenConversionProposal{}
+	_ v1beta1.Content = &AddNewAssetConsensusProposal{}
 )
 
 func init() {
 	v1beta1.RegisterProposalType(ProposalTypeRegisterERC20)
 	v1beta1.RegisterProposalType(ProposalTypeToggleTokenConversion)
+	v1beta1.RegisterProposalType(ProposalAddNewAssetConsensus)
 }
 
 // CreateDenomDescription generates a string with the coin description
@@ -129,4 +133,70 @@ func (*RegisterCoinProposal) ProposalType() string {
 // RegisterCoinProposal is DEPRECATED remove after v16 upgrade
 func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 	return errors.New("deprecated")
+}
+
+// GetDescription returns the description of this proposal.
+func (p *AddNewAssetConsensusProposal) GetDescription() string {
+	return p.Description
+}
+
+// GetDescription returns the description of this proposal.
+func (p *AddNewAssetConsensusProposal) GetTitle() string {
+	return p.Title
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *AddNewAssetConsensusProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *AddNewAssetConsensusProposal) ProposalType() string {
+	return ProposalAddNewAssetConsensus
+}
+
+// ValidateBasic performs a stateless check of the proposal fields.
+func (p *AddNewAssetConsensusProposal) ValidateBasic() error {
+	// Validate title
+	if strings.TrimSpace(p.Title) == "" {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal title cannot be empty")
+	}
+
+	// Validate description
+	if strings.TrimSpace(p.Description) == "" {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal description cannot be empty")
+	}
+
+	// Validate assets
+	if len(p.Assets) == 0 {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal must include at least one asset")
+	}
+
+	for _, asset := range p.Assets {
+		// Validate asset denom
+		if strings.TrimSpace(asset.Denom) == "" {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset denom cannot be empty")
+		}
+
+		// Validate contract address
+		if strings.TrimSpace(asset.ContractAddress) == "" {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset contract address cannot be empty")
+		}
+
+		//TODO: link with hyperion to know the list of authorized chains
+		// Validate chain ID
+		if strings.TrimSpace(asset.ChainId) == "" {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset chain ID cannot be empty")
+		}
+
+		// Validate decimals
+		if asset.Decimals == 0 {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset decimals must be greater than zero")
+		}
+
+		// Validate base weight
+		if asset.BaseWeight == 0 {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset base weight must be greater than zero")
+		}
+	}
+
+	return nil
 }

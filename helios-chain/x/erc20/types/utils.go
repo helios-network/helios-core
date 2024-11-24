@@ -20,6 +20,20 @@ const (
 	reDnmString = `^[^A-Za-z]|[^a-zA-Z0-9/-]`
 )
 
+// WhitelistPrefix is the key prefix used for storing whitelisted assets in the KV store
+const WhitelistPrefix = "whitelist/"
+
+// Errors related to asset whitelisting
+var (
+	ErrAssetAlreadyWhitelisted = fmt.Errorf("asset is already whitelisted")
+	ErrAssetNotFound           = fmt.Errorf("asset not found")
+)
+
+// GetAssetKey returns the store key for an asset based on its denom
+func GetAssetKey(denom string) []byte {
+	return []byte(fmt.Sprintf("%s%s", WhitelistPrefix, denom))
+}
+
 func removeLeadingNumbers(str string) string {
 	re := regexp.MustCompile(reLeadingNumbers)
 	return re.ReplaceAllString(str, "")

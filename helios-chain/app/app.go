@@ -137,6 +137,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
+	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
 	"helios-core/helios-chain/modules/auction"
 	auctionkeeper "helios-core/helios-chain/modules/auction/keeper"
@@ -1249,6 +1250,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(oracletypes.RouterKey, oracle.NewOracleProposalHandler(app.OracleKeeper)).
 		AddRoute(auctiontypes.RouterKey, auction.NewAuctionProposalHandler(app.AuctionKeeper)).
 		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
 		AddRoute(wasmxtypes.RouterKey, wasmx.NewWasmxProposalHandler(app.WasmxKeeper, wasmkeeper.NewLegacyWasmProposalHandler(app.WasmKeeper, GetEnabledProposals()))) //nolint:staticcheck // still using legacy governance, will need to migrate and use the new gov v1 later
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
