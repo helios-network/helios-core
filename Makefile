@@ -68,6 +68,11 @@ install:
 setup:
 	sh setup.sh
 
+install-full:
+	make install
+	make setup
+	sh heliades.sh
+
 install-ci:
 	cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
