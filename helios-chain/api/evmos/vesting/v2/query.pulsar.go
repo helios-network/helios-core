@@ -113,13 +113,13 @@ func (x *fastReflection_QueryBalancesRequest) Range(f func(protoreflect.FieldDes
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryBalancesRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "helios.vesting.v2.QueryBalancesRequest.address":
 		return x.Address != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -131,13 +131,13 @@ func (x *fastReflection_QueryBalancesRequest) Has(fd protoreflect.FieldDescripto
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "helios.vesting.v2.QueryBalancesRequest.address":
 		x.Address = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -149,14 +149,14 @@ func (x *fastReflection_QueryBalancesRequest) Clear(fd protoreflect.FieldDescrip
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryBalancesRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "helios.vesting.v2.QueryBalancesRequest.address":
 		value := x.Address
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -172,13 +172,13 @@ func (x *fastReflection_QueryBalancesRequest) Get(descriptor protoreflect.FieldD
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "helios.vesting.v2.QueryBalancesRequest.address":
 		x.Address = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -194,13 +194,13 @@ func (x *fastReflection_QueryBalancesRequest) Set(fd protoreflect.FieldDescripto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
-		panic(fmt.Errorf("field address of message evmos.vesting.v2.QueryBalancesRequest is not mutable"))
+	case "helios.vesting.v2.QueryBalancesRequest.address":
+		panic(fmt.Errorf("field address of message helios.vesting.v2.QueryBalancesRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -209,13 +209,13 @@ func (x *fastReflection_QueryBalancesRequest) Mutable(fd protoreflect.FieldDescr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryBalancesRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "helios.vesting.v2.QueryBalancesRequest.address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -225,7 +225,7 @@ func (x *fastReflection_QueryBalancesRequest) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_QueryBalancesRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.QueryBalancesRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v2.QueryBalancesRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -702,17 +702,17 @@ func (x *fastReflection_QueryBalancesResponse) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryBalancesResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "helios.vesting.v2.QueryBalancesResponse.locked":
 		return len(x.Locked) != 0
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "helios.vesting.v2.QueryBalancesResponse.unvested":
 		return len(x.Unvested) != 0
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "helios.vesting.v2.QueryBalancesResponse.vested":
 		return len(x.Vested) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -724,17 +724,17 @@ func (x *fastReflection_QueryBalancesResponse) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "helios.vesting.v2.QueryBalancesResponse.locked":
 		x.Locked = nil
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "helios.vesting.v2.QueryBalancesResponse.unvested":
 		x.Unvested = nil
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "helios.vesting.v2.QueryBalancesResponse.vested":
 		x.Vested = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -746,19 +746,19 @@ func (x *fastReflection_QueryBalancesResponse) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryBalancesResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "helios.vesting.v2.QueryBalancesResponse.locked":
 		if len(x.Locked) == 0 {
 			return protoreflect.ValueOfList(&_QueryBalancesResponse_1_list{})
 		}
 		listValue := &_QueryBalancesResponse_1_list{list: &x.Locked}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "helios.vesting.v2.QueryBalancesResponse.unvested":
 		if len(x.Unvested) == 0 {
 			return protoreflect.ValueOfList(&_QueryBalancesResponse_2_list{})
 		}
 		listValue := &_QueryBalancesResponse_2_list{list: &x.Unvested}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "helios.vesting.v2.QueryBalancesResponse.vested":
 		if len(x.Vested) == 0 {
 			return protoreflect.ValueOfList(&_QueryBalancesResponse_3_list{})
 		}
@@ -766,9 +766,9 @@ func (x *fastReflection_QueryBalancesResponse) Get(descriptor protoreflect.Field
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -784,23 +784,23 @@ func (x *fastReflection_QueryBalancesResponse) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "helios.vesting.v2.QueryBalancesResponse.locked":
 		lv := value.List()
 		clv := lv.(*_QueryBalancesResponse_1_list)
 		x.Locked = *clv.list
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "helios.vesting.v2.QueryBalancesResponse.unvested":
 		lv := value.List()
 		clv := lv.(*_QueryBalancesResponse_2_list)
 		x.Unvested = *clv.list
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "helios.vesting.v2.QueryBalancesResponse.vested":
 		lv := value.List()
 		clv := lv.(*_QueryBalancesResponse_3_list)
 		x.Vested = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -816,19 +816,19 @@ func (x *fastReflection_QueryBalancesResponse) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "helios.vesting.v2.QueryBalancesResponse.locked":
 		if x.Locked == nil {
 			x.Locked = []*v1beta1.Coin{}
 		}
 		value := &_QueryBalancesResponse_1_list{list: &x.Locked}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "helios.vesting.v2.QueryBalancesResponse.unvested":
 		if x.Unvested == nil {
 			x.Unvested = []*v1beta1.Coin{}
 		}
 		value := &_QueryBalancesResponse_2_list{list: &x.Unvested}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "helios.vesting.v2.QueryBalancesResponse.vested":
 		if x.Vested == nil {
 			x.Vested = []*v1beta1.Coin{}
 		}
@@ -836,9 +836,9 @@ func (x *fastReflection_QueryBalancesResponse) Mutable(fd protoreflect.FieldDesc
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -847,20 +847,20 @@ func (x *fastReflection_QueryBalancesResponse) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryBalancesResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "helios.vesting.v2.QueryBalancesResponse.locked":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_QueryBalancesResponse_1_list{list: &list})
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "helios.vesting.v2.QueryBalancesResponse.unvested":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_QueryBalancesResponse_2_list{list: &list})
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "helios.vesting.v2.QueryBalancesResponse.vested":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_QueryBalancesResponse_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -870,7 +870,7 @@ func (x *fastReflection_QueryBalancesResponse) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_QueryBalancesResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.QueryBalancesResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v2.QueryBalancesResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1390,16 +1390,16 @@ func file_evmos_vesting_v2_query_proto_rawDescGZIP() []byte {
 
 var file_evmos_vesting_v2_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_evmos_vesting_v2_query_proto_goTypes = []interface{}{
-	(*QueryBalancesRequest)(nil),  // 0: evmos.vesting.v2.QueryBalancesRequest
-	(*QueryBalancesResponse)(nil), // 1: evmos.vesting.v2.QueryBalancesResponse
+	(*QueryBalancesRequest)(nil),  // 0: helios.vesting.v2.QueryBalancesRequest
+	(*QueryBalancesResponse)(nil), // 1: helios.vesting.v2.QueryBalancesResponse
 	(*v1beta1.Coin)(nil),          // 2: cosmos.base.v1beta1.Coin
 }
 var file_evmos_vesting_v2_query_proto_depIdxs = []int32{
-	2, // 0: evmos.vesting.v2.QueryBalancesResponse.locked:type_name -> cosmos.base.v1beta1.Coin
-	2, // 1: evmos.vesting.v2.QueryBalancesResponse.unvested:type_name -> cosmos.base.v1beta1.Coin
-	2, // 2: evmos.vesting.v2.QueryBalancesResponse.vested:type_name -> cosmos.base.v1beta1.Coin
-	0, // 3: evmos.vesting.v2.Query.Balances:input_type -> evmos.vesting.v2.QueryBalancesRequest
-	1, // 4: evmos.vesting.v2.Query.Balances:output_type -> evmos.vesting.v2.QueryBalancesResponse
+	2, // 0: helios.vesting.v2.QueryBalancesResponse.locked:type_name -> cosmos.base.v1beta1.Coin
+	2, // 1: helios.vesting.v2.QueryBalancesResponse.unvested:type_name -> cosmos.base.v1beta1.Coin
+	2, // 2: helios.vesting.v2.QueryBalancesResponse.vested:type_name -> cosmos.base.v1beta1.Coin
+	0, // 3: helios.vesting.v2.Query.Balances:input_type -> helios.vesting.v2.QueryBalancesRequest
+	1, // 4: helios.vesting.v2.Query.Balances:output_type -> helios.vesting.v2.QueryBalancesResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

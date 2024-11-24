@@ -32,7 +32,7 @@ type IntegrationTestSuite struct {
 	keyring     testkeyring.Keyring
 }
 
-// This test suite is meant to test the EVM module in the context of the EVMOS.
+// This test suite is meant to test the EVM module in the context of the helios.
 // It uses the integration test framework to spin up a local EVMOS network and
 // perform transactions on it.
 // The test suite focus on testing how the MsgEthereumTx message is handled under the

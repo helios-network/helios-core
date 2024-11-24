@@ -22,9 +22,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_TokenPairs_FullMethodName = "/evmos.erc20.v1.Query/TokenPairs"
-	Query_TokenPair_FullMethodName  = "/evmos.erc20.v1.Query/TokenPair"
-	Query_Params_FullMethodName     = "/evmos.erc20.v1.Query/Params"
+	Query_TokenPairs_FullMethodName = "/helios.erc20.v1.Query/TokenPairs"
+	Query_TokenPair_FullMethodName  = "/helios.erc20.v1.Query/TokenPair"
+	Query_Params_FullMethodName     = "/helios.erc20.v1.Query/Params"
 )
 
 // QueryClient is the client API for Query service.
@@ -171,7 +171,7 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "evmos.erc20.v1.Query",
+	ServiceName: "helios.erc20.v1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

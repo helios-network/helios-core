@@ -139,19 +139,19 @@ func (x *fastReflection_MsgConvertERC20) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgConvertERC20) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertERC20.contract_address":
+	case "helios.erc20.v1.MsgConvertERC20.contract_address":
 		return x.ContractAddress != ""
-	case "evmos.erc20.v1.MsgConvertERC20.amount":
+	case "helios.erc20.v1.MsgConvertERC20.amount":
 		return x.Amount != ""
-	case "evmos.erc20.v1.MsgConvertERC20.receiver":
+	case "helios.erc20.v1.MsgConvertERC20.receiver":
 		return x.Receiver != ""
-	case "evmos.erc20.v1.MsgConvertERC20.sender":
+	case "helios.erc20.v1.MsgConvertERC20.sender":
 		return x.Sender != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -163,19 +163,19 @@ func (x *fastReflection_MsgConvertERC20) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertERC20) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertERC20.contract_address":
+	case "helios.erc20.v1.MsgConvertERC20.contract_address":
 		x.ContractAddress = ""
-	case "evmos.erc20.v1.MsgConvertERC20.amount":
+	case "helios.erc20.v1.MsgConvertERC20.amount":
 		x.Amount = ""
-	case "evmos.erc20.v1.MsgConvertERC20.receiver":
+	case "helios.erc20.v1.MsgConvertERC20.receiver":
 		x.Receiver = ""
-	case "evmos.erc20.v1.MsgConvertERC20.sender":
+	case "helios.erc20.v1.MsgConvertERC20.sender":
 		x.Sender = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -187,23 +187,23 @@ func (x *fastReflection_MsgConvertERC20) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgConvertERC20) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.MsgConvertERC20.contract_address":
+	case "helios.erc20.v1.MsgConvertERC20.contract_address":
 		value := x.ContractAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgConvertERC20.amount":
+	case "helios.erc20.v1.MsgConvertERC20.amount":
 		value := x.Amount
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgConvertERC20.receiver":
+	case "helios.erc20.v1.MsgConvertERC20.receiver":
 		value := x.Receiver
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgConvertERC20.sender":
+	case "helios.erc20.v1.MsgConvertERC20.sender":
 		value := x.Sender
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20 does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20 does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -219,19 +219,19 @@ func (x *fastReflection_MsgConvertERC20) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertERC20) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertERC20.contract_address":
+	case "helios.erc20.v1.MsgConvertERC20.contract_address":
 		x.ContractAddress = value.Interface().(string)
-	case "evmos.erc20.v1.MsgConvertERC20.amount":
+	case "helios.erc20.v1.MsgConvertERC20.amount":
 		x.Amount = value.Interface().(string)
-	case "evmos.erc20.v1.MsgConvertERC20.receiver":
+	case "helios.erc20.v1.MsgConvertERC20.receiver":
 		x.Receiver = value.Interface().(string)
-	case "evmos.erc20.v1.MsgConvertERC20.sender":
+	case "helios.erc20.v1.MsgConvertERC20.sender":
 		x.Sender = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -247,19 +247,19 @@ func (x *fastReflection_MsgConvertERC20) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertERC20) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertERC20.contract_address":
-		panic(fmt.Errorf("field contract_address of message evmos.erc20.v1.MsgConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.MsgConvertERC20.amount":
-		panic(fmt.Errorf("field amount of message evmos.erc20.v1.MsgConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.MsgConvertERC20.receiver":
-		panic(fmt.Errorf("field receiver of message evmos.erc20.v1.MsgConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.MsgConvertERC20.sender":
-		panic(fmt.Errorf("field sender of message evmos.erc20.v1.MsgConvertERC20 is not mutable"))
+	case "helios.erc20.v1.MsgConvertERC20.contract_address":
+		panic(fmt.Errorf("field contract_address of message helios.erc20.v1.MsgConvertERC20 is not mutable"))
+	case "helios.erc20.v1.MsgConvertERC20.amount":
+		panic(fmt.Errorf("field amount of message helios.erc20.v1.MsgConvertERC20 is not mutable"))
+	case "helios.erc20.v1.MsgConvertERC20.receiver":
+		panic(fmt.Errorf("field receiver of message helios.erc20.v1.MsgConvertERC20 is not mutable"))
+	case "helios.erc20.v1.MsgConvertERC20.sender":
+		panic(fmt.Errorf("field sender of message helios.erc20.v1.MsgConvertERC20 is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -268,19 +268,19 @@ func (x *fastReflection_MsgConvertERC20) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgConvertERC20) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertERC20.contract_address":
+	case "helios.erc20.v1.MsgConvertERC20.contract_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgConvertERC20.amount":
+	case "helios.erc20.v1.MsgConvertERC20.amount":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgConvertERC20.receiver":
+	case "helios.erc20.v1.MsgConvertERC20.receiver":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgConvertERC20.sender":
+	case "helios.erc20.v1.MsgConvertERC20.sender":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -290,7 +290,7 @@ func (x *fastReflection_MsgConvertERC20) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MsgConvertERC20) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgConvertERC20", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgConvertERC20", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -721,9 +721,9 @@ func (x *fastReflection_MsgConvertERC20Response) Has(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -737,9 +737,9 @@ func (x *fastReflection_MsgConvertERC20Response) Clear(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -753,9 +753,9 @@ func (x *fastReflection_MsgConvertERC20Response) Get(descriptor protoreflect.Fie
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20Response does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20Response does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -773,9 +773,9 @@ func (x *fastReflection_MsgConvertERC20Response) Set(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -793,9 +793,9 @@ func (x *fastReflection_MsgConvertERC20Response) Mutable(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -806,9 +806,9 @@ func (x *fastReflection_MsgConvertERC20Response) NewField(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -818,7 +818,7 @@ func (x *fastReflection_MsgConvertERC20Response) NewField(fd protoreflect.FieldD
 func (x *fastReflection_MsgConvertERC20Response) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgConvertERC20Response", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgConvertERC20Response", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1099,17 +1099,17 @@ func (x *fastReflection_MsgConvertCoin) Range(f func(protoreflect.FieldDescripto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgConvertCoin) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertCoin.coin":
+	case "helios.erc20.v1.MsgConvertCoin.coin":
 		return x.Coin != nil
-	case "evmos.erc20.v1.MsgConvertCoin.receiver":
+	case "helios.erc20.v1.MsgConvertCoin.receiver":
 		return x.Receiver != ""
-	case "evmos.erc20.v1.MsgConvertCoin.sender":
+	case "helios.erc20.v1.MsgConvertCoin.sender":
 		return x.Sender != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1121,17 +1121,17 @@ func (x *fastReflection_MsgConvertCoin) Has(fd protoreflect.FieldDescriptor) boo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertCoin) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertCoin.coin":
+	case "helios.erc20.v1.MsgConvertCoin.coin":
 		x.Coin = nil
-	case "evmos.erc20.v1.MsgConvertCoin.receiver":
+	case "helios.erc20.v1.MsgConvertCoin.receiver":
 		x.Receiver = ""
-	case "evmos.erc20.v1.MsgConvertCoin.sender":
+	case "helios.erc20.v1.MsgConvertCoin.sender":
 		x.Sender = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1143,20 +1143,20 @@ func (x *fastReflection_MsgConvertCoin) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgConvertCoin) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.MsgConvertCoin.coin":
+	case "helios.erc20.v1.MsgConvertCoin.coin":
 		value := x.Coin
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.erc20.v1.MsgConvertCoin.receiver":
+	case "helios.erc20.v1.MsgConvertCoin.receiver":
 		value := x.Receiver
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgConvertCoin.sender":
+	case "helios.erc20.v1.MsgConvertCoin.sender":
 		value := x.Sender
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoin does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoin does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1172,17 +1172,17 @@ func (x *fastReflection_MsgConvertCoin) Get(descriptor protoreflect.FieldDescrip
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertCoin) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertCoin.coin":
+	case "helios.erc20.v1.MsgConvertCoin.coin":
 		x.Coin = value.Message().Interface().(*v1beta1.Coin)
-	case "evmos.erc20.v1.MsgConvertCoin.receiver":
+	case "helios.erc20.v1.MsgConvertCoin.receiver":
 		x.Receiver = value.Interface().(string)
-	case "evmos.erc20.v1.MsgConvertCoin.sender":
+	case "helios.erc20.v1.MsgConvertCoin.sender":
 		x.Sender = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1198,20 +1198,20 @@ func (x *fastReflection_MsgConvertCoin) Set(fd protoreflect.FieldDescriptor, val
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertCoin) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertCoin.coin":
+	case "helios.erc20.v1.MsgConvertCoin.coin":
 		if x.Coin == nil {
 			x.Coin = new(v1beta1.Coin)
 		}
 		return protoreflect.ValueOfMessage(x.Coin.ProtoReflect())
-	case "evmos.erc20.v1.MsgConvertCoin.receiver":
-		panic(fmt.Errorf("field receiver of message evmos.erc20.v1.MsgConvertCoin is not mutable"))
-	case "evmos.erc20.v1.MsgConvertCoin.sender":
-		panic(fmt.Errorf("field sender of message evmos.erc20.v1.MsgConvertCoin is not mutable"))
+	case "helios.erc20.v1.MsgConvertCoin.receiver":
+		panic(fmt.Errorf("field receiver of message helios.erc20.v1.MsgConvertCoin is not mutable"))
+	case "helios.erc20.v1.MsgConvertCoin.sender":
+		panic(fmt.Errorf("field sender of message helios.erc20.v1.MsgConvertCoin is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1220,18 +1220,18 @@ func (x *fastReflection_MsgConvertCoin) Mutable(fd protoreflect.FieldDescriptor)
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgConvertCoin) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgConvertCoin.coin":
+	case "helios.erc20.v1.MsgConvertCoin.coin":
 		m := new(v1beta1.Coin)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.erc20.v1.MsgConvertCoin.receiver":
+	case "helios.erc20.v1.MsgConvertCoin.receiver":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgConvertCoin.sender":
+	case "helios.erc20.v1.MsgConvertCoin.sender":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1241,7 +1241,7 @@ func (x *fastReflection_MsgConvertCoin) NewField(fd protoreflect.FieldDescriptor
 func (x *fastReflection_MsgConvertCoin) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgConvertCoin", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgConvertCoin", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1640,9 +1640,9 @@ func (x *fastReflection_MsgConvertCoinResponse) Has(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoinResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoinResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1656,9 +1656,9 @@ func (x *fastReflection_MsgConvertCoinResponse) Clear(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoinResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoinResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1672,9 +1672,9 @@ func (x *fastReflection_MsgConvertCoinResponse) Get(descriptor protoreflect.Fiel
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoinResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoinResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoinResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoinResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1692,9 +1692,9 @@ func (x *fastReflection_MsgConvertCoinResponse) Set(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoinResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoinResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1712,9 +1712,9 @@ func (x *fastReflection_MsgConvertCoinResponse) Mutable(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoinResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoinResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1725,9 +1725,9 @@ func (x *fastReflection_MsgConvertCoinResponse) NewField(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgConvertCoinResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgConvertCoinResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgConvertCoinResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1737,7 +1737,7 @@ func (x *fastReflection_MsgConvertCoinResponse) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_MsgConvertCoinResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgConvertCoinResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgConvertCoinResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2010,15 +2010,15 @@ func (x *fastReflection_MsgUpdateParams) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgUpdateParams.authority":
+	case "helios.erc20.v1.MsgUpdateParams.authority":
 		return x.Authority != ""
-	case "evmos.erc20.v1.MsgUpdateParams.params":
+	case "helios.erc20.v1.MsgUpdateParams.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2030,15 +2030,15 @@ func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgUpdateParams.authority":
+	case "helios.erc20.v1.MsgUpdateParams.authority":
 		x.Authority = ""
-	case "evmos.erc20.v1.MsgUpdateParams.params":
+	case "helios.erc20.v1.MsgUpdateParams.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2050,17 +2050,17 @@ func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.MsgUpdateParams.authority":
+	case "helios.erc20.v1.MsgUpdateParams.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgUpdateParams.params":
+	case "helios.erc20.v1.MsgUpdateParams.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2076,15 +2076,15 @@ func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgUpdateParams.authority":
+	case "helios.erc20.v1.MsgUpdateParams.authority":
 		x.Authority = value.Interface().(string)
-	case "evmos.erc20.v1.MsgUpdateParams.params":
+	case "helios.erc20.v1.MsgUpdateParams.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2100,18 +2100,18 @@ func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgUpdateParams.params":
+	case "helios.erc20.v1.MsgUpdateParams.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "evmos.erc20.v1.MsgUpdateParams.authority":
-		panic(fmt.Errorf("field authority of message evmos.erc20.v1.MsgUpdateParams is not mutable"))
+	case "helios.erc20.v1.MsgUpdateParams.authority":
+		panic(fmt.Errorf("field authority of message helios.erc20.v1.MsgUpdateParams is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2120,16 +2120,16 @@ func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgUpdateParams.authority":
+	case "helios.erc20.v1.MsgUpdateParams.authority":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgUpdateParams.params":
+	case "helios.erc20.v1.MsgUpdateParams.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2139,7 +2139,7 @@ func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MsgUpdateParams) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgUpdateParams", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgUpdateParams", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2495,9 +2495,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Has(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2511,9 +2511,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Clear(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2527,9 +2527,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Get(descriptor protoreflect.Fie
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2547,9 +2547,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Set(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2567,9 +2567,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Mutable(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2580,9 +2580,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2592,7 +2592,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_MsgUpdateParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgUpdateParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgUpdateParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2911,15 +2911,15 @@ func (x *fastReflection_MsgRegisterERC20) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgRegisterERC20) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgRegisterERC20.authority":
+	case "helios.erc20.v1.MsgRegisterERC20.authority":
 		return x.Authority != ""
-	case "evmos.erc20.v1.MsgRegisterERC20.erc20addresses":
+	case "helios.erc20.v1.MsgRegisterERC20.erc20addresses":
 		return len(x.Erc20Addresses) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2931,15 +2931,15 @@ func (x *fastReflection_MsgRegisterERC20) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgRegisterERC20) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgRegisterERC20.authority":
+	case "helios.erc20.v1.MsgRegisterERC20.authority":
 		x.Authority = ""
-	case "evmos.erc20.v1.MsgRegisterERC20.erc20addresses":
+	case "helios.erc20.v1.MsgRegisterERC20.erc20addresses":
 		x.Erc20Addresses = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2951,10 +2951,10 @@ func (x *fastReflection_MsgRegisterERC20) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgRegisterERC20) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.MsgRegisterERC20.authority":
+	case "helios.erc20.v1.MsgRegisterERC20.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgRegisterERC20.erc20addresses":
+	case "helios.erc20.v1.MsgRegisterERC20.erc20addresses":
 		if len(x.Erc20Addresses) == 0 {
 			return protoreflect.ValueOfList(&_MsgRegisterERC20_2_list{})
 		}
@@ -2962,9 +2962,9 @@ func (x *fastReflection_MsgRegisterERC20) Get(descriptor protoreflect.FieldDescr
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20 does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20 does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2980,17 +2980,17 @@ func (x *fastReflection_MsgRegisterERC20) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgRegisterERC20) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgRegisterERC20.authority":
+	case "helios.erc20.v1.MsgRegisterERC20.authority":
 		x.Authority = value.Interface().(string)
-	case "evmos.erc20.v1.MsgRegisterERC20.erc20addresses":
+	case "helios.erc20.v1.MsgRegisterERC20.erc20addresses":
 		lv := value.List()
 		clv := lv.(*_MsgRegisterERC20_2_list)
 		x.Erc20Addresses = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3006,19 +3006,19 @@ func (x *fastReflection_MsgRegisterERC20) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgRegisterERC20) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgRegisterERC20.erc20addresses":
+	case "helios.erc20.v1.MsgRegisterERC20.erc20addresses":
 		if x.Erc20Addresses == nil {
 			x.Erc20Addresses = []string{}
 		}
 		value := &_MsgRegisterERC20_2_list{list: &x.Erc20Addresses}
 		return protoreflect.ValueOfList(value)
-	case "evmos.erc20.v1.MsgRegisterERC20.authority":
-		panic(fmt.Errorf("field authority of message evmos.erc20.v1.MsgRegisterERC20 is not mutable"))
+	case "helios.erc20.v1.MsgRegisterERC20.authority":
+		panic(fmt.Errorf("field authority of message helios.erc20.v1.MsgRegisterERC20 is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3027,16 +3027,16 @@ func (x *fastReflection_MsgRegisterERC20) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgRegisterERC20) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgRegisterERC20.authority":
+	case "helios.erc20.v1.MsgRegisterERC20.authority":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgRegisterERC20.erc20addresses":
+	case "helios.erc20.v1.MsgRegisterERC20.erc20addresses":
 		list := []string{}
 		return protoreflect.ValueOfList(&_MsgRegisterERC20_2_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3046,7 +3046,7 @@ func (x *fastReflection_MsgRegisterERC20) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_MsgRegisterERC20) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgRegisterERC20", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgRegisterERC20", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3395,9 +3395,9 @@ func (x *fastReflection_MsgRegisterERC20Response) Has(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3411,9 +3411,9 @@ func (x *fastReflection_MsgRegisterERC20Response) Clear(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3427,9 +3427,9 @@ func (x *fastReflection_MsgRegisterERC20Response) Get(descriptor protoreflect.Fi
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20Response does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20Response does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3447,9 +3447,9 @@ func (x *fastReflection_MsgRegisterERC20Response) Set(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3467,9 +3467,9 @@ func (x *fastReflection_MsgRegisterERC20Response) Mutable(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3480,9 +3480,9 @@ func (x *fastReflection_MsgRegisterERC20Response) NewField(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgRegisterERC20Response"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgRegisterERC20Response"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgRegisterERC20Response does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3492,7 +3492,7 @@ func (x *fastReflection_MsgRegisterERC20Response) NewField(fd protoreflect.Field
 func (x *fastReflection_MsgRegisterERC20Response) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgRegisterERC20Response", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgRegisterERC20Response", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3765,15 +3765,15 @@ func (x *fastReflection_MsgToggleConversion) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgToggleConversion) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgToggleConversion.authority":
+	case "helios.erc20.v1.MsgToggleConversion.authority":
 		return x.Authority != ""
-	case "evmos.erc20.v1.MsgToggleConversion.token":
+	case "helios.erc20.v1.MsgToggleConversion.token":
 		return x.Token != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3785,15 +3785,15 @@ func (x *fastReflection_MsgToggleConversion) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgToggleConversion) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgToggleConversion.authority":
+	case "helios.erc20.v1.MsgToggleConversion.authority":
 		x.Authority = ""
-	case "evmos.erc20.v1.MsgToggleConversion.token":
+	case "helios.erc20.v1.MsgToggleConversion.token":
 		x.Token = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3805,17 +3805,17 @@ func (x *fastReflection_MsgToggleConversion) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgToggleConversion) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.MsgToggleConversion.authority":
+	case "helios.erc20.v1.MsgToggleConversion.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.MsgToggleConversion.token":
+	case "helios.erc20.v1.MsgToggleConversion.token":
 		value := x.Token
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversion does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversion does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3831,15 +3831,15 @@ func (x *fastReflection_MsgToggleConversion) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgToggleConversion) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgToggleConversion.authority":
+	case "helios.erc20.v1.MsgToggleConversion.authority":
 		x.Authority = value.Interface().(string)
-	case "evmos.erc20.v1.MsgToggleConversion.token":
+	case "helios.erc20.v1.MsgToggleConversion.token":
 		x.Token = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3855,15 +3855,15 @@ func (x *fastReflection_MsgToggleConversion) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgToggleConversion) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgToggleConversion.authority":
-		panic(fmt.Errorf("field authority of message evmos.erc20.v1.MsgToggleConversion is not mutable"))
-	case "evmos.erc20.v1.MsgToggleConversion.token":
-		panic(fmt.Errorf("field token of message evmos.erc20.v1.MsgToggleConversion is not mutable"))
+	case "helios.erc20.v1.MsgToggleConversion.authority":
+		panic(fmt.Errorf("field authority of message helios.erc20.v1.MsgToggleConversion is not mutable"))
+	case "helios.erc20.v1.MsgToggleConversion.token":
+		panic(fmt.Errorf("field token of message helios.erc20.v1.MsgToggleConversion is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3872,15 +3872,15 @@ func (x *fastReflection_MsgToggleConversion) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgToggleConversion) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.MsgToggleConversion.authority":
+	case "helios.erc20.v1.MsgToggleConversion.authority":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.MsgToggleConversion.token":
+	case "helios.erc20.v1.MsgToggleConversion.token":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3890,7 +3890,7 @@ func (x *fastReflection_MsgToggleConversion) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_MsgToggleConversion) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgToggleConversion", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgToggleConversion", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4235,9 +4235,9 @@ func (x *fastReflection_MsgToggleConversionResponse) Has(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4251,9 +4251,9 @@ func (x *fastReflection_MsgToggleConversionResponse) Clear(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4267,9 +4267,9 @@ func (x *fastReflection_MsgToggleConversionResponse) Get(descriptor protoreflect
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversionResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversionResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4287,9 +4287,9 @@ func (x *fastReflection_MsgToggleConversionResponse) Set(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4307,9 +4307,9 @@ func (x *fastReflection_MsgToggleConversionResponse) Mutable(fd protoreflect.Fie
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4320,9 +4320,9 @@ func (x *fastReflection_MsgToggleConversionResponse) NewField(fd protoreflect.Fi
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.MsgToggleConversionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.erc20.v1.MsgToggleConversionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.erc20.v1.MsgToggleConversionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4332,7 +4332,7 @@ func (x *fastReflection_MsgToggleConversionResponse) NewField(fd protoreflect.Fi
 func (x *fastReflection_MsgToggleConversionResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.MsgToggleConversionResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.erc20.v1.MsgToggleConversionResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5052,30 +5052,30 @@ func file_evmos_erc20_v1_tx_proto_rawDescGZIP() []byte {
 
 var file_evmos_erc20_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_evmos_erc20_v1_tx_proto_goTypes = []interface{}{
-	(*MsgConvertERC20)(nil),             // 0: evmos.erc20.v1.MsgConvertERC20
-	(*MsgConvertERC20Response)(nil),     // 1: evmos.erc20.v1.MsgConvertERC20Response
-	(*MsgConvertCoin)(nil),              // 2: evmos.erc20.v1.MsgConvertCoin
-	(*MsgConvertCoinResponse)(nil),      // 3: evmos.erc20.v1.MsgConvertCoinResponse
-	(*MsgUpdateParams)(nil),             // 4: evmos.erc20.v1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil),     // 5: evmos.erc20.v1.MsgUpdateParamsResponse
-	(*MsgRegisterERC20)(nil),            // 6: evmos.erc20.v1.MsgRegisterERC20
-	(*MsgRegisterERC20Response)(nil),    // 7: evmos.erc20.v1.MsgRegisterERC20Response
-	(*MsgToggleConversion)(nil),         // 8: evmos.erc20.v1.MsgToggleConversion
-	(*MsgToggleConversionResponse)(nil), // 9: evmos.erc20.v1.MsgToggleConversionResponse
+	(*MsgConvertERC20)(nil),             // 0: helios.erc20.v1.MsgConvertERC20
+	(*MsgConvertERC20Response)(nil),     // 1: helios.erc20.v1.MsgConvertERC20Response
+	(*MsgConvertCoin)(nil),              // 2: helios.erc20.v1.MsgConvertCoin
+	(*MsgConvertCoinResponse)(nil),      // 3: helios.erc20.v1.MsgConvertCoinResponse
+	(*MsgUpdateParams)(nil),             // 4: helios.erc20.v1.MsgUpdateParams
+	(*MsgUpdateParamsResponse)(nil),     // 5: helios.erc20.v1.MsgUpdateParamsResponse
+	(*MsgRegisterERC20)(nil),            // 6: helios.erc20.v1.MsgRegisterERC20
+	(*MsgRegisterERC20Response)(nil),    // 7: helios.erc20.v1.MsgRegisterERC20Response
+	(*MsgToggleConversion)(nil),         // 8: helios.erc20.v1.MsgToggleConversion
+	(*MsgToggleConversionResponse)(nil), // 9: helios.erc20.v1.MsgToggleConversionResponse
 	(*v1beta1.Coin)(nil),                // 10: cosmos.base.v1beta1.Coin
-	(*Params)(nil),                      // 11: evmos.erc20.v1.Params
+	(*Params)(nil),                      // 11: helios.erc20.v1.Params
 }
 var file_evmos_erc20_v1_tx_proto_depIdxs = []int32{
-	10, // 0: evmos.erc20.v1.MsgConvertCoin.coin:type_name -> cosmos.base.v1beta1.Coin
-	11, // 1: evmos.erc20.v1.MsgUpdateParams.params:type_name -> evmos.erc20.v1.Params
-	0,  // 2: evmos.erc20.v1.Msg.ConvertERC20:input_type -> evmos.erc20.v1.MsgConvertERC20
-	4,  // 3: evmos.erc20.v1.Msg.UpdateParams:input_type -> evmos.erc20.v1.MsgUpdateParams
-	6,  // 4: evmos.erc20.v1.Msg.RegisterERC20:input_type -> evmos.erc20.v1.MsgRegisterERC20
-	8,  // 5: evmos.erc20.v1.Msg.ToggleConversion:input_type -> evmos.erc20.v1.MsgToggleConversion
-	1,  // 6: evmos.erc20.v1.Msg.ConvertERC20:output_type -> evmos.erc20.v1.MsgConvertERC20Response
-	5,  // 7: evmos.erc20.v1.Msg.UpdateParams:output_type -> evmos.erc20.v1.MsgUpdateParamsResponse
-	7,  // 8: evmos.erc20.v1.Msg.RegisterERC20:output_type -> evmos.erc20.v1.MsgRegisterERC20Response
-	9,  // 9: evmos.erc20.v1.Msg.ToggleConversion:output_type -> evmos.erc20.v1.MsgToggleConversionResponse
+	10, // 0: helios.erc20.v1.MsgConvertCoin.coin:type_name -> cosmos.base.v1beta1.Coin
+	11, // 1: helios.erc20.v1.MsgUpdateParams.params:type_name -> helios.erc20.v1.Params
+	0,  // 2: helios.erc20.v1.Msg.ConvertERC20:input_type -> helios.erc20.v1.MsgConvertERC20
+	4,  // 3: helios.erc20.v1.Msg.UpdateParams:input_type -> helios.erc20.v1.MsgUpdateParams
+	6,  // 4: helios.erc20.v1.Msg.RegisterERC20:input_type -> helios.erc20.v1.MsgRegisterERC20
+	8,  // 5: helios.erc20.v1.Msg.ToggleConversion:input_type -> helios.erc20.v1.MsgToggleConversion
+	1,  // 6: helios.erc20.v1.Msg.ConvertERC20:output_type -> helios.erc20.v1.MsgConvertERC20Response
+	5,  // 7: helios.erc20.v1.Msg.UpdateParams:output_type -> helios.erc20.v1.MsgUpdateParamsResponse
+	7,  // 8: helios.erc20.v1.Msg.RegisterERC20:output_type -> helios.erc20.v1.MsgRegisterERC20Response
+	9,  // 9: helios.erc20.v1.Msg.ToggleConversion:output_type -> helios.erc20.v1.MsgToggleConversionResponse
 	6,  // [6:10] is the sub-list for method output_type
 	2,  // [2:6] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name

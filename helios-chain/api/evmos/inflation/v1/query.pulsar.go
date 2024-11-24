@@ -107,9 +107,9 @@ func (x *fastReflection_QueryPeriodRequest) Has(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -123,9 +123,9 @@ func (x *fastReflection_QueryPeriodRequest) Clear(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -139,9 +139,9 @@ func (x *fastReflection_QueryPeriodRequest) Get(descriptor protoreflect.FieldDes
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -159,9 +159,9 @@ func (x *fastReflection_QueryPeriodRequest) Set(fd protoreflect.FieldDescriptor,
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -179,9 +179,9 @@ func (x *fastReflection_QueryPeriodRequest) Mutable(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -192,9 +192,9 @@ func (x *fastReflection_QueryPeriodRequest) NewField(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -204,7 +204,7 @@ func (x *fastReflection_QueryPeriodRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryPeriodRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryPeriodRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryPeriodRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -469,13 +469,13 @@ func (x *fastReflection_QueryPeriodResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryPeriodResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "helios.inflation.v1.QueryPeriodResponse.period":
 		return x.Period != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -487,13 +487,13 @@ func (x *fastReflection_QueryPeriodResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPeriodResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "helios.inflation.v1.QueryPeriodResponse.period":
 		x.Period = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -505,14 +505,14 @@ func (x *fastReflection_QueryPeriodResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryPeriodResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "helios.inflation.v1.QueryPeriodResponse.period":
 		value := x.Period
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -528,13 +528,13 @@ func (x *fastReflection_QueryPeriodResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPeriodResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "helios.inflation.v1.QueryPeriodResponse.period":
 		x.Period = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -550,13 +550,13 @@ func (x *fastReflection_QueryPeriodResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPeriodResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
-		panic(fmt.Errorf("field period of message evmos.inflation.v1.QueryPeriodResponse is not mutable"))
+	case "helios.inflation.v1.QueryPeriodResponse.period":
+		panic(fmt.Errorf("field period of message helios.inflation.v1.QueryPeriodResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -565,13 +565,13 @@ func (x *fastReflection_QueryPeriodResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryPeriodResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "helios.inflation.v1.QueryPeriodResponse.period":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -581,7 +581,7 @@ func (x *fastReflection_QueryPeriodResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryPeriodResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryPeriodResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryPeriodResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -867,9 +867,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Has(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -883,9 +883,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Clear(fd protoreflect.Fi
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -899,9 +899,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Get(descriptor protorefl
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -919,9 +919,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Set(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -939,9 +939,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Mutable(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -952,9 +952,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) NewField(fd protoreflect
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -964,7 +964,7 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) NewField(fd protoreflect
 func (x *fastReflection_QueryEpochMintProvisionRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryEpochMintProvisionRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryEpochMintProvisionRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1229,13 +1229,13 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Range(f func(protorefle
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		return x.EpochMintProvision != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1247,13 +1247,13 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Has(fd protoreflect.Fie
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		x.EpochMintProvision = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1265,14 +1265,14 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Clear(fd protoreflect.F
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		value := x.EpochMintProvision
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1288,13 +1288,13 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Get(descriptor protoref
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		x.EpochMintProvision = value.Message().Interface().(*v1beta1.DecCoin)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1310,16 +1310,16 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Set(fd protoreflect.Fie
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		if x.EpochMintProvision == nil {
 			x.EpochMintProvision = new(v1beta1.DecCoin)
 		}
 		return protoreflect.ValueOfMessage(x.EpochMintProvision.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1328,14 +1328,14 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Mutable(fd protoreflect
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryEpochMintProvisionResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		m := new(v1beta1.DecCoin)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1345,7 +1345,7 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) NewField(fd protoreflec
 func (x *fastReflection_QueryEpochMintProvisionResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryEpochMintProvisionResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryEpochMintProvisionResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1658,9 +1658,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Has(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1674,9 +1674,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Clear(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1690,9 +1690,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Get(descriptor protoreflect.F
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1710,9 +1710,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Set(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1730,9 +1730,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Mutable(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1743,9 +1743,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) NewField(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1755,7 +1755,7 @@ func (x *fastReflection_QuerySkippedEpochsRequest) NewField(fd protoreflect.Fiel
 func (x *fastReflection_QuerySkippedEpochsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QuerySkippedEpochsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QuerySkippedEpochsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2020,13 +2020,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Range(f func(protoreflect.Fi
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QuerySkippedEpochsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "helios.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		return x.SkippedEpochs != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2038,13 +2038,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Has(fd protoreflect.FieldDes
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QuerySkippedEpochsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "helios.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		x.SkippedEpochs = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2056,14 +2056,14 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Clear(fd protoreflect.FieldD
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QuerySkippedEpochsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "helios.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		value := x.SkippedEpochs
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2079,13 +2079,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Get(descriptor protoreflect.
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QuerySkippedEpochsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "helios.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		x.SkippedEpochs = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2101,13 +2101,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Set(fd protoreflect.FieldDes
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QuerySkippedEpochsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
-		panic(fmt.Errorf("field skipped_epochs of message evmos.inflation.v1.QuerySkippedEpochsResponse is not mutable"))
+	case "helios.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+		panic(fmt.Errorf("field skipped_epochs of message helios.inflation.v1.QuerySkippedEpochsResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2116,13 +2116,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Mutable(fd protoreflect.Fiel
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QuerySkippedEpochsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "helios.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2132,7 +2132,7 @@ func (x *fastReflection_QuerySkippedEpochsResponse) NewField(fd protoreflect.Fie
 func (x *fastReflection_QuerySkippedEpochsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QuerySkippedEpochsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QuerySkippedEpochsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2418,9 +2418,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Has(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2434,9 +2434,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Clear(fd protoreflect.Fie
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2450,9 +2450,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Get(descriptor protorefle
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2470,9 +2470,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Set(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2490,9 +2490,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Mutable(fd protoreflect.F
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2503,9 +2503,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) NewField(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2515,7 +2515,7 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) NewField(fd protoreflect.
 func (x *fastReflection_QueryCirculatingSupplyRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryCirculatingSupplyRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryCirculatingSupplyRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2780,13 +2780,13 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Range(f func(protoreflec
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		return x.CirculatingSupply != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2798,13 +2798,13 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Has(fd protoreflect.Fiel
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		x.CirculatingSupply = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2816,14 +2816,14 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Clear(fd protoreflect.Fi
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		value := x.CirculatingSupply
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2839,13 +2839,13 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Get(descriptor protorefl
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		x.CirculatingSupply = value.Message().Interface().(*v1beta1.DecCoin)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2861,16 +2861,16 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Set(fd protoreflect.Fiel
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		if x.CirculatingSupply == nil {
 			x.CirculatingSupply = new(v1beta1.DecCoin)
 		}
 		return protoreflect.ValueOfMessage(x.CirculatingSupply.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2879,14 +2879,14 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Mutable(fd protoreflect.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryCirculatingSupplyResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		m := new(v1beta1.DecCoin)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2896,7 +2896,7 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) NewField(fd protoreflect
 func (x *fastReflection_QueryCirculatingSupplyResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryCirculatingSupplyResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryCirculatingSupplyResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3209,9 +3209,9 @@ func (x *fastReflection_QueryInflationRateRequest) Has(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3225,9 +3225,9 @@ func (x *fastReflection_QueryInflationRateRequest) Clear(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3241,9 +3241,9 @@ func (x *fastReflection_QueryInflationRateRequest) Get(descriptor protoreflect.F
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3261,9 +3261,9 @@ func (x *fastReflection_QueryInflationRateRequest) Set(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3281,9 +3281,9 @@ func (x *fastReflection_QueryInflationRateRequest) Mutable(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3294,9 +3294,9 @@ func (x *fastReflection_QueryInflationRateRequest) NewField(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3306,7 +3306,7 @@ func (x *fastReflection_QueryInflationRateRequest) NewField(fd protoreflect.Fiel
 func (x *fastReflection_QueryInflationRateRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryInflationRateRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryInflationRateRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3571,13 +3571,13 @@ func (x *fastReflection_QueryInflationRateResponse) Range(f func(protoreflect.Fi
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryInflationRateResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "helios.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		return x.InflationRate != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3589,13 +3589,13 @@ func (x *fastReflection_QueryInflationRateResponse) Has(fd protoreflect.FieldDes
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryInflationRateResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "helios.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		x.InflationRate = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3607,14 +3607,14 @@ func (x *fastReflection_QueryInflationRateResponse) Clear(fd protoreflect.FieldD
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryInflationRateResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "helios.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		value := x.InflationRate
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3630,13 +3630,13 @@ func (x *fastReflection_QueryInflationRateResponse) Get(descriptor protoreflect.
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryInflationRateResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "helios.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		x.InflationRate = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3652,13 +3652,13 @@ func (x *fastReflection_QueryInflationRateResponse) Set(fd protoreflect.FieldDes
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryInflationRateResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
-		panic(fmt.Errorf("field inflation_rate of message evmos.inflation.v1.QueryInflationRateResponse is not mutable"))
+	case "helios.inflation.v1.QueryInflationRateResponse.inflation_rate":
+		panic(fmt.Errorf("field inflation_rate of message helios.inflation.v1.QueryInflationRateResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3667,13 +3667,13 @@ func (x *fastReflection_QueryInflationRateResponse) Mutable(fd protoreflect.Fiel
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryInflationRateResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "helios.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3683,7 +3683,7 @@ func (x *fastReflection_QueryInflationRateResponse) NewField(fd protoreflect.Fie
 func (x *fastReflection_QueryInflationRateResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryInflationRateResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryInflationRateResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3985,9 +3985,9 @@ func (x *fastReflection_QueryParamsRequest) Has(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4001,9 +4001,9 @@ func (x *fastReflection_QueryParamsRequest) Clear(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4017,9 +4017,9 @@ func (x *fastReflection_QueryParamsRequest) Get(descriptor protoreflect.FieldDes
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4037,9 +4037,9 @@ func (x *fastReflection_QueryParamsRequest) Set(fd protoreflect.FieldDescriptor,
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4057,9 +4057,9 @@ func (x *fastReflection_QueryParamsRequest) Mutable(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4070,9 +4070,9 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4082,7 +4082,7 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryParamsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryParamsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4347,13 +4347,13 @@ func (x *fastReflection_QueryParamsResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "helios.inflation.v1.QueryParamsResponse.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4365,13 +4365,13 @@ func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "helios.inflation.v1.QueryParamsResponse.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4383,14 +4383,14 @@ func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "helios.inflation.v1.QueryParamsResponse.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4406,13 +4406,13 @@ func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "helios.inflation.v1.QueryParamsResponse.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4428,16 +4428,16 @@ func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "helios.inflation.v1.QueryParamsResponse.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4446,14 +4446,14 @@ func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "helios.inflation.v1.QueryParamsResponse.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4463,7 +4463,7 @@ func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.QueryParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5247,37 +5247,37 @@ func file_evmos_inflation_v1_query_proto_rawDescGZIP() []byte {
 
 var file_evmos_inflation_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_evmos_inflation_v1_query_proto_goTypes = []interface{}{
-	(*QueryPeriodRequest)(nil),              // 0: evmos.inflation.v1.QueryPeriodRequest
-	(*QueryPeriodResponse)(nil),             // 1: evmos.inflation.v1.QueryPeriodResponse
-	(*QueryEpochMintProvisionRequest)(nil),  // 2: evmos.inflation.v1.QueryEpochMintProvisionRequest
-	(*QueryEpochMintProvisionResponse)(nil), // 3: evmos.inflation.v1.QueryEpochMintProvisionResponse
-	(*QuerySkippedEpochsRequest)(nil),       // 4: evmos.inflation.v1.QuerySkippedEpochsRequest
-	(*QuerySkippedEpochsResponse)(nil),      // 5: evmos.inflation.v1.QuerySkippedEpochsResponse
-	(*QueryCirculatingSupplyRequest)(nil),   // 6: evmos.inflation.v1.QueryCirculatingSupplyRequest
-	(*QueryCirculatingSupplyResponse)(nil),  // 7: evmos.inflation.v1.QueryCirculatingSupplyResponse
-	(*QueryInflationRateRequest)(nil),       // 8: evmos.inflation.v1.QueryInflationRateRequest
-	(*QueryInflationRateResponse)(nil),      // 9: evmos.inflation.v1.QueryInflationRateResponse
-	(*QueryParamsRequest)(nil),              // 10: evmos.inflation.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),             // 11: evmos.inflation.v1.QueryParamsResponse
+	(*QueryPeriodRequest)(nil),              // 0: helios.inflation.v1.QueryPeriodRequest
+	(*QueryPeriodResponse)(nil),             // 1: helios.inflation.v1.QueryPeriodResponse
+	(*QueryEpochMintProvisionRequest)(nil),  // 2: helios.inflation.v1.QueryEpochMintProvisionRequest
+	(*QueryEpochMintProvisionResponse)(nil), // 3: helios.inflation.v1.QueryEpochMintProvisionResponse
+	(*QuerySkippedEpochsRequest)(nil),       // 4: helios.inflation.v1.QuerySkippedEpochsRequest
+	(*QuerySkippedEpochsResponse)(nil),      // 5: helios.inflation.v1.QuerySkippedEpochsResponse
+	(*QueryCirculatingSupplyRequest)(nil),   // 6: helios.inflation.v1.QueryCirculatingSupplyRequest
+	(*QueryCirculatingSupplyResponse)(nil),  // 7: helios.inflation.v1.QueryCirculatingSupplyResponse
+	(*QueryInflationRateRequest)(nil),       // 8: helios.inflation.v1.QueryInflationRateRequest
+	(*QueryInflationRateResponse)(nil),      // 9: helios.inflation.v1.QueryInflationRateResponse
+	(*QueryParamsRequest)(nil),              // 10: helios.inflation.v1.QueryParamsRequest
+	(*QueryParamsResponse)(nil),             // 11: helios.inflation.v1.QueryParamsResponse
 	(*v1beta1.DecCoin)(nil),                 // 12: cosmos.base.v1beta1.DecCoin
-	(*Params)(nil),                          // 13: evmos.inflation.v1.Params
+	(*Params)(nil),                          // 13: helios.inflation.v1.Params
 }
 var file_evmos_inflation_v1_query_proto_depIdxs = []int32{
-	12, // 0: evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision:type_name -> cosmos.base.v1beta1.DecCoin
-	12, // 1: evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply:type_name -> cosmos.base.v1beta1.DecCoin
-	13, // 2: evmos.inflation.v1.QueryParamsResponse.params:type_name -> evmos.inflation.v1.Params
-	0,  // 3: evmos.inflation.v1.Query.Period:input_type -> evmos.inflation.v1.QueryPeriodRequest
-	2,  // 4: evmos.inflation.v1.Query.EpochMintProvision:input_type -> evmos.inflation.v1.QueryEpochMintProvisionRequest
-	4,  // 5: evmos.inflation.v1.Query.SkippedEpochs:input_type -> evmos.inflation.v1.QuerySkippedEpochsRequest
-	6,  // 6: evmos.inflation.v1.Query.CirculatingSupply:input_type -> evmos.inflation.v1.QueryCirculatingSupplyRequest
-	8,  // 7: evmos.inflation.v1.Query.InflationRate:input_type -> evmos.inflation.v1.QueryInflationRateRequest
-	10, // 8: evmos.inflation.v1.Query.Params:input_type -> evmos.inflation.v1.QueryParamsRequest
-	1,  // 9: evmos.inflation.v1.Query.Period:output_type -> evmos.inflation.v1.QueryPeriodResponse
-	3,  // 10: evmos.inflation.v1.Query.EpochMintProvision:output_type -> evmos.inflation.v1.QueryEpochMintProvisionResponse
-	5,  // 11: evmos.inflation.v1.Query.SkippedEpochs:output_type -> evmos.inflation.v1.QuerySkippedEpochsResponse
-	7,  // 12: evmos.inflation.v1.Query.CirculatingSupply:output_type -> evmos.inflation.v1.QueryCirculatingSupplyResponse
-	9,  // 13: evmos.inflation.v1.Query.InflationRate:output_type -> evmos.inflation.v1.QueryInflationRateResponse
-	11, // 14: evmos.inflation.v1.Query.Params:output_type -> evmos.inflation.v1.QueryParamsResponse
+	12, // 0: helios.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision:type_name -> cosmos.base.v1beta1.DecCoin
+	12, // 1: helios.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply:type_name -> cosmos.base.v1beta1.DecCoin
+	13, // 2: helios.inflation.v1.QueryParamsResponse.params:type_name -> helios.inflation.v1.Params
+	0,  // 3: helios.inflation.v1.Query.Period:input_type -> helios.inflation.v1.QueryPeriodRequest
+	2,  // 4: helios.inflation.v1.Query.EpochMintProvision:input_type -> helios.inflation.v1.QueryEpochMintProvisionRequest
+	4,  // 5: helios.inflation.v1.Query.SkippedEpochs:input_type -> helios.inflation.v1.QuerySkippedEpochsRequest
+	6,  // 6: helios.inflation.v1.Query.CirculatingSupply:input_type -> helios.inflation.v1.QueryCirculatingSupplyRequest
+	8,  // 7: helios.inflation.v1.Query.InflationRate:input_type -> helios.inflation.v1.QueryInflationRateRequest
+	10, // 8: helios.inflation.v1.Query.Params:input_type -> helios.inflation.v1.QueryParamsRequest
+	1,  // 9: helios.inflation.v1.Query.Period:output_type -> helios.inflation.v1.QueryPeriodResponse
+	3,  // 10: helios.inflation.v1.Query.EpochMintProvision:output_type -> helios.inflation.v1.QueryEpochMintProvisionResponse
+	5,  // 11: helios.inflation.v1.Query.SkippedEpochs:output_type -> helios.inflation.v1.QuerySkippedEpochsResponse
+	7,  // 12: helios.inflation.v1.Query.CirculatingSupply:output_type -> helios.inflation.v1.QueryCirculatingSupplyResponse
+	9,  // 13: helios.inflation.v1.Query.InflationRate:output_type -> helios.inflation.v1.QueryInflationRateResponse
+	11, // 14: helios.inflation.v1.Query.Params:output_type -> helios.inflation.v1.QueryParamsResponse
 	9,  // [9:15] is the sub-list for method output_type
 	3,  // [3:9] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name

@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evmos/evmos.git"
+    "url": "git+https://github.com/evmos/helios.git"
   },
   "author": "Evmos Core Team",
   "license": "ISC",

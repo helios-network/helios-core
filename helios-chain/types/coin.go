@@ -21,7 +21,7 @@ const (
 	BaseDenom        string = "ahelios"
 	BaseDenomTestnet string = "athelios"
 
-	// BaseDenomUnit defines the base denomination unit for Evmos.
+	// BaseDenomUnit defines the base denomination unit for helios.
 	// 1 evmos = 1x10^{BaseDenomUnit} aevmos
 	BaseDenomUnit = 18
 

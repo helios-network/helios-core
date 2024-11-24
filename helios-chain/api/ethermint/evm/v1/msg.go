@@ -12,7 +12,7 @@ import (
 )
 
 // supportedTxs holds the Ethereum transaction types
-// supported by Evmos.
+// supported by helios.
 // Use a function to return a new pointer and avoid
 // possible reuse or racing conditions when using the same pointer
 var supportedTxs = map[string]func() TxDataV2{

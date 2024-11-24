@@ -143,21 +143,21 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.GenesisState.params":
+	case "helios.inflation.v1.GenesisState.params":
 		return x.Params != nil
-	case "evmos.inflation.v1.GenesisState.period":
+	case "helios.inflation.v1.GenesisState.period":
 		return x.Period != uint64(0)
-	case "evmos.inflation.v1.GenesisState.epoch_identifier":
+	case "helios.inflation.v1.GenesisState.epoch_identifier":
 		return x.EpochIdentifier != ""
-	case "evmos.inflation.v1.GenesisState.epochs_per_period":
+	case "helios.inflation.v1.GenesisState.epochs_per_period":
 		return x.EpochsPerPeriod != int64(0)
-	case "evmos.inflation.v1.GenesisState.skipped_epochs":
+	case "helios.inflation.v1.GenesisState.skipped_epochs":
 		return x.SkippedEpochs != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -169,21 +169,21 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.GenesisState.params":
+	case "helios.inflation.v1.GenesisState.params":
 		x.Params = nil
-	case "evmos.inflation.v1.GenesisState.period":
+	case "helios.inflation.v1.GenesisState.period":
 		x.Period = uint64(0)
-	case "evmos.inflation.v1.GenesisState.epoch_identifier":
+	case "helios.inflation.v1.GenesisState.epoch_identifier":
 		x.EpochIdentifier = ""
-	case "evmos.inflation.v1.GenesisState.epochs_per_period":
+	case "helios.inflation.v1.GenesisState.epochs_per_period":
 		x.EpochsPerPeriod = int64(0)
-	case "evmos.inflation.v1.GenesisState.skipped_epochs":
+	case "helios.inflation.v1.GenesisState.skipped_epochs":
 		x.SkippedEpochs = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -195,26 +195,26 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.GenesisState.params":
+	case "helios.inflation.v1.GenesisState.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.inflation.v1.GenesisState.period":
+	case "helios.inflation.v1.GenesisState.period":
 		value := x.Period
 		return protoreflect.ValueOfUint64(value)
-	case "evmos.inflation.v1.GenesisState.epoch_identifier":
+	case "helios.inflation.v1.GenesisState.epoch_identifier":
 		value := x.EpochIdentifier
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.GenesisState.epochs_per_period":
+	case "helios.inflation.v1.GenesisState.epochs_per_period":
 		value := x.EpochsPerPeriod
 		return protoreflect.ValueOfInt64(value)
-	case "evmos.inflation.v1.GenesisState.skipped_epochs":
+	case "helios.inflation.v1.GenesisState.skipped_epochs":
 		value := x.SkippedEpochs
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.GenesisState does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.GenesisState does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -230,21 +230,21 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.GenesisState.params":
+	case "helios.inflation.v1.GenesisState.params":
 		x.Params = value.Message().Interface().(*Params)
-	case "evmos.inflation.v1.GenesisState.period":
+	case "helios.inflation.v1.GenesisState.period":
 		x.Period = value.Uint()
-	case "evmos.inflation.v1.GenesisState.epoch_identifier":
+	case "helios.inflation.v1.GenesisState.epoch_identifier":
 		x.EpochIdentifier = value.Interface().(string)
-	case "evmos.inflation.v1.GenesisState.epochs_per_period":
+	case "helios.inflation.v1.GenesisState.epochs_per_period":
 		x.EpochsPerPeriod = value.Int()
-	case "evmos.inflation.v1.GenesisState.skipped_epochs":
+	case "helios.inflation.v1.GenesisState.skipped_epochs":
 		x.SkippedEpochs = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -260,24 +260,24 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.GenesisState.params":
+	case "helios.inflation.v1.GenesisState.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "evmos.inflation.v1.GenesisState.period":
-		panic(fmt.Errorf("field period of message evmos.inflation.v1.GenesisState is not mutable"))
-	case "evmos.inflation.v1.GenesisState.epoch_identifier":
-		panic(fmt.Errorf("field epoch_identifier of message evmos.inflation.v1.GenesisState is not mutable"))
-	case "evmos.inflation.v1.GenesisState.epochs_per_period":
-		panic(fmt.Errorf("field epochs_per_period of message evmos.inflation.v1.GenesisState is not mutable"))
-	case "evmos.inflation.v1.GenesisState.skipped_epochs":
-		panic(fmt.Errorf("field skipped_epochs of message evmos.inflation.v1.GenesisState is not mutable"))
+	case "helios.inflation.v1.GenesisState.period":
+		panic(fmt.Errorf("field period of message helios.inflation.v1.GenesisState is not mutable"))
+	case "helios.inflation.v1.GenesisState.epoch_identifier":
+		panic(fmt.Errorf("field epoch_identifier of message helios.inflation.v1.GenesisState is not mutable"))
+	case "helios.inflation.v1.GenesisState.epochs_per_period":
+		panic(fmt.Errorf("field epochs_per_period of message helios.inflation.v1.GenesisState is not mutable"))
+	case "helios.inflation.v1.GenesisState.skipped_epochs":
+		panic(fmt.Errorf("field skipped_epochs of message helios.inflation.v1.GenesisState is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -286,22 +286,22 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.GenesisState.params":
+	case "helios.inflation.v1.GenesisState.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.inflation.v1.GenesisState.period":
+	case "helios.inflation.v1.GenesisState.period":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "evmos.inflation.v1.GenesisState.epoch_identifier":
+	case "helios.inflation.v1.GenesisState.epoch_identifier":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.GenesisState.epochs_per_period":
+	case "helios.inflation.v1.GenesisState.epochs_per_period":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "evmos.inflation.v1.GenesisState.skipped_epochs":
+	case "helios.inflation.v1.GenesisState.skipped_epochs":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -311,7 +311,7 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 func (x *fastReflection_GenesisState) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.GenesisState", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.GenesisState", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -778,19 +778,19 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.Params.mint_denom":
+	case "helios.inflation.v1.Params.mint_denom":
 		return x.MintDenom != ""
-	case "evmos.inflation.v1.Params.exponential_calculation":
+	case "helios.inflation.v1.Params.exponential_calculation":
 		return x.ExponentialCalculation != nil
-	case "evmos.inflation.v1.Params.inflation_distribution":
+	case "helios.inflation.v1.Params.inflation_distribution":
 		return x.InflationDistribution != nil
-	case "evmos.inflation.v1.Params.enable_inflation":
+	case "helios.inflation.v1.Params.enable_inflation":
 		return x.EnableInflation != false
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -802,19 +802,19 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.Params.mint_denom":
+	case "helios.inflation.v1.Params.mint_denom":
 		x.MintDenom = ""
-	case "evmos.inflation.v1.Params.exponential_calculation":
+	case "helios.inflation.v1.Params.exponential_calculation":
 		x.ExponentialCalculation = nil
-	case "evmos.inflation.v1.Params.inflation_distribution":
+	case "helios.inflation.v1.Params.inflation_distribution":
 		x.InflationDistribution = nil
-	case "evmos.inflation.v1.Params.enable_inflation":
+	case "helios.inflation.v1.Params.enable_inflation":
 		x.EnableInflation = false
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -826,23 +826,23 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.Params.mint_denom":
+	case "helios.inflation.v1.Params.mint_denom":
 		value := x.MintDenom
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.Params.exponential_calculation":
+	case "helios.inflation.v1.Params.exponential_calculation":
 		value := x.ExponentialCalculation
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.inflation.v1.Params.inflation_distribution":
+	case "helios.inflation.v1.Params.inflation_distribution":
 		value := x.InflationDistribution
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.inflation.v1.Params.enable_inflation":
+	case "helios.inflation.v1.Params.enable_inflation":
 		value := x.EnableInflation
 		return protoreflect.ValueOfBool(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.Params does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.Params does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -858,19 +858,19 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.Params.mint_denom":
+	case "helios.inflation.v1.Params.mint_denom":
 		x.MintDenom = value.Interface().(string)
-	case "evmos.inflation.v1.Params.exponential_calculation":
+	case "helios.inflation.v1.Params.exponential_calculation":
 		x.ExponentialCalculation = value.Message().Interface().(*ExponentialCalculation)
-	case "evmos.inflation.v1.Params.inflation_distribution":
+	case "helios.inflation.v1.Params.inflation_distribution":
 		x.InflationDistribution = value.Message().Interface().(*InflationDistribution)
-	case "evmos.inflation.v1.Params.enable_inflation":
+	case "helios.inflation.v1.Params.enable_inflation":
 		x.EnableInflation = value.Bool()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -886,25 +886,25 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.Params.exponential_calculation":
+	case "helios.inflation.v1.Params.exponential_calculation":
 		if x.ExponentialCalculation == nil {
 			x.ExponentialCalculation = new(ExponentialCalculation)
 		}
 		return protoreflect.ValueOfMessage(x.ExponentialCalculation.ProtoReflect())
-	case "evmos.inflation.v1.Params.inflation_distribution":
+	case "helios.inflation.v1.Params.inflation_distribution":
 		if x.InflationDistribution == nil {
 			x.InflationDistribution = new(InflationDistribution)
 		}
 		return protoreflect.ValueOfMessage(x.InflationDistribution.ProtoReflect())
-	case "evmos.inflation.v1.Params.mint_denom":
-		panic(fmt.Errorf("field mint_denom of message evmos.inflation.v1.Params is not mutable"))
-	case "evmos.inflation.v1.Params.enable_inflation":
-		panic(fmt.Errorf("field enable_inflation of message evmos.inflation.v1.Params is not mutable"))
+	case "helios.inflation.v1.Params.mint_denom":
+		panic(fmt.Errorf("field mint_denom of message helios.inflation.v1.Params is not mutable"))
+	case "helios.inflation.v1.Params.enable_inflation":
+		panic(fmt.Errorf("field enable_inflation of message helios.inflation.v1.Params is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -913,21 +913,21 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.Params.mint_denom":
+	case "helios.inflation.v1.Params.mint_denom":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.Params.exponential_calculation":
+	case "helios.inflation.v1.Params.exponential_calculation":
 		m := new(ExponentialCalculation)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.inflation.v1.Params.inflation_distribution":
+	case "helios.inflation.v1.Params.inflation_distribution":
 		m := new(InflationDistribution)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.inflation.v1.Params.enable_inflation":
+	case "helios.inflation.v1.Params.enable_inflation":
 		return protoreflect.ValueOfBool(false)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -937,7 +937,7 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 func (x *fastReflection_Params) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.Params", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.Params", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1516,15 +1516,15 @@ func file_evmos_inflation_v1_genesis_proto_rawDescGZIP() []byte {
 
 var file_evmos_inflation_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_evmos_inflation_v1_genesis_proto_goTypes = []interface{}{
-	(*GenesisState)(nil),           // 0: evmos.inflation.v1.GenesisState
-	(*Params)(nil),                 // 1: evmos.inflation.v1.Params
-	(*ExponentialCalculation)(nil), // 2: evmos.inflation.v1.ExponentialCalculation
-	(*InflationDistribution)(nil),  // 3: evmos.inflation.v1.InflationDistribution
+	(*GenesisState)(nil),           // 0: helios.inflation.v1.GenesisState
+	(*Params)(nil),                 // 1: helios.inflation.v1.Params
+	(*ExponentialCalculation)(nil), // 2: helios.inflation.v1.ExponentialCalculation
+	(*InflationDistribution)(nil),  // 3: helios.inflation.v1.InflationDistribution
 }
 var file_evmos_inflation_v1_genesis_proto_depIdxs = []int32{
-	1, // 0: evmos.inflation.v1.GenesisState.params:type_name -> evmos.inflation.v1.Params
-	2, // 1: evmos.inflation.v1.Params.exponential_calculation:type_name -> evmos.inflation.v1.ExponentialCalculation
-	3, // 2: evmos.inflation.v1.Params.inflation_distribution:type_name -> evmos.inflation.v1.InflationDistribution
+	1, // 0: helios.inflation.v1.GenesisState.params:type_name -> helios.inflation.v1.Params
+	2, // 1: helios.inflation.v1.Params.exponential_calculation:type_name -> helios.inflation.v1.ExponentialCalculation
+	3, // 2: helios.inflation.v1.Params.inflation_distribution:type_name -> helios.inflation.v1.InflationDistribution
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

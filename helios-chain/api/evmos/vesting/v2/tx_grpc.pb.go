@@ -22,11 +22,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_CreateClawbackVestingAccount_FullMethodName = "/evmos.vesting.v2.Msg/CreateClawbackVestingAccount"
-	Msg_FundVestingAccount_FullMethodName           = "/evmos.vesting.v2.Msg/FundVestingAccount"
-	Msg_Clawback_FullMethodName                     = "/evmos.vesting.v2.Msg/Clawback"
-	Msg_UpdateVestingFunder_FullMethodName          = "/evmos.vesting.v2.Msg/UpdateVestingFunder"
-	Msg_ConvertVestingAccount_FullMethodName        = "/evmos.vesting.v2.Msg/ConvertVestingAccount"
+	Msg_CreateClawbackVestingAccount_FullMethodName = "/helios.vesting.v2.Msg/CreateClawbackVestingAccount"
+	Msg_FundVestingAccount_FullMethodName           = "/helios.vesting.v2.Msg/FundVestingAccount"
+	Msg_Clawback_FullMethodName                     = "/helios.vesting.v2.Msg/Clawback"
+	Msg_UpdateVestingFunder_FullMethodName          = "/helios.vesting.v2.Msg/UpdateVestingFunder"
+	Msg_ConvertVestingAccount_FullMethodName        = "/helios.vesting.v2.Msg/ConvertVestingAccount"
 )
 
 // MsgClient is the client API for Msg service.
@@ -245,7 +245,7 @@ func _Msg_ConvertVestingAccount_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Msg_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "evmos.vesting.v2.Msg",
+	ServiceName: "helios.vesting.v2.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

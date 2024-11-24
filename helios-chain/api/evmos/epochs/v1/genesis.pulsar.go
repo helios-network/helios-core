@@ -161,25 +161,25 @@ func (x *fastReflection_EpochInfo) Range(f func(protoreflect.FieldDescriptor, pr
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EpochInfo) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.EpochInfo.identifier":
+	case "helios.epochs.v1.EpochInfo.identifier":
 		return x.Identifier != ""
-	case "evmos.epochs.v1.EpochInfo.start_time":
+	case "helios.epochs.v1.EpochInfo.start_time":
 		return x.StartTime != nil
-	case "evmos.epochs.v1.EpochInfo.duration":
+	case "helios.epochs.v1.EpochInfo.duration":
 		return x.Duration != nil
-	case "evmos.epochs.v1.EpochInfo.current_epoch":
+	case "helios.epochs.v1.EpochInfo.current_epoch":
 		return x.CurrentEpoch != int64(0)
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_time":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_time":
 		return x.CurrentEpochStartTime != nil
-	case "evmos.epochs.v1.EpochInfo.epoch_counting_started":
+	case "helios.epochs.v1.EpochInfo.epoch_counting_started":
 		return x.EpochCountingStarted != false
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_height":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_height":
 		return x.CurrentEpochStartHeight != int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.EpochInfo"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.EpochInfo"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -191,25 +191,25 @@ func (x *fastReflection_EpochInfo) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EpochInfo) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.EpochInfo.identifier":
+	case "helios.epochs.v1.EpochInfo.identifier":
 		x.Identifier = ""
-	case "evmos.epochs.v1.EpochInfo.start_time":
+	case "helios.epochs.v1.EpochInfo.start_time":
 		x.StartTime = nil
-	case "evmos.epochs.v1.EpochInfo.duration":
+	case "helios.epochs.v1.EpochInfo.duration":
 		x.Duration = nil
-	case "evmos.epochs.v1.EpochInfo.current_epoch":
+	case "helios.epochs.v1.EpochInfo.current_epoch":
 		x.CurrentEpoch = int64(0)
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_time":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_time":
 		x.CurrentEpochStartTime = nil
-	case "evmos.epochs.v1.EpochInfo.epoch_counting_started":
+	case "helios.epochs.v1.EpochInfo.epoch_counting_started":
 		x.EpochCountingStarted = false
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_height":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_height":
 		x.CurrentEpochStartHeight = int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.EpochInfo"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.EpochInfo"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -221,32 +221,32 @@ func (x *fastReflection_EpochInfo) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EpochInfo) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.epochs.v1.EpochInfo.identifier":
+	case "helios.epochs.v1.EpochInfo.identifier":
 		value := x.Identifier
 		return protoreflect.ValueOfString(value)
-	case "evmos.epochs.v1.EpochInfo.start_time":
+	case "helios.epochs.v1.EpochInfo.start_time":
 		value := x.StartTime
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.duration":
+	case "helios.epochs.v1.EpochInfo.duration":
 		value := x.Duration
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.current_epoch":
+	case "helios.epochs.v1.EpochInfo.current_epoch":
 		value := x.CurrentEpoch
 		return protoreflect.ValueOfInt64(value)
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_time":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_time":
 		value := x.CurrentEpochStartTime
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.epoch_counting_started":
+	case "helios.epochs.v1.EpochInfo.epoch_counting_started":
 		value := x.EpochCountingStarted
 		return protoreflect.ValueOfBool(value)
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_height":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_height":
 		value := x.CurrentEpochStartHeight
 		return protoreflect.ValueOfInt64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.EpochInfo"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.EpochInfo"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.EpochInfo does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.EpochInfo does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -262,25 +262,25 @@ func (x *fastReflection_EpochInfo) Get(descriptor protoreflect.FieldDescriptor) 
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EpochInfo) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.EpochInfo.identifier":
+	case "helios.epochs.v1.EpochInfo.identifier":
 		x.Identifier = value.Interface().(string)
-	case "evmos.epochs.v1.EpochInfo.start_time":
+	case "helios.epochs.v1.EpochInfo.start_time":
 		x.StartTime = value.Message().Interface().(*timestamppb.Timestamp)
-	case "evmos.epochs.v1.EpochInfo.duration":
+	case "helios.epochs.v1.EpochInfo.duration":
 		x.Duration = value.Message().Interface().(*durationpb.Duration)
-	case "evmos.epochs.v1.EpochInfo.current_epoch":
+	case "helios.epochs.v1.EpochInfo.current_epoch":
 		x.CurrentEpoch = value.Int()
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_time":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_time":
 		x.CurrentEpochStartTime = value.Message().Interface().(*timestamppb.Timestamp)
-	case "evmos.epochs.v1.EpochInfo.epoch_counting_started":
+	case "helios.epochs.v1.EpochInfo.epoch_counting_started":
 		x.EpochCountingStarted = value.Bool()
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_height":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_height":
 		x.CurrentEpochStartHeight = value.Int()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.EpochInfo"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.EpochInfo"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -296,34 +296,34 @@ func (x *fastReflection_EpochInfo) Set(fd protoreflect.FieldDescriptor, value pr
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EpochInfo) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.EpochInfo.start_time":
+	case "helios.epochs.v1.EpochInfo.start_time":
 		if x.StartTime == nil {
 			x.StartTime = new(timestamppb.Timestamp)
 		}
 		return protoreflect.ValueOfMessage(x.StartTime.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.duration":
+	case "helios.epochs.v1.EpochInfo.duration":
 		if x.Duration == nil {
 			x.Duration = new(durationpb.Duration)
 		}
 		return protoreflect.ValueOfMessage(x.Duration.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_time":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_time":
 		if x.CurrentEpochStartTime == nil {
 			x.CurrentEpochStartTime = new(timestamppb.Timestamp)
 		}
 		return protoreflect.ValueOfMessage(x.CurrentEpochStartTime.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.identifier":
-		panic(fmt.Errorf("field identifier of message evmos.epochs.v1.EpochInfo is not mutable"))
-	case "evmos.epochs.v1.EpochInfo.current_epoch":
-		panic(fmt.Errorf("field current_epoch of message evmos.epochs.v1.EpochInfo is not mutable"))
-	case "evmos.epochs.v1.EpochInfo.epoch_counting_started":
-		panic(fmt.Errorf("field epoch_counting_started of message evmos.epochs.v1.EpochInfo is not mutable"))
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_height":
-		panic(fmt.Errorf("field current_epoch_start_height of message evmos.epochs.v1.EpochInfo is not mutable"))
+	case "helios.epochs.v1.EpochInfo.identifier":
+		panic(fmt.Errorf("field identifier of message helios.epochs.v1.EpochInfo is not mutable"))
+	case "helios.epochs.v1.EpochInfo.current_epoch":
+		panic(fmt.Errorf("field current_epoch of message helios.epochs.v1.EpochInfo is not mutable"))
+	case "helios.epochs.v1.EpochInfo.epoch_counting_started":
+		panic(fmt.Errorf("field epoch_counting_started of message helios.epochs.v1.EpochInfo is not mutable"))
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_height":
+		panic(fmt.Errorf("field current_epoch_start_height of message helios.epochs.v1.EpochInfo is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.EpochInfo"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.EpochInfo"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -332,28 +332,28 @@ func (x *fastReflection_EpochInfo) Mutable(fd protoreflect.FieldDescriptor) prot
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EpochInfo) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.EpochInfo.identifier":
+	case "helios.epochs.v1.EpochInfo.identifier":
 		return protoreflect.ValueOfString("")
-	case "evmos.epochs.v1.EpochInfo.start_time":
+	case "helios.epochs.v1.EpochInfo.start_time":
 		m := new(timestamppb.Timestamp)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.duration":
+	case "helios.epochs.v1.EpochInfo.duration":
 		m := new(durationpb.Duration)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.current_epoch":
+	case "helios.epochs.v1.EpochInfo.current_epoch":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_time":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_time":
 		m := new(timestamppb.Timestamp)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.epochs.v1.EpochInfo.epoch_counting_started":
+	case "helios.epochs.v1.EpochInfo.epoch_counting_started":
 		return protoreflect.ValueOfBool(false)
-	case "evmos.epochs.v1.EpochInfo.current_epoch_start_height":
+	case "helios.epochs.v1.EpochInfo.current_epoch_start_height":
 		return protoreflect.ValueOfInt64(int64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.EpochInfo"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.EpochInfo"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.EpochInfo does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -363,7 +363,7 @@ func (x *fastReflection_EpochInfo) NewField(fd protoreflect.FieldDescriptor) pro
 func (x *fastReflection_EpochInfo) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.epochs.v1.EpochInfo", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.epochs.v1.EpochInfo", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -971,13 +971,13 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.GenesisState.epochs":
+	case "helios.epochs.v1.GenesisState.epochs":
 		return len(x.Epochs) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -989,13 +989,13 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.GenesisState.epochs":
+	case "helios.epochs.v1.GenesisState.epochs":
 		x.Epochs = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1007,7 +1007,7 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.epochs.v1.GenesisState.epochs":
+	case "helios.epochs.v1.GenesisState.epochs":
 		if len(x.Epochs) == 0 {
 			return protoreflect.ValueOfList(&_GenesisState_1_list{})
 		}
@@ -1015,9 +1015,9 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.GenesisState does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.GenesisState does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1033,15 +1033,15 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.GenesisState.epochs":
+	case "helios.epochs.v1.GenesisState.epochs":
 		lv := value.List()
 		clv := lv.(*_GenesisState_1_list)
 		x.Epochs = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1057,7 +1057,7 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.GenesisState.epochs":
+	case "helios.epochs.v1.GenesisState.epochs":
 		if x.Epochs == nil {
 			x.Epochs = []*EpochInfo{}
 		}
@@ -1065,9 +1065,9 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1076,14 +1076,14 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.GenesisState.epochs":
+	case "helios.epochs.v1.GenesisState.epochs":
 		list := []*EpochInfo{}
 		return protoreflect.ValueOfList(&_GenesisState_1_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.epochs.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.epochs.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1093,7 +1093,7 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 func (x *fastReflection_GenesisState) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.epochs.v1.GenesisState", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.epochs.v1.GenesisState", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1541,16 +1541,16 @@ func file_evmos_epochs_v1_genesis_proto_rawDescGZIP() []byte {
 
 var file_evmos_epochs_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_evmos_epochs_v1_genesis_proto_goTypes = []interface{}{
-	(*EpochInfo)(nil),             // 0: evmos.epochs.v1.EpochInfo
-	(*GenesisState)(nil),          // 1: evmos.epochs.v1.GenesisState
+	(*EpochInfo)(nil),             // 0: helios.epochs.v1.EpochInfo
+	(*GenesisState)(nil),          // 1: helios.epochs.v1.GenesisState
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 	(*durationpb.Duration)(nil),   // 3: google.protobuf.Duration
 }
 var file_evmos_epochs_v1_genesis_proto_depIdxs = []int32{
-	2, // 0: evmos.epochs.v1.EpochInfo.start_time:type_name -> google.protobuf.Timestamp
-	3, // 1: evmos.epochs.v1.EpochInfo.duration:type_name -> google.protobuf.Duration
-	2, // 2: evmos.epochs.v1.EpochInfo.current_epoch_start_time:type_name -> google.protobuf.Timestamp
-	0, // 3: evmos.epochs.v1.GenesisState.epochs:type_name -> evmos.epochs.v1.EpochInfo
+	2, // 0: helios.epochs.v1.EpochInfo.start_time:type_name -> google.protobuf.Timestamp
+	3, // 1: helios.epochs.v1.EpochInfo.duration:type_name -> google.protobuf.Duration
+	2, // 2: helios.epochs.v1.EpochInfo.current_epoch_start_time:type_name -> google.protobuf.Timestamp
+	0, // 3: helios.epochs.v1.GenesisState.epochs:type_name -> helios.epochs.v1.EpochInfo
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

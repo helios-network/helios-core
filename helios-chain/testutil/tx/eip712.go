@@ -73,9 +73,9 @@ func PrepareEIP712CosmosTx(
 	chainIDNum := pc.Uint64()
 
 	from := sdk.AccAddress(txArgs.Priv.PubKey().Address().Bytes())
-	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, from).GetAccountNumber()
+	accNumber := apphelios.AccountKeeper.GetAccount(ctx, from).GetAccountNumber()
 
-	nonce, err := appEvmos.AccountKeeper.GetSequence(ctx, from)
+	nonce, err := apphelios.AccountKeeper.GetSequence(ctx, from)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func signCosmosEIP712Tx(
 	priv := args.CosmosTxArgs.Priv
 
 	from := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	nonce, err := appEvmos.AccountKeeper.GetSequence(ctx, from)
+	nonce, err := apphelios.AccountKeeper.GetSequence(ctx, from)
 	if err != nil {
 		return nil, err
 	}

@@ -117,15 +117,15 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) Range(f func(protoref
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventCreateClawbackVestingAccount) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.funder":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.funder":
 		return x.Funder != ""
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
 		return x.VestingAccount != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -137,15 +137,15 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) Has(fd protoreflect.F
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventCreateClawbackVestingAccount) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.funder":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.funder":
 		x.Funder = ""
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
 		x.VestingAccount = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -157,17 +157,17 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) Clear(fd protoreflect
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventCreateClawbackVestingAccount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.funder":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.funder":
 		value := x.Funder
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
 		value := x.VestingAccount
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -183,15 +183,15 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) Get(descriptor protor
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventCreateClawbackVestingAccount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.funder":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.funder":
 		x.Funder = value.Interface().(string)
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
 		x.VestingAccount = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -207,15 +207,15 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) Set(fd protoreflect.F
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventCreateClawbackVestingAccount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.funder":
-		panic(fmt.Errorf("field funder of message evmos.vesting.v2.EventCreateClawbackVestingAccount is not mutable"))
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
-		panic(fmt.Errorf("field vesting_account of message evmos.vesting.v2.EventCreateClawbackVestingAccount is not mutable"))
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.funder":
+		panic(fmt.Errorf("field funder of message helios.vesting.v2.EventCreateClawbackVestingAccount is not mutable"))
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
+		panic(fmt.Errorf("field vesting_account of message helios.vesting.v2.EventCreateClawbackVestingAccount is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -224,15 +224,15 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) Mutable(fd protorefle
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventCreateClawbackVestingAccount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.funder":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.funder":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventCreateClawbackVestingAccount.vesting_account":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -242,7 +242,7 @@ func (x *fastReflection_EventCreateClawbackVestingAccount) NewField(fd protorefl
 func (x *fastReflection_EventCreateClawbackVestingAccount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.EventCreateClawbackVestingAccount", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v2.EventCreateClawbackVestingAccount", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -617,19 +617,19 @@ func (x *fastReflection_EventFundVestingAccount) Range(f func(protoreflect.Field
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventFundVestingAccount) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventFundVestingAccount.funder":
+	case "helios.vesting.v2.EventFundVestingAccount.funder":
 		return x.Funder != ""
-	case "evmos.vesting.v2.EventFundVestingAccount.coins":
+	case "helios.vesting.v2.EventFundVestingAccount.coins":
 		return x.Coins != ""
-	case "evmos.vesting.v2.EventFundVestingAccount.start_time":
+	case "helios.vesting.v2.EventFundVestingAccount.start_time":
 		return x.StartTime != ""
-	case "evmos.vesting.v2.EventFundVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventFundVestingAccount.vesting_account":
 		return x.VestingAccount != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -641,19 +641,19 @@ func (x *fastReflection_EventFundVestingAccount) Has(fd protoreflect.FieldDescri
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventFundVestingAccount) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventFundVestingAccount.funder":
+	case "helios.vesting.v2.EventFundVestingAccount.funder":
 		x.Funder = ""
-	case "evmos.vesting.v2.EventFundVestingAccount.coins":
+	case "helios.vesting.v2.EventFundVestingAccount.coins":
 		x.Coins = ""
-	case "evmos.vesting.v2.EventFundVestingAccount.start_time":
+	case "helios.vesting.v2.EventFundVestingAccount.start_time":
 		x.StartTime = ""
-	case "evmos.vesting.v2.EventFundVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventFundVestingAccount.vesting_account":
 		x.VestingAccount = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -665,23 +665,23 @@ func (x *fastReflection_EventFundVestingAccount) Clear(fd protoreflect.FieldDesc
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventFundVestingAccount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.EventFundVestingAccount.funder":
+	case "helios.vesting.v2.EventFundVestingAccount.funder":
 		value := x.Funder
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventFundVestingAccount.coins":
+	case "helios.vesting.v2.EventFundVestingAccount.coins":
 		value := x.Coins
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventFundVestingAccount.start_time":
+	case "helios.vesting.v2.EventFundVestingAccount.start_time":
 		value := x.StartTime
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventFundVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventFundVestingAccount.vesting_account":
 		value := x.VestingAccount
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventFundVestingAccount does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventFundVestingAccount does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -697,19 +697,19 @@ func (x *fastReflection_EventFundVestingAccount) Get(descriptor protoreflect.Fie
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventFundVestingAccount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventFundVestingAccount.funder":
+	case "helios.vesting.v2.EventFundVestingAccount.funder":
 		x.Funder = value.Interface().(string)
-	case "evmos.vesting.v2.EventFundVestingAccount.coins":
+	case "helios.vesting.v2.EventFundVestingAccount.coins":
 		x.Coins = value.Interface().(string)
-	case "evmos.vesting.v2.EventFundVestingAccount.start_time":
+	case "helios.vesting.v2.EventFundVestingAccount.start_time":
 		x.StartTime = value.Interface().(string)
-	case "evmos.vesting.v2.EventFundVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventFundVestingAccount.vesting_account":
 		x.VestingAccount = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -725,19 +725,19 @@ func (x *fastReflection_EventFundVestingAccount) Set(fd protoreflect.FieldDescri
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventFundVestingAccount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventFundVestingAccount.funder":
-		panic(fmt.Errorf("field funder of message evmos.vesting.v2.EventFundVestingAccount is not mutable"))
-	case "evmos.vesting.v2.EventFundVestingAccount.coins":
-		panic(fmt.Errorf("field coins of message evmos.vesting.v2.EventFundVestingAccount is not mutable"))
-	case "evmos.vesting.v2.EventFundVestingAccount.start_time":
-		panic(fmt.Errorf("field start_time of message evmos.vesting.v2.EventFundVestingAccount is not mutable"))
-	case "evmos.vesting.v2.EventFundVestingAccount.vesting_account":
-		panic(fmt.Errorf("field vesting_account of message evmos.vesting.v2.EventFundVestingAccount is not mutable"))
+	case "helios.vesting.v2.EventFundVestingAccount.funder":
+		panic(fmt.Errorf("field funder of message helios.vesting.v2.EventFundVestingAccount is not mutable"))
+	case "helios.vesting.v2.EventFundVestingAccount.coins":
+		panic(fmt.Errorf("field coins of message helios.vesting.v2.EventFundVestingAccount is not mutable"))
+	case "helios.vesting.v2.EventFundVestingAccount.start_time":
+		panic(fmt.Errorf("field start_time of message helios.vesting.v2.EventFundVestingAccount is not mutable"))
+	case "helios.vesting.v2.EventFundVestingAccount.vesting_account":
+		panic(fmt.Errorf("field vesting_account of message helios.vesting.v2.EventFundVestingAccount is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -746,19 +746,19 @@ func (x *fastReflection_EventFundVestingAccount) Mutable(fd protoreflect.FieldDe
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventFundVestingAccount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventFundVestingAccount.funder":
+	case "helios.vesting.v2.EventFundVestingAccount.funder":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventFundVestingAccount.coins":
+	case "helios.vesting.v2.EventFundVestingAccount.coins":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventFundVestingAccount.start_time":
+	case "helios.vesting.v2.EventFundVestingAccount.start_time":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventFundVestingAccount.vesting_account":
+	case "helios.vesting.v2.EventFundVestingAccount.vesting_account":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -768,7 +768,7 @@ func (x *fastReflection_EventFundVestingAccount) NewField(fd protoreflect.FieldD
 func (x *fastReflection_EventFundVestingAccount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.EventFundVestingAccount", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v2.EventFundVestingAccount", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1221,17 +1221,17 @@ func (x *fastReflection_EventClawback) Range(f func(protoreflect.FieldDescriptor
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventClawback) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventClawback.funder":
+	case "helios.vesting.v2.EventClawback.funder":
 		return x.Funder != ""
-	case "evmos.vesting.v2.EventClawback.account":
+	case "helios.vesting.v2.EventClawback.account":
 		return x.Account != ""
-	case "evmos.vesting.v2.EventClawback.destination":
+	case "helios.vesting.v2.EventClawback.destination":
 		return x.Destination != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1243,17 +1243,17 @@ func (x *fastReflection_EventClawback) Has(fd protoreflect.FieldDescriptor) bool
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventClawback) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventClawback.funder":
+	case "helios.vesting.v2.EventClawback.funder":
 		x.Funder = ""
-	case "evmos.vesting.v2.EventClawback.account":
+	case "helios.vesting.v2.EventClawback.account":
 		x.Account = ""
-	case "evmos.vesting.v2.EventClawback.destination":
+	case "helios.vesting.v2.EventClawback.destination":
 		x.Destination = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1265,20 +1265,20 @@ func (x *fastReflection_EventClawback) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventClawback) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.EventClawback.funder":
+	case "helios.vesting.v2.EventClawback.funder":
 		value := x.Funder
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventClawback.account":
+	case "helios.vesting.v2.EventClawback.account":
 		value := x.Account
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventClawback.destination":
+	case "helios.vesting.v2.EventClawback.destination":
 		value := x.Destination
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventClawback does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventClawback does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1294,17 +1294,17 @@ func (x *fastReflection_EventClawback) Get(descriptor protoreflect.FieldDescript
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventClawback) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventClawback.funder":
+	case "helios.vesting.v2.EventClawback.funder":
 		x.Funder = value.Interface().(string)
-	case "evmos.vesting.v2.EventClawback.account":
+	case "helios.vesting.v2.EventClawback.account":
 		x.Account = value.Interface().(string)
-	case "evmos.vesting.v2.EventClawback.destination":
+	case "helios.vesting.v2.EventClawback.destination":
 		x.Destination = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1320,17 +1320,17 @@ func (x *fastReflection_EventClawback) Set(fd protoreflect.FieldDescriptor, valu
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventClawback) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventClawback.funder":
-		panic(fmt.Errorf("field funder of message evmos.vesting.v2.EventClawback is not mutable"))
-	case "evmos.vesting.v2.EventClawback.account":
-		panic(fmt.Errorf("field account of message evmos.vesting.v2.EventClawback is not mutable"))
-	case "evmos.vesting.v2.EventClawback.destination":
-		panic(fmt.Errorf("field destination of message evmos.vesting.v2.EventClawback is not mutable"))
+	case "helios.vesting.v2.EventClawback.funder":
+		panic(fmt.Errorf("field funder of message helios.vesting.v2.EventClawback is not mutable"))
+	case "helios.vesting.v2.EventClawback.account":
+		panic(fmt.Errorf("field account of message helios.vesting.v2.EventClawback is not mutable"))
+	case "helios.vesting.v2.EventClawback.destination":
+		panic(fmt.Errorf("field destination of message helios.vesting.v2.EventClawback is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1339,17 +1339,17 @@ func (x *fastReflection_EventClawback) Mutable(fd protoreflect.FieldDescriptor) 
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventClawback) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventClawback.funder":
+	case "helios.vesting.v2.EventClawback.funder":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventClawback.account":
+	case "helios.vesting.v2.EventClawback.account":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventClawback.destination":
+	case "helios.vesting.v2.EventClawback.destination":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1359,7 +1359,7 @@ func (x *fastReflection_EventClawback) NewField(fd protoreflect.FieldDescriptor)
 func (x *fastReflection_EventClawback) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.EventClawback", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v2.EventClawback", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1769,17 +1769,17 @@ func (x *fastReflection_EventUpdateVestingFunder) Range(f func(protoreflect.Fiel
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventUpdateVestingFunder) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventUpdateVestingFunder.funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.funder":
 		return x.Funder != ""
-	case "evmos.vesting.v2.EventUpdateVestingFunder.account":
+	case "helios.vesting.v2.EventUpdateVestingFunder.account":
 		return x.Account != ""
-	case "evmos.vesting.v2.EventUpdateVestingFunder.new_funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.new_funder":
 		return x.NewFunder != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1791,17 +1791,17 @@ func (x *fastReflection_EventUpdateVestingFunder) Has(fd protoreflect.FieldDescr
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventUpdateVestingFunder) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventUpdateVestingFunder.funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.funder":
 		x.Funder = ""
-	case "evmos.vesting.v2.EventUpdateVestingFunder.account":
+	case "helios.vesting.v2.EventUpdateVestingFunder.account":
 		x.Account = ""
-	case "evmos.vesting.v2.EventUpdateVestingFunder.new_funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.new_funder":
 		x.NewFunder = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1813,20 +1813,20 @@ func (x *fastReflection_EventUpdateVestingFunder) Clear(fd protoreflect.FieldDes
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventUpdateVestingFunder) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.EventUpdateVestingFunder.funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.funder":
 		value := x.Funder
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventUpdateVestingFunder.account":
+	case "helios.vesting.v2.EventUpdateVestingFunder.account":
 		value := x.Account
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.EventUpdateVestingFunder.new_funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.new_funder":
 		value := x.NewFunder
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventUpdateVestingFunder does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventUpdateVestingFunder does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1842,17 +1842,17 @@ func (x *fastReflection_EventUpdateVestingFunder) Get(descriptor protoreflect.Fi
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventUpdateVestingFunder) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventUpdateVestingFunder.funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.funder":
 		x.Funder = value.Interface().(string)
-	case "evmos.vesting.v2.EventUpdateVestingFunder.account":
+	case "helios.vesting.v2.EventUpdateVestingFunder.account":
 		x.Account = value.Interface().(string)
-	case "evmos.vesting.v2.EventUpdateVestingFunder.new_funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.new_funder":
 		x.NewFunder = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1868,17 +1868,17 @@ func (x *fastReflection_EventUpdateVestingFunder) Set(fd protoreflect.FieldDescr
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventUpdateVestingFunder) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventUpdateVestingFunder.funder":
-		panic(fmt.Errorf("field funder of message evmos.vesting.v2.EventUpdateVestingFunder is not mutable"))
-	case "evmos.vesting.v2.EventUpdateVestingFunder.account":
-		panic(fmt.Errorf("field account of message evmos.vesting.v2.EventUpdateVestingFunder is not mutable"))
-	case "evmos.vesting.v2.EventUpdateVestingFunder.new_funder":
-		panic(fmt.Errorf("field new_funder of message evmos.vesting.v2.EventUpdateVestingFunder is not mutable"))
+	case "helios.vesting.v2.EventUpdateVestingFunder.funder":
+		panic(fmt.Errorf("field funder of message helios.vesting.v2.EventUpdateVestingFunder is not mutable"))
+	case "helios.vesting.v2.EventUpdateVestingFunder.account":
+		panic(fmt.Errorf("field account of message helios.vesting.v2.EventUpdateVestingFunder is not mutable"))
+	case "helios.vesting.v2.EventUpdateVestingFunder.new_funder":
+		panic(fmt.Errorf("field new_funder of message helios.vesting.v2.EventUpdateVestingFunder is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1887,17 +1887,17 @@ func (x *fastReflection_EventUpdateVestingFunder) Mutable(fd protoreflect.FieldD
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventUpdateVestingFunder) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.EventUpdateVestingFunder.funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.funder":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventUpdateVestingFunder.account":
+	case "helios.vesting.v2.EventUpdateVestingFunder.account":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.EventUpdateVestingFunder.new_funder":
+	case "helios.vesting.v2.EventUpdateVestingFunder.new_funder":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.EventUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v2.EventUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v2.EventUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1907,7 +1907,7 @@ func (x *fastReflection_EventUpdateVestingFunder) NewField(fd protoreflect.Field
 func (x *fastReflection_EventUpdateVestingFunder) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.EventUpdateVestingFunder", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v2.EventUpdateVestingFunder", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2504,10 +2504,10 @@ func file_evmos_vesting_v2_events_proto_rawDescGZIP() []byte {
 
 var file_evmos_vesting_v2_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_evmos_vesting_v2_events_proto_goTypes = []interface{}{
-	(*EventCreateClawbackVestingAccount)(nil), // 0: evmos.vesting.v2.EventCreateClawbackVestingAccount
-	(*EventFundVestingAccount)(nil),           // 1: evmos.vesting.v2.EventFundVestingAccount
-	(*EventClawback)(nil),                     // 2: evmos.vesting.v2.EventClawback
-	(*EventUpdateVestingFunder)(nil),          // 3: evmos.vesting.v2.EventUpdateVestingFunder
+	(*EventCreateClawbackVestingAccount)(nil), // 0: helios.vesting.v2.EventCreateClawbackVestingAccount
+	(*EventFundVestingAccount)(nil),           // 1: helios.vesting.v2.EventFundVestingAccount
+	(*EventClawback)(nil),                     // 2: helios.vesting.v2.EventClawback
+	(*EventUpdateVestingFunder)(nil),          // 3: helios.vesting.v2.EventUpdateVestingFunder
 }
 var file_evmos_vesting_v2_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

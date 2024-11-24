@@ -22,7 +22,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Balances_FullMethodName = "/evmos.vesting.v2.Query/Balances"
+	Query_Balances_FullMethodName = "/helios.vesting.v2.Query/Balances"
 )
 
 // QueryClient is the client API for Query service.
@@ -101,7 +101,7 @@ func _Query_Balances_Handler(srv interface{}, ctx context.Context, dec func(inte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "evmos.vesting.v2.Query",
+	ServiceName: "helios.vesting.v2.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

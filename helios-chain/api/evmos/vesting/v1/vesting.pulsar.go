@@ -247,21 +247,21 @@ func (x *fastReflection_ClawbackVestingAccount) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ClawbackVestingAccount) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account":
+	case "helios.vesting.v1.ClawbackVestingAccount.base_vesting_account":
 		return x.BaseVestingAccount != nil
-	case "evmos.vesting.v1.ClawbackVestingAccount.funder_address":
+	case "helios.vesting.v1.ClawbackVestingAccount.funder_address":
 		return x.FunderAddress != ""
-	case "evmos.vesting.v1.ClawbackVestingAccount.start_time":
+	case "helios.vesting.v1.ClawbackVestingAccount.start_time":
 		return x.StartTime != nil
-	case "evmos.vesting.v1.ClawbackVestingAccount.lockup_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.lockup_periods":
 		return len(x.LockupPeriods) != 0
-	case "evmos.vesting.v1.ClawbackVestingAccount.vesting_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.vesting_periods":
 		return len(x.VestingPeriods) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v1.ClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v1.ClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -273,21 +273,21 @@ func (x *fastReflection_ClawbackVestingAccount) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ClawbackVestingAccount) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account":
+	case "helios.vesting.v1.ClawbackVestingAccount.base_vesting_account":
 		x.BaseVestingAccount = nil
-	case "evmos.vesting.v1.ClawbackVestingAccount.funder_address":
+	case "helios.vesting.v1.ClawbackVestingAccount.funder_address":
 		x.FunderAddress = ""
-	case "evmos.vesting.v1.ClawbackVestingAccount.start_time":
+	case "helios.vesting.v1.ClawbackVestingAccount.start_time":
 		x.StartTime = nil
-	case "evmos.vesting.v1.ClawbackVestingAccount.lockup_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.lockup_periods":
 		x.LockupPeriods = nil
-	case "evmos.vesting.v1.ClawbackVestingAccount.vesting_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.vesting_periods":
 		x.VestingPeriods = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v1.ClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v1.ClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -299,22 +299,22 @@ func (x *fastReflection_ClawbackVestingAccount) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ClawbackVestingAccount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account":
+	case "helios.vesting.v1.ClawbackVestingAccount.base_vesting_account":
 		value := x.BaseVestingAccount
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.vesting.v1.ClawbackVestingAccount.funder_address":
+	case "helios.vesting.v1.ClawbackVestingAccount.funder_address":
 		value := x.FunderAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v1.ClawbackVestingAccount.start_time":
+	case "helios.vesting.v1.ClawbackVestingAccount.start_time":
 		value := x.StartTime
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.vesting.v1.ClawbackVestingAccount.lockup_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.lockup_periods":
 		if len(x.LockupPeriods) == 0 {
 			return protoreflect.ValueOfList(&_ClawbackVestingAccount_4_list{})
 		}
 		listValue := &_ClawbackVestingAccount_4_list{list: &x.LockupPeriods}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.vesting.v1.ClawbackVestingAccount.vesting_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.vesting_periods":
 		if len(x.VestingPeriods) == 0 {
 			return protoreflect.ValueOfList(&_ClawbackVestingAccount_5_list{})
 		}
@@ -322,9 +322,9 @@ func (x *fastReflection_ClawbackVestingAccount) Get(descriptor protoreflect.Fiel
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v1.ClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v1.ClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v1.ClawbackVestingAccount does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v1.ClawbackVestingAccount does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -340,25 +340,25 @@ func (x *fastReflection_ClawbackVestingAccount) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ClawbackVestingAccount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account":
+	case "helios.vesting.v1.ClawbackVestingAccount.base_vesting_account":
 		x.BaseVestingAccount = value.Message().Interface().(*v1beta1.BaseVestingAccount)
-	case "evmos.vesting.v1.ClawbackVestingAccount.funder_address":
+	case "helios.vesting.v1.ClawbackVestingAccount.funder_address":
 		x.FunderAddress = value.Interface().(string)
-	case "evmos.vesting.v1.ClawbackVestingAccount.start_time":
+	case "helios.vesting.v1.ClawbackVestingAccount.start_time":
 		x.StartTime = value.Message().Interface().(*timestamppb.Timestamp)
-	case "evmos.vesting.v1.ClawbackVestingAccount.lockup_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.lockup_periods":
 		lv := value.List()
 		clv := lv.(*_ClawbackVestingAccount_4_list)
 		x.LockupPeriods = *clv.list
-	case "evmos.vesting.v1.ClawbackVestingAccount.vesting_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.vesting_periods":
 		lv := value.List()
 		clv := lv.(*_ClawbackVestingAccount_5_list)
 		x.VestingPeriods = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v1.ClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v1.ClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -374,35 +374,35 @@ func (x *fastReflection_ClawbackVestingAccount) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ClawbackVestingAccount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account":
+	case "helios.vesting.v1.ClawbackVestingAccount.base_vesting_account":
 		if x.BaseVestingAccount == nil {
 			x.BaseVestingAccount = new(v1beta1.BaseVestingAccount)
 		}
 		return protoreflect.ValueOfMessage(x.BaseVestingAccount.ProtoReflect())
-	case "evmos.vesting.v1.ClawbackVestingAccount.start_time":
+	case "helios.vesting.v1.ClawbackVestingAccount.start_time":
 		if x.StartTime == nil {
 			x.StartTime = new(timestamppb.Timestamp)
 		}
 		return protoreflect.ValueOfMessage(x.StartTime.ProtoReflect())
-	case "evmos.vesting.v1.ClawbackVestingAccount.lockup_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.lockup_periods":
 		if x.LockupPeriods == nil {
 			x.LockupPeriods = []*v1beta1.Period{}
 		}
 		value := &_ClawbackVestingAccount_4_list{list: &x.LockupPeriods}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v1.ClawbackVestingAccount.vesting_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.vesting_periods":
 		if x.VestingPeriods == nil {
 			x.VestingPeriods = []*v1beta1.Period{}
 		}
 		value := &_ClawbackVestingAccount_5_list{list: &x.VestingPeriods}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v1.ClawbackVestingAccount.funder_address":
-		panic(fmt.Errorf("field funder_address of message evmos.vesting.v1.ClawbackVestingAccount is not mutable"))
+	case "helios.vesting.v1.ClawbackVestingAccount.funder_address":
+		panic(fmt.Errorf("field funder_address of message helios.vesting.v1.ClawbackVestingAccount is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v1.ClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v1.ClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -411,25 +411,25 @@ func (x *fastReflection_ClawbackVestingAccount) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ClawbackVestingAccount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account":
+	case "helios.vesting.v1.ClawbackVestingAccount.base_vesting_account":
 		m := new(v1beta1.BaseVestingAccount)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.vesting.v1.ClawbackVestingAccount.funder_address":
+	case "helios.vesting.v1.ClawbackVestingAccount.funder_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v1.ClawbackVestingAccount.start_time":
+	case "helios.vesting.v1.ClawbackVestingAccount.start_time":
 		m := new(timestamppb.Timestamp)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.vesting.v1.ClawbackVestingAccount.lockup_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.lockup_periods":
 		list := []*v1beta1.Period{}
 		return protoreflect.ValueOfList(&_ClawbackVestingAccount_4_list{list: &list})
-	case "evmos.vesting.v1.ClawbackVestingAccount.vesting_periods":
+	case "helios.vesting.v1.ClawbackVestingAccount.vesting_periods":
 		list := []*v1beta1.Period{}
 		return protoreflect.ValueOfList(&_ClawbackVestingAccount_5_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v1.ClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.vesting.v1.ClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.vesting.v1.ClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -439,7 +439,7 @@ func (x *fastReflection_ClawbackVestingAccount) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_ClawbackVestingAccount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v1.ClawbackVestingAccount", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.vesting.v1.ClawbackVestingAccount", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1041,16 +1041,16 @@ func file_evmos_vesting_v1_vesting_proto_rawDescGZIP() []byte {
 
 var file_evmos_vesting_v1_vesting_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_evmos_vesting_v1_vesting_proto_goTypes = []interface{}{
-	(*ClawbackVestingAccount)(nil),     // 0: evmos.vesting.v1.ClawbackVestingAccount
+	(*ClawbackVestingAccount)(nil),     // 0: helios.vesting.v1.ClawbackVestingAccount
 	(*v1beta1.BaseVestingAccount)(nil), // 1: cosmos.vesting.v1beta1.BaseVestingAccount
 	(*timestamppb.Timestamp)(nil),      // 2: google.protobuf.Timestamp
 	(*v1beta1.Period)(nil),             // 3: cosmos.vesting.v1beta1.Period
 }
 var file_evmos_vesting_v1_vesting_proto_depIdxs = []int32{
-	1, // 0: evmos.vesting.v1.ClawbackVestingAccount.base_vesting_account:type_name -> cosmos.vesting.v1beta1.BaseVestingAccount
-	2, // 1: evmos.vesting.v1.ClawbackVestingAccount.start_time:type_name -> google.protobuf.Timestamp
-	3, // 2: evmos.vesting.v1.ClawbackVestingAccount.lockup_periods:type_name -> cosmos.vesting.v1beta1.Period
-	3, // 3: evmos.vesting.v1.ClawbackVestingAccount.vesting_periods:type_name -> cosmos.vesting.v1beta1.Period
+	1, // 0: helios.vesting.v1.ClawbackVestingAccount.base_vesting_account:type_name -> cosmos.vesting.v1beta1.BaseVestingAccount
+	2, // 1: helios.vesting.v1.ClawbackVestingAccount.start_time:type_name -> google.protobuf.Timestamp
+	3, // 2: helios.vesting.v1.ClawbackVestingAccount.lockup_periods:type_name -> cosmos.vesting.v1beta1.Period
+	3, // 3: helios.vesting.v1.ClawbackVestingAccount.vesting_periods:type_name -> cosmos.vesting.v1beta1.Period
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"helios-core/helios-chain/eip712"
-	evmos "helios-core/helios-chain/types"
+	helios "helios-core/helios-chain/types"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -179,7 +179,7 @@ func LegacyEIP712Cmd() *cobra.Command {
 				return errors.Wrap(err, "encode tx")
 			}
 
-			chainID, err := evmos.ParseChainID(clientCtx.ChainID)
+			chainID, err := helios.ParseChainID(clientCtx.ChainID)
 			if err != nil {
 				return errors.Wrap(err, "invalid chain ID passed as argument")
 			}

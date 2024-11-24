@@ -38,7 +38,7 @@ func (k Keeper) registerERC20(
 }
 
 // CreateCoinMetadata generates the metadata to represent the ERC20 token on
-// evmos.
+// helios.
 func (k Keeper) CreateCoinMetadata(
 	ctx sdk.Context,
 	contract common.Address,

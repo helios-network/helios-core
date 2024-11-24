@@ -12,8 +12,8 @@ yes 12345678 | heliades keys add mykey
 yes 12345678 | heliades keys add alicekey
 yes 12345678 | heliades keys add bobkey
 # add keys by other people
-yes 12345678 | heliades keys add charliekey --pubkey='{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AuJunSZYCMQBJHO1djMVYeDCG848kJZtUEpMPqOcpO5w"}'
-yes 12345678 | heliades keys add carolkey --pubkey='{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AhIEYBQqyWuXbIMR3iksHxaD5sFNhW1zyPUU3U5Qimzq"}'
+yes 12345678 | heliades keys add charliekey --pubkey='{"@type":"/helios.crypto.v1beta1.ethsecp256k1.PubKey","key":"AuJunSZYCMQBJHO1djMVYeDCG848kJZtUEpMPqOcpO5w"}'
+yes 12345678 | heliades keys add carolkey --pubkey='{"@type":"/helios.crypto.v1beta1.ethsecp256k1.PubKey","key":"AhIEYBQqyWuXbIMR3iksHxaD5sFNhW1zyPUU3U5Qimzq"}'
 ### create multisig wallet (3/5) ###
 yes 12345678 | heliades keys add feedadmin --multisig "mykey,alicekey,bobkey,charliekey,carolkey" --multisig-threshold 3
 # address: helios1fadl0rutsh5a4pqn75g8wu62286w06yf9aaayy

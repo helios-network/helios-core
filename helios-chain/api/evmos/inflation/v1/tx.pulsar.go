@@ -121,15 +121,15 @@ func (x *fastReflection_MsgUpdateParams) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.MsgUpdateParams.authority":
+	case "helios.inflation.v1.MsgUpdateParams.authority":
 		return x.Authority != ""
-	case "evmos.inflation.v1.MsgUpdateParams.params":
+	case "helios.inflation.v1.MsgUpdateParams.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -141,15 +141,15 @@ func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.MsgUpdateParams.authority":
+	case "helios.inflation.v1.MsgUpdateParams.authority":
 		x.Authority = ""
-	case "evmos.inflation.v1.MsgUpdateParams.params":
+	case "helios.inflation.v1.MsgUpdateParams.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -161,17 +161,17 @@ func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.MsgUpdateParams.authority":
+	case "helios.inflation.v1.MsgUpdateParams.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.MsgUpdateParams.params":
+	case "helios.inflation.v1.MsgUpdateParams.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -187,15 +187,15 @@ func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.MsgUpdateParams.authority":
+	case "helios.inflation.v1.MsgUpdateParams.authority":
 		x.Authority = value.Interface().(string)
-	case "evmos.inflation.v1.MsgUpdateParams.params":
+	case "helios.inflation.v1.MsgUpdateParams.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -211,18 +211,18 @@ func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.MsgUpdateParams.params":
+	case "helios.inflation.v1.MsgUpdateParams.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "evmos.inflation.v1.MsgUpdateParams.authority":
-		panic(fmt.Errorf("field authority of message evmos.inflation.v1.MsgUpdateParams is not mutable"))
+	case "helios.inflation.v1.MsgUpdateParams.authority":
+		panic(fmt.Errorf("field authority of message helios.inflation.v1.MsgUpdateParams is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -231,16 +231,16 @@ func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.MsgUpdateParams.authority":
+	case "helios.inflation.v1.MsgUpdateParams.authority":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.MsgUpdateParams.params":
+	case "helios.inflation.v1.MsgUpdateParams.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -250,7 +250,7 @@ func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MsgUpdateParams) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.MsgUpdateParams", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.MsgUpdateParams", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -606,9 +606,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Has(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -622,9 +622,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Clear(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -638,9 +638,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Get(descriptor protoreflect.Fie
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -658,9 +658,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Set(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -678,9 +678,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Mutable(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -691,9 +691,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: helios.inflation.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message helios.inflation.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -703,7 +703,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_MsgUpdateParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.MsgUpdateParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in helios.inflation.v1.MsgUpdateParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1026,14 +1026,14 @@ func file_evmos_inflation_v1_tx_proto_rawDescGZIP() []byte {
 
 var file_evmos_inflation_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_evmos_inflation_v1_tx_proto_goTypes = []interface{}{
-	(*MsgUpdateParams)(nil),         // 0: evmos.inflation.v1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil), // 1: evmos.inflation.v1.MsgUpdateParamsResponse
-	(*Params)(nil),                  // 2: evmos.inflation.v1.Params
+	(*MsgUpdateParams)(nil),         // 0: helios.inflation.v1.MsgUpdateParams
+	(*MsgUpdateParamsResponse)(nil), // 1: helios.inflation.v1.MsgUpdateParamsResponse
+	(*Params)(nil),                  // 2: helios.inflation.v1.Params
 }
 var file_evmos_inflation_v1_tx_proto_depIdxs = []int32{
-	2, // 0: evmos.inflation.v1.MsgUpdateParams.params:type_name -> evmos.inflation.v1.Params
-	0, // 1: evmos.inflation.v1.Msg.UpdateParams:input_type -> evmos.inflation.v1.MsgUpdateParams
-	1, // 2: evmos.inflation.v1.Msg.UpdateParams:output_type -> evmos.inflation.v1.MsgUpdateParamsResponse
+	2, // 0: helios.inflation.v1.MsgUpdateParams.params:type_name -> helios.inflation.v1.Params
+	0, // 1: helios.inflation.v1.Msg.UpdateParams:input_type -> helios.inflation.v1.MsgUpdateParams
+	1, // 2: helios.inflation.v1.Msg.UpdateParams:output_type -> helios.inflation.v1.MsgUpdateParamsResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

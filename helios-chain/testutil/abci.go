@@ -64,7 +64,7 @@ func DeliverTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := appEvmos.GetTxConfig()
+	txConfig := apphelios.GetTxConfig()
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
 		appEvmos,
@@ -91,7 +91,7 @@ func DeliverEthTx(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := appEvmos.GetTxConfig()
+	txConfig := apphelios.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, priv, msgs...)
 	if err != nil {
@@ -102,7 +102,7 @@ func DeliverEthTx(
 		return res, err
 	}
 
-	codec := appEvmos.AppCodec()
+	codec := apphelios.AppCodec()
 	if _, err := CheckEthTxResponse(res, codec); err != nil {
 		return res, err
 	}
@@ -118,7 +118,7 @@ func DeliverEthTxWithoutCheck(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := appEvmos.GetTxConfig()
+	txConfig := apphelios.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, priv, msgs...)
 	if err != nil {
@@ -141,7 +141,7 @@ func CheckTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
-	txConfig := appEvmos.GetTxConfig()
+	txConfig := apphelios.GetTxConfig()
 
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
@@ -167,7 +167,7 @@ func CheckEthTx(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
-	txConfig := appEvmos.GetTxConfig()
+	txConfig := apphelios.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, priv, msgs...)
 	if err != nil {

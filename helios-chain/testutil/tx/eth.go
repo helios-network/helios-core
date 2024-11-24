@@ -103,14 +103,14 @@ func CreateEthTx(
 	fromAddr := common.BytesToAddress(from.Bytes())
 	chainID := evmtypes.GetEthChainConfig().ChainID
 
-	baseFeeRes, err := appEvmos.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	baseFeeRes, err := apphelios.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to get fee during eth tx creation")
 	}
 	baseFee := baseFeeRes.BaseFee.BigInt()
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
-	nonce := appEvmos.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //nolint:gosec // G115
+	nonce := apphelios.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //nolint:gosec // G115
 	evmTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,

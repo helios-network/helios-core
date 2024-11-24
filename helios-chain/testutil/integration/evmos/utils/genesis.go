@@ -45,7 +45,7 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 	accGenesisState := authtypes.DefaultGenesisState()
 	for _, genesisAccount := range genesisAccounts {
 		// NOTE: This type requires to be packed into a *types.Any as seen on SDK tests,
-		// e.g. https://github.com/evmos/cosmos-sdk/blob/v0.47.5-evmos.2/x/auth/keeper/keeper_test.go#L193-L223
+		// e.g. https://github.com/evmos/cosmos-sdk/blob/v0.47.5-helios.2/x/auth/keeper/keeper_test.go#L193-L223
 		accGenesisState.Accounts = append(accGenesisState.Accounts, codectypes.UnsafePackAny(genesisAccount))
 	}
 

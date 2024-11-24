@@ -22,8 +22,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_EpochInfos_FullMethodName   = "/evmos.epochs.v1.Query/EpochInfos"
-	Query_CurrentEpoch_FullMethodName = "/evmos.epochs.v1.Query/CurrentEpoch"
+	Query_EpochInfos_FullMethodName   = "/helios.epochs.v1.Query/EpochInfos"
+	Query_CurrentEpoch_FullMethodName = "/helios.epochs.v1.Query/CurrentEpoch"
 )
 
 // QueryClient is the client API for Query service.
@@ -136,7 +136,7 @@ func _Query_CurrentEpoch_Handler(srv interface{}, ctx context.Context, dec func(
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "evmos.epochs.v1.Query",
+	ServiceName: "helios.epochs.v1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

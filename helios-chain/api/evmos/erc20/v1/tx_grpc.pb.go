@@ -22,10 +22,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_ConvertERC20_FullMethodName     = "/evmos.erc20.v1.Msg/ConvertERC20"
-	Msg_UpdateParams_FullMethodName     = "/evmos.erc20.v1.Msg/UpdateParams"
-	Msg_RegisterERC20_FullMethodName    = "/evmos.erc20.v1.Msg/RegisterERC20"
-	Msg_ToggleConversion_FullMethodName = "/evmos.erc20.v1.Msg/ToggleConversion"
+	Msg_ConvertERC20_FullMethodName     = "/helios.erc20.v1.Msg/ConvertERC20"
+	Msg_UpdateParams_FullMethodName     = "/helios.erc20.v1.Msg/UpdateParams"
+	Msg_RegisterERC20_FullMethodName    = "/helios.erc20.v1.Msg/RegisterERC20"
+	Msg_ToggleConversion_FullMethodName = "/helios.erc20.v1.Msg/ToggleConversion"
 )
 
 // MsgClient is the client API for Msg service.
@@ -214,7 +214,7 @@ func _Msg_ToggleConversion_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Msg_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "evmos.erc20.v1.Msg",
+	ServiceName: "helios.erc20.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -12,8 +12,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txTypes "github.com/cosmos/cosmos-sdk/types/tx"
 
+	helios "helios-core/helios-chain/types"
+
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
-	evmos "helios-core/helios-chain/types"
 )
 
 type aminoMessage struct {
@@ -99,7 +100,7 @@ func legacyDecodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 		FeePayer: feePayer,
 	}
 
-	chainID, err := evmos.ParseChainID(aminoDoc.ChainID)
+	chainID, err := helios.ParseChainID(aminoDoc.ChainID)
 	if err != nil {
 		return apitypes.TypedData{}, errors.New("invalid chain ID passed as argument")
 	}
@@ -169,7 +170,7 @@ func legacyDecodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error
 
 	signerInfo := authInfo.SignerInfos[0]
 
-	chainID, err := evmos.ParseChainID(signDoc.ChainId)
+	chainID, err := helios.ParseChainID(signDoc.ChainId)
 	if err != nil {
 		return apitypes.TypedData{}, fmt.Errorf("invalid chain ID passed as argument: %w", err)
 	}

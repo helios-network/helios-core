@@ -22,12 +22,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Period_FullMethodName             = "/evmos.inflation.v1.Query/Period"
-	Query_EpochMintProvision_FullMethodName = "/evmos.inflation.v1.Query/EpochMintProvision"
-	Query_SkippedEpochs_FullMethodName      = "/evmos.inflation.v1.Query/SkippedEpochs"
-	Query_CirculatingSupply_FullMethodName  = "/evmos.inflation.v1.Query/CirculatingSupply"
-	Query_InflationRate_FullMethodName      = "/evmos.inflation.v1.Query/InflationRate"
-	Query_Params_FullMethodName             = "/evmos.inflation.v1.Query/Params"
+	Query_Period_FullMethodName             = "/helios.inflation.v1.Query/Period"
+	Query_EpochMintProvision_FullMethodName = "/helios.inflation.v1.Query/EpochMintProvision"
+	Query_SkippedEpochs_FullMethodName      = "/helios.inflation.v1.Query/SkippedEpochs"
+	Query_CirculatingSupply_FullMethodName  = "/helios.inflation.v1.Query/CirculatingSupply"
+	Query_InflationRate_FullMethodName      = "/helios.inflation.v1.Query/InflationRate"
+	Query_Params_FullMethodName             = "/helios.inflation.v1.Query/Params"
 )
 
 // QueryClient is the client API for Query service.
@@ -278,7 +278,7 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "evmos.inflation.v1.Query",
+	ServiceName: "helios.inflation.v1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
