@@ -39,7 +39,7 @@ func AddTxFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Bool(flags.FlagGenerateOnly, false, "Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase is not accessible)")
 	cmd.Flags().Bool(flags.FlagOffline, false, "Offline mode (does not allow any online functionality")
 	cmd.Flags().BoolP(flags.FlagSkipConfirmation, "y", false, "Skip tx broadcasting prompt confirmation")
-	cmd.Flags().String(flags.FlagKeyringBackend, keyring.BackendFile, "Select keyring's backend (os|file|kwallet|pass|test|memory)")
+	cmd.Flags().String(flags.FlagKeyringBackend, keyring.BackendLocal, "Select keyring's backend (os|file|kwallet|pass|test|memory|local)")
 	cmd.Flags().String(flags.FlagSignMode, "", "Choose sign mode (direct|amino-json), this is an advanced feature")
 	cmd.Flags().Uint64(flags.FlagTimeoutHeight, 0, "Set a block timeout height to prevent the tx from being committed past a certain height")
 	cmd.Flags().String(flags.FlagFeePayer, "", "Fee payer pays fees for the transaction instead of deducting from the signer")
