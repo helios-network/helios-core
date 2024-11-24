@@ -137,7 +137,6 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
 	"helios-core/helios-chain/modules/auction"
 	auctionkeeper "helios-core/helios-chain/modules/auction/keeper"

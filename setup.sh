@@ -125,8 +125,12 @@ DENOM_DECIMALS='['${HELIOS},${PEGGY_DENOM_DECIMALS},${IBC_DENOM_DECIMALS}']'
 jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Add genesis accounts
-heliades keys add genesis --algo "$KEYALGO" --keyring-backend "test"
-heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a --keyring-backend "test") 1000000000000000000000000ahelios --keyring-backend "test"
+GENESIS_VALIDATOR_ADDRESS="helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"
+GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel"
+# Add GENESIS VALIDATOR key
+heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
+# Integrate GENESIS VALIDATOR into the genesis block with specifical large balance
+heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000ahelios
 
 # Define the keys array
 KEYS=(
@@ -164,27 +168,24 @@ MNEMONICS=(
 
 # Import keys from mnemonics
 for i in "${!KEYS[@]}"; do
-    printf "${MNEMONICS[$i]}" | heliades keys add ${KEYS[$i]} --recover --algo "$KEYALGO" --keyring-backend "test"
+    heliades keys add ${KEYS[$i]} --from-mnemonic "${MNEMONICS[$i]}" --algo "$KEYALGO"
 done
 
-# Allocate genesis accounts
+# Integrate accounts into the genesis block with specifical balance
 for key in "${KEYS[@]}"; do
-    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend "test") 1000000000000000000000ahelios --keyring-backend "test"
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios
 done
 
 echo "Signing genesis transaction"
-# Sign genesis transaction
-#yes $PASSPHRASE | heliades genesis gentx genesis 1000000000000000000000helios --chain-id $CHAINID
-heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID --keyring-backend "test"
+# Register as Validator genesis account and delegate 1000000 ahelios
+heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID
 
 echo "Collecting genesis transaction"
-# Collect genesis tx
-# yes $PASSPHRASE | heliades genesis collect-gentxs
+# Collect genesis Validators tx
 heliades collect-gentxs
 
 echo "Validating genesis"
 # Validate the genesis file
-# heliades genesis validate
 heliades validate-genesis
 
 echo "Setup done!"

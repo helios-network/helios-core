@@ -50,10 +50,9 @@ import (
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	// evmosclient "helios-core/client"
 	chainclient "helios-core/helios-chain/client"
-	"helios-core/client/block"
-	"helios-core/client/debug"
+	"helios-core/helios-chain/client/block"
+	"helios-core/helios-chain/client/debug"
 	evmosserver "helios-core/helios-chain/server"
 	servercfg "helios-core/helios-chain/server/config"
 	srvflags "helios-core/helios-chain/server/flags"

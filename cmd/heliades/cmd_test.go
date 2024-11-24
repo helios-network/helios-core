@@ -9,8 +9,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/stretchr/testify/require"
 
+	heliades "helios-core/cmd/heliades"
 	"helios-core/helios-chain/app"
-	heliades "helios-core/helios-chain/cmd/heliades"
 	"helios-core/helios-chain/utils"
 )
 

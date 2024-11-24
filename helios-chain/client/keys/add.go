@@ -3,6 +3,7 @@ package keys
 import (
 	"bufio"
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,6 +36,8 @@ const (
 	flagMultiSigThreshold = "multisig-threshold"
 	flagNoSort            = "nosort"
 	flagHDPath            = "hd-path"
+	flagFromPrivateKey    = "from-private-key"
+	flagFromMnemonic      = "from-mnemonic"
 
 	mnemonicEntropySize = 256
 )
@@ -42,10 +45,16 @@ const (
 /*
 RunAddCmd
 input
+
   - bip39 mnemonic
+
   - bip39 passphrase
+
   - bip44 path
+
   - local encryption password
+
+    Warning!!! This function overload the cosmos-sdk/client/keys/app.go
 
 output
   - armor encrypted private key (saved to file)
@@ -141,6 +150,31 @@ func RunAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 	}
 
 	pubKey, _ := cmd.Flags().GetString(clientkeys.FlagPublicKey)
+	fromPrivateKey, _ := cmd.Flags().GetString(flagFromPrivateKey)
+	fromMnemonic, _ := cmd.Flags().GetString(flagFromMnemonic)
+	recovering, _ := cmd.Flags().GetBool(flagRecover)
+
+	if fromPrivateKey != "" && (recovering || pubKey != "") {
+		return fmt.Errorf("--from-private-key cannot be used with --recover or --pubkey")
+	}
+
+	if fromPrivateKey != "" {
+		// Décodage de la clé privée hexadécimale
+		pkBytes, err := hex.DecodeString(fromPrivateKey)
+		if err != nil {
+			return fmt.Errorf("invalid private key format: %v", err)
+		}
+
+		// Génération de l'enregistrement dans le keyring
+		k, err := kb.NewAccountFromPrivateKey(name, pkBytes, algo)
+		if err != nil {
+			return fmt.Errorf("could not save key: %v", err)
+		}
+
+		// Impression des informations sur la clé
+		return printCreate(cmd, k, false, "", outputFormat)
+	}
+
 	if pubKey != "" {
 		var pk cryptotypes.PubKey
 		if err := ctx.Codec.UnmarshalInterfaceJSON([]byte(pubKey), &pk); err != nil {
@@ -166,6 +200,19 @@ func RunAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 		return errors.New("cannot set custom bip32 path with ledger")
 	}
 
+	if fromMnemonic != "" { // from mnemonic flag
+		if !bip39.IsMnemonicValid(fromMnemonic) {
+			return errors.New("invalid mnemonic")
+		}
+
+		k, err := kb.NewAccount(name, fromMnemonic, "", hdPath, algo)
+		if err != nil {
+			return err
+		}
+
+		return printCreate(cmd, k, showMnemonic, fromMnemonic, outputFormat)
+	}
+
 	// If we're using ledger, only thing we need is the path and the bech32 prefix.
 	if useLedger {
 		bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
@@ -182,9 +229,8 @@ func RunAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 	// Get bip39 mnemonic
 	var mnemonic, bip39Passphrase string
 
-	recovering, _ := cmd.Flags().GetBool(flagRecover)
 	if recovering {
-		mnemonic, err = input.GetString("Enter your bip39 mnemonic", inBuf)
+		mnemonic, err = input.GetString("Enter your bip39 mnemonic4", inBuf)
 		if err != nil {
 			return err
 		}
