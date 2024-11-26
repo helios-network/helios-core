@@ -24,6 +24,7 @@ func GetQueryCmd() *cobra.Command {
 		CmdGetValsetConfirm(),
 		CmdGetPendingValsetRequest(),
 		CmdGetPendingOutgoingTXBatchRequest(),
+		CmdGetAttestation(),
 		// CmdGetAllOutgoingTXBatchRequest(),
 		// CmdGetOutgoingTXBatchByNonceRequest(),
 		// CmdGetAllAttestationsRequest(),

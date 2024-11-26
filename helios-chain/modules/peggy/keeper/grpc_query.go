@@ -213,6 +213,8 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 	ctx := sdk.UnwrapSDKContext(c)
 	var ret types.QueryLastEventByAddrResponse
 
+	k.Logger(ctx).Info("LastEventByAddr")
+
 	addr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
@@ -227,8 +229,17 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 
 	lastClaimEvent := k.GetLastEventByValidator(ctx, validator)
 	if lastClaimEvent.EthereumEventNonce == 0 && lastClaimEvent.EthereumEventHeight == 0 {
-		// if peggo happens to query too early without a bonded validator even existing
-		return nil, errors.Wrapf(types.ErrNoLastClaimForValidator, "ensure validator has bonded: validator=%v", validator.String())
+		// if peggo happens to query too early without a bonded validator even existing setup the base event
+		lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
+		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
+
+		k.setLastEventByValidator(
+			ctx,
+			validator,
+			lowestObservedNonce,
+			blockHeight,
+		)
+		lastClaimEvent = k.GetLastEventByValidator(ctx, validator)
 	}
 
 	ret.LastClaimEvent = &lastClaimEvent

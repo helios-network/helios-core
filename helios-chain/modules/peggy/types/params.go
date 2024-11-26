@@ -22,7 +22,7 @@ const (
 func DefaultParams() *Params {
 	return &Params{
 		PeggyId:                       "peggy-helios",
-		BridgeEthereumAddress:         common.HexToAddress("0x9F15F76a0D7272901aB1C949c209B76d9B6b9392").Hex(),
+		BridgeEthereumAddress:         common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
 		BridgeChainId:                 56,
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
@@ -39,7 +39,7 @@ func DefaultParams() *Params {
 		CosmosCoinErc20Contract:       "",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		Admins:                        []string{"helios1080sh639k3z9pdz3vm8n8lymwv9zrvn86jwrnc"}, // for whitelisting and blacklisting
+		Admins:                        []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 		ValsetReward:                  sdktypes.Coin{Denom: "helios", Amount: math.NewInt(0)},
 	}
 }

@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"fmt"
+
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/Helios-Chain-Labs/metrics"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -27,9 +30,25 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	// but checking it here gives individual eth signers a chance to retry,
 	// and prevents validators from submitting two claims with the same nonce
 	lastEvent := k.GetLastEventByValidator(ctx, valAddr)
+
+	if lastEvent.EthereumEventNonce == 0 && lastEvent.EthereumEventHeight == 0 {
+		// if peggo happens to query too early without a bonded validator even existing setup the base event
+		lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
+		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
+
+		k.setLastEventByValidator(
+			ctx,
+			valAddr,
+			lowestObservedNonce,
+			blockHeight,
+		)
+		lastEvent = k.GetLastEventByValidator(ctx, valAddr)
+	}
+
 	if claim.GetEventNonce() != lastEvent.EthereumEventNonce+1 {
 		metrics.ReportFuncError(k.svcTags)
-		return nil, types.ErrNonContiguousEventNonce
+		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Peggo Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
+		return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))
 	}
 
 	// Tries to get an attestation with the same eventNonce and claim as the claim that was submitted.
@@ -51,6 +70,10 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 
 	k.SetAttestation(ctx, claim.GetEventNonce(), claim.ClaimHash(), att)
 	k.setLastEventByValidator(ctx, valAddr, claim.GetEventNonce(), claim.GetBlockHeight())
+
+	lastEvent = k.GetLastEventByValidator(ctx, valAddr)
+	k.Logger(ctx).Info(fmt.Sprintf("Attest Update Nonce of Peggo Orchestrator %s newNonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
+
 	attestationId := types.GetAttestationKey(claim.GetEventNonce(), claim.ClaimHash())
 
 	if isNewAttestation {

@@ -1,6 +1,7 @@
 syntax = "proto3";
 package helios.peggy.v1;
 
+import "helios/peggy/v1/attestation.proto";
 import "helios/peggy/v1/genesis.proto";
 import "helios/peggy/v1/params.proto";
 import "helios/peggy/v1/types.proto";
@@ -19,6 +20,11 @@ service Query {
     option (google.api.http).get = "/peggy/v1/params";
   }
 
+  // attestation
+  rpc Attestation(QueryAttestationRequest)
+      returns (QueryAttestationResponse) {
+    option (google.api.http).get = "/peggy/v1/attestation/{nonce}/{claim_hash}";
+  }
   // valset
   rpc CurrentValset(QueryCurrentValsetRequest)
       returns (QueryCurrentValsetResponse) {
@@ -113,6 +119,15 @@ service Query {
 message QueryParamsRequest {}
 message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+message QueryAttestationRequest {
+  uint64 nonce = 1;
+  bytes claim_hash = 2;
+}
+
+message QueryAttestationResponse {
+  Attestation attestation = 1;
 }
 
 message QueryCurrentValsetRequest {}
