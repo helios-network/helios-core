@@ -6,13 +6,14 @@ package keeper
 import (
 	"fmt"
 
+	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 
 	"helios-core/helios-chain/x/erc20/types"
 )
@@ -23,6 +24,7 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
 	authority sdk.AccAddress
+	issou     string
 
 	accountKeeper  types.AccountKeeper
 	bankKeeper     bankkeeper.Keeper
@@ -65,4 +67,8 @@ func NewKeeper(
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+func (k *Keeper) GetStore(ctx sdk.Context) storetypes.KVStore {
+	return ctx.KVStore(k.storeKey)
 }

@@ -5,10 +5,10 @@ package helios.erc20.v1;
 
 import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "helios/erc20/v1/erc20.proto";
-import "helios/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "helios/erc20/v1/erc20.proto"; // Reuse Asset definition from here
+import "helios/erc20/v1/genesis.proto";
 
 option go_package = "helios-core/helios-chain/x/erc20/types";
 
@@ -16,17 +16,23 @@ option go_package = "helios-core/helios-chain/x/erc20/types";
 service Query {
   // TokenPairs retrieves registered token pairs
   rpc TokenPairs(QueryTokenPairsRequest) returns (QueryTokenPairsResponse) {
-    option (google.api.http).get = "/evmos/erc20/v1/token_pairs";
+    option (google.api.http).get = "/helios/erc20/v1/token_pairs";
   }
 
   // TokenPair retrieves a registered token pair
   rpc TokenPair(QueryTokenPairRequest) returns (QueryTokenPairResponse) {
-    option (google.api.http).get = "/evmos/erc20/v1/token_pairs/{token}";
+    option (google.api.http).get = "/helios/erc20/v1/token_pairs/{token}";
   }
 
   // Params retrieves the erc20 module params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/evmos/erc20/v1/params";
+    option (google.api.http).get = "/helios/erc20/v1/params";
+  }
+
+  // WhitelistedAssets retrieves all whitelisted assets
+  rpc WhitelistedAssets(QueryWhitelistedAssetsRequest)
+      returns (QueryWhitelistedAssetsResponse) {
+    option (google.api.http).get = "/helios/erc20/v1/whitelisted_assets";
   }
 }
 
@@ -57,7 +63,7 @@ message QueryTokenPairRequest {
 // QueryTokenPairResponse is the response type for the Query/TokenPair RPC
 // method.
 message QueryTokenPairResponse {
-  // token_pairs returns the info about a registered token pair for the erc20
+  // token_pair returns the info about a registered token pair for the erc20
   // module
   TokenPair token_pair = 1
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
@@ -66,10 +72,26 @@ message QueryTokenPairResponse {
 // QueryParamsRequest is the request type for the Query/Params RPC method.
 message QueryParamsRequest {}
 
-// QueryParamsResponse is the response type for the Query/Params RPC
-// method.
+// QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params are the erc20 module parameters
   Params params = 1
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+// QueryWhitelistedAssetsRequest is the request type for the
+// Query/WhitelistedAssets RPC method.
+message QueryWhitelistedAssetsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryWhitelistedAssetsResponse is the response type for the
+// Query/WhitelistedAssets RPC method.
+message QueryWhitelistedAssetsResponse {
+  // assets is a slice of all whitelisted assets
+  repeated Asset assets = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

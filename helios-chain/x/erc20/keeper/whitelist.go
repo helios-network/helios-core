@@ -11,7 +11,7 @@ import (
 
 // AddAssetToConsensusWhitelist adds an asset to the consensus whitelist
 func (k Keeper) AddAssetToConsensusWhitelist(ctx sdk.Context, asset types.Asset) error {
-	store := ctx.KVStore(k.storeKey)
+	store := k.GetStore(ctx)
 
 	// Check if the asset is already whitelisted
 	if k.IsAssetWhitelisted(ctx, asset.Denom) {

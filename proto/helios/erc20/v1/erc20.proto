@@ -49,7 +49,8 @@ message RegisterCoinProposal {
   // description of the proposal
   string description = 2;
   // metadata slice of the native Cosmos coins
-  repeated cosmos.bank.v1beta1.Metadata metadata = 3 [(gogoproto.nullable) = false];
+  repeated cosmos.bank.v1beta1.Metadata metadata = 3
+      [ (gogoproto.nullable) = false ];
 }
 
 // Deprecated: ProposalMetadata is used to parse a slice of denom metadata and
@@ -57,7 +58,8 @@ message RegisterCoinProposal {
 // existing proposals from store. After that, remove this message.
 message ProposalMetadata {
   // metadata slice of the native Cosmos coins
-  repeated cosmos.bank.v1beta1.Metadata metadata = 1 [(gogoproto.nullable) = false];
+  repeated cosmos.bank.v1beta1.Metadata metadata = 1
+      [ (gogoproto.nullable) = false ];
 }
 
 // Deprecated: RegisterERC20Proposal is a gov Content type to register a token
@@ -94,16 +96,16 @@ message AddNewAssetConsensusProposal {
 
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
-  string title = 1; // Title of the proposal
-  string description = 2; // Description of the proposal
+  string title = 1;          // Title of the proposal
+  string description = 2;    // Description of the proposal
   repeated Asset assets = 3; // List of assets to whitelist
 }
 
 message Asset {
-  string denom = 1; // Asset denomination (e.g., USDT, DAI)
+  string denom = 1;            // Asset denomination (e.g., USDT, DAI)
   string contract_address = 2; // Smart contract address of the asset
-  string chain_id = 3; // Chain ID of the blockchain hosting the asset
-  uint64 decimals = 4; // Number of decimal places
-  uint64 base_weight = 5; // Base weight for rewards calculation
-  string metadata = 6; // Additional metadata (e.g., description or URL)
+  string chain_id = 3;         // Chain ID of the blockchain hosting the asset
+  uint64 decimals = 4;         // Number of decimal places
+  uint64 base_weight = 5;      // Base weight for rewards calculation
+  string metadata = 6;         // Additional metadata (e.g., description or URL)
 }

@@ -12,6 +12,7 @@ import (
 
 // NewErc20ProposalHandler creates a governance handler to manage new erc20 proposal types.
 func NewErc20ProposalHandler(k keeper.Keeper) govtypes.Handler {
+
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c := content.(type) {
 		case *types.AddNewAssetConsensusProposal:
@@ -28,6 +29,7 @@ func handleAddNewAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, p *typ
 		return err
 	}
 
+	//TODO: CHECK IF ASSET EXIST
 	// Iterate over the assets in the proposal and add them to the consensus whitelist
 	for _, asset := range p.Assets {
 		if err := k.AddAssetToConsensusWhitelist(ctx, *asset); err != nil {

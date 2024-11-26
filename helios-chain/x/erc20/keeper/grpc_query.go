@@ -9,10 +9,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	evmostypes "helios-core/helios-chain/types"
+
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	evmostypes "helios-core/helios-chain/types"
 
 	"helios-core/helios-chain/x/erc20/types"
 )
@@ -85,4 +86,36 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: params}, nil
+}
+
+// WhitelistedAssets returns all whitelisted assets with optional pagination
+func (k Keeper) WhitelistedAssets(c context.Context, req *types.QueryWhitelistedAssetsRequest) (*types.QueryWhitelistedAssetsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	// Create a prefix store for whitelisted assets
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.WhitelistPrefix))
+
+	var assets []types.Asset
+
+	// Paginate through the whitelisted assets
+	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
+		var asset types.Asset
+		if err := k.cdc.Unmarshal(value, &asset); err != nil {
+			return err
+		}
+		assets = append(assets, asset)
+		return nil
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryWhitelistedAssetsResponse{
+		Assets:     assets,
+		Pagination: pageRes,
+	}, nil
 }

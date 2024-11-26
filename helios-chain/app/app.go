@@ -2,6 +2,7 @@ package app
 
 import (
 	"io"
+
 	// "io/fs"
 	// "net/http"
 	"os"
@@ -280,6 +281,7 @@ var (
 		permissionsmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		wasmx.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -1241,19 +1243,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	// No more routes can be added
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// register the proposal types
-	govRouter := govv1beta1.NewRouter().
-		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
-		AddRoute(exchangetypes.RouterKey, exchange.NewExchangeProposalHandler(app.ExchangeKeeper)).
-		AddRoute(oracletypes.RouterKey, oracle.NewOracleProposalHandler(app.OracleKeeper)).
-		AddRoute(auctiontypes.RouterKey, auction.NewAuctionProposalHandler(app.AuctionKeeper)).
-		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
-		AddRoute(wasmxtypes.RouterKey, wasmx.NewWasmxProposalHandler(app.WasmxKeeper, wasmkeeper.NewLegacyWasmProposalHandler(app.WasmKeeper, GetEnabledProposals()))) //nolint:staticcheck // still using legacy governance, will need to migrate and use the new gov v1 later
-
-	app.GovKeeper.SetLegacyRouter(govRouter)
 	app.ExchangeKeeper.SetWasmKeepers(app.WasmKeeper, app.WasmxKeeper)
 	app.ExchangeKeeper.SetGovKeeper(app.GovKeeper)
 
@@ -1283,16 +1272,17 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
 		// FIX: Temporary solution to solve keeper interdependency while new precompile module
 		// is being developed.
-		&app.Erc20Keeper,
+		app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 	app.EvmKeeper = evmKeeper
 
-	app.Erc20Keeper = erc20keeper.NewKeeper(
+	erc20Keeper := erc20keeper.NewKeeper(
 		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
+	app.Erc20Keeper = erc20Keeper
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
@@ -1316,6 +1306,19 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		),
 	)
 
+	// register the proposal types
+	govRouter := govv1beta1.NewRouter().
+		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
+		AddRoute(exchangetypes.RouterKey, exchange.NewExchangeProposalHandler(app.ExchangeKeeper)).
+		AddRoute(oracletypes.RouterKey, oracle.NewOracleProposalHandler(app.OracleKeeper)).
+		AddRoute(auctiontypes.RouterKey, auction.NewAuctionProposalHandler(app.AuctionKeeper)).
+		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
+		AddRoute(wasmxtypes.RouterKey, wasmx.NewWasmxProposalHandler(app.WasmxKeeper, wasmkeeper.NewLegacyWasmProposalHandler(app.WasmKeeper, GetEnabledProposals()))) //nolint:staticcheck // still using legacy governance, will need to migrate and use the new gov v1 later
+
+	app.GovKeeper.SetLegacyRouter(govRouter)
 	return oracleModule
 }
 
@@ -1575,6 +1578,7 @@ func beginBlockerOrder() []string {
 		exchangetypes.ModuleName,
 		oracletypes.ModuleName,
 		ocrtypes.ModuleName,
+		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
 		permissionsmodule.ModuleName,
 		ibchookstypes.ModuleName,
