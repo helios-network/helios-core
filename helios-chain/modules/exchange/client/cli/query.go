@@ -29,9 +29,9 @@ func GetQueryCmd() *cobra.Command {
 		GetExchangeParamsCmd(),
 		GetSubaccountDeposits(),
 		GetSubaccountDeposit(),
-		GetEthAddressFromInjAddressCmd(),
-		GetInjAddressFromEthAddressCmd(),
-		GetSubaccountIDFromInjAddressCmd(),
+		GetEthAddressFromHeliosAddressCmd(),
+		GetHeliosAddressFromEthAddressCmd(),
+		GetSubaccountIDFromHeliosAddressCmd(),
 		GetAllBinaryOptionsMarketsCmd(),
 		GetActiveStakeGrantForGranteeCmd(),
 		GetGranterAuthorizationsCmd(),
@@ -219,12 +219,12 @@ func GetExchangeParamsCmd() *cobra.Command {
 	return cmd
 }
 
-// GetEthAddressFromInjAddressCmd returns the Injective address for an account given its hex-encoded Ethereum address
-func GetEthAddressFromInjAddressCmd() *cobra.Command {
+// GetEthAddressFromHeliosAddressCmd returns the Helios address for an account given its hex-encoded Ethereum address
+func GetEthAddressFromHeliosAddressCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "eth-address-from-inj-address [Injective address]",
-		Short: "Returns the Ethereum address given an inj-prefixed Cosmos address",
-		Long:  "Returns the Ethereum address given an inj-prefixed Cosmos address",
+		Use:   "eth-address-from-helios-address [Helios address]",
+		Short: "Returns the Ethereum address given an helios-prefixed Cosmos address",
+		Long:  "Returns the Ethereum address given an helios-prefixed Cosmos address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -241,12 +241,12 @@ func GetEthAddressFromInjAddressCmd() *cobra.Command {
 	return cmd
 }
 
-// GetSubaccountIDFromInjAddressCmd returns the default subaccount ID for an account given its INJ address
-func GetSubaccountIDFromInjAddressCmd() *cobra.Command {
+// GetSubaccountIDFromHeliosAddressCmd returns the default subaccount ID for an account given its HELIOS address
+func GetSubaccountIDFromHeliosAddressCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "subaccount-id-from-inj-address [Injective address]",
-		Short: "Returns the default Subaccount ID given an inj-prefixed Cosmos address",
-		Long:  "Returns the default Subaccount ID given an inj-prefixed Cosmos address",
+		Use:   "subaccount-id-from-helios-address [Helios address]",
+		Short: "Returns the default Subaccount ID given an helios-prefixed Cosmos address",
+		Long:  "Returns the default Subaccount ID given an helios-prefixed Cosmos address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -264,12 +264,12 @@ func GetSubaccountIDFromInjAddressCmd() *cobra.Command {
 	return cmd
 }
 
-// GetInjAddressFromEthAddressCmd returns the Ethereum address for an account given its INJ address
-func GetInjAddressFromEthAddressCmd() *cobra.Command {
+// GetHeliosAddressFromEthAddressCmd returns the Ethereum address for an account given its HELIOS address
+func GetHeliosAddressFromEthAddressCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "inj-address-from-eth-address [Ethereum address]",
-		Short: "Returns the INJ address given an hex-encoded Ethereum address",
-		Long:  "Returns the INJ address given an hex-encoded Ethereum address",
+		Use:   "helios-address-from-eth-address [Ethereum address]",
+		Short: "Returns the HELIOS address given an hex-encoded Ethereum address",
+		Long:  "Returns the HELIOS address given an hex-encoded Ethereum address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

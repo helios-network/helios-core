@@ -50,7 +50,7 @@
       "actionType": "mintCoin",
       "accountIndex": 4,
       "amount": {
-        "denom": "inj",
+        "denom": "helios",
         "amount": 100
       }
     },

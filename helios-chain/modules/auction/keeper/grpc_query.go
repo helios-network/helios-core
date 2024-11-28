@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/auction/types"
 	chaintypes "helios-core/helios-chain/types"
@@ -41,9 +41,9 @@ func (k *Keeper) CurrentAuctionBasket(c context.Context, _ *types.QueryCurrentAu
 	currentBasketCoins := make([]sdk.Coin, 0)
 	for _, coin := range coins {
 		// We subtract the current highest bid amount from the basket
-		if coin.Denom == chaintypes.InjectiveCoin {
+		if coin.Denom == chaintypes.HeliosCoin {
 			coin = coin.SubAmount(lastBid.Amount.Amount)
-			maxCap := k.GetParams(ctx).InjBasketMaxCap
+			maxCap := k.GetParams(ctx).HeliosBasketMaxCap
 
 			if coin.Amount.GT(maxCap) {
 				coin.Amount = maxCap

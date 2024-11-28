@@ -111,7 +111,7 @@ func NewInstantSpotMarketLaunchTxCmd() *cobra.Command {
 		},
 		cli.ArgsMapping{},
 	)
-	cmd.Example = `tx exchange instant-spot-market-launch INJ/ATOM uinj uatom --min-price-tick-size=1000000000 --min-quantity-tick-size=1000000000000000 --min-notional=1`
+	cmd.Example = `tx exchange instant-spot-market-launch HELIOS/ATOM uhelios uatom --min-price-tick-size=1000000000 --min-quantity-tick-size=1000000000000000 --min-notional=1`
 	cmd.Flags().String(FlagMinPriceTickSize, "1000000000", "min price tick size")
 	cmd.Flags().String(FlagMinQuantityTickSize, "1000000000000000", "min quantity tick size")
 	cmd.Flags().String(FlagMinNotional, "0", "min notional")
@@ -403,7 +403,7 @@ func NewSpotMarketUpdateParamsProposalTxCmd() *cobra.Command {
 			},
 			"InitialDeposit": cli.Flag{Flag: govcli.FlagDeposit},
 		}, cli.ArgsMapping{})
-	cmd.Example = `tx exchange update-spot-market-params --market-id="0xacdd4f9cb90ecf5c4e254acbf65a942f562ca33ba718737a93e5cb3caadec3aa" --title="Spot market params update" --description="XX" --deposit="1000000000000000000inj"`
+	cmd.Example = `tx exchange update-spot-market-params --market-id="0xacdd4f9cb90ecf5c4e254acbf65a942f562ca33ba718737a93e5cb3caadec3aa" --title="Spot market params update" --description="XX" --deposit="1000000000000000000helios"`
 
 	cmd.Flags().String(FlagMarketID, "", "Spot market ID")
 	cmd.Flags().String(FlagTicker, "", "market ticker")
@@ -442,15 +442,15 @@ func NewSpotMarketLaunchProposalTxCmd() *cobra.Command {
 			"AdminPermissions":    cli.Flag{Flag: FlagAdminPermissions},
 			"InitialDeposit":      cli.Flag{Flag: govcli.FlagDeposit},
 		}, cli.ArgsMapping{})
-	cmd.Example = `tx exchange spot-market-launch INJ/ATOM uinj uatom \
+	cmd.Example = `tx exchange spot-market-launch HELIOS/ATOM uhelios uatom \
 			--min-price-tick-size=1000000000 \
 			--min-quantity-tick-size=1000000000000000 \
 			--min-notional=1000000000 \
 			--maker-fee-rate="0.001" \
 			--taker-fee-rate="0.001" \
-			--title="INJ/ATOM spot market" \
+			--title="HELIOS/ATOM spot market" \
 			--description="XX" \
-			--deposit="1000000000000000000inj"`
+			--deposit="1000000000000000000helios"`
 
 	cmd.Flags().String(FlagMakerFeeRate, "", "maker fee rate")
 	cmd.Flags().String(FlagTakerFeeRate, "", "taker fee rate")
@@ -494,7 +494,7 @@ func NewExchangeEnableProposalTxCmd() *cobra.Command {
 			},
 		},
 	)
-	cmd.Example = `tx exchange spot --title="Enable Spot Exchange" --description="Enable Spot Exchange" --deposit="1000000000000000000inj"`
+	cmd.Example = `tx exchange spot --title="Enable Spot Exchange" --description="Enable Spot Exchange" --deposit="1000000000000000000helios"`
 	cliflags.AddGovProposalFlags(cmd)
 	return cmd
 }
@@ -538,9 +538,9 @@ func NewPerpetualMarketLaunchProposalTxCmd() *cobra.Command {
 			"InitialDeposit":         cli.Flag{Flag: govcli.FlagDeposit},
 		}, cli.ArgsMapping{})
 	cmd.Example = `tx exchange propose-perpetual-market
-			--ticker="INJ/USDT" \
+			--ticker="HELIOS/USDT" \
 			--quote-denom="usdt" \
-			--oracle-base="inj" \
+			--oracle-base="helios" \
 			--oracle-quote="usdt" \
 			--oracle-type="pricefeed" \
 			--oracle-scale-factor="0" \
@@ -551,9 +551,9 @@ func NewPerpetualMarketLaunchProposalTxCmd() *cobra.Command {
 			--min-price-tick-size="0.0001" \
 			--min-quantity-tick-size="0.001" \
 			--min-notional="1000000000" \
-			--title="INJ perpetual market" \
+			--title="HELIOS perpetual market" \
 			--description="XX" \
-			--deposit="1000000000000000000inj"`
+			--deposit="1000000000000000000helios"`
 	cmd.Flags().String(FlagTicker, "", "ticker")
 	cmd.Flags().String(FlagQuoteDenom, "", "quote denom")
 	cmd.Flags().String(FlagOracleBase, "", "oracle base")
@@ -583,9 +583,9 @@ func NewExpiryFuturesMarketLaunchProposalTxCmd() *cobra.Command {
 
 		Example:
 		$ %s tx exchange propose-expiry-futures-market \
-			--ticker="INJ/USDT-0625" \
+			--ticker="HELIOS/USDT-0625" \
 			--quote-denom="usdt" \
-			--oracle-base="inj" \
+			--oracle-base="helios" \
 			--oracle-quote="usdt-0625" \
 			--oracle-type="pricefeed" \
 			--oracle-scale-factor="0" \
@@ -597,9 +597,9 @@ func NewExpiryFuturesMarketLaunchProposalTxCmd() *cobra.Command {
 			--min-price-tick-size="0.0001" \
 			--min-quantity-tick-size="0.001" \
 			--min-notional="1" \
-			--title="INJ/ATOM expiry futures market" \
+			--title="HELIOS/ATOM expiry futures market" \
 			--description="XX" \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--from=genesis \
 			--keyring-backend=file \
 			--yes
@@ -768,9 +768,9 @@ func NewInstantPerpetualMarketLaunchTxCmd() *cobra.Command {
 
 		Example:
 		$ %s tx exchange instant-perpetual-market-launch \
-			--ticker="INJ/USDT-0625" \
+			--ticker="HELIOS/USDT-0625" \
 			--quote-denom="usdt" \
-			--oracle-base="inj" \
+			--oracle-base="helios" \
 			--oracle-quote="usdt" \
 			--oracle-type="pricefeed" \
 			--oracle-scale-factor="0" \
@@ -1331,9 +1331,9 @@ func NewInstantExpiryFuturesMarketLaunchTxCmd() *cobra.Command {
 
 		Example:
 		$ %s tx exchange instant-expiry-futures-market-launch \
-			--ticker="INJ/USDT-0625" \
+			--ticker="HELIOS/USDT-0625" \
 			--quote-denom="usdt" \
-			--oracle-base="inj" \
+			--oracle-base="helios" \
 			--oracle-quote="usdt-0625" \
 			--oracle-type="pricefeed" \
 			--oracle-scale-factor="0" \
@@ -1528,7 +1528,7 @@ func TradingRewardCampaignLaunchProposalTxCmd() *cobra.Command {
 						"start_timestamp": 100,
 						"max_campaign_rewards": [
 							{
-								"denom": "inj",
+								"denom": "helios",
 								"amount": "1000000"
 							}
 						]
@@ -1687,7 +1687,7 @@ func TradingRewardPointsUpdateProposalTxCmd() *cobra.Command {
 				"description": "description",
 				"reward_point_updates": [
 					{
-						"account_address": "inj1wfawuv6fslzjlfa4v7exv27mk6rpfeyvhvxchc",
+						"account_address": "helios1wfawuv6fslzjlfa4v7exv27mk6rpfeyvhvxchc",
 						"new_points": "150.000000000000000000"
 					}
 				]
@@ -1748,7 +1748,7 @@ func BatchCommunityPoolSpendProposalTxCmd() *cobra.Command {
 		$ %s tx exchange batch-community-pool-spend-proposal \
 		    --proposal="path/to/batch-community-pool-spend-proposal.json" \
 			--from=genesis \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--keyring-backend=file \
 			--yes
 
@@ -1760,10 +1760,10 @@ func BatchCommunityPoolSpendProposalTxCmd() *cobra.Command {
     {
       "title": "title",
       "description": "description",
-      "recipient": "inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz",
+      "recipient": "helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz",
       "amount": [
         {
-          "denom": "inj",
+          "denom": "helios",
           "amount": "1000000"
         }
       ]
@@ -1825,7 +1825,7 @@ func FeeDiscountProposalTxCmd() *cobra.Command {
 		$ %s tx exchange fee-discount-proposal \
 		    --proposal="path/to/fee-discount-proposal.json" \
 			--from=genesis \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--keyring-backend=file \
 			--yes
 
@@ -1910,7 +1910,7 @@ func NewBatchExchangeModificationProposalTxCmd() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Submit a proposal for batch exchange modifications.
 Example:
-$ %s tx gov batch-exchange-modifications-proposal --proposal="path/to/proposal.json" --from=mykey --deposit=1000000inj
+$ %s tx gov batch-exchange-modifications-proposal --proposal="path/to/proposal.json" --from=mykey --deposit=1000000helios
 
 Where proposal.json contains:
 {
@@ -2070,7 +2070,7 @@ func NewDerivativeMarketParamUpdateProposalTxCmd() *cobra.Command {
 
 		Example:
 		$ %s tx exchange update-derivative-market-params \
-			--admin="inj1k2z3chspuk9wsufle69svmtmnlc07rvw9djya7" \
+			--admin="helios1k2z3chspuk9wsufle69svmtmnlc07rvw9djya7" \
 			--admin-permissions=1 \
 			--market-id="0x000001" \
 			--ticker="BTC/USDT PERP" \
@@ -2089,9 +2089,9 @@ func NewDerivativeMarketParamUpdateProposalTxCmd() *cobra.Command {
 			--hourly-interest-rate="0.01" \
 			--hourly-funding-rate-cap="0.00625" \
 			--market-status="Active" \
-			--title="INJ derivative market params update" \
+			--title="HELIOS derivative market params update" \
 			--description="XX" \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--from=genesis \
 			--keyring-backend=file \
 			--yes
@@ -2309,7 +2309,7 @@ func NewSubaccountTransferTxCmd() *cobra.Command {
 		Long: `Submit message to send coins between subaccounts.
 
 		Example:
-		$ %s tx exchange subaccount-transfer 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1000000000000000000000001 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1000000000000000000000002 10000inj --from=genesis --keyring-backend=file --yes
+		$ %s tx exchange subaccount-transfer 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1000000000000000000000001 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1000000000000000000000002 10000helios --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -2357,9 +2357,9 @@ func NewMarketForcedSettlementTxCmd() *cobra.Command {
 		$ %s tx exchange force-settle-market \
 			--market-id="0x000001" \
 			--settlement-price="10000" \
-			--title="INJ derivative market params update" \
+			--title="HELIOS derivative market params update" \
 			--description="XX" \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--from=genesis \
 			--keyring-backend=file \
 			--yes
@@ -2447,7 +2447,7 @@ func NewUpdateDenomDecimalsProposalTxCmd() *cobra.Command {
 			--decimals="18,6" \
 			--title="Decimals update" \
 			--description="XX" \
-			--deposit="1000000000000000000inj" \
+			--deposit="1000000000000000000helios" \
 			--from=genesis \
 			--keyring-backend=file \
 			--yes
@@ -2697,7 +2697,7 @@ func NewDepositTxCmd() *cobra.Command {
 		Long: `Submit message to transfer coins from the sender's bank balance into subaccount's exchange deposits.
 
 		Example:
-		$ %s tx exchange deposit 10000inj 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000001 --from=genesis --keyring-backend=file --yes
+		$ %s tx exchange deposit 10000helios 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000001 --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -2742,7 +2742,7 @@ func NewWithdrawTxCmd() *cobra.Command {
 		Long: `Submit message to withdraw coins from the default subaccount's deposits to the user's bank balance.
 
 		Example:
-		$ %s tx exchange withdraw 10000inj --from=genesis --keyring-backend=file --yes
+		$ %s tx exchange withdraw 10000helios --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -2785,7 +2785,7 @@ func NewExternalTransferTxCmd() *cobra.Command {
 		Long: `Submit message to send coins from the sender's default subaccount to another external subaccount",
 
 		Example:
-		$ %s tx exchange external-transfer 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1000000000000000000000001 10000inj --from=genesis --keyring-backend=file --yes
+		$ %s tx exchange external-transfer 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1000000000000000000000001 10000helios --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -2832,7 +2832,7 @@ func NewAuthzTxCmd() *cobra.Command {
 		Long: `Authorize grantee to execute allowed msgs in allowed markets via allowed subaccount.
 
 		Example:
-		$ %s tx exchange authz inj1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000 MsgCreateSpotLimitOrder 0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0  --from=genesis --keyring-backend=file --yes
+		$ %s tx exchange authz helios1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000 MsgCreateSpotLimitOrder 0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0  --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -2893,7 +2893,7 @@ func NewBatchUpdateAuthzTxCmd() *cobra.Command {
 		Long: `Authorize grantee to execute MsgBatchUpdateOrders in allowed markets via allowed subaccount.
 
 		Example:
-		$ %s tx exchange authz batch-update inj1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000 0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0 0xfd30930cb70d176c37d0c405cde055e551c5b1116b7049a88bcf821766b62d62 --from=genesis --keyring-backend=file --yes
+		$ %s tx exchange authz batch-update helios1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000 0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0 0xfd30930cb70d176c37d0c405cde055e551c5b1116b7049a88bcf821766b62d62 --from=genesis --keyring-backend=file --yes
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -3076,8 +3076,8 @@ func NewStakeGrantAuthorizationTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "authorize-stake-grant <stake_grants.json>",
 		Args:  cobra.ExactArgs(1),
-		Short: "Authorize grantee a given amount of staked INJ tokens for fee tier discounts",
-		Long: `Authorize grantee a given amount of staked INJ tokens for fee tier discounts.
+		Short: "Authorize grantee a given amount of staked HELIOS tokens for fee tier discounts",
+		Long: `Authorize grantee a given amount of staked HELIOS tokens for fee tier discounts.
 
 		Example:
 		$ %s tx exchange authorize-stake-grant stake_grants.json \ 
@@ -3087,15 +3087,15 @@ func NewStakeGrantAuthorizationTxCmd() *cobra.Command {
 				"grants":
 				[
 					{
-						"grantee": "inj1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs",
+						"grantee": "helios1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs",
 						"amount": "1000000000"
 					},
 					{
-						"grantee": "inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c",
+						"grantee": "helios17vytdwqczqz72j65saukplrktd4gyfme5agf6c",
 						"amount": "321000"
 					},
 					{   
-						"grantee": "inj1hdvy6tl89llqy3ze8lv6mz5qh66sx9enn0jxg6",
+						"grantee": "helios1hdvy6tl89llqy3ze8lv6mz5qh66sx9enn0jxg6",
 						"amount": "20"
 					}
 				]
@@ -3137,7 +3137,7 @@ func NewStakeGrantActivationTxCmd() *cobra.Command {
 		Long: `Activate a stake grant previously authorized by the granter. \
 
 		Example:
-		$ %s tx exchange activate-stake-grant inj1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs 
+		$ %s tx exchange activate-stake-grant helios1jcltmuhplrdcwp7stlr4hlhlhgd4htqhe4c0cs 
 			--yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

@@ -20,12 +20,12 @@ message Params {
   option (gogoproto.equal) = true;
   option (amino.name) = "exchange/Params";
 
-  // spot_market_instant_listing_fee defines the expedited fee in INJ required
-  // to create a spot market by bypassing governance
+  // spot_market_instant_listing_fee defines the expedited fee in HELIOS
+  // required to create a spot market by bypassing governance
   cosmos.base.v1beta1.Coin spot_market_instant_listing_fee = 1
       [ (gogoproto.nullable) = false ];
 
-  // derivative_market_instant_listing_fee defines the expedited fee in INJ
+  // derivative_market_instant_listing_fee defines the expedited fee in HELIOS
   // required to create a derivative market by bypassing governance
   cosmos.base.v1beta1.Coin derivative_market_instant_listing_fee = 2
       [ (gogoproto.nullable) = false ];
@@ -104,9 +104,9 @@ message Params {
   // active orders a subaccount can have for a given orderbook side
   uint32 max_derivative_order_side_count = 14;
 
-  // inj_reward_staked_requirement_threshold defines the threshold on INJ
-  // rewards after which one also needs staked INJ to receive more
-  string inj_reward_staked_requirement_threshold = 15 [
+  // helios_reward_staked_requirement_threshold defines the threshold on HELIOS
+  // rewards after which one also needs staked HELIOS to receive more
+  string helios_reward_staked_requirement_threshold = 15 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
@@ -121,8 +121,8 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // binary_options_market_instant_listing_fee defines the expedited fee in INJ
-  // required to create a derivative market by bypassing governance
+  // binary_options_market_instant_listing_fee defines the expedited fee in
+  // HELIOS required to create a derivative market by bypassing governance
   cosmos.base.v1beta1.Coin binary_options_market_instant_listing_fee = 18
       [ (gogoproto.nullable) = false ];
   // atomic_market_order_access_level defines the required access permissions
@@ -169,8 +169,8 @@ message Params {
   // List of addresses that are allowed to perform exchange admin operations
   repeated string exchange_admins = 27;
 
-  // inj_auction_max_cap defines the maximum cap for INJ sent to auction
-  string inj_auction_max_cap = 28 [
+  // helios_auction_max_cap defines the maximum cap for HELIOS sent to auction
+  string helios_auction_max_cap = 28 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
@@ -195,7 +195,7 @@ message MarketFeeMultiplier {
   ];
 }
 
-// An object describing a derivative market in the Injective Futures Protocol.
+// An object describing a derivative market in the Helios Futures Protocol.
 message DerivativeMarket {
   option (gogoproto.goproto_getters) = false;
 
@@ -270,7 +270,7 @@ message DerivativeMarket {
   // level of admin permissions
   uint32 admin_permissions = 19;
 }
-// An object describing a binary options market in Injective Protocol.
+// An object describing a binary options market in Helios Protocol.
 message BinaryOptionsMarket {
   option (gogoproto.goproto_getters) = false;
 

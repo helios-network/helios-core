@@ -1662,7 +1662,7 @@ func (msg *MsgPrivilegedExecuteContract) ValidateBasic() error {
 }
 
 func (msg *MsgPrivilegedExecuteContract) HasEmptyFunds() bool {
-	return msg.Funds == "" || msg.Funds == "0" || msg.Funds == "0inj"
+	return msg.Funds == "" || msg.Funds == "0" || msg.Funds == "0helios"
 }
 
 func (msg *MsgPrivilegedExecuteContract) GetSignBytes() []byte {

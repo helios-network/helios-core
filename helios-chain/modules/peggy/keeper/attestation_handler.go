@@ -10,7 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"helios-core/helios-chain/modules/peggy/types"
-	"github.com/InjectiveLabs/metrics"
+
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 // AttestationHandler processes `observed` Attestations

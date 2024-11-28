@@ -1,88 +1,95 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package main
 
 import (
-	"context"
+	"errors"
+	"fmt"
 	"io"
-	"math/big"
 	"os"
 	"path/filepath"
+	"time"
 
-	"helios-core/helios-chain/app/ante/typeddata"
-	injcodectypes "helios-core/helios-chain/codec/types"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
-	tmcfg "github.com/cometbft/cometbft/config"
-	tmcli "github.com/cometbft/cometbft/libs/cli"
-
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
+	cmtcfg "github.com/cometbft/cometbft/config"
+	cmtcli "github.com/cometbft/cometbft/libs/cli"
+	dbm "github.com/cosmos/cosmos-db"
+
+	evmostypes "helios-core/helios-chain/types"
+
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/snapshots"
 	snapshottypes "cosmossdk.io/store/snapshots/types"
 	storetypes "cosmossdk.io/store/types"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/config"
-	"github.com/cosmos/cosmos-sdk/client/debug"
+	clientcfg "github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
+
+	chainclient "helios-core/helios-chain/client"
+	"helios-core/helios-chain/client/block"
+	"helios-core/helios-chain/client/debug"
+	evmosserver "helios-core/helios-chain/server"
+	servercfg "helios-core/helios-chain/server/config"
+	srvflags "helios-core/helios-chain/server/flags"
+
+	"helios-core/helios-chain/crypto/hd"
+
+	"helios-core/helios-chain/app"
+	evmoskr "helios-core/helios-chain/crypto/keyring"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmcli "github.com/CosmWasm/wasmd/x/wasm/client/cli"
-
-	clientcli "helios-core/cmd/heliades/config/cli"
-	"helios-core/helios-chain/app"
-	chainclient "helios-core/helios-chain/client"
-	"helios-core/helios-chain/crypto/hd"
-	injectivekr "helios-core/helios-chain/crypto/keyring"
-	"helios-core/version"
 )
 
-// NewRootCmd creates a new root command for simd. It is called once in the
+const EnvPrefix = "helios"
+
+type emptyAppOptions struct{}
+
+func (ao emptyAppOptions) Get(_ string) interface{} { return nil }
+
+// NewRootCmd creates a new root command for heliades. It is called once in the
 // main function.
-func NewRootCmd() *cobra.Command {
+func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
-	// note, this is not necessary when using app wiring, as depinject can be directly used (see root_v2.go)
-	tempApp := app.NewInjectiveApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
-	encodingConfig := injcodectypes.EncodingConfig{
+	// and the CLI options for the modules
+	// add keyring to autocli opts
+	tempApp := app.NewHeliosApp(
+		log.NewNopLogger(),
+		dbm.NewMemDB(),
+		nil, true,
+		emptyAppOptions{},
+	)
+	encodingConfig := sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
-		TxConfig:          tempApp.TxConfig(),
+		TxConfig:          tempApp.GetTxConfig(),
 		Amino:             tempApp.LegacyAmino(),
 	}
-
-	// set global cdc for typed data (Ledger signing)
-	typeddata.SetCodec(encodingConfig.Amino, codec.NewProtoCodec(encodingConfig.InterfaceRegistry))
-
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Codec).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -93,14 +100,13 @@ func NewRootCmd() *cobra.Command {
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(app.DefaultNodeHome).
-		WithViper("injectived").
-		WithKeyringOptions(injectivekr.EthSecp256k1Option()).
-		WithPreprocessTxHook(injectivekr.LedgerPreprocessTxHook)
+		WithKeyringOptions(evmoskr.Option()).
+		WithViper(EnvPrefix).
+		WithLedgerHasProtobuf(true)
 
 	rootCmd := &cobra.Command{
-		Use:           "heliades",
-		Short:         "Helios Daemon",
-		SilenceErrors: true,
+		Use:   "heliades",
+		Short: "Helios Daemon",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
@@ -112,7 +118,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			initClientCtx, err = clientcli.ReadFromClientConfig(initClientCtx)
+			initClientCtx, err = clientcfg.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
 			}
@@ -121,12 +127,15 @@ func NewRootCmd() *cobra.Command {
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL. This sign mode
 			// is only available if the client is online.
 			if !initClientCtx.Offline {
+				enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL) //nolint:gocritic
 				txConfigOpts := tx.ConfigOptions{
-					EnabledSignModes:           append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL),
-					TextualCoinMetadataQueryFn: authtxconfig.NewGRPCCoinMetadataQueryFn(initClientCtx),
+					EnabledSignModes:           enabledSignModes,
+					TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
 				}
-
-				txConfig, err := tx.NewTxConfigWithOptions(initClientCtx.Codec, txConfigOpts)
+				txConfig, err := tx.NewTxConfigWithOptions(
+					initClientCtx.Codec,
+					txConfigOpts,
+				)
 				if err != nil {
 					return err
 				}
@@ -138,137 +147,96 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			return InterceptConfigsPreRunHandler(cmd)
+			// If the chainID was set in a flag or in the client.toml file, we can init the config here.
+			// NOTE: if it is not set, it will default to "" and the function will be a no-op call.
+			if err := app.InitializeAppConfiguration(initClientCtx.ChainID); err != nil {
+				return fmt.Errorf("failed to initialize app configuration: %w", err)
+			}
+
+			// override the app and tendermint configuration
+			customAppTemplate, customAppConfig := initAppConfig()
+			customTMConfig := initTendermintConfig()
+
+			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig.TxConfig, tempApp.BasicModuleManager, encodingConfig)
+	cfg := sdk.GetConfig()
+	cfg.Seal()
 
-	// add keyring to autocli opts
+	a := appCreator{encodingConfig}
+	rootCmd.AddCommand(
+		genutilcli.InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
+		// evmosclient.ValidateChainID(
+		// 	InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
+		// ),
+		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
+			app.DefaultNodeHome,
+			genutiltypes.DefaultMessageValidator,
+			tempApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
+		),
+		MigrateGenesisCmd(),
+		genutilcli.GenTxCmd(
+			tempApp.BasicModuleManager, tempApp.GetTxConfig(),
+			banktypes.GenesisBalancesIterator{},
+			app.DefaultNodeHome,
+			tempApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
+		),
+		genutilcli.ValidateGenesisCmd(tempApp.BasicModuleManager),
+		AddGenesisAccountCmd(app.DefaultNodeHome),
+		cmtcli.NewCompletionCmd(rootCmd, true),
+		NewTestnetCmd(tempApp.BasicModuleManager, banktypes.GenesisBalancesIterator{}),
+		debug.Cmd(),
+		confixcmd.ConfigCommand(),
+		pruning.Cmd(a.newApp, app.DefaultNodeHome),
+		snapshot.Cmd(a.newApp),
+		block.Cmd(),
+	)
+
+	changeSetCmd := ChangeSetCmd()
+	if changeSetCmd != nil {
+		rootCmd.AddCommand(changeSetCmd)
+	}
+
+	evmosserver.AddCommands(
+		rootCmd,
+		evmosserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
+		a.appExport,
+		addModuleInitFlags,
+	)
+
+	wasmcli.ExtendUnsafeResetAllCmd(rootCmd)
+
+	// add keybase, auxiliary RPC, query, and tx child commands
+	rootCmd.AddCommand(
+		sdkserver.StatusCommand(),
+		queryCommand(),
+		txCommand(),
+		// evmosclient.KeyCommands(app.DefaultNodeHome),
+		chainclient.KeyCommands(app.DefaultNodeHome),
+	)
+	rootCmd, err := srvflags.AddTxFlags(rootCmd)
+	if err != nil {
+		panic(err)
+	}
+
+	// add rosetta
+	rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
+
 	autoCliOpts := tempApp.AutoCliOpts()
-	initClientCtx, _ = config.ReadDefaultValuesFromDefaultClientConfig(initClientCtx)
-	autoCliOpts.Keyring, _ = keyring.NewAutoCLIKeyring(initClientCtx.Keyring)
+	initClientCtx, _ = clientcfg.ReadFromClientConfig(initClientCtx)
 	autoCliOpts.ClientCtx = initClientCtx
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
 	}
 
-	return rootCmd
+	return rootCmd, encodingConfig
 }
 
-// Execute executes the root command.
-func Execute(rootCmd *cobra.Command) error {
-	// Create and set a client.Context on the command's Context. During the pre-run
-	// of the root command, a default initialized client.Context is provided to
-	// seed child command execution with values such as AccountRetriver, Keyring,
-	// and a Tendermint RPC. This requires the use of a pointer reference when
-	// getting and setting the client.Context. Ideally, we utilize
-	// https://github.com/spf13/cobra/pull/1118.
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, client.ClientContextKey, &client.Context{})
-	ctx = context.WithValue(ctx, sdkserver.ServerContextKey, sdkserver.NewDefaultContext())
-
-	rootCmd.PersistentFlags().String("log-level", zerolog.InfoLevel.String(), "The logging level (trace|debug|info|warn|error|fatal|panic)")
-	rootCmd.PersistentFlags().String("log-format", tmcfg.LogFormatPlain, "The logging format (json|plain)")
-
-	executor := tmcli.PrepareBaseCmd(rootCmd, "", app.DefaultNodeHome)
-	return executor.ExecuteContext(ctx)
-}
-
-func initRootCmd(
-	rootCmd *cobra.Command,
-	txConfig client.TxConfig,
-	basicManager module.BasicManager,
-	ec injcodectypes.EncodingConfig,
-) {
-	sdk.DefaultPowerReduction = math.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil))
-
-	cfg := sdk.GetConfig()
-	cfg.Seal()
-
-	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
-		debug.Cmd(),
-		confixcmd.ConfigCommand(),
-		pruning.Cmd(newApp, app.DefaultNodeHome),
-		snapshot.Cmd(newApp),
-		AddGenesisAccountCmd(app.DefaultNodeHome),
-	)
-
-	cometCmd := &cobra.Command{
-		Use:     "comet",
-		Aliases: []string{"cometbft", "tendermint"},
-		Short:   "CometBFT subcommands",
-	}
-
-	cometCmd.AddCommand(
-		sdkserver.ShowNodeIDCmd(),
-		sdkserver.ShowValidatorCmd(),
-		sdkserver.ShowAddressCmd(),
-		sdkserver.VersionCmd(),
-		tmcmd.ResetAllCmd,
-		tmcmd.ResetStateCmd,
-		sdkserver.BootstrapStateCmd(newApp),
-	)
-
-	startCmd := StartCmd(newApp, app.DefaultNodeHome)
-
-	AddModuleInitFlags(startCmd)
-	AddStatsdFlagsToCmd(startCmd)
-
-	rootCmd.AddCommand(
-		startCmd,
-		cometCmd,
-		sdkserver.ExportCmd(appExport, app.DefaultNodeHome),
-		version.NewVersionCommand(),
-		sdkserver.NewRollbackCmd(newApp, app.DefaultNodeHome),
-	)
-
-	wasmcli.ExtendUnsafeResetAllCmd(rootCmd)
-
-	// add keybase, auxiliary RPC, query, genesis, and tx child commands
-	rootCmd.AddCommand(
-		sdkserver.StatusCommand(),
-		genesisCommand(txConfig, basicManager),
-		queryCommand(),
-		txCommand(),
-		chainclient.KeyCommands(app.DefaultNodeHome),
-	)
-
-	rootCmd.AddCommand(rosettaCmd.RosettaCommand(ec.InterfaceRegistry, ec.Codec))
-}
-
-func AddModuleInitFlags(startCmd *cobra.Command) {
+func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	wasm.AddModuleInitFlags(startCmd)
-}
-
-// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
-func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:                        "genesis",
-		Short:                      "Application's genesis-related subcommands",
-		DisableFlagParsing:         false,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
-	}
-	gentxModule := basicManager[genutiltypes.ModuleName].(genutil.AppModuleBasic)
-
-	cmd.AddCommand(
-		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, gentxModule.GenTxValidator, txConfig.SigningContext().ValidatorAddressCodec()),
-		genutilcli.MigrateGenesisCmd(genutilcli.MigrationMap),
-		genutilcli.GenTxCmd(app.ModuleBasics, txConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, txConfig.SigningContext().ValidatorAddressCodec()),
-		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
-		AddGenesisAccountCmd(app.DefaultNodeHome),
-	)
-
-	for _, subCmd := range cmds {
-		cmd.AddCommand(subCmd)
-	}
-
-	return cmd
 }
 
 func queryCommand() *cobra.Command {
@@ -282,15 +250,12 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		rpc.ValidatorCommand(),
 		rpc.QueryEventForTxCmd(),
+		rpc.ValidatorCommand(),
+		authcmd.QueryTxsByEventsCmd(),
 		sdkserver.QueryBlockCmd(),
-		sdkserver.QueryBlocksCmd(),
-		sdkserver.QueryBlockResultsCmd(),
 		authcmd.QueryTxCmd(),
-		authcmd.QueryTxsByEventsCmd(),
-		authcmd.QueryTxsByEventsCmd(),
-		authcmd.GetSimulateCmd(),
+		sdkserver.QueryBlockResultsCmd(),
 	)
 
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
@@ -313,21 +278,49 @@ func txCommand() *cobra.Command {
 		authcmd.GetMultiSignCommand(),
 		authcmd.GetMultiSignBatchCmd(),
 		authcmd.GetValidateSignaturesCommand(),
-		flags.LineBreak,
 		authcmd.GetBroadcastCommand(),
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
 		authcmd.GetSimulateCmd(),
-		flags.LineBreak,
 	)
+
+	// DefaultGasAdjustment value to use as default in gas-adjustment flag
+	//flags.DefaultGasAdjustment = servercfg.DefaultGasAdjustment TODO: CHECK IF NECESSARY TO ADD
 
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
 }
 
-// newApp is an AppCreator
-func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
+// initAppConfig helps to override default appConfig template and configs.
+// return "", nil if no custom configuration is required for the application.
+func initAppConfig() (string, interface{}) {
+	baseDenom, err := sdk.GetBaseDenom()
+	if err != nil {
+		// NOTE: We need to provide a default base denom for the tempApp created by the RootCmd
+		// FIXME: if we remove the min gas price default config, this will no longer be needed
+		baseDenom = evmostypes.BaseDenom
+	}
+	customAppTemplate, customAppConfig := servercfg.AppConfig(baseDenom)
+
+	srvCfg, ok := customAppConfig.(servercfg.Config)
+	if !ok {
+		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+	}
+
+	srvCfg.StateSync.SnapshotInterval = 5000
+	srvCfg.StateSync.SnapshotKeepRecent = 2
+	srvCfg.IAVLDisableFastNode = false
+
+	return customAppTemplate, srvCfg
+}
+
+type appCreator struct {
+	encCfg sdktestutil.TestEncodingConfig
+}
+
+// newApp is an appCreator
+func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
 	var cache storetypes.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(sdkserver.FlagInterBlockCache)) {
@@ -344,11 +337,13 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		panic(err)
 	}
 
-	snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
+	home := cast.ToString(appOpts.Get(flags.FlagHome))
+	snapshotDir := filepath.Join(home, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", sdkserver.GetAppDBBackend(appOpts), snapshotDir)
 	if err != nil {
 		panic(err)
 	}
+
 	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
 	if err != nil {
 		panic(err)
@@ -359,19 +354,24 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		cast.ToUint32(appOpts.Get(sdkserver.FlagStateSyncSnapshotKeepRecent)),
 	)
 
-	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
+	// Setup chainId
 	chainID := cast.ToString(appOpts.Get(flags.FlagChainID))
-	if chainID == "" {
-		// fallback to genesis chain-id
-		appGenesis, err := genutiltypes.AppGenesisFromFile(filepath.Join(homeDir, "config", "genesis.json"))
-		if err != nil {
+	if len(chainID) == 0 {
+		v := viper.New()
+		v.AddConfigPath(filepath.Join(home, "config"))
+		v.SetConfigName("client")
+		v.SetConfigType("toml")
+		if err := v.ReadInConfig(); err != nil {
 			panic(err)
 		}
-
-		chainID = appGenesis.ChainID
+		conf := new(clientcfg.ClientConfig)
+		if err := v.Unmarshal(conf); err != nil {
+			panic(err)
+		}
+		chainID = conf.ChainID
 	}
 
-	return app.NewInjectiveApp(
+	evmosApp := app.NewHeliosApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
@@ -383,16 +383,17 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		baseapp.SetTrace(cast.ToBool(appOpts.Get(sdkserver.FlagTrace))),
 		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(sdkserver.FlagIndexEvents))),
 		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
-		baseapp.SetCommitSync(cast.ToBool(appOpts.Get(FlagMultiStoreCommitSync))),
-		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(FlagIAVLCacheSize))),
+		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))),
 		baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagDisableIAVLFastNode))),
 		baseapp.SetChainID(chainID),
 	)
+
+	return evmosApp
 }
 
 // appExport creates a new simapp (optionally at a given height)
 // and exports state.
-func appExport(
+func (a appCreator) appExport(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -402,40 +403,42 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	// this check is necessary as we use the flag in x/upgrade.
-	// we can exit more gracefully by checking the flag here.
-	var injectiveApp *app.InjectiveApp
+	var evmosApp *app.HeliosApp
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
 
-	viperAppOpts, ok := appOpts.(*viper.Viper)
-	if !ok {
-		return servertypes.ExportedApp{}, errors.New("appOpts is not viper.Viper")
-	}
-
-	// overwrite the FlagInvCheckPeriod
-	viperAppOpts.Set(sdkserver.FlagInvCheckPeriod, 1)
-	appOpts = viperAppOpts
-
 	if height != -1 {
-		injectiveApp = app.NewInjectiveApp(logger, db, traceStore, false, appOpts)
+		evmosApp = app.NewHeliosApp(logger, db, traceStore, false, appOpts)
 
-		if err := injectiveApp.LoadHeight(height); err != nil {
+		if err := evmosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		injectiveApp = app.NewInjectiveApp(logger, db, traceStore, true, appOpts)
+		evmosApp = app.NewHeliosApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return injectiveApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
-var tempDir = func() string {
-	dir, err := os.MkdirTemp("", "injectiveapp")
+// initTendermintConfig helps to override default Tendermint Config values.
+// return cmtcfg.DefaultConfig if no custom configuration is required for the application.
+func initTendermintConfig() *cmtcfg.Config {
+	cfg := cmtcfg.DefaultConfig()
+	cfg.Consensus.TimeoutCommit = time.Second * 3
+
+	// to put a higher strain on node memory, use these values:
+	// cfg.P2P.MaxNumInboundPeers = 100
+	// cfg.P2P.MaxNumOutboundPeers = 40
+
+	return cfg
+}
+
+func tempDir(defaultHome string) string {
+	dir, err := os.MkdirTemp("", "evmos")
 	if err != nil {
-		dir = app.DefaultNodeHome
+		dir = defaultHome
 	}
 	defer os.RemoveAll(dir)
 

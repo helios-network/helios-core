@@ -1,6 +1,9 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 /*
 Package ante defines the SDK auth module's AnteHandler as well as an internal
-AnteHandler for an Ethereum transaction (i.e MsgEthereumTx).
+AnteHandler for an Ethereum transaction (i.e. MsgEthereumTx).
 
 During CheckTx, the transaction is passed through a series of
 pre-message execution validation checks such as signature and account

@@ -5,10 +5,10 @@
     {
       "title": "title",
       "description": "description",
-      "recipient": "inj1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz",
+      "recipient": "helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz",
       "amount": [
         {
-          "denom": "inj",
+          "denom": "helios",
           "amount": "1000000"
         }
       ]

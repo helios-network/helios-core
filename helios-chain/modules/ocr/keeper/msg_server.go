@@ -16,7 +16,7 @@ import (
 
 	secp256k1 "helios-core/helios-chain/crypto/ethsecp256k1"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/ocr/types"
 )

@@ -19,7 +19,7 @@ const (
 	upgradeName = "v1.13.2"
 )
 
-func (app *InjectiveApp) registerUpgradeHandlers() {
+func (app *HeliosApp) registerUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(upgradeName,
 		func(ctx context.Context, upgradeInfo upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			mintParams, err := app.MintKeeper.Params.Get(ctx)
@@ -35,7 +35,7 @@ func (app *InjectiveApp) registerUpgradeHandlers() {
 			sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 			auctionParams := app.AuctionKeeper.GetParams(sdkCtx)
-			auctionParams.InjBasketMaxCap = auctiontypes.DefaultInjBasketMaxCap.MulRaw(2) // 2 * cap
+			auctionParams.HeliosBasketMaxCap = auctiontypes.DefaultHeliosBasketMaxCap.MulRaw(2) // 2 * cap
 			app.AuctionKeeper.SetParams(sdkCtx, auctionParams)
 
 			osmoUstPerpMarketID := common.HexToHash("0x8c7fd5e6a7f49d840512a43d95389a78e60ebaf0cde1af86b26a785eb23b3be5")

@@ -75,7 +75,7 @@ message RevokePriceFeederPrivilegeProposal {
 
 ## AuthorizeBandOracleRequestProposal
 
-This proposal is to add a band oracle request into the list. When this is accepted, injective chain fetches one more price info from bandchain.
+This proposal is to add a band oracle request into the list. When this is accepted, helios chain fetches one more price info from bandchain.
 
 ```protobuf
 message AuthorizeBandOracleRequestProposal {
@@ -108,7 +108,7 @@ message UpdateBandOracleRequestProposal {
 
 ## EnableBandIBCProposal
 
-This proposal is to enable IBC connection between Band chain and Injective chain.
+This proposal is to enable IBC connection between Band chain and Helios chain.
 When the proposal is approved, it updates the BandIBCParams into newer one configured on the proposal.
 
 ```protobuf

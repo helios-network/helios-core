@@ -18,11 +18,11 @@ This specification specifies the oracle module, which is primarily used by the `
 
 ## Band IBC integration flow
 
-Cosmos SDK blockchains are able to interact with each other using IBC and Injective support the feature to fetch price feed from bandchain via IBC.
+Cosmos SDK blockchains are able to interact with each other using IBC and Helios support the feature to fetch price feed from bandchain via IBC.
 
-1. To communicate with BandChain's oracle using IBC, Injective Chain must first initialize a communication channel with the oracle module on the BandChain using relayers.
+1. To communicate with BandChain's oracle using IBC, Helios Chain must first initialize a communication channel with the oracle module on the BandChain using relayers.
 
-2. Once the connection has been established, a pair of channel identifiers is generated -- one for the Injective Chain and one for Band. The channel identifier is used by Injective Chain to route outgoing oracle request packets to Band. Similarly, Band's oracle module uses the channel identifier when sending back the oracle response.
+2. Once the connection has been established, a pair of channel identifiers is generated -- one for the Helios Chain and one for Band. The channel identifier is used by Helios Chain to route outgoing oracle request packets to Band. Similarly, Band's oracle module uses the channel identifier when sending back the oracle response.
 
 3. To enable band IBC integration after setting up communication channel, the governance proposal for `EnableBandIBCProposal` should pass.
 

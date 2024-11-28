@@ -3,7 +3,7 @@
 set -e
 
 # Build and install the heliades binary
-#make install
+# make install
 
 # Stop any running instances of heliades and clean up old data
 killall heliades &>/dev/null || true
@@ -11,37 +11,54 @@ rm -rf ~/.heliades
 
 # Define chain parameters
 CHAINID="4242"
-MONIKER="helios"
-PASSPHRASE="12345678"
+MONIKER="helios-main-node"
+PASSPHRASE="yesyesyes"
 FEEDADMIN="helios1q0d2nv8xpf9qy22djzgrkgrrcst9frcs34fqra"
+KEYALGO="eth_secp256k1"
+# feemarket params basefee
+BASEFEE=1000000000
+
 
 # Initialize the chain with a moniker and chain ID
 heliades init $MONIKER --chain-id $CHAINID
 
+# echo '[json-rpc]' >> ~/.heliades/config/app.toml
+# echo '# Enable defines if the JSON-RPC server should be enabled.' >> ~/.heliades/config/app.toml
+# echo 'enable = true' >> ~/.heliades/config/app.toml
+# echo '# Address defines the JSON-RPC server address to bind to.' >> ~/.heliades/config/app.toml
+# echo 'address = "0.0.0.0:8545"' >> ~/.heliades/config/app.toml
+# echo '# API defines a list of JSON-RPC namespaces that should be enabled' >> ~/.heliades/config/app.toml
+# echo 'api = ["eth","txpool","personal","net","debug","web3"]' >> ~/.heliades/config/app.toml
+
 # Update configuration files
 perl -i -pe 's/^timeout_commit = ".*?"/timeout_commit = "2500ms"/' ~/.heliades/config/config.toml
-perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000helios"/' ~/.heliades/config/app.toml
+perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000ahelios"/' ~/.heliades/config/app.toml
 
 # Update genesis file with new denominations and parameters
 GENESIS_CONFIG="$HOME/.heliades/config/genesis.json"
 TMP_GENESIS="$HOME/.heliades/config/tmp_genesis.json"
 
-jq '.app_state["staking"]["params"]["bond_denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["crisis"]["constant_fee"]["denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["staking"]["params"]["bond_denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["crisis"]["constant_fee"]["denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["gov"]["params"]["min_initial_deposit_ratio"]="0.100000000000000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 echo "NOTE: Setting Governance Voting Period to 10 seconds for easy testing"
-jq '.app_state["gov"]["params"]["voting_period"]="10s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["gov"]["params"]["expedited_voting_period"]="5s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["mint"]["params"]["mint_denom"]="helios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["gov"]["params"]["voting_period"]="30s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["gov"]["params"]["expedited_voting_period"]="10s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["mint"]["params"]["mint_denom"]="ahelios"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["auction"]["params"]["auction_period"]="10"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["module_admin"]="'$FEEDADMIN'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["payout_block_interval"]="5"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+# Set gas limit in genesis
+jq '.consensus_params["block"]["max_gas"]="10000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+# Set base fee in genesis
+jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
 # Zero address account (burn)
 #jq '.app_state.bank.balances += [{"address": "helios1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49", "coins": [{"denom": "helios", "amount": "1"}]}]' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Define token denominations and decimals
-HELIOS='{"denom":"helios","decimals":6}'
+HELIOS='{"denom":"ahelios","decimals":18}'
 
 
 USDT='{"denom":"peggy0xdAC17F958D2ee523a2206206994597C13D831ec7","decimals":6}'
@@ -108,8 +125,12 @@ DENOM_DECIMALS='['${HELIOS},${PEGGY_DENOM_DECIMALS},${IBC_DENOM_DECIMALS}']'
 jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Add genesis accounts
-yes $PASSPHRASE | heliades keys add genesis
-yes $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(yes $PASSPHRASE | heliades keys show genesis -a) 1000000000000000000000000helios
+GENESIS_VALIDATOR_ADDRESS="helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"
+GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel"
+# Add GENESIS VALIDATOR key
+heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
+# Integrate GENESIS VALIDATOR into the genesis block with specifical large balance
+heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000ahelios
 
 # Define the keys array
 KEYS=(
@@ -144,26 +165,27 @@ MNEMONICS=(
 "ostrich prefer glad boat slight hedgehog burden manage enforce post wrap pottery daring delay video energy mammal urge enemy prevent wool badge garage thrive"
 )
 
+
 # Import keys from mnemonics
 for i in "${!KEYS[@]}"; do
-    printf "${MNEMONICS[$i]}\n$PASSPHRASE" | heliades keys add ${KEYS[$i]} --recover
+    heliades keys add ${KEYS[$i]} --from-mnemonic "${MNEMONICS[$i]}" --algo "$KEYALGO"
 done
 
-# Allocate genesis accounts
+# Integrate accounts into the genesis block with specifical balance
 for key in "${KEYS[@]}"; do
-    printf $PASSPHRASE | heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000helios
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios
 done
 
 echo "Signing genesis transaction"
-# Sign genesis transaction
-yes $PASSPHRASE | heliades genesis gentx genesis 1000000000000000000000helios --chain-id $CHAINID
+# Register as Validator genesis account and delegate 1000000 ahelios
+heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID
 
 echo "Collecting genesis transaction"
-# Collect genesis tx
-yes $PASSPHRASE | heliades genesis collect-gentxs
+# Collect genesis Validators tx
+heliades collect-gentxs
 
 echo "Validating genesis"
 # Validate the genesis file
-heliades genesis validate
+heliades validate-genesis
 
 echo "Setup done!"

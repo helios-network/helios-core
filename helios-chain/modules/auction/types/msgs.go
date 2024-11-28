@@ -73,7 +73,7 @@ func (msg MsgBid) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.BidAmount.String())
 	}
 
-	if msg.BidAmount.Denom != chaintypes.InjectiveCoin {
+	if msg.BidAmount.Denom != chaintypes.HeliosCoin {
 		return errors.Wrap(ErrBidInvalid, msg.BidAmount.Denom)
 	}
 

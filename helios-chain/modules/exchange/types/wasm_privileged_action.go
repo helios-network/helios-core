@@ -12,13 +12,13 @@ type PrivilegedAction struct {
 	PositionTransfer *PositionTransfer     `json:"position_transfer"`
 }
 
-type InjectiveAction interface {
+type HeliosAction interface {
 	// ValidateBasic does a simple validation check that
 	// doesn't require access to any other information.
 	ValidateBasic() error
 }
 
-func ParseRequest(data []byte) (InjectiveAction, error) {
+func ParseRequest(data []byte) (HeliosAction, error) {
 	if len(data) == 0 || string(data) == "null" {
 		return nil, nil
 	}
@@ -48,5 +48,5 @@ func ParseRequest(data []byte) (InjectiveAction, error) {
 		return request.PositionTransfer, nil
 	}
 
-	return nil, errors.Wrap(sdkerrors.ErrUnknownRequest, "unknown variant of InjectiveAction")
+	return nil, errors.Wrap(sdkerrors.ErrUnknownRequest, "unknown variant of HeliosAction")
 }

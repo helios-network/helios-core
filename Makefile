@@ -3,7 +3,7 @@ GIT_COMMIT = $(shell git rev-parse --short HEAD)
 BUILD_DATE = $(shell date -u "+%Y%m%d-%H%M")
 COSMOS_VERSION_PKG = github.com/cosmos/cosmos-sdk/version
 COSMOS_VERSION_NAME = helios
-VERSION_PKG = github.com/InjectiveLabs/helios-core/version
+VERSION_PKG = github.com/Helios-Chain-Labs/helios-core/version
 PACKAGES=$(shell go list ./... | grep -Ev 'vendor|importer|gen|api/design|rpc/tester')
 IMAGE_NAME := gcr.io/helios-core/core
 LEDGER_ENABLED ?= true
@@ -57,13 +57,25 @@ push:
 	docker push $(IMAGE_NAME):latest
 
 install: export GOPROXY=direct
-#install: export VERSION_FLAGS="-X $(VERSION_PKG).AppVersion=$(APP_VERSION) -X $(VERSION_PKG).GitCommit=$(GIT_COMMIT)  -X $(VERSION_PKG).BuildDate=$(BUILD_DATE) -X $(COSMOS_VERSION_PKG).Version=$(APP_VERSION) -X $(COSMOS_VERSION_PKG).Name=$(COSMOS_VERSION_NAME) -X $(COSMOS_VERSION_PKG).AppName=heliades -X $(COSMOS_VERSION_PKG).Commit=$(GIT_COMMIT)"
 install:
-#cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS) -ldflags $(VERSION_FLAGS)
-	cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+	@if command -v heliades > /dev/null 2>&1; then \
+		heliades keys clear; \
+	else \
+		echo "Command 'heliades' not found, skipping 'heliades keys clear'"; \
+	fi
+	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
-#install-ci: export GOPROXY=https://goproxy.helios.dev,direct
-#install-ci: export VERSION_FLAGS="-X $(VERSION_PKG).AppVersion=$(APP_VERSION) -X $(VERSION_PKG).GitCommit=$(GIT_COMMIT)  -X $(VERSION_PKG).BuildDate=$(BUILD_DATE) -X $(COSMOS_VERSION_PKG).Version=$(APP_VERSION) -X $(COSMOS_VERSION_PKG).Name=$(COSMOS_VERSION_NAME) -X $(COSMOS_VERSION_PKG).AppName=heliades -X $(COSMOS_VERSION_PKG).Commit=$(GIT_COMMIT)"
+compile:
+	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+
+setup:
+	sh setup.sh
+
+install-full:
+	make install
+	make setup
+	sh heliades.sh
+
 install-ci:
 	cd cmd/heliades/ && go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
@@ -110,7 +122,7 @@ build-release-%: export VERSION_FLAGS="-X $(VERSION_PKG).AppVersion=$(APP_VERSIO
 build-release-%:
 	docker build \
 		--build-arg LDFLAGS=$(VERSION_FLAGS) \
-		--build-arg PKG=github.com/InjectiveLabs/helios-core/cmd/$(TARGET) \
+		--build-arg PKG=github.com/Helios-Chain-Labs/helios-core/cmd/$(TARGET) \
 		--ssh=default -t $(TARGET)-release -f Dockerfile.release .
 
 prepare-release-%: export TARGET=$*

@@ -38,6 +38,6 @@ issues:
 run:
   tests: false
   skip-dirs:
-    - injective-chain/modules/peggy/testpeggy
-    - injective-chain/modules/exchange/testexchange
-    - injective-chain/modules/exchange/client/testutil
+    - helios-chain/modules/peggy/testpeggy
+    - helios-chain/modules/exchange/testexchange
+    - helios-chain/modules/exchange/client/testutil

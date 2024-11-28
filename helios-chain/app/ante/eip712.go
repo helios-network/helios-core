@@ -17,20 +17,21 @@ import (
 	ethsecp256k1 "github.com/ethereum/go-ethereum/crypto/secp256k1"
 
 	"helios-core/helios-chain/app/ante/typeddata"
-	injcodectypes "helios-core/helios-chain/codec/types"
+	helioscodectypes "helios-core/helios-chain/codec/types"
 	secp256k1 "helios-core/helios-chain/crypto/ethsecp256k1"
 	chaintypes "helios-core/helios-chain/types"
 )
 
 var (
 	chainTypesCodec codec.ProtoCodecMarshaler
-	GlobalCdc       = codec.NewProtoCodec(injcodectypes.NewInterfaceRegistry())
+	GlobalCdc       = codec.NewProtoCodec(helioscodectypes.NewInterfaceRegistry())
 )
 
 func init() {
-	registry := injcodectypes.NewInterfaceRegistry()
+	registry := helioscodectypes.NewInterfaceRegistry()
 	chaintypes.RegisterInterfaces(registry)
 	chainTypesCodec = codec.NewProtoCodec(registry)
+	//fmt.Printf("Registered interfaces: %v", registry.ListAllInterfaces())
 }
 
 // Verify all signatures for a tx and return an error if any are invalid. Note,
@@ -222,8 +223,8 @@ func GetWeb3ExtensionOptions(tx authsigning.Tx, signerData authsigning.SignerDat
 	// chainID in EIP712 typed data is allowed to not match signerData.ChainID,
 	// but limited to certain options: 1 (mainnet), 11155111 (Sepolia), thus Metamask will
 	// be able to submit signatures without switching networks.
-	hasValidMainnetChainID := signerData.ChainID == "injective-1" && extOpts.TypedDataChainID == 1
-	hasValidNonMainnetChainID := (signerData.ChainID == "injective-777" || signerData.ChainID == "injective-888") && extOpts.TypedDataChainID == 11155111
+	hasValidMainnetChainID := signerData.ChainID == "helios-1" && extOpts.TypedDataChainID == 1
+	hasValidNonMainnetChainID := (signerData.ChainID == "helios-777" || signerData.ChainID == "helios-888") && extOpts.TypedDataChainID == 11155111
 
 	if !hasValidMainnetChainID && !hasValidNonMainnetChainID {
 		return Web3ExtensionOptions{}, fmt.Errorf("invalid TypedDataChainID in Web3Extension: %d for %s chain", extOpts.TypedDataChainID, signerData.ChainID)

@@ -9,14 +9,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/modules/exchange/types"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 func (k *Keeper) handlePrivilegedAction(
 	ctx sdk.Context,
 	contractAddress sdk.AccAddress,
 	origin sdk.AccAddress,
-	action types.InjectiveAction,
+	action types.HeliosAction,
 ) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

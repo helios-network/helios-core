@@ -32,7 +32,7 @@ Stores each Validator's account address indexed by Ethereum address.
 ### OutgoingTxBatch
 
 Stored in two possible ways, first with a height and second without (unsafe). Unsafe is used for testing and export and import of state.
-Currently [Peggy.sol](https://github.com/InjectiveLabs/peggo/blob/master/solidity/contracts/Peggy.sol) is hardcoded to only accept batches with a single token type and only pay rewards in that same token type.
+Currently [Peggy.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Peggy.sol) is hardcoded to only accept batches with a single token type and only pay rewards in that same token type.
 
 ```go
 // OutgoingTxBatch represents a batch of transactions going from Peggy to ETH

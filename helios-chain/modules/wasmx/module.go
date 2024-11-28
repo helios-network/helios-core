@@ -18,7 +18,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	exchangekeeper "helios-core/helios-chain/modules/exchange/keeper"
 	"helios-core/helios-chain/modules/wasmx/client/cli"

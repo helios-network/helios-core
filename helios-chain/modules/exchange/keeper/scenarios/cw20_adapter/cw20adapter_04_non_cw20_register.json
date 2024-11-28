@@ -34,7 +34,7 @@
       "funds": [
         {
           "amount": 10,
-          "denom": "inj"
+          "denom": "helios"
         }
       ]
     },

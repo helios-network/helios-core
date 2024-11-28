@@ -8,7 +8,7 @@ heliades q bank balances WALLET_ADDRESS
 #LIST VALIDATORS
 heliades q staking validators
 
-#LIST ALL KEYS INJECTED
+#LIST ALL KEYS HELIOSECTED
 heliades keys list
 
 #EXPORT KEYS TENDERMINT FORMAT

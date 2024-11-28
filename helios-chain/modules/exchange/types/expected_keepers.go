@@ -78,5 +78,5 @@ type WasmContractOpsKeeper interface {
 }
 
 type WasmxExecutionKeeper interface {
-	InjectiveExec(ctx sdk.Context, contractAddress sdk.AccAddress, funds sdk.Coins, msg *wasmxtypes.InjectiveExecMsg) ([]byte, error)
+	HeliosExec(ctx sdk.Context, contractAddress sdk.AccAddress, funds sdk.Coins, msg *wasmxtypes.HeliosExecMsg) ([]byte, error)
 }

@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	Bech32Prefix        = "helios"
 	defaultMinGasPrices = "160000000helios"
 
 	// DefaultAPIAddress defines the default address to bind the API server to.

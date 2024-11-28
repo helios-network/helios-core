@@ -35,11 +35,11 @@ This package provides first class support for:
 - Commands
 
 ```sh
-  injectived tx wasm -h
+  heliades tx wasm -h
 ```
 
 - Query
 
 ```sh
-  injectived query wasm -h
+  heliades query wasm -h
 ```

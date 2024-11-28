@@ -14,7 +14,8 @@ import (
 	"helios-core/helios-chain/app/ante"
 	"helios-core/helios-chain/modules/wasmx/types"
 	chaintypes "helios-core/helios-chain/types"
-	"github.com/InjectiveLabs/metrics"
+
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 func (k *Keeper) hasValidCodeId(
@@ -498,5 +499,5 @@ func (k *Keeper) DoesContractExist(ctx sdk.Context, contractAddr sdk.AccAddress)
 
 func CalculateFee(gas, gasPrice uint64) sdk.Coin {
 	amount := math.NewIntFromUint64(gasPrice).Mul(math.NewIntFromUint64(gas))
-	return sdk.NewCoin(chaintypes.InjectiveCoin, amount)
+	return sdk.NewCoin(chaintypes.HeliosCoin, amount)
 }

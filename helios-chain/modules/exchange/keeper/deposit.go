@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -332,8 +332,8 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 	denomDecimals := k.GetAllDenomDecimals(ctx)
 	coinsToSendToAuction := sdk.NewCoins()
 
-	injAuctionSubaccountAmount := math.ZeroInt()
-	injSendCap := k.GetInjAuctionMaxCap(ctx)
+	heliosAuctionSubaccountAmount := math.ZeroInt()
+	heliosSendCap := k.GetHeliosAuctionMaxCap(ctx)
 
 	// collect balances from auction subaccount
 	for idx := range denomDecimals {
@@ -346,9 +346,9 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 
 		amount := deposit.TotalBalance.TruncateInt()
 
-		if denom == chaintypes.InjectiveCoin {
-			amount = math.MinInt(amount, injSendCap)
-			injAuctionSubaccountAmount = injAuctionSubaccountAmount.Add(amount)
+		if denom == chaintypes.HeliosCoin {
+			amount = math.MinInt(amount, heliosSendCap)
+			heliosAuctionSubaccountAmount = heliosAuctionSubaccountAmount.Add(amount)
 		}
 
 		if err := k.DecrementDeposit(ctx, types.AuctionSubaccountID, denom, amount.ToLegacyDec()); err != nil {
@@ -370,11 +370,11 @@ func (k *Keeper) WithdrawAllAuctionBalances(ctx sdk.Context) sdk.Coins {
 		}
 
 		amount := balance.Amount
-		if balance.Denom == chaintypes.InjectiveCoin {
-			if injAuctionSubaccountAmount.GTE(injSendCap) {
+		if balance.Denom == chaintypes.HeliosCoin {
+			if heliosAuctionSubaccountAmount.GTE(heliosSendCap) {
 				amount = math.ZeroInt()
-			} else if amount.Add(injAuctionSubaccountAmount).GT(injSendCap) {
-				amount = injSendCap.Sub(injAuctionSubaccountAmount)
+			} else if amount.Add(heliosAuctionSubaccountAmount).GT(heliosSendCap) {
+				amount = heliosSendCap.Sub(heliosAuctionSubaccountAmount)
 			}
 		}
 

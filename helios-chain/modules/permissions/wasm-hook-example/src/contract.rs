@@ -4,7 +4,7 @@ use cosmwasm_std::{
     ensure_eq, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response,
     StdError, StdResult,
 };
-use injective_cosmwasm::InjectiveMsgWrapper;
+use helios_cosmwasm::HeliosMsgWrapper;
 
 use cw2::set_contract_version;
 use cw_storage_plus::Item;
@@ -47,7 +47,7 @@ pub fn execute(
     env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
-) -> Result<Response<InjectiveMsgWrapper>, ContractError> {
+) -> Result<Response<HeliosMsgWrapper>, ContractError> {
     match msg {
         ExecuteMsg::UpdateOwner { new_owner } => update_owner(deps, env, info.sender, new_owner),
         ExecuteMsg::ExecuteMsgs { msgs } => exec_msgs(deps.as_ref(), info.sender, msgs),
@@ -59,7 +59,7 @@ pub fn update_owner(
     _env: Env,
     sender: Addr,
     new_owner: String,
-) -> Result<Response<InjectiveMsgWrapper>, ContractError> {
+) -> Result<Response<HeliosMsgWrapper>, ContractError> {
     let current_owner = OWNER.load(deps.storage)?;
     ensure_eq!(sender, current_owner, ContractError::Unauthorized {});
 
@@ -74,8 +74,8 @@ pub fn update_owner(
 pub fn exec_msgs(
     deps: Deps,
     sender: Addr,
-    msgs: Vec<CosmosMsg<InjectiveMsgWrapper>>,
-) -> Result<Response<InjectiveMsgWrapper>, ContractError> {
+    msgs: Vec<CosmosMsg<HeliosMsgWrapper>>,
+) -> Result<Response<HeliosMsgWrapper>, ContractError> {
     let current_owner = OWNER.load(deps.storage)?;
     ensure_eq!(sender, current_owner, ContractError::Unauthorized {});
 

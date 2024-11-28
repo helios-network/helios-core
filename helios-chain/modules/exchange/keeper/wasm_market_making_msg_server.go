@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"helios-core/helios-chain/modules/exchange/types"
@@ -61,12 +61,12 @@ func (k WasmMsgServer) PrivilegedExecuteContract(
 		totalFunds = coins
 	}
 
-	execMsg, err := wasmxtypes.NewInjectiveExecMsg(sender, msg.Data)
+	execMsg, err := wasmxtypes.NewHeliosExecMsg(sender, msg.Data)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create exec msg")
 	}
 
-	res, err := k.wasmxExecutionKeeper.InjectiveExec(ctx, contract, totalFunds, execMsg)
+	res, err := k.wasmxExecutionKeeper.HeliosExec(ctx, contract, totalFunds, execMsg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute msg")
 	}

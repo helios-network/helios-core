@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"cosmossdk.io/math"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -67,6 +68,8 @@ func (h Hooks) AfterValidatorBonded(ctx context.Context, _ sdk.ConsAddress, vali
 	if lowestObservedNonce == 0 {
 		return nil
 	}
+
+	h.k.Logger(sdkCtx).Info(fmt.Sprintf("AfterValidatorBonded %s setLastEventByValidator", validator.String()))
 
 	// otherwise, set the last event to the current last observed event nonce and ethereum block height so the validator
 	// can begin attesting starting from the next event after the last observed event nonce.

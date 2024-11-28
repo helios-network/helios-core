@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/auction/types"
 )
@@ -19,7 +19,7 @@ func (k *Keeper) GetHighestBid(ctx sdk.Context) *types.Bid {
 	if bz == nil {
 		return &types.Bid{
 			Bidder: "",
-			Amount: sdk.NewCoin("inj", math.ZeroInt()),
+			Amount: sdk.NewCoin("helios", math.ZeroInt()),
 		}
 	}
 

@@ -5,7 +5,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/modules/exchange/types"
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 )
 
 func (k *Keeper) HasSubaccountAlreadyPlacedMarketOrder(ctx sdk.Context, marketID, subaccountID common.Hash) bool {

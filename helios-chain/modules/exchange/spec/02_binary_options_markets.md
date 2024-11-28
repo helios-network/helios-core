@@ -42,7 +42,7 @@ A binary options market can be created through an instant launch (through a `Msg
 The market may be optionally configured with a market admin which has the ability to trigger settlement, change the market status as well as modify the expiration and settlement timestamp of the given market. If the market does not specify an admin, then the market parameters can only be modified through governance and that the settlement procedure will be fully based on the associated oracle provider price feed. 
 
 ### Market State Transitions
-Binary options markets can take one of three statuses on Injective: Active, Expired or Demolished. After the market is created, the market has an `Active` status, which signifies that individuals can begin trading.
+Binary options markets can take one of three statuses on Helios: Active, Expired or Demolished. After the market is created, the market has an `Active` status, which signifies that individuals can begin trading.
 
 Pertinently, binary options markets also have a characteristic `ExpirationTimestamp` which specifies the deadline at which trading activity for the market ceases as well as a `SettlementTimestamp` which specifies the deadline at which settlement will occur by (which must be after expiration).
 

@@ -36,7 +36,7 @@ var (
 	// ParamsStoreKeyTargetBatchTimeout stores
 	ParamsStoreKeyTargetBatchTimeout = []byte("TargetBatchTimeout")
 
-	// ParamsStoreKeyAverageBlockTime stores the average block time of the Injective Chain in milliseconds
+	// ParamsStoreKeyAverageBlockTime stores the average block time of the Helios Chain in milliseconds
 	ParamsStoreKeyAverageBlockTime = []byte("AverageBlockTime")
 
 	// ParamsStoreKeyAverageEthereumBlockTime stores the average block time of Ethereum in milliseconds

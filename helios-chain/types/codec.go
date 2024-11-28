@@ -10,7 +10,7 @@ import (
 // RegisterInterfaces registers the tendermint concrete client-related
 // implementations and interfaces.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterInterface("helios.types.v1beta1.EthAccount", (*types.AccountI)(nil))
+	registry.RegisterInterface("ethermint.types.v1.EthAccount", (*types.AccountI)(nil))
 
 	registry.RegisterImplementations(
 		(*types.AccountI)(nil),
@@ -22,7 +22,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&EthAccount{},
 	)
 
-	registry.RegisterInterface("helios.types.v1beta1.ExtensionOptionsWeb3Tx", (*tx.TxExtensionOptionI)(nil))
+	registry.RegisterInterface("ethermint.types.v1.ExtensionOptionsWeb3Tx", (*tx.TxExtensionOptionI)(nil))
 	registry.RegisterImplementations(
 		(*tx.TxExtensionOptionI)(nil),
 		&ExtensionOptionsWeb3Tx{},

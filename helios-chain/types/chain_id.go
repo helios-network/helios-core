@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	regexChainID     = `[a-z]*`
-	regexSeparator   = `-{1}`
-	regexEpoch       = `[1-9][0-9]*`
-	injectiveChainID = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, regexChainID, regexSeparator, regexEpoch))
+	regexChainID   = `([a-z]*|[0-9]+)`
+	regexSeparator = `-{1}`
+	regexEpoch     = `[1-9][0-9]*`
+	heliosChainID  = regexp.MustCompile(fmt.Sprintf(`^(%s)(%s(%s))?$`, regexChainID, regexSeparator, regexEpoch))
 )
 
 // IsValidChainID returns false if the given chain identifier is incorrectly formatted.
@@ -23,7 +23,7 @@ func IsValidChainID(chainID string) bool {
 		return false
 	}
 
-	return injectiveChainID.MatchString(chainID)
+	return heliosChainID.MatchString(chainID)
 }
 
 // ParseChainID parses a string chain identifier's epoch to an Ethereum-compatible
@@ -34,10 +34,10 @@ func ParseChainID(chainID string) (*big.Int, error) {
 		return nil, errors.Wrapf(ErrInvalidChainID, "chain-id '%s' cannot exceed 48 chars", chainID)
 	}
 
-	matches := injectiveChainID.FindStringSubmatch(chainID)
-	if matches == nil || len(matches) != 3 || matches[1] == "" {
-		return nil, errors.Wrap(ErrInvalidChainID, chainID)
-	}
+	matches := heliosChainID.FindStringSubmatch(chainID)
+	// if matches == nil || len(matches) != 3 || matches[1] == "" {
+	// 	return nil, errors.Wrap(ErrInvalidChainID, chainID)
+	// }
 
 	// verify that the chain-id entered is a base 10 integer
 	chainIDInt, ok := new(big.Int).SetString(matches[2], 10)
@@ -50,5 +50,5 @@ func ParseChainID(chainID string) (*big.Int, error) {
 
 // GenerateRandomChainID returns a random chain-id in the valid format.
 func GenerateRandomChainID() string {
-	return fmt.Sprintf("injective-%d", 10+tmrand.Intn(10000))
+	return fmt.Sprintf("helios-%d", 10+tmrand.Intn(10000))
 }

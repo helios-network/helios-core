@@ -1,6 +1,6 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Coin, CosmosMsg};
-use injective_cosmwasm::InjectiveMsgWrapper;
+use helios_cosmwasm::HeliosMsgWrapper;
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -13,7 +13,7 @@ pub enum ExecuteMsg {
         new_owner: String,
     },
     ExecuteMsgs {
-        msgs: Vec<CosmosMsg<InjectiveMsgWrapper>>,
+        msgs: Vec<CosmosMsg<HeliosMsgWrapper>>,
     },
 }
 

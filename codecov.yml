@@ -13,7 +13,7 @@ ignore:
   - "**/.github/**"
 
 fixes:
-  - "/injective-core::"
+  - "/helios-core::"
 
 comment:
   layout: "diff"

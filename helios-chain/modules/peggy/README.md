@@ -9,13 +9,13 @@ parent:
 
 ## High level Overview
 
-This document specifies the peggy module of the Injective Chain.
+This document specifies the peggy module of the Helios Chain.
 
-The module enables the Injective Chain to support a trustless, on-chain bidirectional token bridge. In this system,
+The module enables the Helios Chain to support a trustless, on-chain bidirectional token bridge. In this system,
 holders of ERC-20 tokens on the Ethereum chain can instantaneously convert their ERC-20 tokens to Cosmos-native coins on
-the Injective Chain and vice-versa.
+the Helios Chain and vice-versa.
 
-This bridge is fully governed by Injective Chain validators.
+This bridge is fully governed by Helios Chain validators.
 
 ### Components
 
@@ -28,7 +28,7 @@ This bridge is fully governed by Injective Chain validators.
     - **Valset Relayer** (Submit Valsets to Peggy contract)
     - **Batch Relayer** (Submit Batches to Peggy contract)
 
-Each injective validator runs Injectived node to sign blocks and peggo orchestrator to orchestrate between Peggy
+Each helios validator runs heliades node to sign blocks and peggo orchestrator to orchestrate between Peggy
 Ethereum smart contract and Peggy cosmos module.
 
 ### Functionalities

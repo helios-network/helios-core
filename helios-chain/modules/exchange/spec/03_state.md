@@ -70,9 +70,9 @@ Protobuf interface for the `exchange` module params store.
 
 ```go
 type Params struct {
-	// spot_market_instant_listing_fee defines the expedited fee in INJ required to create a spot market by bypassing governance
+	// spot_market_instant_listing_fee defines the expedited fee in HELIOS required to create a spot market by bypassing governance
 	SpotMarketInstantListingFee types.Coin
-	// derivative_market_instant_listing_fee defines the expedited fee in INJ required to create a derivative market by bypassing governance
+	// derivative_market_instant_listing_fee defines the expedited fee in HELIOS required to create a derivative market by bypassing governance
 	DerivativeMarketInstantListingFee types.Coin
 	// default_spot_maker_fee defines the default exchange trade fee for makers on a spot market
 	DefaultSpotMakerFeeRate math.LegacyDec
@@ -98,8 +98,8 @@ type Params struct {
 	DefaultHourlyInterestRate math.LegacyDec
 	// max_derivative_order_side_count defines the maximum number of derivative active orders a subaccount can have for a given orderbook side
 	MaxDerivativeOrderSideCount uint32
-	// inj_reward_staked_requirement_threshold defines the threshold on INJ rewards after which one also needs staked INJ to receive more
-	InjRewardStakedRequirementThreshold github_com_cosmos_cosmos_sdk_types.Int
+	// helios_reward_staked_requirement_threshold defines the threshold on HELIOS rewards after which one also needs staked HELIOS to receive more
+	HeliosRewardStakedRequirementThreshold github_com_cosmos_cosmos_sdk_types.Int
 	// the trading_rewards_vesting_duration defines the vesting times for trading rewards
 	TradingRewardsVestingDuration int64
 }
@@ -265,7 +265,7 @@ type SpotMarketOrder struct {
 Derivative markets are stored by hash of the market to query the market efficiently.
 
 ```go
-// An object describing a derivative market in the Injective Futures Protocol.
+// An object describing a derivative market in the Helios Futures Protocol.
 type DerivativeMarket struct {
 	// Ticker for the derivative contract.
 	Ticker string

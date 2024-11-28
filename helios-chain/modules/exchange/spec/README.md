@@ -2,7 +2,7 @@
 
 ## Abstract
 
-The `exchange` module is the heart of the Injective Chain which enables fully decentralized spot and derivative exchange.  
+The `exchange` module is the heart of the Helios Chain which enables fully decentralized spot and derivative exchange.  
 It is the _sine qua non_ module of the chain and integrates tightly with the `auction`, `insurance`, `oracle`, and `peggy` modules.
 
 The exchange protocol enables traders to create and trade on arbitrary spot and derivative markets.

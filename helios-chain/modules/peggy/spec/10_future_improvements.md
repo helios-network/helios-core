@@ -17,6 +17,6 @@ Currently validators in Peggy have only one carrot - the extra activity brought 
 
 There are on the other hand a lot of negative incentives (sticks) that the validators must watch out for. These are outlined in the [slashing spec](./05_slashing.md).
 
-One negative incentive that is not covered under slashing is the cost of submitting oracle submissions and signatures. Currently these operations are not incentivized, but still cost the validators fees to submit. This isn't a severe issue considering the relatively cheap transaction fees on the Injective Chain currently, but of course is an important factor to consider as transaction fees rise. 
+One negative incentive that is not covered under slashing is the cost of submitting oracle submissions and signatures. Currently these operations are not incentivized, but still cost the validators fees to submit. This isn't a severe issue considering the relatively cheap transaction fees on the Helios Chain currently, but of course is an important factor to consider as transaction fees rise. 
 
 Some positive incentives for correctly participating in the operation of the bridge should be under consideration. In addition to eliminating the fees for mandatory submissions.

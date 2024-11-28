@@ -13,14 +13,14 @@ import (
 	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
 )
 
-type InjectiveMsgWrapper struct {
+type HeliosMsgWrapper struct {
 	// specifies which module handler should handle the query
 	Route string `json:"route,omitempty"`
 	// The msg data that should be parsed into the module query
 	MsgData json.RawMessage `json:"msg_data,omitempty"`
 }
 
-type InjectiveMsg struct {
+type HeliosMsg struct {
 	AuctionMsg
 	ExchangeMsg
 	FeeGrantMsg

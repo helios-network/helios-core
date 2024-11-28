@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/exchange/types"
 )
@@ -113,12 +113,12 @@ func (k *Keeper) GetMaxDerivativeOrderSideCount(ctx sdk.Context) uint32 {
 	return k.GetParams(ctx).MaxDerivativeOrderSideCount
 }
 
-// GetInjRewardStakedRequirementThreshold returns the staked requirement threshold
-func (k *Keeper) GetInjRewardStakedRequirementThreshold(ctx sdk.Context) math.Int {
+// GetHeliosRewardStakedRequirementThreshold returns the staked requirement threshold
+func (k *Keeper) GetHeliosRewardStakedRequirementThreshold(ctx sdk.Context) math.Int {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	return k.GetParams(ctx).InjRewardStakedRequirementThreshold
+	return k.GetParams(ctx).HeliosRewardStakedRequirementThreshold
 }
 
 // GetTradingRewardsVestingDuration returns the vesting duration
@@ -172,11 +172,11 @@ func (k *Keeper) GetMinimalProtocolFeeRate(ctx sdk.Context) math.LegacyDec {
 	return k.GetParams(ctx).MinimalProtocolFeeRate
 }
 
-// GetInjAuctionMaxCap returns the inj auction max cap
-func (k *Keeper) GetInjAuctionMaxCap(ctx sdk.Context) math.Int {
+// GetHeliosAuctionMaxCap returns the helios auction max cap
+func (k *Keeper) GetHeliosAuctionMaxCap(ctx sdk.Context) math.Int {
 	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
-	return k.GetParams(ctx).InjAuctionMaxCap
+	return k.GetParams(ctx).HeliosAuctionMaxCap
 }
 
 // GetIsInstantDerivativeMarketLaunchEnabled returns if instant derivative market launch is enabled

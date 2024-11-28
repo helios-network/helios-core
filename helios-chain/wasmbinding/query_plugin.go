@@ -32,7 +32,7 @@ const (
 	FeeGrant          = "feegrant"
 )
 
-type InjectiveQueryWrapper struct {
+type HeliosQueryWrapper struct {
 	// specifies which module handler should handle the query
 	Route string `json:"route,omitempty"`
 	// The query data that should be parsed into the module query
@@ -42,7 +42,7 @@ type InjectiveQueryWrapper struct {
 // CustomQuerier dispatches custom CosmWasm bindings queries.
 func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
-		var contractQuery InjectiveQueryWrapper
+		var contractQuery HeliosQueryWrapper
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
 			return nil, errorsmod.Wrap(err, "Error parsing request data")
 		}
@@ -68,7 +68,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		case FeeGrant:
 			bz, err = qp.HandleFeeGrantQuery(ctx, contractQuery.QueryData)
 		default:
-			return nil, wasmvmtypes.UnsupportedRequest{Kind: "Unknown Injective Query Route"}
+			return nil, wasmvmtypes.UnsupportedRequest{Kind: "Unknown Helios Query Route"}
 		}
 
 		return bz, err
@@ -89,7 +89,7 @@ func getWhitelistedQueries() wasmkeeper.AcceptedQueries {
 		"/cosmos.bank.v1beta1.Query/Params":        &banktypes.QueryParamsResponse{},
 		"/cosmos.bank.v1beta1.Query/SupplyOf":      &banktypes.QuerySupplyOfResponse{},
 
-		// Injective queries
+		// Helios queries
 		// Exchange
 		"/helios.exchange.v1beta1.Query/QueryExchangeParams":                 &exchangetypes.QueryExchangeParamsResponse{},
 		"/helios.exchange.v1beta1.Query/SubaccountDeposit":                   &exchangetypes.QuerySubaccountDepositResponse{},

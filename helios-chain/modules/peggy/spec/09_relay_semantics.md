@@ -21,7 +21,7 @@ For the purpose of normal operation this requirement can be shortened to 'sort t
 
 ### Deciding what Validator set to relay
 
-The Injective Chain simply produces a stream of validator sets, it does not make any judgement on how they are relayed. It's up to the relayer implementation to determine how to optimize the gas costs of this relaying operation.
+The Helios Chain simply produces a stream of validator sets, it does not make any judgement on how they are relayed. It's up to the relayer implementation to determine how to optimize the gas costs of this relaying operation.
 
 For example lets say we had validator sets `A, B, C, and D` each is created when there is a 5% power difference between the last Peggy validator set snapshot in the store and the currently active validator set.
 

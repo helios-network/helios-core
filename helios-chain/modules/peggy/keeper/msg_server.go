@@ -14,7 +14,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
 	"helios-core/helios-chain/modules/peggy/types"
 )
@@ -310,8 +310,8 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 
 	// Check if the claim data is a valid sdk.Msg. If not, ignore the data
 	if msg.Data != "" {
-		ethereumSenderInjAccAddr := sdk.AccAddress(common.FromHex(msg.EthereumSender))
-		if _, err := k.ValidateClaimData(ctx, msg.Data, ethereumSenderInjAccAddr); err != nil {
+		ethereumSenderHeliosAccAddr := sdk.AccAddress(common.FromHex(msg.EthereumSender))
+		if _, err := k.ValidateClaimData(ctx, msg.Data, ethereumSenderHeliosAccAddr); err != nil {
 			k.Logger(ctx).Info("claim data is not a valid sdk.Msg", err)
 			msg.Data = ""
 		}

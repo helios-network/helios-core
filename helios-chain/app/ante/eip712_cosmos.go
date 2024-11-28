@@ -126,7 +126,7 @@ func WrapTxToEIP712WithSignBytes(
 	}
 
 	domain := typeddata.TypedDataDomain{
-		Name:              "Injective Web3",
+		Name:              "helios Web3",
 		Version:           "1.0.0",
 		ChainId:           ethmath.NewHexOrDecimal256(chainID),
 		VerifyingContract: "cosmos",
@@ -173,7 +173,7 @@ func WrapTxToEIP712V2(
 	opts Web3ExtensionOptions,
 ) (typeddata.TypedData, error) {
 	domain := typeddata.TypedDataDomain{
-		Name:              "Injective Web3",
+		Name:              "helios Web3",
 		Version:           "1.0.0",
 		ChainId:           ethmath.NewHexOrDecimal256(opts.ChainID),
 		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",

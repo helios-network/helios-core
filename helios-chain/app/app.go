@@ -2,8 +2,9 @@ package app
 
 import (
 	"io"
-	"io/fs"
-	"net/http"
+
+	// "io/fs"
+	// "net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,7 +17,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	tx "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
-	"github.com/gorilla/mux"
+
+	// "github.com/gorilla/mux"
 
 	"github.com/spf13/cast"
 
@@ -39,6 +41,7 @@ import (
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -58,7 +61,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -100,8 +102,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -126,7 +126,6 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
@@ -137,11 +136,10 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
 
-	"github.com/InjectiveLabs/metrics"
+	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/client/docs"
+	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
-	injcodectypes "helios-core/helios-chain/codec/types"
 	"helios-core/helios-chain/modules/auction"
 	auctionkeeper "helios-core/helios-chain/modules/auction/keeper"
 	auctiontypes "helios-core/helios-chain/modules/auction/types"
@@ -171,8 +169,52 @@ import (
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 
-	// unnamed import of statik for swagger UI support
-	_ "helios-core/client/docs/statik"
+	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	erc20types "helios-core/helios-chain/x/erc20/types"
+
+	"helios-core/helios-chain/x/evm"
+	evmkeeper "helios-core/helios-chain/x/evm/keeper"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	"helios-core/helios-chain/x/feemarket"
+	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
+	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
+	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
+
+	epochstypes "helios-core/helios-chain/x/epochs/types"
+	inflation "helios-core/helios-chain/x/inflation/v1"
+
+	srvflags "helios-core/helios-chain/server/flags"
+
+	epochs "helios-core/helios-chain/x/epochs"
+	erc20 "helios-core/helios-chain/x/erc20"
+
+	post "helios-core/helios-chain/app/post"
+
+	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
+
+	//stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
+	transfer "helios-core/helios-chain/x/ibc/transfer"
+
+	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
+	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/keeper"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
+
+	staking "helios-core/helios-chain/x/staking"
+
+	encoding "helios-core/helios-chain/encoding"
+
+	evmostypes "helios-core/helios-chain/types"
+
+	ethante "helios-core/helios-chain/app/ante/evm"
+
+	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 func init() {
@@ -185,8 +227,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, ".heliades")
+	customHomeDir := os.Getenv("HELIADES_HOME")
+	if customHomeDir != "" {
+		DefaultNodeHome = filepath.Join(userHomeDir, customHomeDir)
+	} else {
+		DefaultNodeHome = filepath.Join(userHomeDir, ".heliades")
+	}
 }
 
 const appName = "helios-chain"
@@ -204,7 +250,7 @@ var (
 		genutil.AppModuleBasic{GenTxValidator: genutiltypes.DefaultMessageValidator},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic([]govclient.ProposalHandler{paramsclient.ProposalHandler}),
@@ -235,11 +281,12 @@ var (
 		permissionsmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		wasmx.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
+		authtypes.FeeCollectorName:     {authtypes.Burner},
 		distrtypes.ModuleName:          nil,
 		icatypes.ModuleName:            nil,
 		minttypes.ModuleName:           {authtypes.Minter},
@@ -257,6 +304,11 @@ var (
 		permissionsmodule.ModuleName:   nil,
 		wasmtypes.ModuleName:           {authtypes.Burner},
 		wasmxtypes.ModuleName:          {authtypes.Burner},
+		inflationtypes.ModuleName:      {authtypes.Minter},
+		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		ratelimittypes.ModuleName:      nil,
+		// feemarkettypes.ModuleName:      nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -272,10 +324,10 @@ var (
 	}
 )
 
-var _ runtime.AppI = (*InjectiveApp)(nil)
+var _ runtime.AppI = (*HeliosApp)(nil)
 
-// InjectiveApp implements an extended ABCI application.
-type InjectiveApp struct {
+// HeliosApp implements an extended ABCI application.
+type HeliosApp struct {
 	*baseapp.BaseApp
 	amino             *codec.LegacyAmino
 	codec             codec.Codec
@@ -303,7 +355,7 @@ type InjectiveApp struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
-	// injective keepers
+	// helios keepers
 	AuctionKeeper      auctionkeeper.Keeper
 	ExchangeKeeper     exchangekeeper.Keeper
 	InsuranceKeeper    insurancekeeper.Keeper
@@ -319,7 +371,7 @@ type InjectiveApp struct {
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCFeeKeeper        ibcfeekeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
-	TransferKeeper      ibctransferkeeper.Keeper
+	TransferKeeper      transferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	PacketForwardKeeper *packetforwardkeeper.Keeper
 	IBCHooksKeeper      ibchookskeeper.Keeper
@@ -340,30 +392,43 @@ type InjectiveApp struct {
 	// stream server
 	ChainStreamServer *stream.StreamServer
 	EventPublisher    *stream.Publisher
+
+	// ethermint keepers
+	EvmKeeper       *evmkeeper.Keeper
+	FeeMarketKeeper feemarketkeeper.Keeper
+
+	// Evmos keepers
+	InflationKeeper inflationkeeper.Keeper
+	Erc20Keeper     erc20keeper.Keeper
+	EpochsKeeper    epochskeeper.Keeper
+	VestingKeeper   vestingkeeper.Keeper
+
+	RateLimitKeeper ratelimitkeeper.Keeper
 }
 
-// NewInjectiveApp returns a reference to a new initialized Injective application.
-func NewInjectiveApp(
+// NewHeliosApp returns a reference to a new initialized Helios application.
+func NewHeliosApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *InjectiveApp {
+) *HeliosApp {
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	app := initInjectiveApp(appName, logger, db, traceStore, baseAppOptions...)
+	app := initHeliosApp(appName, logger, db, traceStore, baseAppOptions...)
 
 	oracleModule := app.initKeepers(authority, appOpts, wasmConfig)
 	app.initManagers(oracleModule)
 	app.registerUpgradeHandlers()
 
 	app.configurator = module.NewConfigurator(app.codec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+
 	if err := app.mm.RegisterServices(app.configurator); err != nil {
 		panic(err)
 	}
@@ -377,10 +442,18 @@ func NewInjectiveApp(
 
 	reflectionv1.RegisterReflectionServiceServer(app.GRPCQueryRouter(), reflectionSvc)
 
+	testdata_pulsar.RegisterQueryServer(app.GRPCQueryRouter(), testdata_pulsar.QueryImpl{})
+
 	// initialize stores
 	app.MountKVStores(app.keys)
 	app.MountTransientStores(app.tKeys)
 	app.MountMemoryStores(app.memKeys)
+
+	// load state streaming if enabled
+	if err := app.RegisterStreamingServices(appOpts, app.keys); err != nil {
+		panic("failed to load state streaming: " + err.Error())
+		os.Exit(1)
+	}
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -388,22 +461,35 @@ func NewInjectiveApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 
-	// use Injective's custom AnteHandler
+	// use Helios's custom AnteHandler
 	skipAnteHandlers := cast.ToBool(appOpts.Get("SkipAnteHandlers"))
 	if !skipAnteHandlers {
-		app.SetAnteHandler(ante.NewAnteHandler(ante.HandlerOptions{
-			HandlerOptions: authante.HandlerOptions{
-				AccountKeeper:   app.AccountKeeper,
-				BankKeeper:      app.BankKeeper,
-				SignModeHandler: app.txConfig.SignModeHandler(),
-				FeegrantKeeper:  app.FeeGrantKeeper,
-				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-			},
-			IBCKeeper:             app.IBCKeeper,
-			WasmConfig:            &wasmConfig,
-			WasmKeeper:            &app.WasmKeeper,
-			TXCounterStoreService: runtime.NewKVStoreService(app.keys[wasmtypes.StoreKey]),
-		}))
+		maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
+
+		//TODO: Merge WASM
+		options := ante.HandlerOptions{
+			Cdc:                    app.codec,
+			AccountKeeper:          app.AccountKeeper,
+			BankKeeper:             app.BankKeeper,
+			ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+			EvmKeeper:              app.EvmKeeper,
+			StakingKeeper:          app.StakingKeeper,
+			FeegrantKeeper:         app.FeeGrantKeeper,
+			DistributionKeeper:     app.DistrKeeper,
+			IBCKeeper:              app.IBCKeeper,
+			FeeMarketKeeper:        app.FeeMarketKeeper,
+			SignModeHandler:        app.txConfig.SignModeHandler(),
+			SigGasConsumer:         ante.SigVerificationGasConsumer,
+			MaxTxGasWanted:         maxGasWanted,
+			TxFeeChecker:           ethante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		}
+
+		if err := options.Validate(); err != nil {
+			panic(err)
+		}
+		app.SetAnteHandler(ante.NewAnteHandler(options))
+		app.setPostHandler()
+		// app.setupUpgradeHandlers()
 	}
 
 	if loadLatest {
@@ -427,15 +513,16 @@ func NewInjectiveApp(
 	return app
 }
 
-func initInjectiveApp(
+func initHeliosApp(
 	name string,
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *InjectiveApp {
+) *HeliosApp {
 	var (
-		encodingConfig    = injcodectypes.MakeEncodingConfig()
+		// encodingConfig    = helioscodectypes.MakeEncodingConfig()
+		encodingConfig    = encoding.MakeConfig()
 		appCodec          = encodingConfig.Codec
 		legacyAmino       = encodingConfig.Amino
 		interfaceRegistry = encodingConfig.InterfaceRegistry
@@ -449,7 +536,7 @@ func initInjectiveApp(
 			capabilitytypes.StoreKey, feegrant.StoreKey, authzkeeper.StoreKey,
 			icahosttypes.StoreKey, ibcfeetypes.StoreKey, crisistypes.StoreKey,
 			consensustypes.StoreKey, packetforwardtypes.StoreKey, ibchookstypes.StoreKey,
-			// Injective keys
+			// Helios keys
 			exchangetypes.StoreKey,
 			oracletypes.StoreKey,
 			insurancetypes.StoreKey,
@@ -460,6 +547,13 @@ func initInjectiveApp(
 			permissionsmodule.StoreKey,
 			wasmtypes.StoreKey,
 			wasmxtypes.StoreKey,
+			epochstypes.StoreKey,
+			// Add missing EVM-related keys
+			evmtypes.StoreKey,
+			feemarkettypes.StoreKey,
+			erc20types.StoreKey,
+			inflationtypes.StoreKey,
+			ratelimittypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
@@ -467,6 +561,9 @@ func initInjectiveApp(
 			banktypes.TStoreKey,
 			exchangetypes.TStoreKey,
 			ocrtypes.TStoreKey,
+			// Add missing EVM-related transient keys
+			evmtypes.TransientKey,
+			feemarkettypes.TransientKey,
 		)
 
 		memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -476,7 +573,7 @@ func initInjectiveApp(
 		name,
 		logger,
 		db,
-		encodingConfig.TxConfig.TxDecoder(), // NOTE we use custom Injective transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
+		encodingConfig.TxConfig.TxDecoder(), // NOTE we use custom Helios transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
 		baseAppOptions...,
 	)
 
@@ -485,7 +582,11 @@ func initInjectiveApp(
 	bApp.SetName(version.Name)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	app := &InjectiveApp{
+	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
+		panic(err)
+	}
+
+	app := &HeliosApp{
 		BaseApp:           bApp,
 		amino:             legacyAmino,
 		codec:             appCodec,
@@ -499,18 +600,18 @@ func initInjectiveApp(
 	return app
 }
 
-func (app *InjectiveApp) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
+func (app *HeliosApp) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
 
-func (app *InjectiveApp) GetIBCKeeper() *ibckeeper.Keeper { return app.IBCKeeper }
+func (app *HeliosApp) GetIBCKeeper() *ibckeeper.Keeper { return app.IBCKeeper }
 
-func (app *InjectiveApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+func (app *HeliosApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 	return app.ScopedIBCKeeper
 }
 
-func (app *InjectiveApp) GetTxConfig() client.TxConfig { return app.txConfig }
+func (app *HeliosApp) GetTxConfig() client.TxConfig { return app.txConfig }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *InjectiveApp) AutoCliOpts() autocli.AppOptions {
+func (app *HeliosApp) AutoCliOpts() autocli.AppOptions {
 	modules := make(map[string]appmodule.AppModule, 0)
 	for _, m := range app.mm.Modules {
 		if moduleWithName, ok := m.(module.HasName); ok {
@@ -531,29 +632,29 @@ func (app *InjectiveApp) AutoCliOpts() autocli.AppOptions {
 }
 
 // Name returns the name of the App
-func (app *InjectiveApp) Name() string { return app.BaseApp.Name() }
+func (app *HeliosApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker updates every begin block
-func (app *InjectiveApp) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
+func (app *HeliosApp) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, metrics.Tags{"svc": "app", "height": strconv.Itoa(int(ctx.BlockHeight()))})
 	defer doneFn()
 	return app.mm.BeginBlock(ctx)
 }
 
 // PreBlocker application updates every pre block
-func (app *InjectiveApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+func (app *HeliosApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
 	return app.mm.PreBlock(ctx)
 }
 
 // EndBlocker updates every end block
-func (app *InjectiveApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
+func (app *HeliosApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, metrics.Tags{"svc": "app", "height": strconv.Itoa(int(ctx.BlockHeight()))})
 	defer doneFn()
 	return app.mm.EndBlock(ctx)
 }
 
 // InitChainer updates at chain initialization
-func (app *InjectiveApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+func (app *HeliosApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
 	app.amino.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {
@@ -563,17 +664,17 @@ func (app *InjectiveApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain
 	return app.mm.InitGenesis(ctx, app.codec, genesisState)
 }
 
-func (app *InjectiveApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
+func (app *HeliosApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
 }
 
 // LoadHeight loads state at a particular height
-func (app *InjectiveApp) LoadHeight(height int64) error {
+func (app *HeliosApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *InjectiveApp) ModuleAccountAddrs() map[string]bool {
+func (app *HeliosApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
@@ -584,7 +685,7 @@ func (app *InjectiveApp) ModuleAccountAddrs() map[string]bool {
 
 // BlockedAddrs returns all the app's module account addresses that are not
 // allowed to receive external tokens.
-func (app *InjectiveApp) BlockedAddrs() map[string]bool {
+func (app *HeliosApp) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
@@ -593,73 +694,73 @@ func (app *InjectiveApp) BlockedAddrs() map[string]bool {
 	return blockedAddrs
 }
 
-// LegacyAmino returns InjectiveApp's amino codec.
+// LegacyAmino returns HeliosApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *InjectiveApp) LegacyAmino() *codec.LegacyAmino {
+func (app *HeliosApp) LegacyAmino() *codec.LegacyAmino {
 	return app.amino
 }
 
-// AppCodec returns InjectiveApp's app codec.
+// AppCodec returns HeliosApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *InjectiveApp) AppCodec() codec.Codec {
+func (app *HeliosApp) AppCodec() codec.Codec {
 	return app.codec
 }
 
-// InterfaceRegistry returns InjectiveApp's InterfaceRegistry
-func (app *InjectiveApp) InterfaceRegistry() types.InterfaceRegistry {
+// InterfaceRegistry returns HeliosApp's InterfaceRegistry
+func (app *HeliosApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
 // TxConfig returns SimApp's TxConfig
-func (app *InjectiveApp) TxConfig() client.TxConfig {
+func (app *HeliosApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *InjectiveApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *HeliosApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return app.keys[storeKey]
 }
 
-func (app *InjectiveApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
+func (app *HeliosApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *InjectiveApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+func (app *HeliosApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return app.tKeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *InjectiveApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+func (app *HeliosApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *InjectiveApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *HeliosApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *InjectiveApp) SimulationManager() *module.SimulationManager {
+func (app *HeliosApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *InjectiveApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *HeliosApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 
 	// Register new tx routes from grpc-gateway.
@@ -674,36 +775,36 @@ func (app *InjectiveApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API from root so that other applications can override easily
-	if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
-		panic(err)
-	}
+	// if err := RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+	// 	panic(err)
+	// }
 }
 
-// RegisterSwaggerAPI provides a common function which registers swagger route with API Server
-func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) error {
-	if !swaggerEnabled {
-		return nil
-	}
+// // RegisterSwaggerAPI provides a common function which registers swagger route with API Server
+// func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) error {
+// 	if !swaggerEnabled {
+// 		return nil
+// 	}
 
-	root, err := fs.Sub(docs.SwaggerUI, "swagger-ui")
-	if err != nil {
-		return err
-	}
+// 	root, err := fs.Sub(docs.SwaggerUI, "swagger-ui")
+// 	if err != nil {
+// 		return err
+// 	}
 
-	staticServer := http.FileServer(http.FS(root))
-	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
-	return nil
-}
+// 	staticServer := http.FileServer(http.FS(root))
+// 	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
+// 	return nil
+// }
 
-func (app *InjectiveApp) RegisterTxService(clientCtx client.Context) {
+func (app *HeliosApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
-func (app *InjectiveApp) RegisterTendermintService(clientCtx client.Context) {
+func (app *HeliosApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
 }
 
-func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOptions, wasmConfig wasmtypes.WasmConfig) oracle.AppModule {
+func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptions, wasmConfig wasmtypes.WasmConfig) oracle.AppModule {
 	app.ParamsKeeper = initParamsKeeper(
 		app.codec,
 		app.amino,
@@ -745,8 +846,8 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 		runtime.NewKVStoreService(app.keys[authtypes.StoreKey]),
 		chaintypes.ProtoAccount, // use custom Ethermint account
 		maccPerms,
-		authcodec.NewBech32Codec(chaintypes.InjectiveBech32Prefix),
-		chaintypes.InjectiveBech32Prefix,
+		authcodec.NewBech32Codec(chaintypes.Bech32Prefix),
+		chaintypes.Bech32Prefix,
 		authority,
 	)
 
@@ -981,7 +1082,7 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(app.keys[ibchookstypes.StoreKey])
 
 	// ics20WasmHooks.ContractKeeper needs to be set later
-	ics20WasmHooks := ibchooks.NewWasmHooks(&app.IBCHooksKeeper, &app.WasmKeeper, chaintypes.InjectiveBech32Prefix)
+	ics20WasmHooks := ibchooks.NewWasmHooks(&app.IBCHooksKeeper, &app.WasmKeeper, chaintypes.Bech32Prefix)
 	hooksICS4Wrapper := ibchooks.NewICS4Middleware(app.IBCKeeper.ChannelKeeper, ics20WasmHooks)
 
 	// Initialize packet forward middleware router
@@ -996,19 +1097,26 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 		authority,
 	)
 
+	// Create the rate limit keeper
+	app.RateLimitKeeper = *ratelimitkeeper.NewKeeper(
+		app.codec,
+		runtime.NewKVStoreService(app.keys[ratelimittypes.StoreKey]),
+		app.GetSubspace(ratelimittypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper, // ICS4Wrapper
+	)
+
 	// Create Transfer Keepers
 	app.ScopedTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		app.codec,
-		app.keys[ibctransfertypes.StoreKey],
-		app.GetSubspace(ibctransfertypes.ModuleName),
-		// The ICS4Wrapper is replaced by the PacketForwardKeeper instead of the channel so that sending can be overridden by the middleware
-		app.PacketForwardKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.ScopedTransferKeeper,
+
+	app.TransferKeeper = transferkeeper.NewKeeper(
+		app.codec, app.keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.RateLimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
+		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, app.ScopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 		authority,
 	)
 
@@ -1020,7 +1128,7 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	// See https://github.com/CosmWasm/cosmwasm/blob/main/docs/CAPABILITIES-BUILT-IN.md
-	availableCapabilities := append(wasmkeeper.BuiltInCapabilities(), "injective")
+	availableCapabilities := append(wasmkeeper.BuiltInCapabilities(), "helios")
 	wasmOpts := GetWasmOpts(appOpts)
 	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(
 		&app.AuthzKeeper,
@@ -1088,7 +1196,10 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
-	transferStack = ibctransfer.NewIBCModule(app.TransferKeeper)
+	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
+	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
+
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
 	transferStack = ibchooks.NewIBCMiddleware(transferStack, &hooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(transferStack,
@@ -1132,6 +1243,69 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 	// No more routes can be added
 	app.IBCKeeper.SetRouter(ibcRouter)
 
+	app.ExchangeKeeper.SetWasmKeepers(app.WasmKeeper, app.WasmxKeeper)
+	app.ExchangeKeeper.SetGovKeeper(app.GovKeeper)
+
+	// Create FeeMarket keeper
+
+	// ALL EVM
+
+	// Evmos Keeper
+	app.InflationKeeper = inflationkeeper.NewKeeper(
+		app.keys[inflationtypes.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper,
+		authtypes.FeeCollectorName,
+	)
+
+	// Create Ethermint keepers
+	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.keys[feemarkettypes.StoreKey],
+		app.tKeys[feemarkettypes.TransientKey],
+		app.GetSubspace(feemarkettypes.ModuleName),
+	)
+
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
+
+	evmKeeper := evmkeeper.NewKeeper(
+		app.codec, app.keys[evmtypes.StoreKey], app.tKeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
+		// is being developed.
+		app.Erc20Keeper,
+		tracer, app.GetSubspace(evmtypes.ModuleName),
+	)
+	app.EvmKeeper = evmKeeper
+
+	erc20Keeper := erc20keeper.NewKeeper(
+		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AuthzKeeper, &app.TransferKeeper,
+	)
+	app.Erc20Keeper = erc20Keeper
+
+	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
+	app.EpochsKeeper = *epochsKeeper.SetHooks(
+		epochskeeper.NewMultiEpochHooks(
+			// insert epoch hooks receivers here
+			app.InflationKeeper.Hooks(),
+		),
+	)
+
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
+			*app.StakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
+			app.Erc20Keeper,
+			app.VestingKeeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.GovKeeper,
+		),
+	)
+
 	// register the proposal types
 	govRouter := govv1beta1.NewRouter().
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
@@ -1141,24 +1315,37 @@ func (app *InjectiveApp) initKeepers(authority string, appOpts servertypes.AppOp
 		AddRoute(oracletypes.RouterKey, oracle.NewOracleProposalHandler(app.OracleKeeper)).
 		AddRoute(auctiontypes.RouterKey, auction.NewAuctionProposalHandler(app.AuctionKeeper)).
 		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
 		AddRoute(wasmxtypes.RouterKey, wasmx.NewWasmxProposalHandler(app.WasmxKeeper, wasmkeeper.NewLegacyWasmProposalHandler(app.WasmKeeper, GetEnabledProposals()))) //nolint:staticcheck // still using legacy governance, will need to migrate and use the new gov v1 later
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
-	app.ExchangeKeeper.SetWasmKeepers(app.WasmKeeper, app.WasmxKeeper)
-	app.ExchangeKeeper.SetGovKeeper(app.GovKeeper)
-
 	return oracleModule
 }
 
-func (app *InjectiveApp) initManagers(oracleModule oracle.AppModule) {
+func (app *HeliosApp) setPostHandler() {
+	options := post.HandlerOptions{
+		FeeCollectorName: authtypes.FeeCollectorName,
+		BankKeeper:       app.BankKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	app.SetPostHandler(post.NewPostHandler(options))
+}
+
+func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
 	// we prefer to be more strict in what arguments the modules expect.
 	// var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 	skipGenesisInvariants := true
 
+	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
+
 		// SDK app modules
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app, app.txConfig),
 		auth.NewAppModule(app.codec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
@@ -1178,13 +1365,17 @@ func (app *InjectiveApp) initManagers(oracleModule oracle.AppModule) {
 		authzmodule.NewAppModule(app.codec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(app.codec, app.ConsensusParamsKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
-		ibctransfer.NewAppModule(app.TransferKeeper),
+		transferModule,
+		ratelimit.NewAppModule(app.codec, app.RateLimitKeeper),
+		// Ethermint app modules
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ibctm.NewAppModule(),
 		ibchooks.NewAppModule(app.AccountKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
-		// Injective app modules
+		// Helios app modules
 		exchange.NewAppModule(app.ExchangeKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(exchangetypes.ModuleName)),
 		auction.NewAppModule(app.AuctionKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(auctiontypes.ModuleName)),
 		insurance.NewAppModule(app.InsuranceKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(insurancetypes.ModuleName)),
@@ -1196,6 +1387,12 @@ func (app *InjectiveApp) initManagers(oracleModule oracle.AppModule) {
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(app.codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
+			app.GetSubspace(inflationtypes.ModuleName)),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
+			app.GetSubspace(erc20types.ModuleName)),
+		epochs.NewAppModule(app.codec, app.EpochsKeeper),
+		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper), //TODO: CHECK IF CREATE ISSUES CAUSE MODIFIED
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1261,7 +1458,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	// wasm subspace
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
-	// injective subspaces
+	// helios subspaces
 	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	paramsKeeper.Subspace(insurancetypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
@@ -1271,6 +1468,15 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(permissionsmodule.ModuleName)
 	paramsKeeper.Subspace(wasmxtypes.ModuleName)
+
+	// FIX: do we need a keytable?
+	paramsKeeper.Subspace(ratelimittypes.ModuleName)
+	// ethermint subspaces
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
+	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
+	// evmos subspaces
+	paramsKeeper.Subspace(inflationtypes.ModuleName)
+	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	return paramsKeeper
 }
@@ -1294,6 +1500,11 @@ func initGenesisOrder() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		// Ethermint modules
+		evmtypes.ModuleName,
+		// NOTE: feemarket module needs to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		feemarkettypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -1304,7 +1515,8 @@ func initGenesisOrder() []string {
 		feegrant.ModuleName,
 		consensustypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		// Injective modules
+
+		// Helios modules
 		auctiontypes.ModuleName,
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -1318,6 +1530,10 @@ func initGenesisOrder() []string {
 		wasmtypes.ModuleName,
 		wasmxtypes.ModuleName,
 
+		inflationtypes.ModuleName,
+		erc20types.ModuleName,
+		epochstypes.ModuleName,
+		ratelimittypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	}
@@ -1330,6 +1546,11 @@ func beginBlockerOrder() []string {
 	// NOTE: upgrade module must go first to handle software upgrades.
 	// NOTE: staking module is required if HistoricalEntries param > 0.
 	return []string{
+		capabilitytypes.ModuleName,
+		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
+		epochstypes.ModuleName,
+		feemarkettypes.ModuleName,
+		evmtypes.ModuleName,
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
@@ -1344,7 +1565,6 @@ func beginBlockerOrder() []string {
 		authz.ModuleName,
 		ibctransfertypes.ModuleName,
 		consensustypes.ModuleName,
-		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -1358,6 +1578,7 @@ func beginBlockerOrder() []string {
 		exchangetypes.ModuleName,
 		oracletypes.ModuleName,
 		ocrtypes.ModuleName,
+		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
 		permissionsmodule.ModuleName,
 		ibchookstypes.ModuleName,
@@ -1391,6 +1612,10 @@ func endBlockerOrder() []string {
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+
+		evmtypes.ModuleName,
+		feemarkettypes.ModuleName,
+
 		peggytypes.ModuleName,
 		exchangetypes.ModuleName,
 		auctiontypes.ModuleName,
@@ -1405,3 +1630,43 @@ func endBlockerOrder() []string {
 		banktypes.ModuleName,
 	}
 }
+
+// func (app *HeliosApp) setupUpgradeHandlers() {
+// 	// v20 upgrade handler
+// 	app.UpgradeKeeper.SetUpgradeHandler(
+// 		v20.UpgradeName,
+// 		v20.CreateUpgradeHandler(
+// 			app.mm, app.configurator,
+// 			app.AccountKeeper,
+// 			app.EvmKeeper,
+// 		),
+// 	)
+
+// 	// When a planned update height is reached, the old binary will panic
+// 	// writing on disk the height and name of the update that triggered it
+// 	// This will read that value, and execute the preparations for the upgrade.
+// 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+// 	if err != nil {
+// 		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+// 	}
+
+// 	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+// 		return
+// 	}
+
+// 	// var storeUpgrades *storetypes.StoreUpgrades
+
+// 	// switch upgradeInfo.Name {
+// 	// case v191.UpgradeName:
+// 	// 	storeUpgrades = &storetypes.StoreUpgrades{
+// 	// 		Added: []string{ratelimittypes.ModuleName},
+// 	// 	}
+// 	// default:
+// 	// // no-op
+// 	// }
+
+// 	// if storeUpgrades != nil {
+// 	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+// 	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+// 	// }
+// }

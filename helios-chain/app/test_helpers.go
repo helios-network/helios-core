@@ -21,7 +21,7 @@ import (
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
-// InjectiveApp testing.
+// HeliosApp testing.
 var DefaultConsensusParams = &tmproto.ConsensusParams{
 	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
@@ -41,9 +41,9 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 
 const defaultHomeDirForTest = "testrun"
 
-// Setup initializes a new InjectiveApp. A Nop logger is set in InjectiveApp.
-func Setup(isCheckTx bool, appOpts ...simtestutil.AppOptionsMap) *InjectiveApp {
-	sdk.DefaultBondDenom = "inj"
+// Setup initializes a new HeliosApp. A Nop logger is set in HeliosApp.
+func Setup(isCheckTx bool, appOpts ...simtestutil.AppOptionsMap) *HeliosApp {
+	sdk.DefaultBondDenom = "helios"
 	testAppOpts := simtestutil.AppOptionsMap{"trace": true}
 
 	for _, opts := range appOpts {
@@ -57,7 +57,7 @@ func Setup(isCheckTx bool, appOpts ...simtestutil.AppOptionsMap) *InjectiveApp {
 	}
 
 	db := dbm.NewMemDB()
-	app := NewInjectiveApp(log.NewNopLogger(), db, nil, true, testAppOpts)
+	app := NewHeliosApp(log.NewNopLogger(), db, nil, true, testAppOpts)
 
 	if isCheckTx {
 		return app
@@ -125,7 +125,7 @@ func Setup(isCheckTx bool, appOpts ...simtestutil.AppOptionsMap) *InjectiveApp {
 }
 
 // NextBlock starts a new block.
-func NextBlock(app *InjectiveApp, ctx sdk.Context, jumpTime time.Duration) (sdk.Context, error) {
+func NextBlock(app *HeliosApp, ctx sdk.Context, jumpTime time.Duration) (sdk.Context, error) {
 	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: ctx.BlockHeight(), Time: ctx.BlockTime()})
 	if err != nil {
 		return sdk.Context{}, err
@@ -149,7 +149,7 @@ func NextBlock(app *InjectiveApp, ctx sdk.Context, jumpTime time.Duration) (sdk.
 	return newCtx, err
 }
 
-func Cleanup(app *InjectiveApp) {
+func Cleanup(app *HeliosApp) {
 	app.WasmKeeper.Cleanup()                // release cosmwasm instance cache lock
 	_ = os.RemoveAll(defaultHomeDirForTest) // remove default dir, if it was overridden during test Setup, it's a responsibility of the sender to remove the folder
 }

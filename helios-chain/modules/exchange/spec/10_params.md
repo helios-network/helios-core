@@ -9,8 +9,8 @@ The exchange module contains the following parameters:
 
 | Key                                         | Type     | Example            |
 | ------------------------------------------- | -------- | ------------------ |
-| SpotMarketInstantListingFee                 | sdk.Coin | 100inj             |
-| DerivativeMarketInstantListingFee           | sdk.Coin | 1000inj            |
+| SpotMarketInstantListingFee                 | sdk.Coin | 100helios             |
+| DerivativeMarketInstantListingFee           | sdk.Coin | 1000helios            |
 | DefaultSpotMakerFeeRate                     | math.LegacyDec  | 0.1%               |
 | DefaultSpotTakerFeeRate                     | math.LegacyDec  | 0.2%               |
 | DefaultDerivativeMakerFeeRate               | math.LegacyDec  | 0.1%               |
@@ -23,10 +23,10 @@ The exchange module contains the following parameters:
 | DefaultHourlyFundingRateCap                 | math.LegacyDec  | 0.0625%            |
 | DefaultHourlyInterestRate                   | math.LegacyDec  | 0.000416666%       |
 | MaxDerivativeOrderSideCount                 | int64    | 20                 |
-| InjRewardStakedRequirementThreshold         | sdk.Coin | 25inj              |
+| HeliosRewardStakedRequirementThreshold      | sdk.Coin | 25helios              |
 | TradingRewardsVestingDuration               | int64    | 1209600            |
 | LiquidatorRewardShareRate                   | math.LegacyDec  | 0.05%              |
-| BinaryOptionsMarketInstantListingFee        | sdk.Coin | 10inj              |
+| BinaryOptionsMarketInstantListingFee        | sdk.Coin | 10helios              |
 | AtomicMarketOrderAccessLevel                | string   | SmartContractsOnly |
 | SpotAtomicMarketOrderFeeMultiplier          | math.LegacyDec  | 2x                 |
 | DerivativeAtomicMarketOrderFeeMultiplier    | math.LegacyDec  | 2x                 |
