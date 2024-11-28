@@ -21,8 +21,7 @@ service Query {
   }
 
   // attestation
-  rpc Attestation(QueryAttestationRequest)
-      returns (QueryAttestationResponse) {
+  rpc Attestation(QueryAttestationRequest) returns (QueryAttestationResponse) {
     option (google.api.http).get = "/peggy/v1/attestation/{nonce}/{claim_hash}";
   }
   // valset
@@ -126,9 +125,7 @@ message QueryAttestationRequest {
   bytes claim_hash = 2;
 }
 
-message QueryAttestationResponse {
-  Attestation attestation = 1;
-}
+message QueryAttestationResponse { Attestation attestation = 1; }
 
 message QueryCurrentValsetRequest {}
 message QueryCurrentValsetResponse { Valset valset = 1; }

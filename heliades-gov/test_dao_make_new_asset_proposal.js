@@ -35,40 +35,24 @@ import protopkg from '@helios-chain-labs/proto';
 
     const sender = await getSender(wallet)
 
+    const newAssetProposal = new protopkg.helios.erc20.v1.AddNewAssetConsensusProposal({
+      title: 'Whitelist USDT into the consensus with a base stake of power 100',
+      description: 'Explaining why USDT would be a good potential for Helios consensus and why it would secure the market',
+      assets: [
+        new protopkg.helios.erc20.v1.Asset({
+          denom: 'USDT',
+          contract_address: '0x1234567890abcdef1234567890abcdef12345678',
+          chain_id: 'ethereum',
+          decimals: 6,
+          base_weight: 100,
+          metadata: 'Tether stablecoin'
+        }),
+      ]
+    });
 
-    //   // Create and serialize the initial deposit
-    //   const initialDeposit = [
-    //     new protopkg.cosmosbase.base.v1beta1.Coin({
-    //       denom: 'ahelios',
-    //       amount: '1000000000000000000', // 1 HELIOS
-    //     }),
-    //   ];
-
-
-    // Create the TextProposal instance using the new method
-    // const proposal = new createMsgSubmitProposal(
-    //   textProposalAny,
-    //   "ahelios",
-    //   "1000000000000000000",
-    //   sender.accountAddress
-    // )
-
-    // const proposal = new protopkg.cosmosgovtx.gov.v1.MsgSubmitProposal({
-    //   messages: [],
-    //   initial_deposit: [],
-    //   proposer: sender.accountAddress,
-    // })
-    
-    
-    const textProposal = new protopkg.cosmosbetagov.gov.v1beta1.TextProposal({
-      title: 'Bisous sur les fesses',
-      description: 'Faire un bisous sur les fesses de Jeremy Guyet.',
-      proposal_type: "RegisterCoinProposal",
-    })
-
-    const textProposalAny = new protopkg.google.protobuf.Any({
-      type_url: '/cosmos.gov.v1beta1.TextProposal',
-      value: textProposal.serializeBinary(), // Serialize to Protobuf binary
+    const newAssetProposalAny = new protopkg.google.protobuf.Any({
+      type_url: '/helios.erc20.v1.AddNewAssetConsensusProposal',
+      value: newAssetProposal.serializeBinary(),
     });
 
     // Create the governance proposal transaction
@@ -78,7 +62,7 @@ import protopkg from '@helios-chain-labs/proto';
       LOCALNET_FEE,
       '', // Optional memo
       {
-        content: textProposalAny,
+        content: newAssetProposalAny,
         initialDepositDenom: "ahelios",
         initialDepositAmount: "1000000000000000000",
         proposer: sender.accountAddress

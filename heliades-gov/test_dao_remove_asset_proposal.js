@@ -36,39 +36,16 @@ import protopkg from '@helios-chain-labs/proto';
     const sender = await getSender(wallet)
 
 
-    //   // Create and serialize the initial deposit
-    //   const initialDeposit = [
-    //     new protopkg.cosmosbase.base.v1beta1.Coin({
-    //       denom: 'ahelios',
-    //       amount: '1000000000000000000', // 1 HELIOS
-    //     }),
-    //   ];
+    const newAssetProposal = new protopkg.helios.erc20.v1.RemoveAssetConsensusProposal({
+      title: 'Remove USDT from the consensus weight',
+      description: 'Explaining why USDT should be removed and does not benefit the network anymore',
+      denoms: ["USDT"],
+      
+    });
 
-
-    // Create the TextProposal instance using the new method
-    // const proposal = new createMsgSubmitProposal(
-    //   textProposalAny,
-    //   "ahelios",
-    //   "1000000000000000000",
-    //   sender.accountAddress
-    // )
-
-    // const proposal = new protopkg.cosmosgovtx.gov.v1.MsgSubmitProposal({
-    //   messages: [],
-    //   initial_deposit: [],
-    //   proposer: sender.accountAddress,
-    // })
-    
-    
-    const textProposal = new protopkg.cosmosbetagov.gov.v1beta1.TextProposal({
-      title: 'Bisous sur les fesses',
-      description: 'Faire un bisous sur les fesses de Jeremy Guyet.',
-      proposal_type: "RegisterCoinProposal",
-    })
-
-    const textProposalAny = new protopkg.google.protobuf.Any({
-      type_url: '/cosmos.gov.v1beta1.TextProposal',
-      value: textProposal.serializeBinary(), // Serialize to Protobuf binary
+    const removeAssetProposalAny = new protopkg.google.protobuf.Any({
+      type_url: '/helios.erc20.v1.RemoveAssetConsensusProposal',
+      value: newAssetProposal.serializeBinary(),
     });
 
     // Create the governance proposal transaction
@@ -78,7 +55,7 @@ import protopkg from '@helios-chain-labs/proto';
       LOCALNET_FEE,
       '', // Optional memo
       {
-        content: textProposalAny,
+        content: removeAssetProposalAny,
         initialDepositDenom: "ahelios",
         initialDepositAmount: "1000000000000000000",
         proposer: sender.accountAddress
