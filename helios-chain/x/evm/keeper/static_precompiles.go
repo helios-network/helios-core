@@ -8,15 +8,10 @@ import (
 	"maps"
 	"slices"
 
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
-	"github.com/ethereum/go-ethereum/common"
 	bankprecompile "helios-core/helios-chain/precompiles/bank"
 	"helios-core/helios-chain/precompiles/bech32"
 	distprecompile "helios-core/helios-chain/precompiles/distribution"
+	"helios-core/helios-chain/precompiles/erc20creator"
 	govprecompile "helios-core/helios-chain/precompiles/gov"
 	ics20precompile "helios-core/helios-chain/precompiles/ics20"
 	"helios-core/helios-chain/precompiles/p256"
@@ -28,6 +23,13 @@ import (
 	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
+
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const bech32PrecompileBaseGas = 6_000
@@ -54,6 +56,11 @@ func NewAvailableStaticPrecompiles(
 	bech32Precompile, err := bech32.NewPrecompile(bech32PrecompileBaseGas)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bech32 precompile: %w", err))
+	}
+
+	erc20CreatorPrecompile, err := erc20creator.NewPrecompile(erc20Keeper, bankKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate erc20Creator precompile: %w", err))
 	}
 
 	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
@@ -97,6 +104,7 @@ func NewAvailableStaticPrecompiles(
 
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
+	precompiles[erc20CreatorPrecompile.Address()] = erc20CreatorPrecompile
 	precompiles[p256Precompile.Address()] = p256Precompile
 
 	// Stateful precompiles
