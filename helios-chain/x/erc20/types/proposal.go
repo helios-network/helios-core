@@ -22,60 +22,27 @@ const (
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
 	ProposalAddNewAssetConsensus      string = "AddNewAssetConsensus"
+	ProposalRemoveAssetConsensus      string = "RemoveAssetConsensus"
 )
 
 // Implements Proposal Interface
 var (
-	// RegisterCoinProposal is DEPRECATED, remove after v16 upgrade
 	_ v1beta1.Content = &RegisterCoinProposal{}
 	_ v1beta1.Content = &RegisterERC20Proposal{}
 	_ v1beta1.Content = &ToggleTokenConversionProposal{}
 	_ v1beta1.Content = &AddNewAssetConsensusProposal{}
+	_ v1beta1.Content = &RemoveAssetConsensusProposal{}
 )
 
 func init() {
 	v1beta1.RegisterProposalType(ProposalTypeRegisterERC20)
 	v1beta1.RegisterProposalType(ProposalTypeToggleTokenConversion)
 	v1beta1.RegisterProposalType(ProposalAddNewAssetConsensus)
+	v1beta1.RegisterProposalType(ProposalRemoveAssetConsensus)
 }
 
-// CreateDenomDescription generates a string with the coin description
-func CreateDenomDescription(address string) string {
-	return fmt.Sprintf("Cosmos coin token representation of %s", address)
-}
-
-// CreateDenom generates a string the module name plus the address to avoid conflicts with names staring with a number
-func CreateDenom(address string) string {
-	return fmt.Sprintf("%s/%s", ModuleName, address)
-}
-
-// ValidateErc20Denom checks if a denom is a valid erc20/
-// denomination
-func ValidateErc20Denom(denom string) error {
-	denomSplit := strings.SplitN(denom, "/", 2)
-
-	if len(denomSplit) != 2 || denomSplit[0] != ModuleName {
-		return fmt.Errorf("invalid denom. %s denomination should be prefixed with the format 'erc20/", denom)
-	}
-
-	return evmostypes.ValidateAddress(denomSplit[1])
-}
-
-// NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
-func NewRegisterERC20Proposal(title, description string, erc20Addreses ...string) v1beta1.Content {
-	return &RegisterERC20Proposal{
-		Title:          title,
-		Description:    description,
-		Erc20Addresses: erc20Addreses,
-	}
-}
-
-// ProposalRoute returns router key for this proposal
-func (*RegisterERC20Proposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type for this proposal
-func (*RegisterERC20Proposal) ProposalType() string {
-	return ProposalTypeRegisterERC20
+func (rtbp *RegisterCoinProposal) ValidateBasic() error {
+	return errors.New("deprecated")
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
@@ -89,16 +56,81 @@ func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
 	return v1beta1.ValidateAbstract(rtbp)
 }
 
-// NewToggleTokenConversionProposal returns new instance of ToggleTokenConversionProposal
-func NewToggleTokenConversionProposal(title, description string, token string) v1beta1.Content {
-	return &ToggleTokenConversionProposal{
+// CreateDenomDescription generates a string with the coin description
+func CreateDenomDescription(address string) string {
+	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
+// CreateDenom generates a string the module name plus the address to avoid conflicts with names starting with a number
+func CreateDenom(address string) string {
+	return fmt.Sprintf("%s/%s", ModuleName, address)
+}
+
+// ValidateErc20Denom checks if a denom is a valid erc20/ denomination
+func ValidateErc20Denom(denom string) error {
+	denomSplit := strings.SplitN(denom, "/", 2)
+
+	if len(denomSplit) != 2 || denomSplit[0] != ModuleName {
+		return fmt.Errorf("invalid denom. %s denomination should be prefixed with the format 'erc20/", denom)
+	}
+
+	return evmostypes.ValidateAddress(denomSplit[1])
+}
+
+// NewRemoveAssetConsensusProposal creates a new proposal to remove assets from the whitelist
+func NewRemoveAssetConsensusProposal(title, description string, denoms []string) v1beta1.Content {
+	return &RemoveAssetConsensusProposal{
 		Title:       title,
 		Description: description,
-		Token:       token,
+		Denoms:      denoms,
 	}
 }
 
 // ProposalRoute returns router key for this proposal
+func (*RemoveAssetConsensusProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for this proposal
+func (*RemoveAssetConsensusProposal) ProposalType() string {
+	return ProposalRemoveAssetConsensus
+}
+
+// ValidateBasic performs a stateless check of the proposal fields
+func (p *RemoveAssetConsensusProposal) ValidateBasic() error {
+	// Validate title
+	if strings.TrimSpace(p.Title) == "" {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal title cannot be empty")
+	}
+
+	// Validate description
+	if strings.TrimSpace(p.Description) == "" {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal description cannot be empty")
+	}
+
+	// Validate denoms
+	if len(p.Denoms) == 0 {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal must include at least one denom")
+	}
+
+	for _, denom := range p.Denoms {
+		if strings.TrimSpace(denom) == "" {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "denom cannot be empty")
+		}
+	}
+
+	return nil
+}
+
+// GetDescription returns the description of the proposal.
+func (p *RemoveAssetConsensusProposal) GetDescription() string {
+	return p.Description
+}
+
+// GetTitle returns the title of the proposal.
+func (p *RemoveAssetConsensusProposal) GetTitle() string {
+	return p.Title
+}
+
+// ProposalRoute returns router key for this proposal.
 func (*ToggleTokenConversionProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
@@ -117,32 +149,6 @@ func (ttcp *ToggleTokenConversionProposal) ValidateBasic() error {
 	}
 
 	return v1beta1.ValidateAbstract(ttcp)
-}
-
-// ProposalRoute returns router key for this proposal.
-// RegisterCoinProposal is DEPRECATED remove after v16 upgrade
-func (*RegisterCoinProposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type for this proposal.
-// RegisterCoinProposal is DEPRECATED remove after v16 upgrade
-func (*RegisterCoinProposal) ProposalType() string {
-	return ProposalTypeRegisterCoin
-}
-
-// ValidateBasic performs a stateless check of the proposal fields.
-// RegisterCoinProposal is DEPRECATED remove after v16 upgrade
-func (rtbp *RegisterCoinProposal) ValidateBasic() error {
-	return errors.New("deprecated")
-}
-
-// GetDescription returns the description of this proposal.
-func (p *AddNewAssetConsensusProposal) GetDescription() string {
-	return p.Description
-}
-
-// GetDescription returns the description of this proposal.
-func (p *AddNewAssetConsensusProposal) GetTitle() string {
-	return p.Title
 }
 
 // ProposalRoute returns router key of this proposal.
@@ -181,7 +187,7 @@ func (p *AddNewAssetConsensusProposal) ValidateBasic() error {
 			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset contract address cannot be empty")
 		}
 
-		//TODO: link with hyperion to know the list of authorized chains
+		// TODO: link with hyperion to know the list of authorized chains
 		// Validate chain ID
 		if strings.TrimSpace(asset.ChainId) == "" {
 			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset chain ID cannot be empty")
@@ -199,4 +205,34 @@ func (p *AddNewAssetConsensusProposal) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// GetDescription returns the description of this proposal.
+func (p *AddNewAssetConsensusProposal) GetDescription() string {
+	return p.Description
+}
+
+// GetTitle returns the title of this proposal.
+func (p *AddNewAssetConsensusProposal) GetTitle() string {
+	return p.Title
+}
+
+// ProposalRoute returns the router key for this proposal.
+func (*RegisterCoinProposal) ProposalRoute() string {
+	return RouterKey
+}
+
+// ProposalType returns the proposal type for this proposal.
+func (*RegisterCoinProposal) ProposalType() string {
+	return ProposalTypeRegisterCoin
+}
+
+// ProposalRoute returns the router key for this proposal.
+func (*RegisterERC20Proposal) ProposalRoute() string {
+	return RouterKey
+}
+
+// ProposalType returns the proposal type for this proposal.
+func (*RegisterERC20Proposal) ProposalType() string {
+	return ProposalTypeRegisterERC20
 }
