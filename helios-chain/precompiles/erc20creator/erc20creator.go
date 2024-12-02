@@ -20,10 +20,11 @@ package erc20creator
 import (
 	"embed"
 	"fmt"
-
-	errorsmod "cosmossdk.io/errors"
+	"math/big"
 
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+
+	errorsmod "cosmossdk.io/errors"
 
 	"helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -34,7 +35,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -92,26 +95,58 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	}
 
 	// Check if metadata already exists
-	_, found := p.bankKeeper.GetDenomMetaData(ctx, types.CreateDenom(args[0].(string)))
+	_, found := p.bankKeeper.GetDenomMetaData(ctx, args[0].(string))
 	if found {
 		return nil, errorsmod.Wrap(
 			types.ErrInternalTokenPair, "denom metadata already registered",
 		)
 	}
 
-	base := types.CreateDenom(args[0].(string))
+	base := args[0].(string)
+	symbol := args[1].(string)
+	decimals := uint32(args[3].(uint8))
+	supply := args[2].(*big.Int)
 
 	coinMetadata := banktypes.Metadata{
-		Description: fmt.Sprintf("Token %s created with ERC20Creator", args[0]),
+		Description: fmt.Sprintf("Token %s created with ERC20Creator", base),
 		Base:        base,
-		Symbol:      args[1].(string),
-		Decimals:    uint32(args[3].(uint8)),
+		Symbol:      symbol,
+		Decimals:    decimals,
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    base,
+				Exponent: 0,
+			},
+			{
+				Denom:    base,
+				Exponent: decimals,
+			},
+		},
 	}
 
 	contractAddr, err := p.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
 	if err != nil {
 		return nil, err
 	}
+
+	coins := sdk.NewCoins(sdk.NewCoin(base, sdkmath.NewIntFromBigInt(supply)))
+
+	err = p.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+	if err != nil {
+		return nil, fmt.Errorf("failed to mint coins: %w", err)
+	}
+
+	err = p.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(evm.Origin.Bytes()), coins)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to send coins to owner: %w", err)
+	}
+
+	tokenPair := types.NewTokenPair(contractAddr, base, types.OWNER_MODULE)
+	p.erc20Keeper.SetTokenPair(ctx, tokenPair)
+
+	fmt.Println("addr owner", evm.Origin.String())
+	fmt.Println("addr contract", contractAddr)
 
 	return method.Outputs.Pack(contractAddr)
 }
