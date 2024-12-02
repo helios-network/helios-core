@@ -78,3 +78,20 @@ func (k Keeper) GetAllWhitelistedAssets(ctx sdk.Context) []types.Asset {
 	}
 	return assets
 }
+
+// UpdateAssetInConsensusWhitelist updates an existing asset in the consensus whitelist
+func (k Keeper) UpdateAssetInConsensusWhitelist(ctx sdk.Context, asset types.Asset) error {
+	store := k.GetStore(ctx)
+
+	// Check if the asset is already whitelisted
+	if !k.IsAssetWhitelisted(ctx, asset.Denom) {
+		return errors.Wrapf(types.ErrAssetNotFound, "asset %s is not whitelisted", asset.Denom)
+	}
+
+	// Marshal and store the updated asset
+	assetKey := types.GetAssetKey(asset.Denom)
+	bz := k.cdc.MustMarshal(&asset)
+	store.Set(assetKey, bz)
+
+	return nil
+}

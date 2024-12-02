@@ -34,6 +34,7 @@ const (
 	toggleConversion       = "helios/erc20/MsgToggleConversion"
 	registerAssetConsensus = "helios/erc20/NewAssetConsensusProposal"
 	removeAssetConsensus   = "helios/erc20/RemoveAssetConsensusProposal"
+	updateAssetConsensus   = "helios/erc20/UpdateAssetConsensusProposal"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -59,6 +60,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&ToggleTokenConversionProposal{},
 		&AddNewAssetConsensusProposal{},
 		&RemoveAssetConsensusProposal{},
+		&UpdateAssetConsensusProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -75,4 +77,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgToggleConversion{}, toggleConversion, nil)
 	cdc.RegisterConcrete(&AddNewAssetConsensusProposal{}, registerAssetConsensus, nil)
 	cdc.RegisterConcrete(&RemoveAssetConsensusProposal{}, removeAssetConsensus, nil)
+	cdc.RegisterConcrete(&UpdateAssetConsensusProposal{}, updateAssetConsensus, nil)
 }
