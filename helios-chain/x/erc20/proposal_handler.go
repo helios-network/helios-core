@@ -8,6 +8,8 @@ import (
 
 	"helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // NewErc20ProposalHandler creates a governance handler to manage all erc20 proposal types.
@@ -33,6 +35,15 @@ func handleAddNewAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, p *typ
 
 	// Iterate over the assets in the proposal and add them to the consensus whitelist
 	for _, asset := range p.Assets {
+		contractAddress := common.HexToAddress(asset.ContractAddress)
+		exist, err := k.DoesERC20ContractExist(ctx, contractAddress)
+		if err != nil {
+			return errors.Wrapf(types.ErrAssetNotFound, "failed to check if ERC20 contract exists for asset %s: %v", asset.Denom, err)
+		}
+		if !exist {
+			return errors.Wrapf(types.ErrAssetNotFound, "failed to add asset %s in consensus whitelist as the ERC20 contract does not exist", asset.Denom)
+		}
+
 		if err := k.AddAssetToConsensusWhitelist(ctx, *asset); err != nil {
 			return errors.Wrapf(err, "failed to add asset %s to consensus whitelist", asset.Denom)
 		}
