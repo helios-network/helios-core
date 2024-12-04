@@ -24,13 +24,18 @@ func NewKeeper(
 	storeService storetypes.KVStoreService,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
+	ec types.Erc20Keeper,
 	authority string,
 	validatorAddressCodec addresscodec.Codec,
 	consensusAddressCodec addresscodec.Codec,
 ) *Keeper {
 	return &Keeper{
-		stakingkeeper.NewKeeper(cdc, storeService, ak, bk, authority, validatorAddressCodec, consensusAddressCodec),
+		stakingkeeper.NewKeeper(cdc, storeService, ak, bk, ec, authority, validatorAddressCodec, consensusAddressCodec),
 		ak,
 		bk,
 	}
+}
+
+func (k *Keeper) SetErc20Keeper(erc20Keeper types.Erc20Keeper) {
+	k.Keeper.SetErc20Keeper(erc20Keeper)
 }

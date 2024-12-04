@@ -7,6 +7,7 @@ import (
 
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AddAssetToConsensusWhitelist adds an asset to the consensus whitelist
@@ -61,6 +62,35 @@ func (k Keeper) RemoveAssetFromConsensusWhitelist(ctx sdk.Context, denom string)
 	// Delete the asset from the store
 	store.Delete(types.GetAssetKey(denom))
 	return nil
+}
+
+type assetAdapter struct {
+	asset types.Asset
+}
+
+func (a assetAdapter) GetDenom() string {
+	return a.asset.Denom
+}
+
+func (a assetAdapter) GetContractAddress() string {
+	return a.asset.ContractAddress
+}
+
+func (a assetAdapter) GetBaseWeight() uint64 {
+	return a.asset.BaseWeight
+}
+
+func ConvertAssetsToErc20Assets(assets []types.Asset) []stakingtypes.Erc20Asset {
+	erc20Assets := make([]stakingtypes.Erc20Asset, len(assets))
+	for i, asset := range assets {
+		erc20Assets[i] = assetAdapter{asset: asset}
+	}
+	return erc20Assets
+}
+
+func (k Keeper) GetAllStakingAssets(ctx sdk.Context) []stakingtypes.Erc20Asset {
+	erc20Assets := k.GetAllWhitelistedAssets(ctx)
+	return ConvertAssetsToErc20Assets(erc20Assets)
 }
 
 // GetAllWhitelistedAssets retrieves all assets from the whitelist

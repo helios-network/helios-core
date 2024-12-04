@@ -889,6 +889,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		runtime.NewKVStoreService(app.keys[stakingtypes.StoreKey]),
 		app.AccountKeeper,
 		app.BankKeeper,
+		app.Erc20Keeper,
 		authority,
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
@@ -1283,6 +1284,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 	app.Erc20Keeper = erc20Keeper
+	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
