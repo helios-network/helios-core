@@ -145,6 +145,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	tokenPair := types.NewTokenPair(contractAddr, base, types.OWNER_MODULE)
 	p.erc20Keeper.SetTokenPair(ctx, tokenPair)
 
+	p.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+
 	fmt.Println("addr owner", evm.Origin.String())
 	fmt.Println("addr contract", contractAddr)
 
