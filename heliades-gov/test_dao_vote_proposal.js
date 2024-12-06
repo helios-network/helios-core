@@ -26,7 +26,7 @@ import protopkg from '@helios-chain-labs/proto';
     }
 
     const privateMnemonic =
-      'forest shoot ranch oblige tray captain matrix shadow uncover neutral use someone cement essay fat safe purity skull kiwi either fortune govern scan ensure'
+      'web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel'
 
     const wallet = Wallet.fromMnemonic(privateMnemonic)
     console.log('Wallet Address:', wallet.address)

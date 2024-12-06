@@ -1284,7 +1284,9 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 	app.Erc20Keeper = erc20Keeper
+
 	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
+	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
