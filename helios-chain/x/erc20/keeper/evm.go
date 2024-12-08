@@ -58,6 +58,27 @@ func (k Keeper) DeployERC20Contract(
 	return contractAddr, nil
 }
 
+func (k Keeper) MintERC20Tokens(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	recipient common.Address,
+	amount *big.Int,
+) error {
+	// Pack the arguments for the mint call: mint(address to, uint256 amount)
+	mintData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", recipient, amount)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to pack mint call data")
+	}
+
+	// Execute the call from the module account (which has the MINTER_ROLE) to the contract
+	_, err = k.evmKeeper.CallEVMWithData(ctx, types.ModuleAddress, &contractAddr, mintData, true)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to mint tokens")
+	}
+
+	return nil
+}
+
 // DoesERC20ContractExist checks if an ERC20 contract exists on the EVM by validating a call to its `totalSupply` method.
 func (k Keeper) DoesERC20ContractExist(
 	ctx sdk.Context,
