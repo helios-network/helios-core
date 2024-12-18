@@ -2,13 +2,14 @@ const ethers = require('ethers');
 
 const RPC_URL = 'http://localhost:8545';
 
-const PRIVATE_KEY = '262D4B734EAE5E891F226B43BD893A97449B9F4DF793AC505001C03575100700';
+const PRIVATE_KEY = '262d4b734eae5e891f226b43bd893a97449b9f4df793ac505001c03575100700';
 
 const PRECOMPILE_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000806';
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
 const abi = [
   {
     "inputs": [
@@ -26,11 +27,25 @@ const abi = [
   }
 ];
 
+const stakingAbi = [
+  {
+    "inputs": [
+      { "internalType": "address", "name": "delegatorAddress", "type": "address" },
+      { "internalType": "string", "name": "validatorAddress", "type": "string" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "delegate",
+    "outputs": [{ "internalType": "bool", "name": "success", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
-const tokenName = 'Tether';
-const tokenSymbol = 'USDT';
-const tokenTotalSupply = ethers.parseUnits('1000000', 18);
+const tokenName = 'HHHHH';
+const tokenSymbol = 'HHHHH';
+const tokenTotalSupply = ethers.parseUnits('5000000', 18);
 const tokenDecimals = 18;
 
 async function create(){
@@ -77,10 +92,32 @@ const contract = new ethers.Contract(contractAddress, abi, provider);
 const name = await contract.name();
 
 }
-async function main() {
-  await create();
 
+async function delegate() {
+
+  const validatorAddress = 'heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla'; // Adresse Cosmos du validateur
+  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+
+  try {
+    console.log('Délégation en cours...');
+
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', stakingAbi, wallet);
+    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount);
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log('Délégation réussie !');
+  } catch (error) {
+    console.error('Erreur lors de la délégation :', error);
+  }
+}
+async function main() {
+  //await create();
+  //await create();
   //await fetch();
+  await delegate();
 }
 
 main();
