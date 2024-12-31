@@ -3,12 +3,13 @@ package staking_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"helios-core/helios-chain/precompiles/staking"
 	"helios-core/helios-chain/testutil/integration/evmos/factory"
 	"helios-core/helios-chain/testutil/integration/evmos/grpc"
 	testkeyring "helios-core/helios-chain/testutil/integration/evmos/keyring"
 	"helios-core/helios-chain/testutil/integration/evmos/network"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type PrecompileTestSuite struct {
@@ -49,7 +50,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.network = nw
 
 	if s.precompile, err = staking.NewPrecompile(
-		s.network.App.StakingKeeper,
+		*s.network.App.StakingKeeper,
 		s.network.App.AuthzKeeper,
 	); err != nil {
 		panic(err)

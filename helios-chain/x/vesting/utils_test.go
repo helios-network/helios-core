@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 	"time"
 
+	heliosapp "helios-core/helios-chain/app"
+	cmn "helios-core/helios-chain/precompiles/common"
+	evmosutil "helios-core/helios-chain/testutil"
+	testutiltx "helios-core/helios-chain/testutil/tx"
+	heliostypes "helios-core/helios-chain/types"
+
 	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -15,20 +21,15 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmosapp "helios-core/helios-chain/app"
-	cmn "helios-core/helios-chain/precompiles/common"
-	evmosutil "helios-core/helios-chain/testutil"
-	testutiltx "helios-core/helios-chain/testutil/tx"
-	evmostypes "helios-core/helios-chain/types"
 )
 
-// SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new HeliosApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
-	app, ok := appI.(*evmosapp.Evmos)
+	appI, genesisState := heliosapp.SetupTestingApp(cmn.DefaultChainID)()
+	app, ok := appI.(*heliosapp.HeliosApp)
 	s.Require().True(ok)
 
 	// set genesis accounts
@@ -38,7 +39,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
+	bondAmt := sdk.TokensFromConsensusPower(1, heliostypes.PowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
@@ -66,7 +67,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = evmostypes.BaseDenom
+	stakingParams.BondDenom = heliostypes.BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -77,7 +78,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(evmostypes.BaseDenom, totalBondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(heliostypes.BaseDenom, totalBondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
@@ -107,7 +108,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 		&abci.RequestInitChain{
 			ChainId:         cmn.DefaultChainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: evmosapp.DefaultConsensusParams,
+			ConsensusParams: heliosapp.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
@@ -150,11 +151,11 @@ func (s *VestingTestSuite) DoSetupTest() {
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
-	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
+	amount := sdk.TokensFromConsensusPower(5, heliostypes.PowerReduction)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(heliostypes.BaseDenom, amount)),
 	}
 
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)

@@ -12,13 +12,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/stretchr/testify/require"
 	"helios-core/helios-chain/testutil"
 	"helios-core/helios-chain/testutil/integration/evmos/network"
 	utiltx "helios-core/helios-chain/testutil/tx"
 	evmostypes "helios-core/helios-chain/types"
 	"helios-core/helios-chain/x/staking/keeper"
 	vestingtypes "helios-core/helios-chain/x/vesting/types"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMsgDelegate(t *testing.T) {
@@ -120,7 +121,7 @@ func TestMsgDelegate(t *testing.T) {
 			ctx = nw.GetContext()
 			delCoin := tc.setup()
 
-			srv := keeper.NewMsgServerImpl(&nw.App.StakingKeeper)
+			srv := keeper.NewMsgServerImpl(nw.App.StakingKeeper)
 			res, err := srv.Delegate(ctx, &types.MsgDelegate{
 				DelegatorAddress: delegatorAddr.String(),
 				ValidatorAddress: nw.GetValidators()[0].OperatorAddress,
@@ -252,7 +253,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				math.OneInt(),
 			)
 			require.NoError(t, err)
-			srv := keeper.NewMsgServerImpl(&nw.App.StakingKeeper)
+			srv := keeper.NewMsgServerImpl(nw.App.StakingKeeper)
 			res, err := srv.CreateValidator(ctx, msg)
 
 			if tc.expErr {

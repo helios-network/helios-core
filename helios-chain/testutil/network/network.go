@@ -60,7 +60,7 @@ import (
 
 // package-wide network lock to only allow one test network at a time
 var (
-	lock     = new(sync.Mutex)
+	lock = new(sync.Mutex)
 	// portPool = make(chan string, 20000)
 )
 
@@ -350,7 +350,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		cmtCfg.ProxyApp = proxyAddr
 
 		port = i + 18500
-		p2pAddr := "tcp://0.0.0.0:18555"//fmt.Sprintf("tcp://0.0.0.0:%s", port)
+		p2pAddr := "tcp://0.0.0.0:18555" //fmt.Sprintf("tcp://0.0.0.0:%s", port)
 		cmtCfg.P2P.ListenAddress = p2pAddr
 		cmtCfg.P2P.AddrBookStrict = false
 		cmtCfg.P2P.AllowDuplicateIP = true

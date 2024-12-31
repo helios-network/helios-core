@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"math/big"
 
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"helios-core/helios-chain/x/evm/core/vm"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/precompiles/distribution"
@@ -98,7 +99,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 				s.Require().NoError(err)
 
 				// make a self delegation
-				_, err = s.network.App.StakingKeeper.Delegate(ctx, valAddr.Bytes(), amt, stakingtypes.Unspecified, s.network.GetValidators()[0], true)
+				_, err = s.network.App.StakingKeeper.Delegate(ctx, valAddr.Bytes(), amt, s.network.GetDenom(), stakingtypes.Unspecified, s.network.GetValidators()[0], true)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,

@@ -13,17 +13,18 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/common"
 
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	utiltx "helios-core/helios-chain/testutil/tx"
 	evmostypes "helios-core/helios-chain/types"
 	"helios-core/helios-chain/x/evm/types"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func SetupContract(b *testing.B) (*KeeperTestSuite, common.Address) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
 
-	amt := sdk.Coins{evmostypes.NewBaseCoinInt64(1000000000000000000)}
+	amt := sdk.Coins{sdk.NewInt64Coin(evmostypes.BaseDenom, 1000000000000000000)}
 	err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 	require.NoError(b, err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)
@@ -40,7 +41,7 @@ func SetupTestMessageCall(b *testing.B) (*KeeperTestSuite, common.Address) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
 
-	amt := sdk.Coins{evmostypes.NewBaseCoinInt64(1000000000000000000)}
+	amt := sdk.Coins{sdk.NewInt64Coin(evmostypes.BaseDenom, 1000000000000000000)}
 	err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 	require.NoError(b, err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)

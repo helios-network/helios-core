@@ -89,7 +89,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.network = nw
 	s.precompile, err = distribution.NewPrecompile(
 		s.network.App.DistrKeeper,
-		s.network.App.StakingKeeper,
+		*s.network.App.StakingKeeper,
 		s.network.App.AuthzKeeper,
 	)
 	if err != nil {

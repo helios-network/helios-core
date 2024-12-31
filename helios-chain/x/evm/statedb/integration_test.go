@@ -7,8 +7,6 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/math"
-	"github.com/ethereum/go-ethereum/common"
 	"helios-core/helios-chain/contracts"
 	stakingprecompile "helios-core/helios-chain/precompiles/staking"
 	testcontracts "helios-core/helios-chain/precompiles/testutil/contracts"
@@ -17,6 +15,9 @@ import (
 	testkeyring "helios-core/helios-chain/testutil/integration/evmos/keyring"
 	testnetwork "helios-core/helios-chain/testutil/integration/evmos/network"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	"cosmossdk.io/math"
+	"github.com/ethereum/go-ethereum/common"
 
 	//nolint:revive // okay to use dot imports for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -77,7 +78,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		deployer = keyring.GetKey(0)
 
 		var err error
-		stakingPrecompile, err = stakingprecompile.NewPrecompile(network.App.StakingKeeper, network.App.AuthzKeeper)
+		stakingPrecompile, err = stakingprecompile.NewPrecompile(*network.App.StakingKeeper, network.App.AuthzKeeper)
 		Expect(err).ToNot(HaveOccurred(), "failed to create staking precompile")
 
 		// Load the flash loan contract from the compiled JSON data.

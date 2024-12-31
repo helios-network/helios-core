@@ -18,7 +18,6 @@ import (
 	"helios-core/helios-chain/testutil/integration/evmos/network"
 	utiltx "helios-core/helios-chain/testutil/tx"
 	"helios-core/helios-chain/utils"
-	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 
 	"helios-core/helios-chain/app"
 	"helios-core/helios-chain/x/erc20"
@@ -28,7 +27,7 @@ import (
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *app.Evmos
+	app     *app.HeliosApp
 	genesis types.GenesisState
 }
 
@@ -48,7 +47,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	chainID := utils.TestnetChainID + "-1"
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
+	suite.app = app.Setup(false)
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,

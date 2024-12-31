@@ -7,17 +7,18 @@ import (
 	"math"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	"github.com/ethereum/go-ethereum/common"
 	"helios-core/helios-chain/app"
 	auth "helios-core/helios-chain/precompiles/authorization"
 	"helios-core/helios-chain/precompiles/erc20"
 	"helios-core/helios-chain/testutil"
 	"helios-core/helios-chain/x/evm/core/vm"
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Define useful variables for tests here.
@@ -112,7 +113,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 	testcases := []struct {
 		name        string
 		denom       string
-		malleate    func(sdk.Context, *app.Evmos)
+		malleate    func(sdk.Context, *app.HeliosApp)
 		expPass     bool
 		errContains string
 		expName     string
@@ -136,7 +137,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:  "fail - invalid denom (too short < 3 chars)",
 			denom: tooShortTrace.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, tooShortTrace)
 			},
 			errContains: vm.ErrExecutionReverted.Error(),
@@ -149,7 +150,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:  "pass - valid ibc denom without metadata and neither atto nor micro prefix",
 			denom: validTraceDenomNoMicroAtto.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenomNoMicroAtto)
 			},
 			expPass:   true,
@@ -159,7 +160,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:  "pass - valid denom with metadata",
 			denom: validMetadataDenom,
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
 				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 				s.Require().NoError(err)
@@ -174,7 +175,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:  "pass - valid ibc denom without metadata",
 			denom: validTraceDenom.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenom)
 			},
 			expPass:   true,
@@ -228,7 +229,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 	testcases := []struct {
 		name        string
 		denom       string
-		malleate    func(sdk.Context, *app.Evmos)
+		malleate    func(sdk.Context, *app.HeliosApp)
 		expPass     bool
 		errContains string
 		expDecimals uint8
@@ -256,7 +257,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "fail - valid ibc denom without metadata and neither atto nor micro prefix",
 			denom: validTraceDenomNoMicroAtto.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenomNoMicroAtto)
 			},
 			errContains: vm.ErrExecutionReverted.Error(),
@@ -264,7 +265,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "pass - invalid denom (too short < 3 chars)",
 			denom: tooShortTrace.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, tooShortTrace)
 			},
 			expPass:     true, // TODO: do we want to check in decimals query for the above error?
@@ -273,7 +274,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "pass - valid denom with metadata",
 			denom: validMetadataDenom,
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
 				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 				s.Require().NoError(err)
@@ -287,7 +288,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "pass - valid ibc denom without metadata",
 			denom: validTraceDenom.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenom)
 			},
 			expPass:     true,
@@ -296,7 +297,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "pass - valid ibc denom without metadata and 18 decimals",
 			denom: validAttoTraceDenom.IBCDenom(),
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				app.TransferKeeper.SetDenomTrace(ctx, validAttoTraceDenom)
 			},
 			expPass:     true,
@@ -305,7 +306,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "pass - valid denom with metadata but decimals overflow",
 			denom: validMetadataDenom,
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
 				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 				s.Require().NoError(err)
@@ -318,7 +319,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:  "pass - valid ibc denom with metadata but no display denom",
 			denom: validMetadataDenom,
-			malleate: func(ctx sdk.Context, app *app.Evmos) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
 				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 				s.Require().NoError(err)
@@ -359,7 +360,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(sdk.Context, *app.Evmos, *big.Int)
+		malleate    func(sdk.Context, *app.HeliosApp, *big.Int)
 		expPass     bool
 		errContains string
 		expTotal    *big.Int
@@ -371,7 +372,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 		},
 		{
 			name: "pass - some coins",
-			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp, amount *big.Int) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
 				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewCoin(validMetadata.Base, sdkmath.NewIntFromBigInt(amount))})
 				s.Require().NoError(err)
@@ -410,28 +411,28 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(sdk.Context, *app.Evmos, *big.Int) []interface{}
+		malleate    func(sdk.Context, *app.HeliosApp, *big.Int) []interface{}
 		expPass     bool
 		errContains string
 		expBalance  *big.Int
 	}{
 		{
 			name: "fail - invalid number of arguments",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				return []interface{}{}
 			},
 			errContains: "invalid number of arguments; expected 1; got: 0",
 		},
 		{
 			name: "fail - invalid address",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				return []interface{}{"invalid address"}
 			},
 			errContains: "invalid account address: invalid address",
 		},
 		{
 			name: "pass - no coins in token denomination of precompile token pair",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				// NOTE: we fund the account with some coins in a different denomination from what was used in the precompile.
 				err := testutil.FundAccount(
 					s.network.GetContext(), s.network.App.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 100)),
@@ -445,7 +446,7 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 		},
 		{
 			name: "pass - some coins",
-			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) []interface{} {
+			malleate: func(ctx sdk.Context, app *app.HeliosApp, amount *big.Int) []interface{} {
 				// NOTE: we fund the account with some coins of the token denomination that was used for the precompile
 				err := testutil.FundAccount(
 					ctx, app.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdkmath.NewIntFromBigInt(amount))),
@@ -489,35 +490,35 @@ func (s *PrecompileTestSuite) TestAllowance() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(sdk.Context, *app.Evmos, *big.Int) []interface{}
+		malleate    func(sdk.Context, *app.HeliosApp, *big.Int) []interface{}
 		expPass     bool
 		errContains string
 		expAllow    *big.Int
 	}{
 		{
 			name: "fail - invalid number of arguments",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				return []interface{}{1}
 			},
 			errContains: "invalid number of arguments; expected 2; got: 1",
 		},
 		{
 			name: "fail - invalid owner address",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				return []interface{}{"invalid address", s.keyring.GetAddr(1)}
 			},
 			errContains: "invalid owner address: invalid address",
 		},
 		{
 			name: "fail - invalid spender address",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				return []interface{}{s.keyring.GetAddr(0), "invalid address"}
 			},
 			errContains: "invalid spender address: invalid address",
 		},
 		{
 			name: "pass - no allowance exists should return 0",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				return []interface{}{s.keyring.GetAddr(0), s.keyring.GetAddr(1)}
 			},
 			expPass:  true,
@@ -525,7 +526,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 		},
 		{
 			name: "pass - allowance exists but not for precompile token pair denom",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, _ *big.Int) []interface{} {
 				granterIdx := 0
 				granteeIdx := 1
 
@@ -542,7 +543,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 		},
 		{
 			name: "pass - allowance exists for precompile token pair denom",
-			malleate: func(_ sdk.Context, _ *app.Evmos, amount *big.Int) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.HeliosApp, amount *big.Int) []interface{} {
 				granterIdx := 0
 				granteeIdx := 1
 

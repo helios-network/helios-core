@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"testing"
 
+	"helios-core/helios-chain/app"
+	testutiltx "helios-core/helios-chain/testutil/tx"
+	evmostypes "helios-core/helios-chain/types"
+
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -17,9 +21,6 @@ import (
 	teststaking "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
-	"helios-core/helios-chain/app"
-	testutiltx "helios-core/helios-chain/testutil/tx"
-	evmostypes "helios-core/helios-chain/types"
 )
 
 // CreateValidator creates a validator with the provided public key and stake amount
@@ -57,7 +58,7 @@ func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, s
 //   - Allocate rewards to the validator.
 //
 // The function returns the updated context along with a potential error.
-func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app.Evmos, addr sdk.AccAddress, balance math.Int, rewards ...math.Int) (sdk.Context, error) {
+func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app.HeliosApp, addr sdk.AccAddress, balance math.Int, rewards ...math.Int) (sdk.Context, error) {
 	// Calculate the necessary amount of tokens to fund the account in order for the desired residual balance to
 	// be left after creating validators and delegating to them.
 	totalRewards := math.ZeroInt()

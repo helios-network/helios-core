@@ -11,9 +11,17 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	gethparams "github.com/ethereum/go-ethereum/params"
 	"helios-core/helios-chain/app"
 	"helios-core/helios-chain/types"
+
+	gethparams "github.com/ethereum/go-ethereum/params"
+
+	commonnetwork "helios-core/helios-chain/testutil/integration/common/network"
+	erc20types "helios-core/helios-chain/x/erc20/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+	infltypes "helios-core/helios-chain/x/inflation/v1/types"
+	vestingtypes "helios-core/helios-chain/x/vesting/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -27,12 +35,6 @@ import (
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	commonnetwork "helios-core/helios-chain/testutil/integration/common/network"
-	erc20types "helios-core/helios-chain/x/erc20/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
-	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
-	infltypes "helios-core/helios-chain/x/inflation/v1/types"
-	vestingtypes "helios-core/helios-chain/x/vesting/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -61,7 +63,7 @@ type IntegrationNetwork struct {
 	cfg        Config
 	ctx        sdktypes.Context
 	validators []stakingtypes.Validator
-	app        *app.Evmos
+	app        *app.HeliosApp
 
 	// This is only needed for IBC chain testing setup
 	valSet     *cmttypes.ValidatorSet
@@ -125,8 +127,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
 
-	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
+	// Create a new HeliosApp with the following params
+	heliosApp := createHeliosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
@@ -145,14 +147,14 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Get the corresponding slashing info and missed block info
 	// for the created validators
-	slashingParams, err := getValidatorsSlashingGen(validators, evmosApp.StakingKeeper)
+	slashingParams, err := getValidatorsSlashingGen(validators, heliosApp.StakingKeeper)
 	if err != nil {
 		return err
 	}
 
 	// Configure Genesis state
 	genesisState := newDefaultGenesisState(
-		evmosApp,
+		heliosApp,
 		defaultGenesisParams{
 			genAccounts: genAccounts,
 			staking:     stakingParams,
@@ -164,7 +166,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// modify genesis state if there're any custom genesis state
 	// for specific modules
-	genesisState, err = customizeGenesis(evmosApp, n.cfg.customGenesisState, genesisState)
+	genesisState, err = customizeGenesis(heliosApp, n.cfg.customGenesisState, genesisState)
 	if err != nil {
 		return err
 	}
@@ -186,7 +188,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	now := time.Now().UTC()
-	if _, err := evmosApp.InitChain(
+	if _, err := heliosApp.InitChain(
 		&abcitypes.RequestInitChain{
 			Time:            now,
 			ChainId:         n.cfg.chainID,
@@ -200,8 +202,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	header := cmtproto.Header{
 		ChainID:            n.cfg.chainID,
-		Height:             evmosApp.LastBlockHeight() + 1,
-		AppHash:            evmosApp.LastCommitID().Hash,
+		Height:             heliosApp.LastBlockHeight() + 1,
+		AppHash:            heliosApp.LastCommitID().Hash,
 		Time:               now,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),
@@ -212,15 +214,15 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	req := buildFinalizeBlockReq(header, valSet.Validators)
-	if _, err := evmosApp.FinalizeBlock(req); err != nil {
+	if _, err := heliosApp.FinalizeBlock(req); err != nil {
 		return err
 	}
 
 	// TODO - this might not be the best way to initilize the context
-	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
+	n.ctx = heliosApp.BaseApp.NewContextLegacy(false, header)
 
 	// Commit genesis changes
-	if _, err := evmosApp.Commit(); err != nil {
+	if _, err := heliosApp.Commit(); err != nil {
 		return err
 	}
 
@@ -230,7 +232,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		blockMaxGas = uint64(consensusParams.Block.MaxGas) //nolint:gosec // G115
 	}
 
-	n.app = evmosApp
+	n.app = heliosApp
 	n.ctx = n.ctx.WithConsensusParams(*consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(types.NewInfiniteGasMeterWithLimit(blockMaxGas))
 

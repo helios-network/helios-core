@@ -3,6 +3,12 @@ package distribution_test
 import (
 	"math/big"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+	"helios-core/helios-chain/precompiles/distribution"
+	heliostypes "helios-core/helios-chain/types"
+	"helios-core/helios-chain/x/evm/core/vm"
+	"helios-core/helios-chain/x/evm/statedb"
+
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,11 +16,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"helios-core/helios-chain/cmd/config"
-	cmn "helios-core/helios-chain/precompiles/common"
-	"helios-core/helios-chain/precompiles/distribution"
-	"helios-core/helios-chain/x/evm/core/vm"
-	"helios-core/helios-chain/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
@@ -53,7 +54,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 				err := cmn.UnpackLog(s.precompile.ABI, &setWithdrawerAddrEvent, distribution.EventTypeSetWithdrawAddress, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.keyring.GetAddr(0), setWithdrawerAddrEvent.Caller)
-				s.Require().Equal(sdk.MustBech32ifyAddressBytes(config.Bech32Prefix, s.keyring.GetAddr(0).Bytes()), setWithdrawerAddrEvent.WithdrawerAddress)
+				s.Require().Equal(sdk.MustBech32ifyAddressBytes(heliostypes.Bech32Prefix, s.keyring.GetAddr(0).Bytes()), setWithdrawerAddrEvent.WithdrawerAddress)
 			},
 			20000,
 			false,
