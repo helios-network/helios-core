@@ -117,6 +117,21 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.GetDeposits(ctx, method, contract, args)
 	case GetTallyResultMethod:
 		bz, err = p.GetTallyResult(ctx, method, contract, args)
+	case addNewAssetProposalMethod:
+		bz, err = p.addNewAssetProposal(
+			evm.Origin,
+			p.govKeeper,
+			ctx, method, contract, args)
+	case updateAssetProposalMethod:
+		bz, err = p.updateAssetProposal(
+			evm.Origin,
+			p.govKeeper,
+			ctx, method, contract, args)
+	case removeAssetProposalMethod:
+		bz, err = p.removeAssetProposal(
+			evm.Origin,
+			p.govKeeper,
+			ctx, method, contract, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}

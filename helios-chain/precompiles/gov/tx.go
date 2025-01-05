@@ -6,13 +6,19 @@ package gov
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"helios-core/helios-chain/x/erc20/types"
 	"helios-core/helios-chain/x/evm/core/vm"
+
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -20,6 +26,12 @@ const (
 	VoteMethod = "vote"
 	// VoteWeightedMethod defines the ABI method name for the gov VoteWeighted transaction.
 	VoteWeightedMethod = "voteWeighted"
+	// addNewAssetProposalMethod defines the method name for add new proposal
+	addNewAssetProposalMethod = "addNewAssetProposal"
+	// updateAssetProposalMethod defines the method name for add new proposal
+	updateAssetProposalMethod = "updateAssetProposal"
+	// removeAssetProposalMethod defines the method name for add new proposal
+	removeAssetProposalMethod = "removeAssetProposal"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -44,9 +56,14 @@ func (p Precompile) Vote(
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	fmt.Println("VOTE  msg ", err)
+
 	if _, err = msgSrv.Vote(ctx, msg); err != nil {
+		fmt.Println("VOTE ERR ", err)
 		return nil, err
 	}
+
+	fmt.Println("VOTE Z")
 
 	if err = p.EmitVoteEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, int32(msg.Option)); err != nil {
 		return nil, err
@@ -86,4 +103,176 @@ func (p Precompile) VoteWeighted(
 	}
 
 	return method.Outputs.Pack(true)
+}
+
+func (p *Precompile) addNewAssetProposal(
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	// Parse arguments into the AddNewAssetConsensusProposal type.
+	addNewAssetProposalReq, err := ParseAddNewAssetProposalArgs(args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse addNewAssetProposal arguments: %w", err)
+	}
+
+	proposer := sdk.AccAddress(origin.Bytes())
+
+	proposalContent := &types.AddNewAssetConsensusProposal{
+		Title:       addNewAssetProposalReq.Title,
+		Description: addNewAssetProposalReq.Description,
+		Assets:      addNewAssetProposalReq.Assets,
+	}
+
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	if err != nil {
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+	}
+
+	// Convert sdk.Msg to *types.Any
+	contentAny, err := codectypes.NewAnyWithValue(contentMsg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack content message: %w", err)
+	}
+
+	msg := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{contentAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewInt(int64(addNewAssetProposalReq.InitialDeposit))), // todo: change ahelios by default var
+		),
+		Proposer: proposer.String(),
+		Metadata: "Optional metadata", // todo update !!
+		Title:    addNewAssetProposalReq.Title,
+		Summary:  addNewAssetProposalReq.Description,
+	}
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	proposal, err := msgSrv.SubmitProposal(ctx, msg)
+	if err != nil {
+		// Log the error or handle it in a specific way
+		fmt.Printf("Failed to submit proposal: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Println("proposalId: ", proposal.ProposalId)
+	// Pack and return a success response with the proposal ID
+	return method.Outputs.Pack(proposal.ProposalId)
+}
+
+func (p *Precompile) updateAssetProposal(
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	// Parse arguments into the AddNewAssetConsensusProposal type.
+	updateProposalReq, err := ParseUpdateAssetProposalArgs(args)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse addNewAssetProposal arguments: %w", err)
+	}
+
+	proposer := sdk.AccAddress(origin.Bytes())
+
+	proposalContent := &types.UpdateAssetConsensusProposal{
+		Title:       updateProposalReq.Title,
+		Description: updateProposalReq.Description,
+		Updates:     updateProposalReq.Updates,
+	}
+
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	if err != nil {
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+	}
+
+	// Convert sdk.Msg to *types.Any
+	contentAny, err := codectypes.NewAnyWithValue(contentMsg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack content message: %w", err)
+	}
+
+	msg := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{contentAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewInt(int64(updateProposalReq.InitialDeposit))), // todo: change ahelios by default var
+		),
+		Proposer: proposer.String(),
+		Metadata: "Optional metadata", // todo update !!
+		Title:    updateProposalReq.Title,
+		Summary:  updateProposalReq.Description,
+	}
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	proposal, err := msgSrv.SubmitProposal(ctx, msg)
+	if err != nil {
+		// Log the error or handle it in a specific way
+		fmt.Printf("Failed to submit proposal: %v\n", err)
+		return nil, err
+	}
+
+	// Pack and return a success response with the proposal ID
+	return method.Outputs.Pack(proposal.ProposalId)
+}
+
+func (p *Precompile) removeAssetProposal(
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	// Parse arguments into the AddNewAssetConsensusProposal type.
+	removeProposalReq, err := ParseRemoveAssetProposalArgs(args)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse addNewAssetProposal arguments: %w", err)
+	}
+
+	proposer := sdk.AccAddress(origin.Bytes())
+
+	proposalContent := &types.RemoveAssetConsensusProposal{
+		Title:          removeProposalReq.Title,
+		Description:    removeProposalReq.Description,
+		Denoms:         removeProposalReq.Denoms,
+		InitialDeposit: removeProposalReq.InitialDeposit,
+	}
+
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	if err != nil {
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+	}
+
+	// Convert sdk.Msg to *types.Any
+	contentAny, err := codectypes.NewAnyWithValue(contentMsg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack content message: %w", err)
+	}
+
+	msg := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{contentAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewInt(int64(proposalContent.InitialDeposit))), // todo: change ahelios by default var
+		),
+		Proposer: proposer.String(),
+		Metadata: "Optional metadata", // todo update !!
+		Title:    proposalContent.Title,
+		Summary:  proposalContent.Description,
+	}
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	proposal, err := msgSrv.SubmitProposal(ctx, msg)
+	if err != nil {
+		// Log the error or handle it in a specific way
+		fmt.Printf("Failed to submit proposal: %v\n", err)
+		return nil, err
+	}
+
+	// Pack and return a success response with the proposal ID
+	return method.Outputs.Pack(proposal.ProposalId)
 }

@@ -19,7 +19,7 @@ func NewErc20ProposalHandler(k keeper.Keeper) govtypes.Handler {
 		case *types.RemoveAssetConsensusProposal:
 			return HandleRemoveAssetConsensusProposal(ctx, k, c)
 		case *types.AddNewAssetConsensusProposal:
-			return handleAddNewAssetConsensusProposal(ctx, k, c)
+			return HandleAddNewAssetConsensusProposal(ctx, k, c)
 		case *types.UpdateAssetConsensusProposal:
 			return HandleUpdateAssetConsensusProposal(ctx, k, c)
 		default:
@@ -27,7 +27,7 @@ func NewErc20ProposalHandler(k keeper.Keeper) govtypes.Handler {
 		}
 	}
 }
-func handleAddNewAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, p *types.AddNewAssetConsensusProposal) error {
+func HandleAddNewAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, p *types.AddNewAssetConsensusProposal) error {
 	// Validate the proposal
 	if err := p.ValidateBasic(); err != nil {
 		return err
