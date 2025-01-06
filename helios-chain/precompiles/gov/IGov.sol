@@ -53,6 +53,22 @@ struct TallyResultData {
     string noWithVeto;
 }
 
+struct Asset {
+    string denom;
+    string contractAddress;
+    string chainId;
+    uint32 decimals;
+    uint64 baseWeight;
+    string metadata;
+}
+
+/// @dev WeightUpdateData represents the details for updating an asset's weight.
+struct WeightUpdateData {
+    string denom; // Asset denomination (e.g., USDT)
+    string magnitude; // Magnitude of the update (e.g., "small", "medium", "high")
+    string direction; // Direction of the update ("up" or "down")
+}
+
 /// @author The Evmos Core Team
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
@@ -151,4 +167,36 @@ interface IGov {
     function getTallyResult(
         uint64 proposalId
     ) external view returns (TallyResultData memory tallyResult);
+
+    function addNewAssetProposal(
+        string memory title,
+        string memory description,
+        Asset[] memory assets,
+        uint256 initialDepositAmount 
+    ) external returns (uint64 proposalId);
+
+    /// @dev Propose to update an asset's weight in the consensus.
+    /// @param title The title of the proposal.
+    /// @param description A description of why the update is necessary.
+    /// @param updates Array of weight updates to be applied.
+    /// @return proposalId The unique ID of the proposal created.
+    function updateAssetProposal(
+        string memory title,
+        string memory description,
+        WeightUpdateData[] memory updates,
+        uint256 initialDepositAmount
+    ) external returns (uint64 proposalId);
+
+    /// @dev Propose to remove assets from the consensus.
+    /// @param title The title of the proposal.
+    /// @param description A description of why the assets should be removed.
+    /// @param denoms Array of asset denominations to be removed.
+    /// @param initialDepositAmount Initial deposit amount required for the proposal.
+    /// @return proposalId The unique ID of the proposal created.
+    function removeAssetProposal(
+        string memory title,
+        string memory description,
+        string[] memory denoms,
+        uint256 initialDepositAmount
+    ) external returns (uint64 proposalId);
 }

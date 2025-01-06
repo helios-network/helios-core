@@ -4,6 +4,101 @@
   "sourceName": "solidity/precompiles/gov/IGov.sol",
   "abi": [
     {
+      "inputs": [
+        { "internalType": "string", "name": "title", "type": "string" },
+        { "internalType": "string", "name": "description", "type": "string" },
+        { "internalType": "string[]", "name": "denoms", "type": "string[]" },
+        { "internalType": "uint256", "name": "initialDepositAmount", "type": "uint256" }
+      ],
+      "name": "removeAssetProposal",
+      "outputs": [
+        { "internalType": "uint64", "name": "proposalId", "type": "uint64" }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "components": [
+            { "internalType": "string", "name": "denom", "type": "string" },
+            { "internalType": "string", "name": "magnitude", "type": "string" },
+            { "internalType": "string", "name": "direction", "type": "string" }
+          ],
+          "internalType": "struct WeightUpdateData[]",
+          "name": "updates",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initialDepositAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateAssetProposal",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },    
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "components": [
+            { "internalType": "string", "name": "denom", "type": "string" },
+            { "internalType": "string", "name": "contractAddress", "type": "string" },
+            { "internalType": "string", "name": "chainId", "type": "string" },
+            { "internalType": "uint32", "name": "decimals", "type": "uint32" },
+            { "internalType": "uint64", "name": "baseWeight", "type": "uint64" },
+            { "internalType": "string", "name": "metadata", "type": "string" }
+          ],
+          "internalType": "struct Asset[]",
+          "name": "assets",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initialDepositAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "addNewAssetProposal",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }, 
+    {
       "anonymous": false,
       "inputs": [
         {
