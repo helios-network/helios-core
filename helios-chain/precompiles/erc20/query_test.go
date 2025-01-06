@@ -28,9 +28,9 @@ var (
 	// validTraceDenom is a denomination trace with a valid IBC voucher name
 	validTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "uosmo"}
 	// validAttoTraceDenom is a denomination trace with a valid IBC voucher name and 18 decimals
-	validAttoTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "aevmos"}
+	validAttoTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "ahelios"}
 	// validTraceDenomNoMicroAtto is a denomination trace with a valid IBC voucher name but no micro or atto prefix
-	validTraceDenomNoMicroAtto = types.DenomTrace{Path: "channel-0", BaseDenom: "mevmos"}
+	validTraceDenomNoMicroAtto = types.DenomTrace{Path: "channel-0", BaseDenom: "mhelios"}
 
 	// --------------------
 	// Variables for coin with valid metadata

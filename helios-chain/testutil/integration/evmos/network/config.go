@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"math/big"
 
+	testtx "helios-core/helios-chain/testutil/tx"
+	evmostypes "helios-core/helios-chain/types"
+	"helios-core/helios-chain/utils"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	testtx "helios-core/helios-chain/testutil/tx"
-	evmostypes "helios-core/helios-chain/types"
-	"helios-core/helios-chain/utils"
 )
 
 // Config defines the configuration for a chain.
@@ -40,7 +41,7 @@ func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 	return Config{
 		chainID:            utils.MainnetChainID + "-1",
-		eip155ChainID:      big.NewInt(9001),
+		eip155ChainID:      big.NewInt(4242),
 		amountOfValidators: 3,
 		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},

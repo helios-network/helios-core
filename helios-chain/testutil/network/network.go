@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -101,7 +102,7 @@ type Config struct {
 // DefaultConfig returns a sane default configuration suitable for nearly all
 // testing requirements.
 func DefaultConfig() Config {
-	chainID := fmt.Sprintf("evmos_%d-1", cmtrand.Int63n(9999999999999)+1)
+	chainID := fmt.Sprintf("%d-1", cmtrand.Int63n(9999999999999)+1)
 	dir, err := os.MkdirTemp("", "simapp")
 	if err != nil {
 		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
@@ -282,7 +283,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 				apiListenAddr = cfg.APIAddress
 			} else {
 				port := 10317 - i
-				apiListenAddr = fmt.Sprintf("tcp://0.0.0.0:%s", port)
+				apiListenAddr = fmt.Sprintf("tcp://0.0.0.0:%s", strconv.Itoa(port))
 			}
 
 			appCfg.API.Address = apiListenAddr
@@ -296,14 +297,14 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 				cmtCfg.RPC.ListenAddress = cfg.RPCAddress
 			} else {
 				port := 15000 - i
-				cmtCfg.RPC.ListenAddress = fmt.Sprintf("tcp://0.0.0.0:%s", port)
+				cmtCfg.RPC.ListenAddress = fmt.Sprintf("tcp://0.0.0.0:%s", strconv.Itoa(port))
 			}
 
 			if cfg.GRPCAddress != "" {
 				appCfg.GRPC.Address = cfg.GRPCAddress
 			} else {
 				port := 9090 - i
-				appCfg.GRPC.Address = fmt.Sprintf("0.0.0.0:%s", port)
+				appCfg.GRPC.Address = fmt.Sprintf("0.0.0.0:%s", strconv.Itoa(port))
 			}
 			appCfg.GRPC.Enable = true
 			appCfg.GRPCWeb.Enable = true
@@ -312,7 +313,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 				appCfg.JSONRPC.Address = cfg.JSONRPCAddress
 			} else {
 				port := 8545 - i
-				appCfg.JSONRPC.Address = fmt.Sprintf("0.0.0.0:%s", port)
+				appCfg.JSONRPC.Address = fmt.Sprintf("0.0.0.0:%s", strconv.Itoa(port))
 			}
 			appCfg.JSONRPC.Enable = true
 			appCfg.JSONRPC.API = config.GetAPINamespaces()
@@ -346,7 +347,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 
 		port := i + 10100
 		l.Log("proxyApp", port)
-		proxyAddr := fmt.Sprintf("tcp://0.0.0.0:%s", port)
+		proxyAddr := fmt.Sprintf("tcp://0.0.0.0:%s", strconv.Itoa(port))
 		cmtCfg.ProxyApp = proxyAddr
 
 		port = i + 18500

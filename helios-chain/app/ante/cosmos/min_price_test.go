@@ -5,11 +5,12 @@ import (
 
 	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "helios-core/helios-chain/app/ante/cosmos"
 	"helios-core/helios-chain/testutil"
 	testutiltx "helios-core/helios-chain/testutil/tx"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 var execTypes = []struct {
@@ -25,8 +26,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	denom, err := sdk.GetBaseDenom()
 	suite.Require().NoError(err)
 	testMsg := banktypes.MsgSend{
-		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
-		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+		FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
+		ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 		Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(10), Denom: denom}},
 	}
 	nw := suite.GetNetwork()

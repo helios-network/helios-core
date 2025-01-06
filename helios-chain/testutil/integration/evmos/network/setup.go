@@ -5,6 +5,8 @@ package network
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 	"time"
 
@@ -152,13 +154,22 @@ func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes
 	return fundedAccountBalances
 }
 
-// createHeliosApp creates an evmos app
+// createHeliosApp creates an helios app
 func createHeliosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.HeliosApp {
-	// Create evmos app
+	// Create helios app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	loadLatest := true
-	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
+
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	homePath := filepath.Join(userHomeDir, DefaultHomeDirForTest)
+	// Remove all elements in the old test to avoid panic due to exclusive lock conflict
+	os.RemoveAll(homePath)
+
+	appOptions := simutils.NewAppOptionsWithFlagHome(homePath)
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
 	return app.NewHeliosApp(
