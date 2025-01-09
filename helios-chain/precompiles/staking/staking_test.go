@@ -8,18 +8,19 @@ import (
 
 	"cosmossdk.io/math"
 
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"helios-core/helios-chain/x/evm/core/vm"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"helios-core/helios-chain/app"
 	"helios-core/helios-chain/precompiles/authorization"
 	"helios-core/helios-chain/precompiles/staking"
 	"helios-core/helios-chain/x/evm/statedb"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -451,7 +452,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				To:        &contractAddr,
 				Amount:    nil,
 				GasLimit:  tc.gas,
-				GasPrice:  app.MainnetMinGasPrices.BigInt(),
+				GasPrice:  big.NewInt(1e9),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
 				Accesses:  &ethtypes.AccessList{},

@@ -7,10 +7,11 @@
 package network
 
 import (
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"helios-core/helios-chain/utils"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // updateErc20GenesisStateForChainID modify the default genesis state for the
@@ -27,40 +28,40 @@ func updateBankGenesisStateForChainID(chainID string, bankGenesisState banktypes
 func generateBankGenesisMetadata(chainID string) banktypes.Metadata {
 	if utils.IsTestnet(chainID) {
 		return banktypes.Metadata{
-			Description: "The native EVM, governance and staking token of the Evmos testnet",
-			Base:        "atevmos",
+			Description: "The native EVM, governance and staking token of the Helios testnet",
+			Base:        "athelios",
 			DenomUnits: []*banktypes.DenomUnit{
 				{
-					Denom:    "atevmos",
+					Denom:    "athelios",
 					Exponent: 0,
 				},
 				{
-					Denom:    "tevmos",
+					Denom:    "thelios",
 					Exponent: 18,
 				},
 			},
-			Name:    "tEvmos",
-			Symbol:  "tEVMOS",
-			Display: "tevmos",
+			Name:    "tHelios",
+			Symbol:  "tHELIOS",
+			Display: "tHelios",
 		}
 	}
 
 	return banktypes.Metadata{
-		Description: "The native EVM, governance and staking token of the Evmos mainnet",
-		Base:        "aevmos",
+		Description: "The native EVM, governance and staking token of the Helios mainnet",
+		Base:        "ahelios",
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    "aevmos",
+				Denom:    "ahelios",
 				Exponent: 0,
 			},
 			{
-				Denom:    "evmos",
+				Denom:    "helios",
 				Exponent: 18,
 			},
 		},
-		Name:    "Evmos",
-		Symbol:  "EVMOS",
-		Display: "evmos",
+		Name:    "Helios",
+		Symbol:  "HELIOS",
+		Display: "helios",
 	}
 }
 

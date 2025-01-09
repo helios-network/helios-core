@@ -19,10 +19,7 @@ import (
 // NewAddrKey generates an Ethereum address and its corresponding private key.
 func NewAddrKey() (common.Address, *ethsecp256k1.PrivKey) {
 	privkey, _ := ethsecp256k1.GenerateKey()
-	key, err := privkey.ToECDSA()
-	if err != nil {
-		return common.Address{}, nil
-	}
+	key := privkey.ToECDSA()
 
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 

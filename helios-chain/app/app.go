@@ -710,6 +710,11 @@ func (app *HeliosApp) AppCodec() codec.Codec {
 	return app.codec
 }
 
+// DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
+func (app *HeliosApp) DefaultGenesis() evmostypes.GenesisState {
+	return app.BasicModuleManager.DefaultGenesis(app.codec)
+}
+
 // InterfaceRegistry returns HeliosApp's InterfaceRegistry
 func (app *HeliosApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry

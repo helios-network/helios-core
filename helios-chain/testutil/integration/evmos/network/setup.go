@@ -5,6 +5,8 @@ package network
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 	"time"
 
@@ -43,7 +45,7 @@ import (
 )
 
 // genSetupFn is the type for the module genesis setup functions
-type genSetupFn func(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error)
+type genSetupFn func(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error)
 
 // defaultGenesisParams contains the params that are needed to
 // setup the default genesis for the testing setup
@@ -67,7 +69,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	banktypes.ModuleName:      setBankGenesisState,
 	authtypes.ModuleName:      setAuthGenesisState,
 	epochstypes.ModuleName:    genStateSetter[*epochstypes.GenesisState](epochstypes.ModuleName),
-	consensustypes.ModuleName: func(_ *app.Evmos, genesisState evmostypes.GenesisState, _ interface{}) (evmostypes.GenesisState, error) {
+	consensustypes.ModuleName: func(_ *app.HeliosApp, genesisState evmostypes.GenesisState, _ interface{}) (evmostypes.GenesisState, error) {
 		// no-op. Consensus does not have a genesis state on the application
 		// but the params are used on it
 		// (e.g. block max gas, max bytes).
@@ -79,13 +81,13 @@ var genesisSetupFunctions = map[string]genSetupFn{
 
 // genStateSetter is a generic function to set module-specific genesis state
 func genStateSetter[T proto.Message](moduleName string) genSetupFn {
-	return func(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
+	return func(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
 		moduleGenesis, ok := customGenesis.(T)
 		if !ok {
 			return nil, fmt.Errorf("invalid type %T for %s module genesis state", customGenesis, moduleName)
 		}
 
-		genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
+		genesisState[moduleName] = heliosApp.AppCodec().MustMarshalJSON(moduleGenesis)
 		return genesisState, nil
 	}
 }
@@ -152,26 +154,29 @@ func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes
 	return fundedAccountBalances
 }
 
-// createEvmosApp creates an evmos app
-func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
-	// Create evmos app
+// createHeliosApp creates an helios app
+func createHeliosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.HeliosApp {
+	// Create helios app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	loadLatest := true
-	skipUpgradeHeights := map[int64]bool{}
-	homePath := app.DefaultNodeHome
-	invCheckPeriod := uint(5)
-	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
+
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	homePath := filepath.Join(userHomeDir, DefaultHomeDirForTest)
+	// Remove all elements in the old test to avoid panic due to exclusive lock conflict
+	os.RemoveAll(homePath)
+
+	appOptions := simutils.NewAppOptionsWithFlagHome(homePath)
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
-	return app.NewEvmos(
+	return app.NewHeliosApp(
 		logger,
 		db,
 		nil,
 		loadLatest,
-		skipUpgradeHeights,
-		homePath,
-		invCheckPeriod,
 		appOptions,
 		baseAppOptions...,
 	)
@@ -304,7 +309,7 @@ type StakingCustomGenesisState struct {
 }
 
 // setDefaultStakingGenesisState sets the default staking genesis state
-func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams StakingCustomGenesisState) evmostypes.GenesisState {
+func setDefaultStakingGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, overwriteParams StakingCustomGenesisState) evmostypes.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
@@ -314,7 +319,7 @@ func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState evmostypes.
 		overwriteParams.validators,
 		overwriteParams.delegations,
 	)
-	genesisState[stakingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(stakingGenesis)
+	genesisState[stakingtypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(stakingGenesis)
 	return genesisState
 }
 
@@ -324,7 +329,7 @@ type BankCustomGenesisState struct {
 }
 
 // setDefaultBankGenesisState sets the default bank genesis state
-func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams BankCustomGenesisState) evmostypes.GenesisState {
+func setDefaultBankGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, overwriteParams BankCustomGenesisState) evmostypes.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,
@@ -332,8 +337,8 @@ func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gen
 		[]banktypes.Metadata{},
 		[]banktypes.SendEnabled{},
 	)
-	updatedBankGen := updateBankGenesisStateForChainID(evmosApp.ChainID(), *bankGenesis)
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedBankGen)
+	updatedBankGen := updateBankGenesisStateForChainID(heliosApp.ChainID(), *bankGenesis)
+	genesisState[banktypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(&updatedBankGen)
 	return genesisState
 }
 
@@ -345,24 +350,24 @@ type SlashingCustomGenesisState struct {
 }
 
 // setDefaultSlashingGenesisState sets the default slashing genesis state
-func setDefaultSlashingGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams SlashingCustomGenesisState) evmostypes.GenesisState {
+func setDefaultSlashingGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, overwriteParams SlashingCustomGenesisState) evmostypes.GenesisState {
 	slashingGen := slashingtypes.DefaultGenesisState()
 	slashingGen.SigningInfos = overwriteParams.signingInfo
 	slashingGen.MissedBlocks = overwriteParams.missedBlocks
 
-	genesisState[slashingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(slashingGen)
+	genesisState[slashingtypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(slashingGen)
 	return genesisState
 }
 
 // setBankGenesisState updates the bank genesis state with custom genesis state
-func setBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
+func setBankGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
 	customGen, ok := customGenesis.(*banktypes.GenesisState)
 	if !ok {
 		return nil, fmt.Errorf("invalid type %T for bank module genesis state", customGenesis)
 	}
 
 	bankGen := &banktypes.GenesisState{}
-	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
+	heliosApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
 
 	if len(customGen.Balances) > 0 {
 		coins := sdktypes.NewCoins()
@@ -382,7 +387,7 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 
 	bankGen.Params = customGen.Params
 
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGen)
+	genesisState[banktypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(bankGen)
 	return genesisState, nil
 }
 
@@ -407,21 +412,21 @@ func addBondedModuleAccountToFundedBalances(
 }
 
 // setDefaultAuthGenesisState sets the default auth genesis state
-func setDefaultAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, genAccs []authtypes.GenesisAccount) evmostypes.GenesisState {
+func setDefaultAuthGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, genAccs []authtypes.GenesisAccount) evmostypes.GenesisState {
 	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
+	genesisState[authtypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
 	return genesisState
 }
 
 // setAuthGenesisState updates the bank genesis state with custom genesis state
-func setAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
+func setAuthGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
 	customGen, ok := customGenesis.(*authtypes.GenesisState)
 	if !ok {
 		return nil, fmt.Errorf("invalid type %T for auth module genesis state", customGenesis)
 	}
 
 	authGen := &authtypes.GenesisState{}
-	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[authtypes.ModuleName], authGen)
+	heliosApp.AppCodec().MustUnmarshalJSON(genesisState[authtypes.ModuleName], authGen)
 
 	if len(customGen.Accounts) > 0 {
 		authGen.Accounts = append(authGen.Accounts, customGen.Accounts...)
@@ -429,7 +434,7 @@ func setAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 
 	authGen.Params = customGen.Params
 
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGen)
+	genesisState[authtypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(authGen)
 	return genesisState, nil
 }
 
@@ -439,46 +444,46 @@ type GovCustomGenesisState struct {
 }
 
 // setDefaultGovGenesisState sets the default gov genesis state
-func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams GovCustomGenesisState) evmostypes.GenesisState {
+func setDefaultGovGenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState, overwriteParams GovCustomGenesisState) evmostypes.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
 	minDepositAmt := sdkmath.NewInt(1e18)
 	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	govGen.Params = updatedParams
-	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
+	genesisState[govtypes.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(govGen)
 	return genesisState
 }
 
-func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
+func setDefaultErc20GenesisState(heliosApp *app.HeliosApp, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
-	updatedErc20Gen := updateErc20GenesisStateForChainID(evmosApp.ChainID(), *erc20Gen)
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedErc20Gen)
+	updatedErc20Gen := updateErc20GenesisStateForChainID(heliosApp.ChainID(), *erc20Gen)
+	genesisState[erc20types.ModuleName] = heliosApp.AppCodec().MustMarshalJSON(&updatedErc20Gen)
 	return genesisState
 }
 
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
-func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) evmostypes.GenesisState {
-	genesisState := evmosApp.DefaultGenesis()
+func newDefaultGenesisState(heliosApp *app.HeliosApp, params defaultGenesisParams) evmostypes.GenesisState {
+	genesisState := heliosApp.DefaultGenesis()
 
-	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
-	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
-	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = setDefaultGovGenesisState(evmosApp, genesisState, params.gov)
-	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
-	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
+	genesisState = setDefaultAuthGenesisState(heliosApp, genesisState, params.genAccounts)
+	genesisState = setDefaultStakingGenesisState(heliosApp, genesisState, params.staking)
+	genesisState = setDefaultBankGenesisState(heliosApp, genesisState, params.bank)
+	genesisState = setDefaultGovGenesisState(heliosApp, genesisState, params.gov)
+	genesisState = setDefaultSlashingGenesisState(heliosApp, genesisState, params.slashing)
+	genesisState = setDefaultErc20GenesisState(heliosApp, genesisState)
 
 	return genesisState
 }
 
 // customizeGenesis modifies genesis state if there're any custom genesis state
 // for specific modules
-func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesisState evmostypes.GenesisState) (evmostypes.GenesisState, error) {
+func customizeGenesis(heliosApp *app.HeliosApp, customGen CustomGenesisState, genesisState evmostypes.GenesisState) (evmostypes.GenesisState, error) {
 	var err error
 	for mod, modGenState := range customGen {
 		if fn, found := genesisSetupFunctions[mod]; found {
-			genesisState, err = fn(evmosApp, genesisState, modGenState)
+			genesisState, err = fn(heliosApp, genesisState, modGenState)
 			if err != nil {
 				return genesisState, err
 			}

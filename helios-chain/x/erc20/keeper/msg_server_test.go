@@ -4,6 +4,13 @@ import (
 	"fmt"
 	"math/big"
 
+	testutils "helios-core/helios-chain/testutil/integration/evmos/utils"
+	"helios-core/helios-chain/x/erc20/keeper"
+	"helios-core/helios-chain/x/erc20/types"
+	erc20mocks "helios-core/helios-chain/x/erc20/types/mocks"
+	"helios-core/helios-chain/x/evm/statedb"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -11,12 +18,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/mock"
-	testutils "helios-core/helios-chain/testutil/integration/evmos/utils"
-	"helios-core/helios-chain/x/erc20/keeper"
-	"helios-core/helios-chain/x/erc20/types"
-	erc20mocks "helios-core/helios-chain/x/erc20/types/mocks"
-	"helios-core/helios-chain/x/evm/statedb"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {

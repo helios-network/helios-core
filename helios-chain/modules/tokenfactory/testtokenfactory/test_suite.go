@@ -121,7 +121,7 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
-	sh := testutil.NewHelper(s.Suite.T(), s.Ctx, s.App.StakingKeeper)
+	sh := testutil.NewHelper(s.Suite.T(), s.Ctx, s.App.StakingKeeper.Keeper)
 	sh.CreateValidator(valAddr, valPub, selfBond[0].Amount, true)
 
 	val, err := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)

@@ -3,11 +3,12 @@
 package network
 
 import (
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"helios-core/helios-chain/app"
 	"helios-core/helios-chain/x/evm/statedb"
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
@@ -15,7 +16,7 @@ import (
 // makes the App public for easier testing.
 type UnitTestNetwork struct {
 	IntegrationNetwork
-	App *app.Evmos
+	App *app.HeliosApp
 }
 
 var _ Network = (*UnitTestNetwork)(nil)

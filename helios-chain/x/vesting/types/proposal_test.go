@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"helios-core/helios-chain/x/vesting/types"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type ProposalTestSuite struct {
@@ -34,7 +35,7 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			msg:         "Clawback proposal - valid address",
 			title:       "test",
 			description: "test desc",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:     "helios19y7d5jz7q0v86zw5m0300mhprpvu0cccrnk75t",
 			expectPass:  true,
 		},
 		// Invalid - Missing params
@@ -42,14 +43,14 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			msg:         "Clawback proposal - invalid missing title ",
 			title:       "",
 			description: "test desc",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:     "helios19y7d5jz7q0v86zw5m0300mhprpvu0cccrnk75t",
 			expectPass:  false,
 		},
 		{
 			msg:         "Clawback proposal - invalid missing description ",
 			title:       "test",
 			description: "",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:     "helios19y7d5jz7q0v86zw5m0300mhprpvu0cccrnk75t",
 			expectPass:  false,
 		},
 		// Invalid address
@@ -57,14 +58,14 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			msg:         "Clawback proposal - invalid address (no hex)",
 			title:       "test",
 			description: "test desc",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6ggg",
+			address:     "helios19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6ggg",
 			expectPass:  false,
 		},
 		{
 			msg:                "Clawback proposal - invalid destination addr",
 			title:              "test",
 			description:        "test desc",
-			address:            "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:            "helios19y7d5jz7q0v86zw5m0300mhprpvu0cccrnk75t",
 			destinationAddress: "125182ujaisch8hsgs",
 			expectPass:         false,
 		},

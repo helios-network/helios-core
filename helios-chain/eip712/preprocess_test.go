@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"helios-core/helios-chain/cmd/config"
 	"helios-core/helios-chain/eip712"
 	"helios-core/helios-chain/encoding"
 	utiltx "helios-core/helios-chain/testutil/tx"
@@ -47,7 +46,7 @@ type TestCaseStruct struct {
 
 func TestLedgerPreprocessing(t *testing.T) {
 	// Update bech32 prefix
-	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
+	sdk.GetConfig().SetBech32PrefixForAccount(types.Bech32Prefix, "")
 
 	testCases := []TestCaseStruct{
 		createBasicTestCase(t),

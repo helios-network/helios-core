@@ -57,7 +57,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	err := app.InitializeAppConfiguration("evmos_9001-1")
+	err := app.InitializeAppConfiguration("4242-1")
 	suite.Require().NoError(err)
 }
 
@@ -718,8 +718,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_Getters() {
 
 func (suite *MsgsTestSuite) TestFromEthereumTx() {
 	privkey, _ := ethsecp256k1.GenerateKey()
-	ethPriv, err := privkey.ToECDSA()
-	suite.Require().NoError(err)
+	ethPriv := privkey.ToECDSA()
 
 	// 10^80 is more than 256 bits
 	//nolint:all

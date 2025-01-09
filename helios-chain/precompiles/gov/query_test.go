@@ -6,6 +6,10 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 	evmostypes "helios-core/helios-chain/types"
 
+	"helios-core/helios-chain/precompiles/gov"
+	"helios-core/helios-chain/precompiles/testutil"
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,9 +19,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/gov"
-	"helios-core/helios-chain/precompiles/testutil"
-	"helios-core/helios-chain/x/evm/core/vm"
 )
 
 var (
@@ -224,7 +225,7 @@ func (s *PrecompileTestSuite) TestGetDeposit() {
 				s.Require().NoError(err)
 				s.Require().Equal(tc.expPropNumber, out.Deposit.ProposalId)
 				s.Require().Equal(common.BytesToAddress(depositor.Bytes()), out.Deposit.Depositor)
-				s.Require().Equal([]cmn.Coin{{Denom: "aevmos", Amount: big.NewInt(100)}}, out.Deposit.Amount)
+				s.Require().Equal([]cmn.Coin{{Denom: "ahelios", Amount: big.NewInt(100)}}, out.Deposit.Amount)
 			} else {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)

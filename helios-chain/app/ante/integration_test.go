@@ -69,7 +69,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
-				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+				ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yuu0njcs",
 				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: s.network.GetDenom()}},
 			}
 
@@ -142,7 +142,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
-				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+				ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yuu0njcs",
 				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: s.network.GetDenom()}},
 			}
 		})
@@ -203,7 +203,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
-				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+				ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yuu0njcs",
 				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1), Denom: s.network.GetDenom()}},
 			}
 		})
