@@ -84,7 +84,8 @@ func (suite *EIP712TestSuite) SetupTest() {
 // createTestAddress creates random test addresses for messages
 func (suite *EIP712TestSuite) createTestAddress() sdk.AccAddress {
 	privkey, _ := ethsecp256k1.GenerateKey()
-	key := privkey.ToECDSA()
+	key, err := privkey.ToECDSA()
+	suite.Require().NoError(err)
 
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 

@@ -718,7 +718,8 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_Getters() {
 
 func (suite *MsgsTestSuite) TestFromEthereumTx() {
 	privkey, _ := ethsecp256k1.GenerateKey()
-	ethPriv := privkey.ToECDSA()
+	ethPriv, err := privkey.ToECDSA()
+	suite.Require().NoError(err)
 
 	// 10^80 is more than 256 bits
 	//nolint:all

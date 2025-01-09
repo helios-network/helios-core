@@ -35,7 +35,10 @@ func Call(ctx sdk.Context, app *heliosapp.HeliosApp, args CallArgs) (res abci.Ex
 		return abci.ExecTxResult{}, nil, errors.New("error while casting type ethsecp256k1.PrivKey on provided private key")
 	}
 
-	key := pk.ToECDSA()
+	key, err := pk.ToECDSA()
+	if err != nil {
+		return abci.ExecTxResult{}, nil, fmt.Errorf("error while converting private key to ecdsa: %v", err)
+	}
 
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
