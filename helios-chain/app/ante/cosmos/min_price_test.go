@@ -26,8 +26,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	denom, err := sdk.GetBaseDenom()
 	suite.Require().NoError(err)
 	testMsg := banktypes.MsgSend{
-		FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
-		ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+		FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0pah6yyz",
+		ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yuu0njcs",
 		Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(10), Denom: denom}},
 	}
 	nw := suite.GetNetwork()

@@ -37,8 +37,8 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			testutils.TestGasLimit,
 			func() sdk.Tx {
 				testMsg := banktypes.MsgSend{
-					FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
-					ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+					FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0pah6yyz",
+					ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yuu0njcs",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: baseDenom}},
 				}
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), baseDenom, &testMsg)
@@ -111,8 +111,8 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			testutils.TestGasLimit,
 			func() sdk.Tx {
 				testMsg := banktypes.MsgSend{
-					FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
-					ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+					FromAddress: "helios1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0pah6yyz",
+					ToAddress:   "helios1dx67l23hz9l0k9hcher8xz04uj7wf3yuu0njcs",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: baseDenom}},
 				}
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), baseDenom, &testMsg)

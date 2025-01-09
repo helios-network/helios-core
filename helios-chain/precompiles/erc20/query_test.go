@@ -154,8 +154,8 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenomNoMicroAtto)
 			},
 			expPass:   true,
-			expName:   "Evmos",
-			expSymbol: "EVMOS",
+			expName:   "Helios",
+			expSymbol: "HELIOS",
 		},
 		{
 			name:  "pass - valid denom with metadata",
