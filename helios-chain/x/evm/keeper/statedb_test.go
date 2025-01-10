@@ -15,10 +15,6 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/stretchr/testify/require"
 	"helios-core/helios-chain/contracts"
 	testfactory "helios-core/helios-chain/testutil/integration/evmos/factory"
 	testhandler "helios-core/helios-chain/testutil/integration/evmos/grpc"
@@ -29,6 +25,11 @@ import (
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/statedb"
 	"helios-core/helios-chain/x/evm/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *KeeperTestSuite) TestCreateAccount() {
@@ -745,7 +746,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg2.From = addr.Hex()
 
 	ethTx3Params := &types.EvmTxArgs{
-		ChainID:   big.NewInt(9001),
+		ChainID:   big.NewInt(4242),
 		Nonce:     0,
 		To:        &toAddr,
 		Amount:    big.NewInt(1),

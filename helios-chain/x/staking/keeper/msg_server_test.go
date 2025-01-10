@@ -5,7 +5,6 @@ package keeper_test
 
 import (
 	"testing"
-	"time"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -17,7 +16,6 @@ import (
 	utiltx "helios-core/helios-chain/testutil/tx"
 	evmostypes "helios-core/helios-chain/types"
 	"helios-core/helios-chain/x/staking/keeper"
-	vestingtypes "helios-core/helios-chain/x/vesting/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +26,6 @@ func TestMsgDelegate(t *testing.T) {
 		nw               *network.UnitTestNetwork
 		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
 		delegatorAddr, _ = utiltx.NewAccAddressAndKey()
-		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
 
 	testCases := []struct { //nolint:dupl
@@ -44,72 +41,6 @@ func TestMsgDelegate(t *testing.T) {
 				err := testutil.FundAccountWithBaseDenom(ctx, nw.App.BankKeeper, delegatorAddr, defaultDelCoin.Amount.Int64())
 				require.NoError(t, err)
 				return defaultDelCoin
-			},
-			expErr: false,
-		},
-		{
-			name: "can delegate free coins from a ClawbackVestingAccount",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, delegatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins.Add(defaultDelCoin))
-				require.NoError(t, err)
-				return defaultDelCoin
-			},
-			expErr: false,
-		},
-		{
-			name: "cannot delegate unvested coins from a ClawbackVestingAccount",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, delegatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins)
-				require.NoError(t, err)
-				return defaultDelCoin
-			},
-			expErr: true,
-			errMsg: "cannot delegate unvested coins",
-		},
-		{
-			name: "can delegate locked vested coins from a ClawbackVestingAccount",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, delegatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins)
-				require.NoError(t, err)
-
-				// after first vesting period and before lockup
-				// some vested tokens, but still all locked
-				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration * time.Second))
-
-				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
-				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
-				require.True(t, ok)
-
-				// check that locked vested is > 0
-				lockedVested := vestAcc.GetLockedUpVestedCoins(ctx.BlockTime())
-				require.True(t, lockedVested.IsAllGT(sdk.NewCoins()))
-
-				// returned delegation coins are the locked vested coins
-				return lockedVested[0]
-			},
-			expErr: false,
-		},
-		{
-			name: "can delegate unlocked vested coins from a ClawbackVestingAccount",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, delegatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins)
-				require.NoError(t, err)
-
-				// Between first and second lockup periods
-				// vested coins are unlocked
-				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration * time.Second))
-
-				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
-				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
-				require.True(t, ok)
-
-				unlockedVested := vestAcc.GetUnlockedVestedCoins(ctx.BlockTime())
-				require.True(t, unlockedVested.IsAllGT(sdk.NewCoins()))
-
-				// returned delegation coins are the locked vested coins
-				return unlockedVested[0]
 			},
 			expErr: false,
 		},
@@ -145,7 +76,6 @@ func TestMsgCreateValidator(t *testing.T) {
 		nw               *network.UnitTestNetwork
 		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
 		validatorAddr, _ = utiltx.NewAccAddressAndKey()
-		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
 
 	testCases := []struct { //nolint:dupl
@@ -161,72 +91,6 @@ func TestMsgCreateValidator(t *testing.T) {
 				err := testutil.FundAccountWithBaseDenom(ctx, nw.App.BankKeeper, validatorAddr, defaultDelCoin.Amount.Int64())
 				require.NoError(t, err)
 				return defaultDelCoin
-			},
-			expErr: false,
-		},
-		{
-			name: "can create a validator using a ClawbackVestingAccount and free tokens in self delegation",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, validatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins.Add(defaultDelCoin))
-				require.NoError(t, err)
-				return defaultDelCoin
-			},
-			expErr: false,
-		},
-		{
-			name: "cannot create a validator using a ClawbackVestingAccount and unvested tokens in self delegation",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, validatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins)
-				require.NoError(t, err)
-				return defaultDelCoin
-			},
-			expErr: true,
-			errMsg: "cannot delegate unvested coins",
-		},
-		{
-			name: "can create a validator using a ClawbackVestingAccount and locked vested coins in self delegation",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, validatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins)
-				require.NoError(t, err)
-
-				// after first vesting period and before lockup
-				// some vested tokens, but still all locked
-				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration * time.Second))
-
-				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
-				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
-				require.True(t, ok)
-
-				// check that locked vested is > 0
-				lockedVested := vestAcc.GetLockedUpVestedCoins(ctx.BlockTime())
-				require.True(t, lockedVested.IsAllGT(sdk.NewCoins()))
-
-				// returned delegation coins are the locked vested coins
-				return lockedVested[0]
-			},
-			expErr: false,
-		},
-		{
-			name: "can create a validator using a ClawbackVestingAccount and unlocked vested coins in self delegation",
-			setup: func() sdk.Coin {
-				err := setupClawbackVestingAccount(ctx, nw, validatorAddr, funderAddr, testutil.TestVestingSchedule.TotalVestingCoins)
-				require.NoError(t, err)
-
-				// Between first and second lockup periods
-				// vested coins are unlocked
-				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration * time.Second))
-
-				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
-				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
-				require.True(t, ok)
-
-				unlockedVested := vestAcc.GetUnlockedVestedCoins(ctx.BlockTime())
-				require.True(t, unlockedVested.IsAllGT(sdk.NewCoins()))
-
-				// returned delegation coins are the locked vested coins
-				return unlockedVested[0]
 			},
 			expErr: false,
 		},

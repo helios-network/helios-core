@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	GasAdjustment = float64(1.7)
+	GasAdjustment = float64(1.75)
 )
 
 // CoreTxFactory is the interface that wraps the methods

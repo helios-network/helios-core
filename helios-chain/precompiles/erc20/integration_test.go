@@ -92,7 +92,7 @@ var (
 	wevmosAddress      common.Address
 	revertContractAddr common.Address
 	gasLimit           = uint64(5000000)
-	gasPrice           = big.NewInt(800_000_000)
+	gasPrice           = big.NewInt(900_000_000)
 )
 
 var _ = Describe("ERC20 Extension -", func() {
