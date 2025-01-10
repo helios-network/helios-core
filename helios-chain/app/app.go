@@ -182,7 +182,6 @@ import (
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
-	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
 
 	epochstypes "helios-core/helios-chain/x/epochs/types"
 	inflation "helios-core/helios-chain/x/inflation/v1"
@@ -401,7 +400,6 @@ type HeliosApp struct {
 	InflationKeeper inflationkeeper.Keeper
 	Erc20Keeper     erc20keeper.Keeper
 	EpochsKeeper    epochskeeper.Keeper
-	VestingKeeper   vestingkeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
 }
@@ -1306,7 +1304,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.DistrKeeper,
 			app.BankKeeper,
 			app.Erc20Keeper,
-			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
@@ -1400,7 +1397,6 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
-		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper), //TODO: CHECK IF CREATE ISSUES CAUSE MODIFIED
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,

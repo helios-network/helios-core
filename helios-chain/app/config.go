@@ -9,9 +9,7 @@ package app
 import (
 	"strings"
 
-	"helios-core/helios-chain/app/eips"
 	"helios-core/helios-chain/utils"
-	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	"cosmossdk.io/math"
@@ -61,14 +59,6 @@ func InitializeAppConfiguration(chainID string) error {
 
 	sealed = true
 	return nil
-}
-
-// EvmosActivators defines a map of opcode modifiers associated
-// with a key defining the corresponding EIP.
-var evmosActivators = map[string]func(*vm.JumpTable){
-	"evmos_0": eips.Enable0000,
-	"evmos_1": eips.Enable0001,
-	"evmos_2": eips.Enable0002,
 }
 
 // setBaseDenom registers the display denom and base denom and sets the

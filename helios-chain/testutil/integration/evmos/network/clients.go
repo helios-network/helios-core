@@ -3,6 +3,12 @@
 package network
 
 import (
+	epochstypes "helios-core/helios-chain/x/epochs/types"
+	erc20types "helios-core/helios-chain/x/erc20/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+	infltypes "helios-core/helios-chain/x/inflation/v1/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -16,12 +22,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	epochstypes "helios-core/helios-chain/x/epochs/types"
-	erc20types "helios-core/helios-chain/x/erc20/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
-	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
-	infltypes "helios-core/helios-chain/x/inflation/v1/types"
-	vestingtypes "helios-core/helios-chain/x/vesting/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context, encCfg testutil.TestEncodingConfig) *baseapp.QueryServiceTestHelper {
@@ -96,10 +96,4 @@ func (n *IntegrationNetwork) GetEpochsClient() epochstypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext(), n.GetEncodingConfig())
 	epochstypes.RegisterQueryServer(queryHelper, n.app.EpochsKeeper)
 	return epochstypes.NewQueryClient(queryHelper)
-}
-
-func (n *IntegrationNetwork) GetVestingClient() vestingtypes.QueryClient {
-	queryHelper := getQueryHelper(n.GetContext(), n.GetEncodingConfig())
-	vestingtypes.RegisterQueryServer(queryHelper, n.app.VestingKeeper)
-	return vestingtypes.NewQueryClient(queryHelper)
 }

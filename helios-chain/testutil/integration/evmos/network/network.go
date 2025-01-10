@@ -21,7 +21,6 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 	infltypes "helios-core/helios-chain/x/inflation/v1/types"
-	vestingtypes "helios-core/helios-chain/x/vesting/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -53,7 +52,6 @@ type Network interface {
 	GetGovClient() govtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
-	GetVestingClient() vestingtypes.QueryClient
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
