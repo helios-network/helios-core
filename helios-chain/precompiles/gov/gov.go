@@ -117,18 +117,18 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.GetDeposits(ctx, method, contract, args)
 	case GetTallyResultMethod:
 		bz, err = p.GetTallyResult(ctx, method, contract, args)
-	case addNewAssetProposalMethod:
-		bz, err = p.addNewAssetProposal(
+	case AddNewAssetProposalMethod:
+		bz, err = p.AddNewAssetProposal(
 			evm.Origin,
 			p.govKeeper,
 			ctx, method, contract, args)
-	case updateAssetProposalMethod:
-		bz, err = p.updateAssetProposal(
+	case UpdateAssetProposalMethod:
+		bz, err = p.UpdateAssetProposal(
 			evm.Origin,
 			p.govKeeper,
 			ctx, method, contract, args)
-	case removeAssetProposalMethod:
-		bz, err = p.removeAssetProposal(
+	case RemoveAssetProposalMethod:
+		bz, err = p.RemoveAssetProposal(
 			evm.Origin,
 			p.govKeeper,
 			ctx, method, contract, args)
@@ -160,7 +160,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - VoteWeighted
 func (Precompile) IsTransaction(method *abi.Method) bool {
 	switch method.Name {
-	case VoteMethod, VoteWeightedMethod:
+	case VoteMethod, VoteWeightedMethod, AddNewAssetProposalMethod, UpdateAssetProposalMethod, RemoveAssetProposalMethod:
 		return true
 	default:
 		return false
