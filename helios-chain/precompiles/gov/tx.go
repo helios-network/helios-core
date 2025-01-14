@@ -56,14 +56,10 @@ func (p Precompile) Vote(
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
-	fmt.Println("VOTE  msg ", err)
 
 	if _, err = msgSrv.Vote(ctx, msg); err != nil {
-		fmt.Println("VOTE ERR ", err)
 		return nil, err
 	}
-
-	fmt.Println("VOTE Z")
 
 	if err = p.EmitVoteEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, int32(msg.Option)); err != nil {
 		return nil, err
