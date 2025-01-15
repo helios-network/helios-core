@@ -21,9 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/modules/peggy/types"
-
-	exchangekeeper "helios-core/helios-chain/modules/exchange/keeper"
-	exchangetypes "helios-core/helios-chain/modules/exchange/types"
 )
 
 // Keeper maintains the link to storage and exposes getter/setter methods for the various parts of the state machine
@@ -31,11 +28,10 @@ type Keeper struct {
 	cdc      codec.Codec         // The wire codec for binary encoding/decoding.
 	storeKey storetypes.StoreKey // Unexposed key to access store from sdk.Context
 
-	StakingKeeper     types.StakingKeeper
-	bankKeeper        types.BankKeeper
-	DistKeeper        distrkeeper.Keeper
-	SlashingKeeper    types.SlashingKeeper
-	exchangeMsgServer exchangetypes.MsgServer
+	StakingKeeper  types.StakingKeeper
+	bankKeeper     types.BankKeeper
+	DistKeeper     distrkeeper.Keeper
+	SlashingKeeper types.SlashingKeeper
 
 	AttestationHandler interface {
 		Handle(sdk.Context, types.EthereumClaim) error
@@ -61,21 +57,18 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	slashingKeeper types.SlashingKeeper,
 	distKeeper distrkeeper.Keeper,
-	exchangeKeeper exchangekeeper.Keeper,
 	authority string,
 	accountKeeper keeper.AccountKeeper,
 ) Keeper {
-	exchangeMsgServer := exchangekeeper.NewMsgServerImpl(exchangeKeeper)
 
 	k := Keeper{
-		cdc:               cdc,
-		storeKey:          storeKey,
-		StakingKeeper:     stakingKeeper,
-		bankKeeper:        bankKeeper,
-		DistKeeper:        distKeeper,
-		SlashingKeeper:    slashingKeeper,
-		exchangeMsgServer: exchangeMsgServer,
-		authority:         authority,
+		cdc:            cdc,
+		storeKey:       storeKey,
+		StakingKeeper:  stakingKeeper,
+		bankKeeper:     bankKeeper,
+		DistKeeper:     distKeeper,
+		SlashingKeeper: slashingKeeper,
+		authority:      authority,
 		svcTags: metrics.Tags{
 			"svc": "peggy_k",
 		},
