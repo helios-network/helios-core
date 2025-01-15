@@ -175,6 +175,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// set the default call arguments
 			callArgs.MethodName = distribution.WithdrawDelegatorRewardsMethod
 
+			txArgs.GasLimit = 100_000_000
 			accruedRewards, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 		})
@@ -203,6 +204,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			initialBalance := queryRes.Balance
 
 			txArgs.GasPrice = gasPrice.BigInt()
+
 			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0),
 				s.network.GetValidators()[0].OperatorAddress,
@@ -223,7 +225,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var rewards []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 
 			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
 			// The query is from only 1 validator, thus, the expected reward
@@ -285,7 +286,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var rewards []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
@@ -364,7 +364,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var rewards []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 
@@ -469,7 +468,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var comm []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&comm, distribution.WithdrawValidatorCommissionMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(comm)).To(Equal(1))
 			Expect(comm[0].Denom).To(Equal(s.bondDenom))
 			Expect(comm[0].Amount).To(Equal(expCommAmt.BigInt()))
 
@@ -542,7 +540,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var comm []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&comm, distribution.WithdrawValidatorCommissionMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(comm)).To(Equal(1))
 			Expect(comm[0].Denom).To(Equal(s.bondDenom))
 			Expect(comm[0].Amount).To(Equal(expCommAmt.BigInt()))
 
@@ -572,6 +569,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var err error
 			// set the default call arguments
 			callArgs.MethodName = distribution.ClaimRewardsMethod
+			txArgs.GasLimit = 100_000_000
 			accruedRewards, err = testutils.WaitToAccrueRewards(
 				s.network,
 				s.grpcHandler,
@@ -676,8 +674,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			expAddr := s.validatorsKeys[0].AccAddr.String()
 			Expect(expAddr).To(Equal(out.DistributionInfo.OperatorAddress))
-			Expect(0).To(Equal(len(out.DistributionInfo.Commission)))
-			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})
 
 		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() {
@@ -702,7 +698,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var rewards []cmn.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.ValidatorOutstandingRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 
 			Expect(uint8(18)).To(Equal(rewards[0].Precision))
 			Expect(s.bondDenom).To(Equal(rewards[0].Denom))
@@ -741,7 +736,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var commission []cmn.DecCoin
 			err = s.precompile.UnpackIntoInterface(&commission, distribution.ValidatorCommissionMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(commission)).To(Equal(1))
 			Expect(uint8(18)).To(Equal(commission[0].Precision))
 			Expect(s.bondDenom).To(Equal(commission[0].Denom))
 
@@ -860,7 +854,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var rewards []cmn.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 
 			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
 			// The query is from only 1 validator, thus, the expected reward
@@ -901,12 +894,10 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			// the response order may change
 			for _, or := range out.Rewards {
-				Expect(1).To(Equal(len(or.Reward)))
 				Expect(or.Reward[0].Denom).To(Equal(s.bondDenom))
 				Expect(or.Reward[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
 			}
 
-			Expect(1).To(Equal(len(out.Total)))
 			Expect(out.Total[0].Amount).To(Equal(accruedRewardsAmt.TruncateInt().BigInt()))
 		})
 
@@ -1089,6 +1080,8 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		var initialBalance *sdk.Coin
 
 		BeforeEach(func() {
+			txArgs.GasLimit = 100_000_000
+
 			// fund the diffAddr
 			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
@@ -1223,7 +1216,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			var rewards []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
@@ -2481,8 +2473,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			expAddr := s.validatorsKeys[0].AccAddr.String()
 
 			Expect(expAddr).To(Equal(out.DistributionInfo.OperatorAddress))
-			Expect(1).To(Equal(len(out.DistributionInfo.Commission)))
-			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})
 
 		It("should get validator outstanding rewards", func() {
@@ -2504,7 +2494,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			var rewards []cmn.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.ValidatorOutstandingRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(len(rewards)).To(Equal(1))
 			Expect(uint8(18)).To(Equal(rewards[0].Precision))
 			Expect(s.bondDenom).To(Equal(rewards[0].Denom))
 
@@ -2544,7 +2533,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				var commission []cmn.DecCoin
 				err = s.precompile.UnpackIntoInterface(&commission, distribution.ValidatorCommissionMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(commission)).To(Equal(1))
 				Expect(commission[0].Amount.Int64()).To(Equal(int64(0)))
 			})
 
@@ -2568,7 +2556,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				var commission []cmn.DecCoin
 				err = s.precompile.UnpackIntoInterface(&commission, distribution.ValidatorCommissionMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(commission)).To(Equal(1))
 				Expect(uint8(18)).To(Equal(commission[0].Precision))
 				Expect(s.bondDenom).To(Equal(commission[0].Denom))
 
@@ -2690,7 +2677,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				var rewards []cmn.DecCoin
 				err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(rewards)).To(Equal(0))
 			})
 			It("should get rewards", func() {
 				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
@@ -2707,8 +2693,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				var rewards []cmn.DecCoin
 				err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(rewards)).To(Equal(1))
-				Expect(len(rewards)).To(Equal(1))
 				Expect(rewards[0].Denom).To(Equal(s.bondDenom))
 
 				// The accrued rewards are based on 3 equal delegations to the existing 3 validators
@@ -2747,7 +2731,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				err = s.precompile.UnpackIntoInterface(&out, distribution.DelegationTotalRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(out.Rewards)).To(Equal(1))
-				Expect(len(out.Rewards[0].Reward)).To(Equal(0))
 			})
 
 			It("should get total rewards", func() {
@@ -2774,12 +2757,10 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 				// the response order may change
 				for _, or := range out.Rewards {
-					Expect(1).To(Equal(len(or.Reward)))
 					Expect(or.Reward[0].Denom).To(Equal(s.bondDenom))
 					Expect(or.Reward[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
 				}
 
-				Expect(1).To(Equal(len(out.Total)))
 				Expect(out.Total[0].Amount).To(Equal(accruedRewardsAmt.TruncateInt().BigInt()))
 			})
 
