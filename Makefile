@@ -6,6 +6,7 @@ COSMOS_VERSION_NAME = helios
 VERSION_PKG = github.com/Helios-Chain-Labs/helios-core/version
 PACKAGES=$(shell go list ./... | grep -Ev 'vendor|importer|gen|api/design|rpc/tester')
 IMAGE_NAME := gcr.io/helios-core/core
+TEST_IMAGE_NAME := helios-core-test-image
 LEDGER_ENABLED ?= true
 PROTOSET_DIR := proto/protoset
 PROTOSET_FILE := $(PROTOSET_DIR)/helios.protoset
@@ -93,6 +94,10 @@ deploy:
 
 fuzz: # use old clang linker on macOS https://github.com/golang/go/issues/65169
 	go test -fuzz FuzzTest ./helios-chain/modules/exchange/testexchange/fuzztesting -ldflags=-extldflags=-Wl,-ld_classic
+
+test-full: 
+	docker build -f Dockerfile.tests -t $(TEST_IMAGE_NAME) .
+	docker run --rm $(TEST_IMAGE_NAME) > test_results.txt
 
 test: export GOPROXY=direct
 test:
