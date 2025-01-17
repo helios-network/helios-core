@@ -71,7 +71,10 @@ func UnsafeExportEthKeyCommand() *cobra.Command {
 				return fmt.Errorf("invalid private key type %T, expected %T", privKey, &ethsecp256k1.PrivKey{})
 			}
 
-			key := ethPrivKey.ToECDSA()
+			key, err := ethPrivKey.ToECDSA()
+			if err != nil {
+				return err
+			}
 
 			// Formats key for output
 			privB := ethcrypto.FromECDSA(key)

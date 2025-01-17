@@ -128,7 +128,7 @@ type AddNewAssetConsensusProposalData struct {
 type AssetData struct {
 	Denom           string `json:"denom"`            // Denomination of the asset (e.g., 'USDT').
 	ContractAddress string `json:"contract_address"` // Smart contract address associated with the asset.
-	ChainID         string `json:"chain_id"`         // Chain where the asset is deployed (e.g., 'ethereum').
+	ChainId         string `json:"chain_id"`         // Chain where the asset is deployed (e.g., 'ethereum').
 	Decimals        uint32 `json:"decimals"`         // Number of decimal places for the asset.
 	BaseWeight      uint64 `json:"base_weight"`      // Base stake weight or value of the asset.
 	Metadata        string `json:"metadata"`         // Additional metadata for the asset.

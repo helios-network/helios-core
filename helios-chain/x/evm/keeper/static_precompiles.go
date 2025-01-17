@@ -16,13 +16,11 @@ import (
 	ics20precompile "helios-core/helios-chain/precompiles/ics20"
 	"helios-core/helios-chain/precompiles/p256"
 	stakingprecompile "helios-core/helios-chain/precompiles/staking"
-	vestingprecompile "helios-core/helios-chain/precompiles/vesting"
 	erc20Keeper "helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/types"
 	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
-	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -41,7 +39,6 @@ func NewAvailableStaticPrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
@@ -87,11 +84,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
 
-	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate vesting precompile: %w", err))
-	}
-
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
@@ -111,7 +103,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
-	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	return precompiles

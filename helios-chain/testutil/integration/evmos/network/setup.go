@@ -5,8 +5,6 @@ package network
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"slices"
 	"time"
 
@@ -161,15 +159,7 @@ func createHeliosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseA
 	logger := log.NewNopLogger()
 	loadLatest := true
 
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-	homePath := filepath.Join(userHomeDir, DefaultHomeDirForTest)
-	// Remove all elements in the old test to avoid panic due to exclusive lock conflict
-	os.RemoveAll(homePath)
-
-	appOptions := simutils.NewAppOptionsWithFlagHome(homePath)
+	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
 	return app.NewHeliosApp(

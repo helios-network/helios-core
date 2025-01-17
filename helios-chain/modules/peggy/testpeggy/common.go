@@ -596,7 +596,6 @@ func CreateTestEnv(t *testing.T) TestInput {
 		bankKeeper,
 		slashingKeeper,
 		distKeeper,
-		*exchangeKeeper,
 		authority,
 		accountKeeper,
 	)

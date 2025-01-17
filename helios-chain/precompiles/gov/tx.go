@@ -26,12 +26,12 @@ const (
 	VoteMethod = "vote"
 	// VoteWeightedMethod defines the ABI method name for the gov VoteWeighted transaction.
 	VoteWeightedMethod = "voteWeighted"
-	// addNewAssetProposalMethod defines the method name for add new proposal
-	addNewAssetProposalMethod = "addNewAssetProposal"
-	// updateAssetProposalMethod defines the method name for add new proposal
-	updateAssetProposalMethod = "updateAssetProposal"
-	// removeAssetProposalMethod defines the method name for add new proposal
-	removeAssetProposalMethod = "removeAssetProposal"
+	// AddNewAssetProposalMethod defines the method name for add new proposal
+	AddNewAssetProposalMethod = "addNewAssetProposal"
+	// UpdateAssetProposalMethod defines the method name for add new proposal
+	UpdateAssetProposalMethod = "updateAssetProposal"
+	// RemoveAssetProposalMethod defines the method name for add new proposal
+	RemoveAssetProposalMethod = "removeAssetProposal"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -56,14 +56,10 @@ func (p Precompile) Vote(
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
-	fmt.Println("VOTE  msg ", err)
 
 	if _, err = msgSrv.Vote(ctx, msg); err != nil {
-		fmt.Println("VOTE ERR ", err)
 		return nil, err
 	}
-
-	fmt.Println("VOTE Z")
 
 	if err = p.EmitVoteEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, int32(msg.Option)); err != nil {
 		return nil, err
@@ -105,7 +101,7 @@ func (p Precompile) VoteWeighted(
 	return method.Outputs.Pack(true)
 }
 
-func (p *Precompile) addNewAssetProposal(
+func (p *Precompile) AddNewAssetProposal(
 	origin common.Address,
 	govKeeper govkeeper.Keeper,
 	ctx sdk.Context,
@@ -162,7 +158,7 @@ func (p *Precompile) addNewAssetProposal(
 	return method.Outputs.Pack(proposal.ProposalId)
 }
 
-func (p *Precompile) updateAssetProposal(
+func (p *Precompile) UpdateAssetProposal(
 	origin common.Address,
 	govKeeper govkeeper.Keeper,
 	ctx sdk.Context,
@@ -219,7 +215,7 @@ func (p *Precompile) updateAssetProposal(
 	return method.Outputs.Pack(proposal.ProposalId)
 }
 
-func (p *Precompile) removeAssetProposal(
+func (p *Precompile) RemoveAssetProposal(
 	origin common.Address,
 	govKeeper govkeeper.Keeper,
 	ctx sdk.Context,

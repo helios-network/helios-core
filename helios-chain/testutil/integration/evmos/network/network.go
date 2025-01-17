@@ -21,7 +21,6 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 	infltypes "helios-core/helios-chain/x/inflation/v1/types"
-	vestingtypes "helios-core/helios-chain/x/vesting/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -53,7 +52,6 @@ type Network interface {
 	GetGovClient() govtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
-	GetVestingClient() vestingtypes.QueryClient
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -101,7 +99,6 @@ var (
 	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
 	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000") // 100k
-	DefaultHomeDirForTest             = "testrun"
 )
 
 // configureAndInitChain initializes the network with the given configuration.

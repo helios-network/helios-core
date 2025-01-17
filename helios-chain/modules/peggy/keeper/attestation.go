@@ -296,17 +296,9 @@ func (k *Keeper) ProcessClaimData(ctx sdk.Context, claim types.EthereumClaim) {
 					return
 				}
 
-				// Execute the message
-				_, err := k.exchangeMsgServer.Deposit(xCtx, msg)
-				if err == nil {
-					commit() // persist transient storage
-				}
+				commit()
 			case *exchangetypes.MsgCreateSpotMarketOrder:
-				// Execute the message
-				_, err := k.exchangeMsgServer.CreateSpotMarketOrder(xCtx, msg)
-				if err == nil {
-					commit() // persist transient storage
-				}
+				commit()
 			}
 		}
 	}

@@ -48,7 +48,7 @@ func TestLedgerTestSuite(t *testing.T) {
 }
 
 func (suite *LedgerTestSuite) SetupTest() {
-	suite.hrp = "evmos"
+	suite.hrp = "helios"
 
 	suite.txAmino = suite.getMockTxAmino()
 	suite.txProtobuf = suite.getMockTxProtobuf()
@@ -75,7 +75,7 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 	tmp := whitespaceRegex.ReplaceAllString(
 		`{
 			"account_number": "0",
-			"chain_id":"evmos_9000-1",
+			"chain_id":"4242-1",
 			"fee":{
 				"amount":[{"amount":"150","denom":"atom"}],
 				"gas":"20000"
@@ -85,8 +85,8 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 				"type":"cosmos-sdk/MsgSend",
 				"value":{
 					"amount":[{"amount":"150","denom":"atom"}],
-					"from_address":"evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky",
-					"to_address":"evmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6rrgv6l"
+					"from_address":"helios10jmp6sgh4cc6zt3e8gw05wavvejgr5pwyxdq28",
+					"to_address":"helios1fx944mzagwdhx0wz7k9tfztc8g3lkfk64ky5xu"
 				}
 			}],
 			"sequence":"6"
@@ -102,8 +102,8 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 
 	memo := "memo"
 	msg := bankTypes.NewMsgSend(
-		sdk.MustAccAddressFromBech32("evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky"),
-		sdk.MustAccAddressFromBech32("evmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6rrgv6l"),
+		sdk.MustAccAddressFromBech32("helios10jmp6sgh4cc6zt3e8gw05wavvejgr5pwyxdq28"),
+		sdk.MustAccAddressFromBech32("helios1fx944mzagwdhx0wz7k9tfztc8g3lkfk64ky5xu"),
 		[]sdk.Coin{
 			{
 				Denom:  "atom",
@@ -154,7 +154,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 	signBytes, err := auxTx.DirectSignBytes(
 		bodyBytes,
 		authInfoBytes,
-		"evmos_9000-1",
+		"4242-1",
 		0,
 	)
 	suite.Require().NoError(err)

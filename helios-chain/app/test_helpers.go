@@ -152,7 +152,6 @@ func NextBlock(app *HeliosApp, ctx sdk.Context, jumpTime time.Duration) (sdk.Con
 }
 
 func Cleanup(app *HeliosApp) {
-	app.WasmKeeper.Cleanup()                // release cosmwasm instance cache lock
 	_ = os.RemoveAll(defaultHomeDirForTest) // remove default dir, if it was overridden during test Setup, it's a responsibility of the sender to remove the folder
 }
 
