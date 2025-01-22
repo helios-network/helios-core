@@ -7,8 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
+	hyperiontypes "helios-core/helios-chain/modules/hyperion/types"
 	oracletypes "helios-core/helios-chain/modules/oracle/types"
-	peggytypes "helios-core/helios-chain/modules/peggy/types"
 )
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
@@ -20,41 +20,41 @@ type DerivativeMarketInfo struct {
 }
 
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
-	basePeggyDenom, err := peggytypes.NewPeggyDenomFromString(baseDenom)
+	baseHyperionDenom, err := hyperiontypes.NewHyperionDenomFromString(baseDenom)
 	if err == nil {
-		baseDenom = basePeggyDenom.String()
+		baseDenom = baseHyperionDenom.String()
 	}
 
-	quotePeggyDenom, err := peggytypes.NewPeggyDenomFromString(quoteDenom)
+	quoteHyperionDenom, err := hyperiontypes.NewHyperionDenomFromString(quoteDenom)
 	if err == nil {
-		quoteDenom = quotePeggyDenom.String()
+		quoteDenom = quoteHyperionDenom.String()
 	}
 
 	return crypto.Keccak256Hash([]byte((baseDenom + quoteDenom)))
 }
 
 func NewPerpetualMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType) common.Hash {
-	quotePeggyDenom, err := peggytypes.NewPeggyDenomFromString(quoteDenom)
+	quoteHyperionDenom, err := hyperiontypes.NewHyperionDenomFromString(quoteDenom)
 	if err == nil {
-		quoteDenom = quotePeggyDenom.String()
+		quoteDenom = quoteHyperionDenom.String()
 	}
 
 	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote)))
 }
 
 func NewBinaryOptionsMarketID(ticker, quoteDenom, oracleSymbol, oracleProvider string, oracleType oracletypes.OracleType) common.Hash {
-	quotePeggyDenom, err := peggytypes.NewPeggyDenomFromString(quoteDenom)
+	quoteHyperionDenom, err := hyperiontypes.NewHyperionDenomFromString(quoteDenom)
 	if err == nil {
-		quoteDenom = quotePeggyDenom.String()
+		quoteDenom = quoteHyperionDenom.String()
 	}
 
 	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleSymbol + oracleProvider)))
 }
 
 func NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64) common.Hash {
-	quotePeggyDenom, err := peggytypes.NewPeggyDenomFromString(quoteDenom)
+	quoteHyperionDenom, err := hyperiontypes.NewHyperionDenomFromString(quoteDenom)
 	if err == nil {
-		quoteDenom = quotePeggyDenom.String()
+		quoteDenom = quoteHyperionDenom.String()
 	}
 	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote + strconv.Itoa(int(expiry)))))
 }

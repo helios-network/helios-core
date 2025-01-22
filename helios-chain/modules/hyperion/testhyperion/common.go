@@ -1,4 +1,4 @@
-package testpeggy
+package testhyperion
 
 import (
 	"bytes"
@@ -81,8 +81,8 @@ import (
 
 	"helios-core/helios-chain/modules/exchange"
 
-	peggyKeeper "helios-core/helios-chain/modules/peggy/keeper"
-	"helios-core/helios-chain/modules/peggy/types"
+	hyperionKeeper "helios-core/helios-chain/modules/hyperion/keeper"
+	"helios-core/helios-chain/modules/hyperion/types"
 
 	storemetrics "cosmossdk.io/store/metrics"
 )
@@ -210,9 +210,9 @@ var (
 		MinCommissionRate: math.LegacyZeroDec(),
 	}
 
-	// TestingPeggyParams is a set of peggy params for testing
+	// TestingPeggyParams is a set of hyperion params for testing
 	TestingPeggyParams = &types.Params{
-		PeggyId:                       "testpeggyid",
+		PeggyId:                       "testhyperionid",
 		ContractSourceHash:            "62328f7bc12efb28f86111d08c29b39285680a906ea0e524e0209d6f6657b713",
 		BridgeEthereumAddress:         common.HexToAddress("0x8858eeb3dfffa017d4bce9801d340d36cf895ccf").Hex(),
 		CosmosCoinErc20Contract:       common.HexToAddress("0x8f3798462111bd6d7fa4d32ba0ab4ee4899bd4b7").Hex(),
@@ -233,9 +233,9 @@ var (
 	}
 )
 
-// TestInput stores the various keepers required to test peggy
+// TestInput stores the various keepers required to test hyperion
 type TestInput struct {
-	PeggyKeeper    peggyKeeper.Keeper
+	PeggyKeeper    hyperionKeeper.Keeper
 	AccountKeeper  authkeeper.AccountKeeper
 	StakingKeeper  stakingkeeper.Keeper
 	SlashingKeeper slashingkeeper.Keeper
@@ -348,7 +348,7 @@ func AddAnotherValidator(t *testing.T, input TestInput, valInfo ValidatorInfo) T
 	return input
 }
 
-// CreateTestEnv creates the keeper testing environment for peggy
+// CreateTestEnv creates the keeper testing environment for hyperion
 func CreateTestEnv(t *testing.T) TestInput {
 	t.Helper()
 
@@ -361,7 +361,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 
 	// Initialize store keys
 	erc20Key := storetypes.NewKVStoreKey(erc20types.StoreKey)
-	peggyKey := storetypes.NewKVStoreKey(types.StoreKey)
+	hyperionKey := storetypes.NewKVStoreKey(types.StoreKey)
 	keyAuthz := storetypes.NewKVStoreKey(authzkeeper.StoreKey)
 	keyAcc := storetypes.NewKVStoreKey(authtypes.StoreKey)
 	keyStaking := storetypes.NewKVStoreKey(stakingtypes.StoreKey)
@@ -384,7 +384,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, logger, storemetrics.NewNoOpMetrics())
 	ms.MountStoreWithDB(erc20Key, storetypes.StoreTypeIAVL, nil)
-	ms.MountStoreWithDB(peggyKey, storetypes.StoreTypeIAVL, nil)
+	ms.MountStoreWithDB(hyperionKey, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyAcc, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyAuthz, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyParams, storetypes.StoreTypeIAVL, nil)
@@ -589,9 +589,9 @@ func CreateTestEnv(t *testing.T) TestInput {
 		authority,
 	)
 
-	k := peggyKeeper.NewKeeper(
+	k := hyperionKeeper.NewKeeper(
 		marshaler,
-		peggyKey,
+		hyperionKey,
 		stakingKeeper,
 		bankKeeper,
 		slashingKeeper,
@@ -655,8 +655,8 @@ func MakeTestMarshaler() codec.Codec {
 }
 
 // nolint:all
-// MintVouchersFromAir creates new peggy vouchers given erc20tokens
-//func MintVouchersFromAir(t *testing.T, ctx sdk.Context, k peggyKeeper.Keeper, dest sdk.AccAddress, amount types.ERC20Token) sdk.Coin {
+// MintVouchersFromAir creates new hyperion vouchers given erc20tokens
+//func MintVouchersFromAir(t *testing.T, ctx sdk.Context, k hyperionKeeper.Keeper, dest sdk.AccAddress, amount types.ERC20Token) sdk.Coin {
 //	coin := amount.PeggyCoin()
 //	vouchers := sdk.Coins{coin}
 //	err := k.BankKeeper.MintCoins(ctx, types.ModuleName, vouchers)
@@ -715,12 +715,12 @@ func (s *StakingKeeperMock) PowerReduction(ctx context.Context) (res math.Int) {
 	return sdk.DefaultPowerReduction
 }
 
-// GetBondedValidatorsByPower implements the interface for staking keeper required by peggy
+// GetBondedValidatorsByPower implements the interface for staking keeper required by hyperion
 func (s *StakingKeeperMock) GetBondedValidatorsByPower(ctx context.Context) ([]stakingtypes.Validator, error) {
 	return s.BondedValidators, nil
 }
 
-// GetLastValidatorPower implements the interface for staking keeper required by peggy
+// GetLastValidatorPower implements the interface for staking keeper required by hyperion
 func (s *StakingKeeperMock) GetLastValidatorPower(ctx context.Context, operator sdk.ValAddress) (int64, error) {
 	v, ok := s.ValidatorPower[operator.String()]
 	if !ok {
@@ -729,7 +729,7 @@ func (s *StakingKeeperMock) GetLastValidatorPower(ctx context.Context, operator 
 	return v, nil
 }
 
-// GetLastTotalPower implements the interface for staking keeper required by peggy
+// GetLastTotalPower implements the interface for staking keeper required by hyperion
 func (s *StakingKeeperMock) GetLastTotalPower(ctx context.Context) (math.Int, error) {
 	var total int64
 	for _, v := range s.ValidatorPower {
@@ -829,17 +829,17 @@ func (s *StakingKeeperMock) Jail(context.Context, sdk.ConsAddress) error {
 // AlwaysPanicStakingMock is a mock staking keeper that panics on usage
 type AlwaysPanicStakingMock struct{}
 
-// GetLastTotalPower implements the interface for staking keeper required by peggy
+// GetLastTotalPower implements the interface for staking keeper required by hyperion
 func (s AlwaysPanicStakingMock) GetLastTotalPower(ctx sdk.Context) (power math.Int) {
 	panic("unexpected call")
 }
 
-// GetBondedValidatorsByPower implements the interface for staking keeper required by peggy
+// GetBondedValidatorsByPower implements the interface for staking keeper required by hyperion
 func (s AlwaysPanicStakingMock) GetBondedValidatorsByPower(ctx sdk.Context) []stakingtypes.Validator {
 	panic("unexpected call")
 }
 
-// GetLastValidatorPower implements the interface for staking keeper required by peggy
+// GetLastValidatorPower implements the interface for staking keeper required by hyperion
 func (s AlwaysPanicStakingMock) GetLastValidatorPower(ctx sdk.Context, operator sdk.ValAddress) int64 {
 	panic("unexpected call")
 }

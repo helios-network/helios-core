@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"helios-core/helios-chain/modules/peggy/exported"
-	v2 "helios-core/helios-chain/modules/peggy/migrations/v2"
+	"helios-core/helios-chain/modules/hyperion/exported"
+	v2 "helios-core/helios-chain/modules/hyperion/migrations/v2"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,8 +19,8 @@ func NewMigrator(k Keeper, ss exported.Subspace) Migrator {
 	}
 }
 
-// Migrate1to2 migrates peggy's consensus version from 1 to 2. Specifically, it migrates
-// Params kept in x/params directly to peggy's module state
+// Migrate1to2 migrates hyperion's consensus version from 1 to 2. Specifically, it migrates
+// Params kept in x/params directly to hyperion's module state
 func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	return v2.Migrate(
 		ctx,

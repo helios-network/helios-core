@@ -18,19 +18,19 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cliflags "helios-core/cli/flags"
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 func GetTxCmd(storeKey string) *cobra.Command {
-	peggyTxCmd := &cobra.Command{
+	hyperionTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Peggy transaction subcommands",
+		Short:                      "Hyperion transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
-	peggyTxCmd.AddCommand([]*cobra.Command{
+	hyperionTxCmd.AddCommand([]*cobra.Command{
 		CmdSendToEth(),
 		CmdRequestBatch(),
 		CmdSetOrchestratorAddress(),
@@ -40,7 +40,7 @@ func GetTxCmd(storeKey string) *cobra.Command {
 		RevokeBlacklistEthereumAddresses(),
 	}...)
 
-	return peggyTxCmd
+	return hyperionTxCmd
 }
 
 func GetUnsafeTestingCmd() *cobra.Command {
@@ -232,7 +232,7 @@ func BlacklistEthereumAddresses() *cobra.Command {
 		Use:   "blacklist-ethereum-addresses [addresses]",
 		Short: "Blacklist Ethereum addresses",
 		Long: `"Example:
-		heliades tx peggy blacklist-ethereum-addresses "0x0000000000000000000000000000000000000000,0x1111111111111111111111111111111111111111"`,
+		heliades tx hyperion blacklist-ethereum-addresses "0x0000000000000000000000000000000000000000,0x1111111111111111111111111111111111111111"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -260,7 +260,7 @@ func RevokeBlacklistEthereumAddresses() *cobra.Command {
 		Use:   "revoke-blacklist-ethereum-addresses [addresses]",
 		Short: "Revoke Blacklist Ethereum addresses",
 		Long: `"Example:
-		heliades tx peggy revoke-blacklist-ethereum-addresses "0x0000000000000000000000000000000000000000,0x1111111111111111111111111111111111111111"`,
+		heliades tx hyperion revoke-blacklist-ethereum-addresses "0x0000000000000000000000000000000000000000,0x1111111111111111111111111111111111111111"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)

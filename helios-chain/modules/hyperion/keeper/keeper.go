@@ -20,7 +20,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 // Keeper maintains the link to storage and exposes getter/setter methods for the various parts of the state machine
@@ -49,7 +49,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
 }
 
-// NewKeeper returns a new instance of the peggy keeper
+// NewKeeper returns a new instance of the hyperion keeper
 func NewKeeper(
 	cdc codec.Codec,
 	storeKey storetypes.StoreKey,
@@ -70,10 +70,10 @@ func NewKeeper(
 		SlashingKeeper: slashingKeeper,
 		authority:      authority,
 		svcTags: metrics.Tags{
-			"svc": "peggy_k",
+			"svc": "hyperion_k",
 		},
 		grpcTags: metrics.Tags{
-			"svc": "peggy_grpc",
+			"svc": "hyperion_grpc",
 		},
 		accountKeeper: accountKeeper,
 	}
@@ -532,7 +532,7 @@ func (k *Keeper) SetEthAddressForValidator(ctx sdk.Context, validator sdk.ValAdd
 	store.Set(types.GetValidatorByEthAddressKey(ethAddr), validator.Bytes())
 }
 
-// GetEthAddressByValidator returns the eth address for a given peggy validator
+// GetEthAddressByValidator returns the eth address for a given hyperion validator
 func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, validator sdk.ValAddress) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

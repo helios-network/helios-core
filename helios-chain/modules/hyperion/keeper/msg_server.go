@@ -16,7 +16,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 type msgServer struct {
@@ -32,7 +32,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 		Keeper: keeper,
 
 		svcTags: metrics.Tags{
-			"svc": "peggy_h",
+			"svc": "hyperion_h",
 		},
 	}
 }
@@ -98,8 +98,8 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find valset")
 	}
 
-	peggyID := k.GetPeggyID(ctx)
-	checkpoint := valset.GetCheckpoint(peggyID)
+	hyperionID := k.GetPeggyID(ctx)
+	checkpoint := valset.GetCheckpoint(hyperionID)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
 	if err != nil {
@@ -121,8 +121,8 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 
 	if err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress); err != nil {
 		description := fmt.Sprintf(
-			"signature verification failed expected sig by %s with peggy-id %s with checkpoint %s found %s",
-			ethAddress, peggyID, checkpoint.Hex(), msg.Signature,
+			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
+			ethAddress, hyperionID, checkpoint.Hex(), msg.Signature,
 		)
 
 		metrics.ReportFuncError(k.svcTags)
@@ -185,7 +185,7 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	// Check if the denom is a peggy coin, if not, check if there is a deployed ERC20 representing it.
+	// Check if the denom is a hyperion coin, if not, check if there is a deployed ERC20 representing it.
 	// If not, error out
 	_, tokenContract, err := k.DenomToERC20Lookup(ctx, msg.Denom)
 	if err != nil {
@@ -231,8 +231,8 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find batch")
 	}
 
-	peggyID := k.GetPeggyID(ctx)
-	checkpoint := batch.GetCheckpoint(peggyID)
+	hyperionID := k.GetPeggyID(ctx)
+	checkpoint := batch.GetCheckpoint(hyperionID)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
 	if err != nil {
@@ -256,8 +256,8 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress)
 	if err != nil {
 		description := fmt.Sprintf(
-			"signature verification failed expected sig by %s with peggy-id %s with checkpoint %s found %s",
-			ethAddress, peggyID, checkpoint.Hex(), msg.Signature,
+			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
+			ethAddress, hyperionID, checkpoint.Hex(), msg.Signature,
 		)
 
 		metrics.ReportFuncError(k.svcTags)

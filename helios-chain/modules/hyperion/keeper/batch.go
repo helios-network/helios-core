@@ -9,7 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
+
 	"github.com/Helios-Chain-Labs/metrics"
 )
 

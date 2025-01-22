@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	peggytypes "helios-core/helios-chain/modules/peggy/types"
+	hyperiontypes "helios-core/helios-chain/modules/hyperion/types"
 )
 
 func getMessageHash(publisher common.Address, assetPairID, timeStamp, price string) (hash common.Hash) {
@@ -30,7 +30,7 @@ func encodeUint256(v string) []byte {
 func VerifyStorkMsgSignature(oraclePubKey common.Address, assetPairID, timeStamp, price string, signature []byte) bool {
 	hash := getMessageHash(oraclePubKey, assetPairID, timeStamp, price)
 
-	recoveredPubKey, err := peggytypes.EthAddressFromSignature(hash, signature)
+	recoveredPubKey, err := hyperiontypes.EthAddressFromSignature(hash, signature)
 	if err != nil {
 		return false
 	}

@@ -7,18 +7,18 @@ import (
 	"github.com/spf13/cobra"
 
 	cliflags "helios-core/cli/flags"
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 func GetQueryCmd() *cobra.Command {
-	peggyQueryCmd := &cobra.Command{
+	hyperionQueryCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the peggy module",
+		Short:                      "Querying commands for the hyperion module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	peggyQueryCmd.AddCommand([]*cobra.Command{
+	hyperionQueryCmd.AddCommand([]*cobra.Command{
 		CmdGetCurrentValset(),
 		CmdGetValsetRequest(),
 		CmdGetValsetConfirm(),
@@ -35,7 +35,7 @@ func GetQueryCmd() *cobra.Command {
 		QueryPeggyModuleState(),
 	}...)
 
-	return peggyQueryCmd
+	return hyperionQueryCmd
 }
 
 func QueryObserved() *cobra.Command {
@@ -208,12 +208,12 @@ func CmdGetPendingOutgoingTXBatchRequest() *cobra.Command {
 	return cmd
 }
 
-// QueryPeggyParams queries peggy module params info
+// QueryPeggyParams queries hyperion module params info
 func QueryPeggyParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
-		Short: "Gets peggy params info.",
-		Long:  "Gets peggy params info.",
+		Short: "Gets hyperion params info.",
+		Long:  "Gets hyperion params info.",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

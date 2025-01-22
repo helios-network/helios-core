@@ -13,7 +13,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 // AddToOutgoingPool
@@ -28,7 +28,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	totalAmount := amount.Add(fee)
 	totalInVouchers := sdk.Coins{totalAmount}
 
-	// If the coin is a peggy voucher, burn the coins. If not, check if there is a deployed ERC20 contract representing it.
+	// If the coin is a hyperion voucher, burn the coins. If not, check if there is a deployed ERC20 contract representing it.
 	// If there is, lock the coins.
 
 	isCosmosOriginated, tokenContract, err := k.DenomToERC20Lookup(ctx, totalAmount.Denom)
@@ -143,13 +143,13 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 	isCosmosOriginated, denom := k.ERC20ToDenomLookup(ctx, common.HexToAddress(tx.Erc20Token.Contract))
 	// native cosmos coin denom
 	if denom == k.GetCosmosCoinDenom(ctx) {
-		// peggy denom
+		// hyperion denom
 		totalToRefund := sdk.NewCoin(denom, tx.Erc20Token.Amount)
 		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	} else {
-		// peggy denom
-		totalToRefund := tx.Erc20Token.PeggyCoin()
+		// hyperion denom
+		totalToRefund := tx.Erc20Token.HyperionCoin()
 		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	}

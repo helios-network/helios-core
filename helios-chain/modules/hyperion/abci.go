@@ -1,4 +1,4 @@
-package peggy
+package hyperion
 
 import (
 	"sort"
@@ -9,8 +9,8 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/peggy/keeper"
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/keeper"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 type BlockHandler struct {
@@ -24,7 +24,7 @@ func NewBlockHandler(k keeper.Keeper) *BlockHandler {
 		k: k,
 
 		svcTags: metrics.Tags{
-			"svc": "peggy_b",
+			"svc": "hyperion_b",
 		},
 	}
 }

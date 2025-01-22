@@ -7,7 +7,7 @@ import (
 
 const (
 	// ModuleName is the name of the module
-	ModuleName = "peggy"
+	ModuleName = "hyperion"
 
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName

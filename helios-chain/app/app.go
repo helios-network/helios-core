@@ -131,12 +131,12 @@ import (
 
 	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
+	hyperion "helios-core/helios-chain/modules/hyperion"
+	hyperionKeeper "helios-core/helios-chain/modules/hyperion/keeper"
+	hyperiontypes "helios-core/helios-chain/modules/hyperion/types"
 	"helios-core/helios-chain/modules/ocr"
 	ocrkeeper "helios-core/helios-chain/modules/ocr/keeper"
 	ocrtypes "helios-core/helios-chain/modules/ocr/types"
-	"helios-core/helios-chain/modules/peggy"
-	peggyKeeper "helios-core/helios-chain/modules/peggy/keeper"
-	peggytypes "helios-core/helios-chain/modules/peggy/types"
 	"helios-core/helios-chain/modules/tokenfactory"
 	tokenfactorykeeper "helios-core/helios-chain/modules/tokenfactory/keeper"
 	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
@@ -242,7 +242,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		packetforward.AppModuleBasic{},
-		peggy.AppModuleBasic{},
+		hyperion.AppModuleBasic{},
 		ocr.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
@@ -259,7 +259,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		ibcfeetypes.ModuleName:         nil,
-		peggytypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		hyperiontypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 		ocrtypes.ModuleName:            nil,
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		inflationtypes.ModuleName:      {authtypes.Minter},
@@ -273,7 +273,7 @@ var (
 	allowedReceivingModAcc = map[string]bool{
 		distrtypes.ModuleName:        true,
 		ocrtypes.ModuleName:          true,
-		peggytypes.ModuleName:        true,
+		hyperiontypes.ModuleName:     true,
 		tokenfactorytypes.ModuleName: true,
 	}
 )
@@ -311,7 +311,7 @@ type HeliosApp struct {
 
 	// helios keepers
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
-	PeggyKeeper        peggyKeeper.Keeper
+	HyperionKeeper     hyperionKeeper.Keeper
 	OcrKeeper          ocrkeeper.Keeper
 
 	// ibc keepers
@@ -475,7 +475,7 @@ func initHeliosApp(
 			icahosttypes.StoreKey, ibcfeetypes.StoreKey, crisistypes.StoreKey,
 			consensustypes.StoreKey, packetforwardtypes.StoreKey,
 			// Helios keys
-			peggytypes.StoreKey,
+			hyperiontypes.StoreKey,
 			ocrtypes.StoreKey,
 			tokenfactorytypes.StoreKey,
 			epochstypes.StoreKey,
@@ -919,9 +919,9 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		&app.AccountKeeper,
 	)
 
-	app.PeggyKeeper = peggyKeeper.NewKeeper(
+	app.HyperionKeeper = hyperionKeeper.NewKeeper(
 		app.codec,
-		app.keys[peggytypes.StoreKey],
+		app.keys[hyperiontypes.StoreKey],
 		app.StakingKeeper,
 		app.BankKeeper,
 		app.SlashingKeeper,
@@ -941,7 +941,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
 		app.DistrKeeper.Hooks(),
 		app.SlashingKeeper.Hooks(),
-		app.PeggyKeeper.Hooks(),
+		app.HyperionKeeper.Hooks(),
 	))
 
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
@@ -1165,7 +1165,7 @@ func (app *HeliosApp) initManagers() {
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Helios app modules
-		peggy.NewAppModule(app.PeggyKeeper, app.BankKeeper, app.GetSubspace(peggytypes.ModuleName)),
+		hyperion.NewAppModule(app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
 		ocr.NewAppModule(app.OcrKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(ocrtypes.ModuleName)),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
@@ -1237,7 +1237,7 @@ func initParamsKeeper(
 
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	// helios subspaces
-	paramsKeeper.Subspace(peggytypes.ModuleName)
+	paramsKeeper.Subspace(hyperiontypes.ModuleName)
 	paramsKeeper.Subspace(ocrtypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 
@@ -1290,7 +1290,7 @@ func initGenesisOrder() []string {
 
 		// Helios modules
 		tokenfactorytypes.ModuleName,
-		peggytypes.ModuleName,
+		hyperiontypes.ModuleName,
 		ocrtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
@@ -1316,7 +1316,7 @@ func beginBlockerOrder() []string {
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
-		peggytypes.ModuleName,
+		hyperiontypes.ModuleName,
 		paramstypes.ModuleName,
 		authtypes.ModuleName,
 		crisistypes.ModuleName,
@@ -1365,7 +1365,7 @@ func endBlockerOrder() []string {
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
-		peggytypes.ModuleName,
+		hyperiontypes.ModuleName,
 		ocrtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		packetforwardtypes.ModuleName,

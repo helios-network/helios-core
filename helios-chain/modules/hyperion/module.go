@@ -1,4 +1,4 @@
-package peggy
+package hyperion
 
 import (
 	"context"
@@ -7,12 +7,12 @@ import (
 
 	"cosmossdk.io/core/appmodule"
 
-	"helios-core/helios-chain/modules/peggy/exported"
+	"helios-core/helios-chain/modules/hyperion/exported"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"helios-core/helios-chain/modules/peggy/keeper"
+	"helios-core/helios-chain/modules/hyperion/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -20,8 +20,8 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"helios-core/helios-chain/modules/peggy/client/cli"
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/client/cli"
+	"helios-core/helios-chain/modules/hyperion/types"
 
 	// "github.com/cosmos/cosmos-sdk/x/gov/simulation"
 
@@ -132,7 +132,7 @@ func (AppModule) Name() string {
 
 // RegisterInvariants implements app module
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-	// TODO: make some invariants in the peggy module to ensure that
+	// TODO: make some invariants in the hyperion module to ensure that
 	// coins aren't being fraudlently minted etc...
 }
 
@@ -148,7 +148,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	migrator := keeper.NewMigrator(am.keeper, am.legacySubspace)
 	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
-		panic(fmt.Sprintf("failed to migrate peggy from version 1 to 2: %v", err))
+		panic(fmt.Sprintf("failed to migrate hyperion from version 1 to 2: %v", err))
 	}
 }
 

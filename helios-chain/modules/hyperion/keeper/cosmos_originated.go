@@ -9,7 +9,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.Address) (string, bool) {
@@ -50,17 +50,17 @@ func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, denom string, 
 }
 
 // DenomToERC20 returns if an asset is native to Cosmos or Ethereum, and get its corresponding ERC20 address
-// This will return an error if it cant parse the denom as a peggy denom, and then also can't find the denom
+// This will return an error if it cant parse the denom as a hyperion denom, and then also can't find the denom
 // in an index of ERC20 contracts deployed on Ethereum to serve as synthetic Cosmos assets.
 func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string) (isCosmosOriginated bool, tokenContract common.Address, err error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	// First try parsing the ERC20 out of the denom
-	peggyDenom, denomErr := types.NewPeggyDenomFromString(denomStr)
+	hyperionDenom, denomErr := types.NewHyperionDenomFromString(denomStr)
 	if denomErr == nil {
 		// This is an Ethereum-originated asset
-		tokenContractFromDenom, _ := peggyDenom.TokenContract()
+		tokenContractFromDenom, _ := hyperionDenom.TokenContract()
 		return false, tokenContractFromDenom, nil
 	}
 
@@ -76,7 +76,7 @@ func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string) (isCosmosO
 	tokenContract, exists := k.GetCosmosOriginatedERC20(ctx, denomStr)
 	if !exists {
 		err = errors.Errorf(
-			"denom (%s) not a peggy voucher coin (parse error: %s), and also not in cosmos-originated ERC20 index",
+			"denom (%s) not a hyperion voucher coin (parse error: %s), and also not in cosmos-originated ERC20 index",
 			denomStr, denomErr.Error(),
 		)
 
@@ -148,7 +148,7 @@ func (k *Keeper) ValidateClaimData(ctx sdk.Context, claimData string, ethereumSi
 }
 
 // ERC20ToDenom returns if an ERC20 address represents an asset is native to Cosmos or Ethereum,
-// and get its corresponding peggy denom.
+// and get its corresponding hyperion denom.
 func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Address) (isCosmosOriginated bool, denom string) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -162,8 +162,8 @@ func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Addres
 		return false, k.GetCosmosCoinDenom(ctx)
 	}
 
-	// If it is not in there, it is not a cosmos originated token, turn the ERC20 into a peggy denom
-	return false, types.NewPeggyDenom(tokenContract).String()
+	// If it is not in there, it is not a cosmos originated token, turn the ERC20 into a hyperion denom
+	return false, types.NewHyperionDenom(tokenContract).String()
 }
 
 // IterateERC20ToDenom iterates over erc20 to denom relations

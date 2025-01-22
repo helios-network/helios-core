@@ -13,7 +13,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
 )
 
 var _ types.QueryServer = &Keeper{}
@@ -21,7 +21,7 @@ var _ types.QueryServer = &Keeper{}
 const maxValsetRequestsReturned = 5
 const MaxResults = 100 // todo: impl pagination
 
-// Params queries the params of the peggy module
+// Params queries the params of the hyperion module
 func (k *Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -29,7 +29,7 @@ func (k *Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.
 	return &types.QueryParamsResponse{Params: *k.GetParams(sdk.UnwrapSDKContext(c))}, nil
 }
 
-// CurrentValset queries the CurrentValset of the peggy module
+// CurrentValset queries the CurrentValset of the hyperion module
 func (k *Keeper) CurrentValset(c context.Context, req *types.QueryCurrentValsetRequest) (*types.QueryCurrentValsetResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -37,7 +37,7 @@ func (k *Keeper) CurrentValset(c context.Context, req *types.QueryCurrentValsetR
 	return &types.QueryCurrentValsetResponse{Valset: k.GetCurrentValset(sdk.UnwrapSDKContext(c))}, nil
 }
 
-// ValsetRequest queries the ValsetRequest of the peggy module
+// ValsetRequest queries the ValsetRequest of the hyperion module
 func (k *Keeper) ValsetRequest(c context.Context, req *types.QueryValsetRequestRequest) (*types.QueryValsetRequestResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -45,7 +45,7 @@ func (k *Keeper) ValsetRequest(c context.Context, req *types.QueryValsetRequestR
 	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.Nonce)}, nil
 }
 
-// ValsetConfirm queries the ValsetConfirm of the peggy module
+// ValsetConfirm queries the ValsetConfirm of the hyperion module
 func (k *Keeper) ValsetConfirm(c context.Context, req *types.QueryValsetConfirmRequest) (*types.QueryValsetConfirmResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -58,7 +58,7 @@ func (k *Keeper) ValsetConfirm(c context.Context, req *types.QueryValsetConfirmR
 	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.Nonce, addr)}, nil
 }
 
-// ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the peggy module
+// ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the hyperion module
 func (k *Keeper) ValsetConfirmsByNonce(c context.Context, req *types.QueryValsetConfirmsByNonceRequest) (*types.QueryValsetConfirmsByNonceResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -74,7 +74,7 @@ func (k *Keeper) ValsetConfirmsByNonce(c context.Context, req *types.QueryValset
 	return &types.QueryValsetConfirmsByNonceResponse{Confirms: confirms}, nil
 }
 
-// LastValsetRequests queries the LastValsetRequests of the peggy module
+// LastValsetRequests queries the LastValsetRequests of the hyperion module
 func (k *Keeper) LastValsetRequests(c context.Context, req *types.QueryLastValsetRequestsRequest) (*types.QueryLastValsetRequestsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -92,7 +92,7 @@ func (k *Keeper) LastValsetRequests(c context.Context, req *types.QueryLastValse
 	return &types.QueryLastValsetRequestsResponse{Valsets: valReq[0:retLen]}, nil
 }
 
-// LastPendingValsetRequestByAddr queries the LastPendingValsetRequestByAddr of the peggy module
+// LastPendingValsetRequestByAddr queries the LastPendingValsetRequestByAddr of the hyperion module
 func (k *Keeper) LastPendingValsetRequestByAddr(c context.Context, req *types.QueryLastPendingValsetRequestByAddrRequest) (*types.QueryLastPendingValsetRequestByAddrResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -132,7 +132,7 @@ func (k *Keeper) BatchFees(c context.Context, req *types.QueryBatchFeeRequest) (
 	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c))}, nil
 }
 
-// LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the peggy module
+// LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the hyperion module
 func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.QueryLastPendingBatchRequestByAddrRequest) (*types.QueryLastPendingBatchRequestByAddrResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -157,7 +157,7 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 	return &types.QueryLastPendingBatchRequestByAddrResponse{Batch: pendingBatchReq}, nil
 }
 
-// OutgoingTxBatches queries the OutgoingTxBatches of the peggy module
+// OutgoingTxBatches queries the OutgoingTxBatches of the hyperion module
 func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTxBatchesRequest) (*types.QueryOutgoingTxBatchesResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -171,7 +171,7 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	return &types.QueryOutgoingTxBatchesResponse{Batches: batches}, nil
 }
 
-// BatchRequestByNonce queries the BatchRequestByNonce of the peggy module
+// BatchRequestByNonce queries the BatchRequestByNonce of the hyperion module
 func (k *Keeper) BatchRequestByNonce(c context.Context, req *types.QueryBatchRequestByNonceRequest) (*types.QueryBatchRequestByNonceResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()

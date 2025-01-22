@@ -9,7 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"helios-core/helios-chain/modules/peggy/types"
+	"helios-core/helios-chain/modules/hyperion/types"
+
 	"github.com/Helios-Chain-Labs/metrics"
 )
 
@@ -44,8 +45,8 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 	defer doneFn()
 
 	// Get checkpoint of the supposed bad signature (fake valset, batch, or logic call submitted to eth)
-	peggyID := k.GetPeggyID(ctx)
-	checkpoint := subject.GetCheckpoint(peggyID)
+	hyperionID := k.GetPeggyID(ctx)
+	checkpoint := subject.GetCheckpoint(hyperionID)
 
 	// Try to find the checkpoint in the archives. If it exists, we don't slash because
 	// this is not a bad signature
