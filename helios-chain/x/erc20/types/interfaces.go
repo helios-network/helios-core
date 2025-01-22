@@ -7,13 +7,15 @@ import (
 	"context"
 
 	"cosmossdk.io/core/address"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	"helios-core/helios-chain/x/evm/core/vm"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"helios-core/helios-chain/x/evm/core/vm"
 
 	"helios-core/helios-chain/x/evm/statedb"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -30,6 +32,7 @@ type AccountKeeper interface {
 // StakingKeeper defines the expected interface needed to retrieve the staking denom.
 type StakingKeeper interface {
 	BondDenom(ctx context.Context) (string, error)
+	UpdateAssetWeight(ctx sdk.Context, denom string, percentage math.LegacyDec, increase bool) error
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on erc20
