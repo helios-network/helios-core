@@ -158,6 +158,7 @@ func (p *Precompile) addNewAssetProposal(
 	}
 
 	fmt.Println("proposalId: ", proposal.ProposalId)
+	//TODO: update weight erc20
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)
 }
@@ -214,7 +215,7 @@ func (p *Precompile) updateAssetProposal(
 		fmt.Printf("Failed to submit proposal: %v\n", err)
 		return nil, err
 	}
-
+	//TODO: update weight erc20
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)
 }
@@ -272,6 +273,8 @@ func (p *Precompile) removeAssetProposal(
 		fmt.Printf("Failed to submit proposal: %v\n", err)
 		return nil, err
 	}
+
+	//TODO: update weight erc20
 
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)

@@ -8,12 +8,13 @@ import (
 	"fmt"
 	"time"
 
+	"helios-core/helios-chain/precompiles/authorization"
+	cmn "helios-core/helios-chain/precompiles/common"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/authorization"
-	cmn "helios-core/helios-chain/precompiles/common"
 
 	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -164,13 +165,14 @@ func (p *Precompile) Delegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+
+	msg, delegatorHexAddr, err := NewMsgDelegate(args)
 	if err != nil {
 		return nil, err
 	}
-	msg, delegatorHexAddr, err := NewMsgDelegate(args, bondDenom)
-	if err != nil {
-		return nil, err
+
+	if !p.erc20Keeper.IsAssetWhitelisted(ctx, msg.Amount.Denom) {
+		return nil, fmt.Errorf("denom %s is not whitelisted", msg.Amount.Denom)
 	}
 
 	p.Logger(ctx).Debug(
@@ -234,7 +236,7 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if !isCallerOrigin && msg.Amount.Denom == evmtypes.GetEVMCoinDenom() {
+	if !isCallerOrigin {
 		// get the delegator address from the message
 		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 		delHexAddr := common.BytesToAddress(delAccAddr)
@@ -260,13 +262,14 @@ func (p Precompile) Undelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+
+	msg, delegatorHexAddr, err := NewMsgUndelegate(args)
 	if err != nil {
 		return nil, err
 	}
-	msg, delegatorHexAddr, err := NewMsgUndelegate(args, bondDenom)
-	if err != nil {
-		return nil, err
+
+	if !p.erc20Keeper.IsAssetWhitelisted(ctx, msg.Amount.Denom) {
+		return nil, fmt.Errorf("denom %s is not whitelisted", msg.Amount.Denom)
 	}
 
 	p.Logger(ctx).Debug(

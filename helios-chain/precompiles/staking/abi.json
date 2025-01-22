@@ -489,6 +489,11 @@
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         }
       ],
       "name": "delegate",
@@ -1021,6 +1026,11 @@
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         }
       ],
       "name": "undelegate",
