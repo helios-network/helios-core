@@ -30,19 +30,22 @@ message Valset {
 // outward and always produce batches with timeouts in the future
 // even if no Ethereum block height has been relayed for a long time
 message LastObservedEthereumBlockHeight {
-  uint64 cosmos_block_height = 1;
-  uint64 ethereum_block_height = 2;
+  string chain_id = 1;
+  uint64 cosmos_block_height = 2;
+  uint64 ethereum_block_height = 3;
 }
 
 // LastClaimEvent stores last claim event details of validator.
 message LastClaimEvent {
-  uint64 ethereum_event_nonce = 1;
-  uint64 ethereum_event_height = 2;
+  string chain_id = 1;
+  uint64 ethereum_event_nonce = 2;
+  uint64 ethereum_event_height = 3;
 }
 
 // This records the relationship between an ERC20 token and the denom
 // of the corresponding Cosmos originated asset
 message ERC20ToDenom {
-  string erc20 = 1;
-  string denom = 2;
+  string chain_id = 1;
+  string erc20 = 2;
+  string denom = 3;
 }

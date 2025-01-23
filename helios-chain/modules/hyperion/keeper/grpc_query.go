@@ -229,7 +229,7 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 
 	lastClaimEvent := k.GetLastEventByValidator(ctx, validator)
 	if lastClaimEvent.EthereumEventNonce == 0 && lastClaimEvent.EthereumEventHeight == 0 {
-		// if peggo happens to query too early without a bonded validator even existing setup the base event
+		// if hyperion happens to query too early without a bonded validator even existing setup the base event
 		lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
 		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
 
@@ -464,7 +464,7 @@ func (k *Keeper) HyperionModuleState(c context.Context, req *types.QueryModuleSt
 	return res, nil
 }
 
-func (k *Keeper) MissingPeggoNonces(
+func (k *Keeper) MissingHyperionNonces(
 	c context.Context,
 	_ *types.MissingNoncesRequest,
 ) (*types.MissingNoncesResponse, error) {

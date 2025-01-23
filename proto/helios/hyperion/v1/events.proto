@@ -56,16 +56,17 @@ message EventValsetConfirm {
   string orchestrator_address = 2;
 }
 
-message EventSendToEth {
-  uint64 outgoing_tx_id = 1;
-  string sender = 2;
-  string receiver = 3;
-  string amount = 4 [
+message EventSendToChain {
+  string chain_id = 1;
+  uint64 outgoing_tx_id = 2;
+  string sender = 3;
+  string receiver = 4;
+  string amount = 5 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
 
-  string bridge_fee = 5 [
+  string bridge_fee = 6 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
@@ -83,56 +84,60 @@ message EventAttestationVote {
 }
 
 message EventDepositClaim {
-  uint64 event_nonce = 1;
-  uint64 event_height = 2;
-  bytes attestation_id = 3;
-  string ethereum_sender = 4;
-  string cosmos_receiver = 5;
-  string token_contract = 6;
-  string amount = 7 [
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  string ethereum_sender = 5;
+  string cosmos_receiver = 6;
+  string token_contract = 7;
+  string amount = 8 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
-  string orchestrator_address = 8;
-  string data = 9;
+  string orchestrator_address = 9;
+  string data = 10;
 }
 
 message EventWithdrawClaim {
-  uint64 event_nonce = 1;
-  uint64 event_height = 2;
-  bytes attestation_id = 3;
-  uint64 batch_nonce = 4;
-  string token_contract = 5;
-  string orchestrator_address = 6;
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  uint64 batch_nonce = 5;
+  string token_contract = 6;
+  string orchestrator_address = 7;
 }
 
 message EventERC20DeployedClaim {
-  uint64 event_nonce = 1;
-  uint64 event_height = 2;
-  bytes attestation_id = 3;
-  string cosmos_denom = 4;
-  string token_contract = 5;
-  string name = 6;
-  string symbol = 7;
-  uint64 decimals = 8;
-  string orchestrator_address = 9;
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  string cosmos_denom = 5;
+  string token_contract = 6;
+  string name = 7;
+  string symbol = 8;
+  uint64 decimals = 9;
+  string orchestrator_address = 10;
 }
 
 message EventValsetUpdateClaim {
-  uint64 event_nonce = 1;
-  uint64 event_height = 2;
-  bytes attestation_id = 3;
-  uint64 valset_nonce = 4;
-  repeated BridgeValidator valset_members = 5;
-  string reward_amount = 6 [
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  uint64 valset_nonce = 5;
+  repeated BridgeValidator valset_members = 6;
+  string reward_amount = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
-  string reward_token = 7;
-  string orchestrator_address = 8;
+  string reward_token = 8;
+  string orchestrator_address = 9;
 }
 
-message EventCancelSendToEth { uint64 outgoing_tx_id = 1; }
+message EventCancelSendToChain { uint64 outgoing_tx_id = 1; }
 
 message EventSubmitBadSignatureEvidence {
   string bad_eth_signature = 1;

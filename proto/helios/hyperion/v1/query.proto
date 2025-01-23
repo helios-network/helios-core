@@ -57,9 +57,9 @@ service Query {
   }
 
   // batch
-  rpc GetPendingSendToEth(QueryPendingSendToEth)
-      returns (QueryPendingSendToEthResponse) {
-    option (google.api.http).get = "/hyperion/v1/pending_send_to_eth";
+  rpc GetPendingSendToEth(QueryPendingSendToChain)
+      returns (QueryPendingSendToChainResponse) {
+    option (google.api.http).get = "/hyperion/v1/pending_send_to_chain";
   }
   rpc BatchFees(QueryBatchFeeRequest) returns (QueryBatchFeeResponse) {
     option (google.api.http).get = "/hyperion/v1/batchfees";
@@ -110,7 +110,7 @@ service Query {
     option (google.api.http).get = "/hyperion/v1/module_state";
   }
 
-  rpc MissingPeggoNonces(MissingNoncesRequest) returns (MissingNoncesResponse) {
+  rpc MissingHyperionNonces(MissingNoncesRequest) returns (MissingNoncesResponse) {
     option (google.api.http).get = "/hyperion/v1/missing_nonces";
   }
 }
@@ -178,13 +178,19 @@ message QueryBatchConfirmsResponse { repeated MsgConfirmBatch confirms = 1; }
 message QueryLastEventByAddrRequest { string address = 1; }
 message QueryLastEventByAddrResponse { LastClaimEvent last_claim_event = 1; }
 
-message QueryERC20ToDenomRequest { string erc20 = 1; }
+message QueryERC20ToDenomRequest { 
+  string chain_id = 1;
+  string erc20 = 2; 
+}
 message QueryERC20ToDenomResponse {
   string denom = 1;
   bool cosmos_originated = 2;
 }
 
-message QueryDenomToERC20Request { string denom = 1; }
+message QueryDenomToERC20Request { 
+  string chain_id = 1;
+  string denom = 2; 
+}
 message QueryDenomToERC20Response {
   string erc20 = 1;
   bool cosmos_originated = 2;
@@ -210,9 +216,9 @@ message QueryDelegateKeysByOrchestratorAddressResponse {
   string eth_address = 2;
 }
 
-message QueryPendingSendToEth { string sender_address = 1; }
+message QueryPendingSendToChain { string sender_address = 1; }
 
-message QueryPendingSendToEthResponse {
+message QueryPendingSendToChainResponse {
   repeated OutgoingTransferTx transfers_in_batches = 1;
   repeated OutgoingTransferTx unbatched_transfers = 2;
 }

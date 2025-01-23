@@ -7,7 +7,7 @@ title: Future Improvements
 
 ### Native Ethereum Signing
 
-Validators run a required `Eth Signer` in the peggo orchestrator because we can not yet insert this sort of simple signature logic into Cosmos SDK based chains without significant modification to Tendermint. This may be possible in the future with [modifications to Tendermint](https://github.com/tendermint/tendermint/issues/6066).
+Validators run a required `Eth Signer` in the hyperion orchestrator because we can not yet insert this sort of simple signature logic into Cosmos SDK based chains without significant modification to Tendermint. This may be possible in the future with [modifications to Tendermint](https://github.com/tendermint/tendermint/issues/6066).
 
 It should be noted that both [PEGGYSLASH-02](./05_slashing.md) and [PEGGYSLASH-03](./05_slashing.md) could be eliminated with no loss of security if it where possible to perform the Ethereum signatures inside the consensus code. This is a pretty limited feature addition to Tendermint that would make Hyperion far less prone to slashing.
 

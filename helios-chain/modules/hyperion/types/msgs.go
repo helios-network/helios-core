@@ -152,7 +152,7 @@ func NewMsgSendToEth(sender sdk.AccAddress, destAddress string, send, bridgeFee 
 func (msg MsgSendToEth) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgSendToEth) Type() string { return "send_to_eth" }
+func (msg MsgSendToEth) Type() string { return "send_to_chain" }
 
 // ValidateBasic runs stateless checks on the message
 // Checks if the Eth address is valid
@@ -569,7 +569,7 @@ func NewMsgCancelSendToEth(sender sdk.AccAddress, id uint64) *MsgCancelSendToEth
 func (msg *MsgCancelSendToEth) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg *MsgCancelSendToEth) Type() string { return "cancel_send_to_eth" }
+func (msg *MsgCancelSendToEth) Type() string { return "cancel_send_to_chain" }
 
 // ValidateBasic performs stateless checks
 func (msg *MsgCancelSendToEth) ValidateBasic() (err error) {

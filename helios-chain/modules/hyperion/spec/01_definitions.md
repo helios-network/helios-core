@@ -11,7 +11,7 @@ Key concepts that we mention below are defined here:
 
 - `Operator` - This is a person (or people) who control an Helios Chain validator node. This is also called `valoper` or "Validator Operator" in the Cosmos SDK staking module. 
 - `Validator` - This is an Helios Chain validating node (signs blocks)
-- `Orchestrator` - This is the off-chain `peggo` service which performs the following roles for the `Operator`:
+- `Orchestrator` - This is the off-chain `hyperion` service which performs the following roles for the `Operator`:
   - `Eth Signer` -  Signs transactions used to move tokens between the two chains using Ethereum private keys. 
   - `Oracle` - Signs `Claims` using Helios Chain account private keys which are submitted to the Hyperion module where they are then aggregated into `Attestations`.
   - `Relayer` - Submits Valset updates and Batch transactions to the Hyperion contract on Ethereum. It earns fees from the transactions in a batch.

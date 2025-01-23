@@ -21,14 +21,14 @@ This bridge is fully governed by Helios Chain validators.
 
 1. **Hyperion Ethereum Smart contract**
 2. **Hyperion cosmos module**
-3. **Peggo (hyperion orchestrator)**
+3. **Hyperion (hyperion orchestrator)**
     - **Oracle** (Observe events of Hyperion contract and send claims to Hyperion module)
     - **EthSigner** (Sign and send valset/Batch confirmations to Hyperion module)
     - **Batch Requester** (Send batch creation request to Hyperion module)
     - **Valset Relayer** (Submit Valsets to Hyperion contract)
     - **Batch Relayer** (Submit Batches to Hyperion contract)
 
-Each helios validator runs heliades node to sign blocks and peggo orchestrator to orchestrate between Hyperion
+Each helios validator runs heliades node to sign blocks and hyperion orchestrator to orchestrate between Hyperion
 Ethereum smart contract and Hyperion cosmos module.
 
 ### Functionalities

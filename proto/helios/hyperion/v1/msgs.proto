@@ -19,8 +19,8 @@ service Msg {
   rpc ValsetConfirm(MsgValsetConfirm) returns (MsgValsetConfirmResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/valset_confirm";
   }
-  rpc SendToEth(MsgSendToEth) returns (MsgSendToEthResponse) {
-    option (google.api.http).post = "/helios/hyperion/v1/send_to_eth";
+  rpc SendToChain(MsgSendToChain) returns (MsgSendToChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/send_to_chain";
   }
   rpc RequestBatch(MsgRequestBatch) returns (MsgRequestBatchResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/request_batch";
@@ -46,8 +46,8 @@ service Msg {
       returns (MsgSetOrchestratorAddressesResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/set_orchestrator_address";
   }
-  rpc CancelSendToEth(MsgCancelSendToEth) returns (MsgCancelSendToEthResponse) {
-    option (google.api.http).post = "/helios/hyperion/v1/cancel_send_to_eth";
+  rpc CancelSendToChain(MsgCancelSendToChain) returns (MsgCancelSendToChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/cancel_send_to_chain";
   }
   rpc SubmitBadSignatureEvidence(MsgSubmitBadSignatureEvidence)
       returns (MsgSubmitBadSignatureEvidenceResponse) {
@@ -118,7 +118,7 @@ message MsgValsetConfirm {
 
 message MsgValsetConfirmResponse {}
 
-// MsgSendToEth
+// MsgSendToChain
 // This is the message that a user calls when they want to bridge an asset
 // it will later be removed when it is included in a batch and successfully
 // submitted tokens are removed from the users balance immediately
@@ -130,17 +130,18 @@ message MsgValsetConfirmResponse {}
 // the fee paid for the bridge, distinct from the fee paid to the chain to
 // actually send this message in the first place. So a successful send has
 // two layers of fees for the user
-message MsgSendToEth {
-  option (amino.name) = "hyperion/MsgSendToEth";
+message MsgSendToChain {
+  option (amino.name) = "hyperion/MsgSendToChain";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
-  string eth_dest = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
-  cosmos.base.v1beta1.Coin bridge_fee = 4 [ (gogoproto.nullable) = false ];
+  string dest_chain_id = 2;
+  string dest = 3;
+  cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin bridge_fee = 5 [ (gogoproto.nullable) = false ];
 }
 
-message MsgSendToEthResponse {}
+message MsgSendToChainResponse {}
 
 // MsgRequestBatch
 // this is a message anyone can send that requests a batch of transactions to
@@ -191,17 +192,18 @@ message MsgDepositClaim {
   option (amino.name) = "hyperion/MsgDepositClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  uint64 event_nonce = 1;
-  uint64 block_height = 2;
-  string token_contract = 3;
-  string amount = 4 [
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 block_height = 3;
+  string token_contract = 4;
+  string amount = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
-  string ethereum_sender = 5;
-  string cosmos_receiver = 6;
-  string orchestrator = 7;
-  string data = 8;
+  string ethereum_sender = 6;
+  string cosmos_receiver = 7;
+  string orchestrator = 8;
+  string data = 9;
 }
 
 message MsgDepositClaimResponse {}
@@ -212,11 +214,12 @@ message MsgWithdrawClaim {
   option (amino.name) = "hyperion/MsgWithdrawClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  uint64 event_nonce = 1;
-  uint64 block_height = 2;
-  uint64 batch_nonce = 3;
-  string token_contract = 4;
-  string orchestrator = 5;
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 block_height = 3;
+  uint64 batch_nonce = 4;
+  string token_contract = 5;
+  string orchestrator = 6;
 }
 
 message MsgWithdrawClaimResponse {}
@@ -228,30 +231,31 @@ message MsgERC20DeployedClaim {
   option (amino.name) = "hyperion/MsgERC20DeployedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  uint64 event_nonce = 1;
-  uint64 block_height = 2;
-  string cosmos_denom = 3;
-  string token_contract = 4;
-  string name = 5;
-  string symbol = 6;
-  uint64 decimals = 7;
-  string orchestrator = 8;
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 block_height = 3;
+  string cosmos_denom = 4;
+  string token_contract = 5;
+  string name = 6;
+  string symbol = 7;
+  uint64 decimals = 8;
+  string orchestrator = 9;
 }
 
 message MsgERC20DeployedClaimResponse {}
 
 // This call allows the sender (and only the sender)
-// to cancel a given MsgSendToEth and recieve a refund
+// to cancel a given MsgSendToChain and recieve a refund
 // of the tokens
-message MsgCancelSendToEth {
-  option (amino.name) = "hyperion/MsgCancelSendToEth";
+message MsgCancelSendToChain {
+  option (amino.name) = "hyperion/MsgCancelSendToChain";
   option (cosmos.msg.v1.signer) = "sender";
 
   uint64 transaction_id = 1;
   string sender = 2;
 }
 
-message MsgCancelSendToEthResponse {}
+message MsgCancelSendToChainResponse {}
 
 // This call allows anyone to submit evidence that a
 // validator has signed a valset, batch, or logic call that never
@@ -273,16 +277,17 @@ message MsgValsetUpdatedClaim {
   option (amino.name) = "hyperion/MsgValsetUpdatedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  uint64 event_nonce = 1;
-  uint64 valset_nonce = 2;
-  uint64 block_height = 3;
-  repeated BridgeValidator members = 4;
-  string reward_amount = 5 [
+  string chain_id = 1;
+  uint64 event_nonce = 2;
+  uint64 valset_nonce = 3;
+  uint64 block_height = 4;
+  repeated BridgeValidator members = 5;
+  string reward_amount = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
-  string reward_token = 6;
-  string orchestrator = 7;
+  string reward_token = 7;
+  string orchestrator = 8;
 }
 
 message MsgValsetUpdatedClaimResponse {}

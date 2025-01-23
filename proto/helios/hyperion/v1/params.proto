@@ -8,6 +8,16 @@ import "amino/amino.proto";
 option go_package = "helios-core/helios-chain/modules/hyperion/types";
 
 // Params represent the hyperion genesis and store parameters
+
+message Params {
+  option (amino.name) = "hyperion/Params";
+  option (gogoproto.stringer) = false;
+
+  repeated CounterpartyChainParams counterparty_chain_params = 1;
+}
+
+// CounterpartyChainParams represent the hyperion genesis and store parameters 
+// related to a conterparty chain
 // hyperion_id:
 // a random 32 byte value to prevent signature reuse, for example if the
 // cosmos validators decided to use the same Ethereum keys for another chain
@@ -22,7 +32,7 @@ option go_package = "helios-core/helios-chain/modules/hyperion/types";
 // of the contract has been deployed. This is a reference value for
 // goernance action only it is never read by any Hyperion code
 //
-// bridge_ethereum_address:
+// bridge_counterparty_address:
 // is address of the bridge contract on the Ethereum side, this is a
 // reference value for governance only and is not actually used by any
 // Hyperion code
@@ -53,7 +63,7 @@ option go_package = "helios-core/helios-chain/modules/hyperion/types";
 // block frequency is ahead of time.
 //
 // average_block_time
-// average_ethereum_block_time
+// average_counterparty_block_time
 //
 // These values are the average Cosmos block time and Ethereum block time
 // repsectively and they are used to copute what the target batch timeout is. It
@@ -90,20 +100,20 @@ option go_package = "helios-core/helios-chain/modules/hyperion/types";
 // and indicate not to attempt any reward. This is the default for
 // bootstrapping.
 
-message Params {
-  option (amino.name) = "hyperion/Params";
+message CounterpartyChainParams {
+  option (amino.name) = "hyperion/CounterpartyChainParams";
   option (gogoproto.stringer) = false;
 
   string hyperion_id = 1;
   string contract_source_hash = 2;
-  string bridge_ethereum_address = 3;
+  string bridge_counterparty_address = 3;
   uint64 bridge_chain_id = 4;
   uint64 signed_valsets_window = 5;
   uint64 signed_batches_window = 6;
   uint64 signed_claims_window = 7;
   uint64 target_batch_timeout = 8;
   uint64 average_block_time = 9;
-  uint64 average_ethereum_block_time = 10;
+  uint64 average_counterparty_block_time = 10;
   bytes slash_fraction_valset = 11 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

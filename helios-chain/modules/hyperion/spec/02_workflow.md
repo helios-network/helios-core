@@ -11,7 +11,7 @@ To recap, each operator is responsible for maintaining 3 secure processes:
 
 1. An Helios Chain Validator node (`heliades`) to sign blocks
 2. A fully synced Ethereum full node
-3. The `peggo` orchestrator which runs:
+3. The `hyperion` orchestrator which runs:
    * An `Eth Signer`, which signs new `Validator Set` updates and `Transaction Batch`es with the `Operator`'s Ethereum keys and submits using [messages](./04_messages.md#Ethereum-Signer-messages). 
    * An `Oracle`, which observes events from Ethereum full nodes and relays them using [messages](./04_messages.md#Oracle-messages). 
    * A `Relayer` which submits confirmed `Validator Set` updates and `Transaction Batch`es to the `Hyperion Contract` on Ethereum
@@ -30,7 +30,7 @@ When a user wants to withdraw assets from Helios to Ethereum, they send a specia
 
 ### Eth Signer
 
-All contract calls on [Hyperion.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) accept an array of signatures provided by a validator set stored in the contract.
+All contract calls on [Hyperion.sol](https://github.com/Helios-Chain-Labs/hyperion/blob/master/solidity/contracts/Hyperion.sol) accept an array of signatures provided by a validator set stored in the contract.
 
 Validators make these signatures with their `Delegate Ethereum address`: this is an Ethereum address set by the validator using the [SetOrchestratorAddress](./04_messages.md#SetOrchestratorAddress) message. The validator signs over this Ethereum address, as well as an Helios Chain address and submits it to the Helios chain to register these addresses for use in the signing flow (explained below) and `Oracle` subsystem.
 
@@ -60,7 +60,7 @@ But the upsides are undeniable, because the Ethereum messages pay `msg.sender` a
 
 ### Native Ethereum assets
 
-Any asset originating from Ethereum which implements the ERC-20 standard can be transferred from Ethereum to Helios by calling the `sendToHelios` function on the [Hyperion.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) contract which transfers tokens from the sender's balance to the Hyperion contract. 
+Any asset originating from Ethereum which implements the ERC-20 standard can be transferred from Ethereum to Helios by calling the `sendToHelios` function on the [Hyperion.sol](https://github.com/Helios-Chain-Labs/hyperion/blob/master/solidity/contracts/Hyperion.sol) contract which transfers tokens from the sender's balance to the Hyperion contract. 
 
 The validators all run their oracle processes which submit `MsgDepositClaim` messages describing the deposit they have observed. Once more than 66% of all voting power has submitted a claim for this specific deposit representative tokens are minted and issued to the Helios Chain address that the sender requested.
 
@@ -68,13 +68,13 @@ These representative tokens have a denomination prefix of `hyperion` concatenate
 
 ### Native Cosmos SDK assets
 
-An asset native to a Cosmos SDK chain (e.g. ATOM) first must be represented on Ethereum before it's possible to bridge it. To do so,  the [Hyperion contract](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) allows anyone to create a new ERC-20 token representing a Cosmos asset by calling the `deployERC20` function. 
+An asset native to a Cosmos SDK chain (e.g. ATOM) first must be represented on Ethereum before it's possible to bridge it. To do so,  the [Hyperion contract](https://github.com/Helios-Chain-Labs/hyperion/blob/master/solidity/contracts/Hyperion.sol) allows anyone to create a new ERC-20 token representing a Cosmos asset by calling the `deployERC20` function. 
 
 This endpoint is not permissioned, so it is up to the validators and the users of the Hyperion module to declare any given ERC-20 token as the representation of a given asset.
 
-When a user on Ethereum calls `deployERC20` they pass arguments describing the desired asset. [Hyperion.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) uses an ERC-20 factory to deploy the actual ERC-20 contract and assigns ownership of the entire balance of the new token to the Hyperion contract itself before emitting an `ERC20DeployedEvent`. 
+When a user on Ethereum calls `deployERC20` they pass arguments describing the desired asset. [Hyperion.sol](https://github.com/Helios-Chain-Labs/hyperion/blob/master/solidity/contracts/Hyperion.sol) uses an ERC-20 factory to deploy the actual ERC-20 contract and assigns ownership of the entire balance of the new token to the Hyperion contract itself before emitting an `ERC20DeployedEvent`. 
 
-The peggo orchestrators observe this event and decide if a Cosmos asset has been accurately represented (correct decimals, correct name, no pre-existing representation). If this is the case, the ERC-20 contract address is adopted and stored as the definitive representation of that Cosmos asset on Ethereum.
+The hyperion orchestrators observe this event and decide if a Cosmos asset has been accurately represented (correct decimals, correct name, no pre-existing representation). If this is the case, the ERC-20 contract address is adopted and stored as the definitive representation of that Cosmos asset on Ethereum.
 
 ##  End-to-end Lifecycle
 
@@ -120,7 +120,7 @@ ERC-20 tokens are transferred from Ethereum to Helios through the following mech
 
      The deposited tokens will remain locked until withdrawn at some undetermined point in the future. This event contains the amount and type of tokens, as well as a destination address on the Helios Chain to receive the funds.
 
-  2. **Confirming the deposit:** Each peggo orchestrator witnesses the `SendToCosmosEvent` and sends a `MsgDepositClaim` which contains the deposit information to the Hyperion module. 
+  2. **Confirming the deposit:** Each hyperion orchestrator witnesses the `SendToCosmosEvent` and sends a `MsgDepositClaim` which contains the deposit information to the Hyperion module. 
 
   3. **Minting tokens on the Helios:** Once a 2/3 majority of validators confirm the deposit claim, the deposit is processed. 
   - If the asset is Ethereum originated, the tokens are minted and transferred to the intended recipient's address on the Helios Chain.
@@ -135,10 +135,10 @@ ERC-20 tokens are transferred from Ethereum to Helios through the following mech
 - If the asset is Ethereum native, the represented tokens are burnt. 
 - If the asset is Cosmos SDK native, coins are locked in the hyperion module. 
 The withdrawal is then added to pending withdrawal OutgoingTx Pool. 
-2. **Batch Creation:** The peggo orchestrator observes the pending withdrawal pool of OutgoingTx's . The orchestrator (or any external third party) then requests a batch of to be created for a given token by sending `MsgRequestBatch` to the Helios Chain. The Hyperion module picks unbatched txs from the withdrawal pool and creates the token-specific Outgoing Batch.
-3. **Batch Confirmation:**  Upon detecting the existence of an Outgoing Batch, the peggo orchestrator signs over the batch with its Ethereum key and submits a `MsgConfirmBatch` tx to the Hyperion module.
-4. **Submit Batch to Hyperion Contract:**  Once a 2/3 majority of validators confirm the batch, the peggo orchestrator sends `SubmitBatch` tx to the Hyperion contract on Ethereum. The Hyperion contract validates the signatures, updates the batch checkpoint, processes the batch ERC-20 withdrawals, transfers the batch fee to the tx sender and emits a `TransactionBatchExecutedEvent`.
-5. **Send Withdrawal Claim to Helios:** Validators running the peggo orchestrator witness the `TransactionBatchExecutedEvent` and send a `MsgWithdrawClaim` containing the withdrawal information to the Hyperion module.
+2. **Batch Creation:** The hyperion orchestrator observes the pending withdrawal pool of OutgoingTx's . The orchestrator (or any external third party) then requests a batch of to be created for a given token by sending `MsgRequestBatch` to the Helios Chain. The Hyperion module picks unbatched txs from the withdrawal pool and creates the token-specific Outgoing Batch.
+3. **Batch Confirmation:**  Upon detecting the existence of an Outgoing Batch, the hyperion orchestrator signs over the batch with its Ethereum key and submits a `MsgConfirmBatch` tx to the Hyperion module.
+4. **Submit Batch to Hyperion Contract:**  Once a 2/3 majority of validators confirm the batch, the hyperion orchestrator sends `SubmitBatch` tx to the Hyperion contract on Ethereum. The Hyperion contract validates the signatures, updates the batch checkpoint, processes the batch ERC-20 withdrawals, transfers the batch fee to the tx sender and emits a `TransactionBatchExecutedEvent`.
+5. **Send Withdrawal Claim to Helios:** Validators running the hyperion orchestrator witness the `TransactionBatchExecutedEvent` and send a `MsgWithdrawClaim` containing the withdrawal information to the Hyperion module.
 6. **Prune Batches** Once a 2/3 majority of validators submit their `MsgWithdrawClaim` , the batch is deleted along and all previous batches are cancelled on the Hyperion module.
 7. **Batch Slashing:** Validators are responsible for confirming batches and are subject to slashing if they fail to do so. Read more on [batch slashing](./05_slashing.md). 
 

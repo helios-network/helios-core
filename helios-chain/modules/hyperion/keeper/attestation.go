@@ -30,7 +30,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	lastEvent := k.GetLastEventByValidator(ctx, valAddr)
 
 	if lastEvent.EthereumEventNonce == 0 && lastEvent.EthereumEventHeight == 0 {
-		// if peggo happens to query too early without a bonded validator even existing setup the base event
+		// if hyperion happens to query too early without a bonded validator even existing setup the base event
 		lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
 		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
 
@@ -45,7 +45,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 
 	if claim.GetEventNonce() != lastEvent.EthereumEventNonce+1 {
 		metrics.ReportFuncError(k.svcTags)
-		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Peggo Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
+		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
 		return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))
 	}
 
@@ -70,7 +70,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	k.setLastEventByValidator(ctx, valAddr, claim.GetEventNonce(), claim.GetBlockHeight())
 
 	lastEvent = k.GetLastEventByValidator(ctx, valAddr)
-	k.Logger(ctx).Info(fmt.Sprintf("Attest Update Nonce of Peggo Orchestrator %s newNonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
+	k.Logger(ctx).Info(fmt.Sprintf("Attest Update Nonce of Hyperion Orchestrator %s newNonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
 
 	attestationId := types.GetAttestationKey(claim.GetEventNonce(), claim.ClaimHash())
 

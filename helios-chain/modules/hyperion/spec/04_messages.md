@@ -102,7 +102,7 @@ As noted above this message is unpermissioned and it is safe to allow anyone to 
 
 All validators run two processes in addition to their Helios node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
 
-The oracle observes the Ethereum chain for events from the [Hyperion.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) contract before submitting them as messages to the Helios Chain.
+The oracle observes the Ethereum chain for events from the [Hyperion.sol](https://github.com/Helios-Chain-Labs/hyperion/blob/master/solidity/contracts/Hyperion.sol) contract before submitting them as messages to the Helios Chain.
 
 ### DepositClaim
 ```go
