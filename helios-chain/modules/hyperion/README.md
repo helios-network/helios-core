@@ -1,15 +1,15 @@
 <!--
 order: 0
-title: Peggy Bridge Overview
+title: Hyperion Bridge Overview
 parent:
-  title: "Peggy bridge"
+  title: "Hyperion bridge"
 -->
 
-# `Peggy bridge`
+# `Hyperion bridge`
 
 ## High level Overview
 
-This document specifies the peggy module of the Helios Chain.
+This document specifies the hyperion module of the Helios Chain.
 
 The module enables the Helios Chain to support a trustless, on-chain bidirectional token bridge. In this system,
 holders of ERC-20 tokens on the Ethereum chain can instantaneously convert their ERC-20 tokens to Cosmos-native coins on
@@ -19,17 +19,17 @@ This bridge is fully governed by Helios Chain validators.
 
 ### Components
 
-1. **Peggy Ethereum Smart contract**
-2. **Peggy cosmos module**
-3. **Peggo (peggy orchestrator)**
-    - **Oracle** (Observe events of Peggy contract and send claims to Peggy module)
-    - **EthSigner** (Sign and send valset/Batch confirmations to Peggy module)
-    - **Batch Requester** (Send batch creation request to Peggy module)
-    - **Valset Relayer** (Submit Valsets to Peggy contract)
-    - **Batch Relayer** (Submit Batches to Peggy contract)
+1. **Hyperion Ethereum Smart contract**
+2. **Hyperion cosmos module**
+3. **Peggo (hyperion orchestrator)**
+    - **Oracle** (Observe events of Hyperion contract and send claims to Hyperion module)
+    - **EthSigner** (Sign and send valset/Batch confirmations to Hyperion module)
+    - **Batch Requester** (Send batch creation request to Hyperion module)
+    - **Valset Relayer** (Submit Valsets to Hyperion contract)
+    - **Batch Relayer** (Submit Batches to Hyperion contract)
 
-Each helios validator runs heliades node to sign blocks and peggo orchestrator to orchestrate between Peggy
-Ethereum smart contract and Peggy cosmos module.
+Each helios validator runs heliades node to sign blocks and peggo orchestrator to orchestrate between Hyperion
+Ethereum smart contract and Hyperion cosmos module.
 
 ### Functionalities
 
@@ -53,7 +53,7 @@ Ethereum smart contract and Peggy cosmos module.
 
 [comment]: <> (3. **[Design]&#40;spec/docs/design/&#41;**)
 
-[comment]: <> (    - [Minting and locking tokens in Peggy]&#40;spec/docs/mint-lock.md&#41;)
+[comment]: <> (    - [Minting and locking tokens in Hyperion]&#40;spec/docs/mint-lock.md&#41;)
 
 [comment]: <> (    - [Oracle design]&#40;spec/docs/design/oracle.md&#41;)
 

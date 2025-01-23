@@ -141,48 +141,6 @@ func (s *StreamServer) Stream(req *types.StreamRequest, server types.Stream_Stre
 			if req.BankBalancesFilter != nil && inResp.BankBalancesByAccount != nil {
 				outResp.BankBalances = Filter[types.BankBalance](inResp.BankBalancesByAccount, req.BankBalancesFilter.Accounts)
 			}
-			if req.SpotOrdersFilter != nil && inResp.SpotOrdersByMarketID != nil {
-				outResp.SpotOrders, err = FilterMulti[types.SpotOrderUpdate](inResp.SpotOrdersByMarketID, inResp.SpotOrdersBySubaccount, req.SpotOrdersFilter.MarketIds, req.SpotOrdersFilter.SubaccountIds)
-				if err != nil {
-					return status.Error(codes.Internal, err.Error())
-				}
-			}
-			if req.DerivativeOrdersFilter != nil && inResp.DerivativeOrdersByMarketID != nil {
-				outResp.DerivativeOrders, err = FilterMulti[types.DerivativeOrderUpdate](inResp.DerivativeOrdersByMarketID, inResp.DerivativeOrdersBySubaccount, req.DerivativeOrdersFilter.MarketIds, req.DerivativeOrdersFilter.SubaccountIds)
-				if err != nil {
-					return status.Error(codes.Internal, err.Error())
-				}
-			}
-			if req.SpotOrderbooksFilter != nil && inResp.SpotOrderbookUpdatesByMarketID != nil {
-				outResp.SpotOrderbookUpdates = Filter[types.OrderbookUpdate](inResp.SpotOrderbookUpdatesByMarketID, req.SpotOrderbooksFilter.MarketIds)
-			}
-			if req.DerivativeOrderbooksFilter != nil && inResp.DerivativeOrderbookUpdatesByMarketID != nil {
-				outResp.DerivativeOrderbookUpdates = Filter[types.OrderbookUpdate](inResp.DerivativeOrderbookUpdatesByMarketID, req.DerivativeOrderbooksFilter.MarketIds)
-			}
-			if req.PositionsFilter != nil && inResp.PositionsByMarketID != nil {
-				outResp.Positions, err = FilterMulti[types.Position](inResp.PositionsByMarketID, inResp.PositionsBySubaccount, req.PositionsFilter.MarketIds, req.PositionsFilter.SubaccountIds)
-				if err != nil {
-					return status.Error(codes.Internal, err.Error())
-				}
-			}
-			if req.SubaccountDepositsFilter != nil && inResp.SubaccountDepositsBySubaccountID != nil {
-				outResp.SubaccountDeposits = Filter[types.SubaccountDeposits](inResp.SubaccountDepositsBySubaccountID, req.SubaccountDepositsFilter.SubaccountIds)
-			}
-			if req.OraclePriceFilter != nil && inResp.OraclePriceBySymbol != nil {
-				outResp.OraclePrices = Filter[types.OraclePrice](inResp.OraclePriceBySymbol, req.OraclePriceFilter.Symbol)
-			}
-			if req.SpotTradesFilter != nil && inResp.SpotTradesByMarketID != nil {
-				outResp.SpotTrades, err = FilterMulti[types.SpotTrade](inResp.SpotTradesByMarketID, inResp.SpotTradesBySubaccount, req.SpotTradesFilter.MarketIds, req.SpotTradesFilter.SubaccountIds)
-				if err != nil {
-					return status.Error(codes.Internal, err.Error())
-				}
-			}
-			if req.DerivativeTradesFilter != nil && inResp.DerivativeTradesByMarketID != nil {
-				outResp.DerivativeTrades, err = FilterMulti[types.DerivativeTrade](inResp.DerivativeTradesByMarketID, inResp.DerivativeTradesBySubaccount, req.DerivativeTradesFilter.MarketIds, req.DerivativeTradesFilter.SubaccountIds)
-				if err != nil {
-					return status.Error(codes.Internal, err.Error())
-				}
-			}
 			err = server.Send(outResp)
 			if err != nil {
 				return status.Error(codes.Internal, err.Error())

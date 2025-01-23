@@ -35,7 +35,7 @@ var (
 	// i.e cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn
 	ValsetConfirmKey = []byte{0x3}
 
-	// ParamKey indexes peggy's module params
+	// ParamKey indexes hyperion's module params
 	ParamKey = []byte{0x4}
 
 	// OracleAttestationKey attestation details by nonce and validator address

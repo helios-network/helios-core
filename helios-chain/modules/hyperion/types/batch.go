@@ -11,7 +11,7 @@ import (
 )
 
 // GetCheckpoint gets the checkpoint signature from the given outgoing tx batch
-func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) common.Hash {
+func (b OutgoingTxBatch) GetCheckpoint(hyperionIDstring string) common.Hash {
 
 	abi, err := accountsabi.JSON(strings.NewReader(OutgoingBatchTxCheckpointABIJSON))
 	if err != nil {
@@ -21,8 +21,8 @@ func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) common.Hash {
 	// the contract argument is not a arbitrary length array but a fixed length 32 byte
 	// array, therefore we have to utf8 encode the string (the default in this case) and
 	// then copy the variable length encoded data into a fixed length array. This function
-	// will panic if peggyId is too long to fit in 32 bytes
-	peggyID, err := strToFixByteArray(peggyIDstring)
+	// will panic if hyperionId is too long to fit in 32 bytes
+	hyperionID, err := strToFixByteArray(hyperionIDstring)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) common.Hash {
 	// but other than that it's a constant that has no impact on the output. This is because
 	// it gets encoded as a function name which we must then discard.
 	abiEncodedBatch, err := abi.Pack("submitBatch",
-		peggyID,
+		hyperionID,
 		batchMethodName,
 		txAmounts,
 		txDestinations,

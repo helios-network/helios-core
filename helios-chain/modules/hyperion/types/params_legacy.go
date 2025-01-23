@@ -3,8 +3,8 @@ package types
 import paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 var (
-	// ParamsStoreKeyPeggyID stores the peggy id
-	ParamsStoreKeyPeggyID = []byte("PeggyID")
+	// ParamsStoreKeyHyperionID stores the hyperion id
+	ParamsStoreKeyHyperionID = []byte("HyperionID")
 
 	// ParamsStoreKeyContractHash stores the contract hash
 	ParamsStoreKeyContractHash = []byte("ContractHash")
@@ -82,7 +82,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 // pairs of auth module's parameters.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamsStoreKeyPeggyID, &p.PeggyId, validatePeggyID),
+		paramtypes.NewParamSetPair(ParamsStoreKeyHyperionID, &p.HyperionId, validateHyperionID),
 		paramtypes.NewParamSetPair(ParamsStoreKeyContractHash, &p.ContractSourceHash, validateContractHash),
 		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractAddress, &p.BridgeEthereumAddress, validateBridgeContractAddress),
 		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractChainID, &p.BridgeChainId, validateBridgeChainID),

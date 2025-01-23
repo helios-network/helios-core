@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// DefaultParamspace defines the default peggy module parameter subspace
+// DefaultParamspace defines the default hyperion module parameter subspace
 const (
 	DefaultParamspace = ModuleName
 )
@@ -21,7 +21,7 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		PeggyId:                       "peggy-helios",
+		HyperionId:                    "hyperion-helios",
 		BridgeEthereumAddress:         common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
 		BridgeChainId:                 56,
 		SignedValsetsWindow:           25000,
@@ -46,8 +46,8 @@ func DefaultParams() *Params {
 
 // ValidateBasic checks that the parameters have valid values.
 func (p Params) ValidateBasic() error {
-	if err := validatePeggyID(p.PeggyId); err != nil {
-		return errors.Wrap(err, "peggy id")
+	if err := validateHyperionID(p.HyperionId); err != nil {
+		return errors.Wrap(err, "hyperion id")
 	}
 	if err := validateContractHash(p.ContractSourceHash); err != nil {
 		return errors.Wrap(err, "contract hash")
@@ -120,7 +120,7 @@ func (p Params) Equal(p2 Params) bool {
 	return bytes.Equal(bz1, bz2)
 }
 
-func validatePeggyID(i interface{}) error {
+func validateHyperionID(i interface{}) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

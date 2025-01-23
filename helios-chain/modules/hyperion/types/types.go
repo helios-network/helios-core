@@ -157,7 +157,7 @@ func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdkm
 }
 
 // GetCheckpoint returns the checkpoint hash
-func (v Valset) GetCheckpoint(peggyIDstring string) gethcommon.Hash {
+func (v Valset) GetCheckpoint(hyperionIDstring string) gethcommon.Hash {
 	// error case here should not occur outside of testing since the above is a constant
 	contractAbi, abiErr := abi.JSON(strings.NewReader(ValsetCheckpointABIJSON))
 	if abiErr != nil {
@@ -167,8 +167,8 @@ func (v Valset) GetCheckpoint(peggyIDstring string) gethcommon.Hash {
 	// the contract argument is not a arbitrary length array but a fixed length 32 byte
 	// array, therefore we have to utf8 encode the string (the default in this case) and
 	// then copy the variable length encoded data into a fixed length array. This function
-	// will panic if peggyId is too long to fit in 32 bytes
-	peggyID, err := strToFixByteArray(peggyIDstring)
+	// will panic if hyperionId is too long to fit in 32 bytes
+	hyperionID, err := strToFixByteArray(hyperionIDstring)
 	if err != nil {
 		panic(err)
 	}
@@ -198,7 +198,7 @@ func (v Valset) GetCheckpoint(peggyIDstring string) gethcommon.Hash {
 	// the word 'checkpoint' needs to be the same as the 'name' above in the checkpointAbiJson
 	// but other than that it's a constant that has no impact on the output. This is because
 	// it gets encoded as a function name which we must then discard.
-	bytes, packErr := contractAbi.Pack("checkpoint", peggyID, checkpoint, big.NewInt(int64(v.Nonce)), memberAddresses, convertedPowers, rewardAmount, rewardToken)
+	bytes, packErr := contractAbi.Pack("checkpoint", hyperionID, checkpoint, big.NewInt(int64(v.Nonce)), memberAddresses, convertedPowers, rewardAmount, rewardToken)
 	// this should never happen outside of test since any case that could crash on encoding
 	// should be filtered above.
 	if packErr != nil {
@@ -216,7 +216,7 @@ func (v Valset) GetCheckpoint(peggyIDstring string) gethcommon.Hash {
 // to create transactions on Ethereum that are signed by validators.
 // The naming here could be improved.
 type EthereumSigned interface {
-	GetCheckpoint(peggyIDstring string) gethcommon.Hash
+	GetCheckpoint(hyperionIDstring string) gethcommon.Hash
 }
 
 // WithoutEmptyMembers returns a new Valset without member that have 0 power or an empty Ethereum address.

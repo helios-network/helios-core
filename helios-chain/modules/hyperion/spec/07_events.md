@@ -5,14 +5,14 @@ title: Events
 
 # Events
 
-The peggy module emits the following events:
+The hyperion module emits the following events:
 
 ## EndBlocker
 
 ### EventAttestationObserved
 | Type        | Attribute Key    | Attribute Value    |
 |-------------|------------------|--------------------|
-| observation | module           | peggy              |
+| observation | module           | hyperion              |
 | observation | attestation_type | {attestation_type} |
 | observation | bridge_contract  | {bridge_contract}  |
 | observation | bridge_chain_id  | {bridge_chain_id}  |
@@ -25,21 +25,21 @@ The peggy module emits the following events:
 
 | Type    | Attribute Key        | Attribute Value    |
 |---------|----------------------|--------------------|
-| message | module               | peggy     |
+| message | module               | hyperion     |
 | message | set_operator_address | {operator_address} |
 
 ### EventSendToEth
 
 | Type    | Attribute Key  | Attribute Value |
 |---------|----------------|-----------------|
-| message | module         | peggy     |
+| message | module         | hyperion     |
 | message | outgoing_tx_id | {tx_id}         |
 
 
 ### EventBridgeWithdrawalReceived
 | Type                | Attribute Key   | Attribute Value   |
 |---------------------|-----------------|-------------------|
-| withdrawal_received | module          | peggy             |
+| withdrawal_received | module          | hyperion             |
 | withdrawal_received | bridge_contract | {bridge_contract} |
 | withdrawal_received | bridge_chain_id | {bridge_chain_id} |
 | withdrawal_received | outgoing_tx_id  | {outgoing_tx_id}  |
@@ -48,7 +48,7 @@ The peggy module emits the following events:
 ### EventBridgeWithdrawCanceled
 | Type                 | Attribute Key   | Attribute Value   |
 |----------------------|-----------------|-------------------|
-| withdrawal_cancelled | module          | peggy             |
+| withdrawal_cancelled | module          | hyperion             |
 | withdrawal_cancelled | bridge_contract | {bridge_contract} |
 | withdrawal_cancelled | bridge_chain_id | {bridge_chain_id} |
 
@@ -57,7 +57,7 @@ The peggy module emits the following events:
 
 | Type           | Attribute Key      | Attribute Value   |
 |----------------|--------------------|-------------------|
-| outgoing_batch | module             | peggy             |
+| outgoing_batch | module             | hyperion             |
 | outgoing_batch | bridge_contract    | {bridge_contract} |
 | outgoing_batch | bridge_chain_id    | {bridge_chain_id} |
 | outgoing_batch | outgoing_batch_id  | {outgoing_batch_id}|
@@ -66,7 +66,7 @@ The peggy module emits the following events:
 ### EventOutgoingBatchCanceled
 | Type                     | Attribute Key   | Attribute Value   |
 |--------------------------|-----------------|-------------------|
-| outgoing_batch_cancelled | module          | peggy             |
+| outgoing_batch_cancelled | module          | hyperion             |
 | outgoing_batch_cancelled | bridge_contract | {bridge_contract} |
 | outgoing_batch_cancelled | bridge_chain_id | {bridge_chain_id} |
 | outgoing_batch_cancelled | outgoing_batch_id  | {outgoing_batch_id}  |
@@ -76,7 +76,7 @@ The peggy module emits the following events:
 
 | Type    | Attribute Key        | Attribute Value    |
 |---------|----------------------|--------------------|
-| message | module               | peggy     |
+| message | module               | hyperion     |
 | message | valset_confirm_key | {valset_confirm_key} |
 
 
@@ -84,14 +84,14 @@ The peggy module emits the following events:
 
 | Type    | Attribute Key     | Attribute Value     |
 |---------|-------------------|---------------------|
-| message | module            | peggy       |
+| message | module            | hyperion       |
 | message | batch_confirm_key | {batch_confirm_key} |
 
 ### EventDepositClaim
 
 | Type    | Attribute Key  | Attribute Value   |
 |---------|----------------|-------------------|
-| message | module         | peggy     |
+| message | module         | hyperion     |
 | message | attestation_id | {attestation_key} |
 
 
@@ -99,18 +99,18 @@ The peggy module emits the following events:
 
 | Type    | Attribute Key  | Attribute Value   |
 |---------|----------------|-------------------|
-| message | module         | peggy    |
+| message | module         | hyperion    |
 | message | attestation_id | {attestation_key} |
 
 ### EventERC20DeployedClaim
 | Type    | Attribute Key  | Attribute Value      |
 |---------|----------------|----------------------|
-| message | module         | peggy |
+| message | module         | hyperion |
 | message | attestation_id | {attestation_key}    |
 
 ### EventValsetUpdateClaim
 | Type    | Attribute Key  | Attribute Value      |
 |---------|----------------|----------------------|
-| message | module         | peggy |
+| message | module         | hyperion |
 | message | attestation_id | {attestation_key}    |
 

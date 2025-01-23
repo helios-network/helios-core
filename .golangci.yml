@@ -38,6 +38,4 @@ issues:
 run:
   tests: false
   skip-dirs:
-    - helios-chain/modules/peggy/testpeggy
-    - helios-chain/modules/exchange/testexchange
-    - helios-chain/modules/exchange/client/testutil
+    - helios-chain/modules/hyperion/testhyperion

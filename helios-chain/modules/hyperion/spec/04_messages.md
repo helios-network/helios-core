@@ -5,11 +5,11 @@ title: Messages
 
 # Messages
 
-This is a reference document for Peggy message types. For code reference and exact arguments see the [proto definitions](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/peggy/v1/msgs.proto). 
+This is a reference document for Hyperion message types. For code reference and exact arguments see the [proto definitions](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/hyperion/v1/msgs.proto). 
 
 ## User messages
 
-These are messages sent on the Helios Chain peggy module. See [workflow](./02_workflow.md) for a more detailed summary of the entire deposit and withdraw process.
+These are messages sent on the Helios Chain hyperion module. See [workflow](./02_workflow.md) for a more detailed summary of the entire deposit and withdraw process.
 
 ### SendToEth
 
@@ -89,8 +89,8 @@ type MsgRequestBatch struct {
 }
 ```
 
-Relayers use `QueryPendingSendToEth` in [query.proto](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/peggy/v1/query.proto) to query the potential fees for a batch of each
-token type. When they find a batch that they wish to relay they send in a RequestBatch message and the Peggy module creates a batch.
+Relayers use `QueryPendingSendToEth` in [query.proto](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/hyperion/v1/query.proto) to query the potential fees for a batch of each
+token type. When they find a batch that they wish to relay they send in a RequestBatch message and the Hyperion module creates a batch.
 
 This then triggers the Ethereum Signers to send in ConfirmBatch messages, which the signatures required to submit the batch to the Ethereum chain.
 
@@ -102,7 +102,7 @@ As noted above this message is unpermissioned and it is safe to allow anyone to 
 
 All validators run two processes in addition to their Helios node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
 
-The oracle observes the Ethereum chain for events from the [Peggy.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Peggy.sol) contract before submitting them as messages to the Helios Chain.
+The oracle observes the Ethereum chain for events from the [Hyperion.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) contract before submitting them as messages to the Helios Chain.
 
 ### DepositClaim
 ```go
@@ -122,7 +122,7 @@ type MsgDepositClaim struct {
 	Orchestrator   string                                 
 }
 ```
-Deposit claims represent a `SendToCosmosEvent` emitted by the Peggy contract. After 2/3 of the validators confirm a deposit claim,  the representative tokens will be issued to the specified `CosmosReceiver` Helios Chain account.
+Deposit claims represent a `SendToCosmosEvent` emitted by the Hyperion contract. After 2/3 of the validators confirm a deposit claim,  the representative tokens will be issued to the specified `CosmosReceiver` Helios Chain account.
 
 ### WithdrawClaim
 
@@ -137,13 +137,13 @@ type MsgWithdrawClaim struct {
 	Orchestrator  string 
 }
 ```
-Withdraw claims represent a `TransactionBatchExecutedEvent` from the Peggy contract. When this passes the oracle vote the batch in state is cleaned up and tokens are burned/locked.
+Withdraw claims represent a `TransactionBatchExecutedEvent` from the Hyperion contract. When this passes the oracle vote the batch in state is cleaned up and tokens are burned/locked.
 
 ### ValsetUpdateClaim
 
 ```go
 
-// This informs the peggy module that a validator
+// This informs the hyperion module that a validator
 // set has been updated.
 type MsgValsetUpdatedClaim struct {
 	EventNonce   uint64                           
@@ -155,12 +155,12 @@ type MsgValsetUpdatedClaim struct {
 	Orchestrator string                                 
 }
 ```
-claim representing a `ValsetUpdatedEvent` from the Peggy contract. When this passes the oracle vote reward amounts are tallied and minted.
+claim representing a `ValsetUpdatedEvent` from the Hyperion contract. When this passes the oracle vote reward amounts are tallied and minted.
 
 ### ERC20DeployedClaim
 ```go
 
-// ERC20DeployedClaim allows the peggy module
+// ERC20DeployedClaim allows the hyperion module
 // to learn about an ERC-20 that someone deployed
 // to represent a Cosmos asset
 type MsgERC20DeployedClaim struct {
@@ -174,13 +174,13 @@ type MsgERC20DeployedClaim struct {
 	Orchestrator  string 
 }
 ```
-claim representing a `ERC20DeployedEvent` from the Peggy contract. When this passes the oracle vote it is checked for accuracy and adopted or rejected as the ERC-20 representation of a Cosmos SDK based asset. 
+claim representing a `ERC20DeployedEvent` from the Hyperion contract. When this passes the oracle vote it is checked for accuracy and adopted or rejected as the ERC-20 representation of a Cosmos SDK based asset. 
 
 ## Ethereum Signer Messages
 
 All validators run two processes in addition to their Helios Chain node. An Ethereum oracle and Ethereum signer, these are bundled into a single Orchestrator binary for ease of use.
 
-The Ethereum signer watches several [query endpoints](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/peggy/v1/query.proto) and it's only job is to submit a signature for anything that appears on those endpoints. For this reason the validator must provide a secure RPC to an Helios Chain node following chain consensus. Or they risk being tricked into signing the wrong thing.
+The Ethereum signer watches several [query endpoints](https://github.com/Helios-Chain-Labs/helios-core/blob/master/proto/helios/hyperion/v1/query.proto) and it's only job is to submit a signature for anything that appears on those endpoints. For this reason the validator must provide a secure RPC to an Helios Chain node following chain consensus. Or they risk being tricked into signing the wrong thing.
 
 ### ConfirmBatch
 ```go

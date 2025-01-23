@@ -87,7 +87,7 @@ func NewKeeper(
 //     VALSET REQUESTS     //
 /////////////////////////////
 
-// SetValsetRequest returns a new instance of the Peggy BridgeValidatorSet
+// SetValsetRequest returns a new instance of the Hyperion BridgeValidatorSet
 // i.e. {"nonce": 1, "memebers": [{"eth_addr": "foo", "power": 11223}]}
 func (k *Keeper) SetValsetRequest(ctx sdk.Context) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
@@ -102,7 +102,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context) *types.Valset {
 
 	k.StoreValset(ctx, valset)
 	// Store the checkpoint as a legit past valset
-	checkpoint := valset.GetCheckpoint(k.GetPeggyID(ctx))
+	checkpoint := valset.GetCheckpoint(k.GetHyperionID(ctx))
 	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
 
 	// nolint:errcheck //ignored on purpose
@@ -567,9 +567,9 @@ func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, ethAddr common.Addres
 
 // GetCurrentValset gets powers from the store and normalizes them
 // into an integer percentage with a resolution of uint32 Max meaning
-// a given validators 'Peggy power' is computed as
+// a given validators 'Hyperion power' is computed as
 // Cosmos power for that validator / total cosmos power = x / uint32 Max
-// where x is the voting power on the Peggy contract. This allows us
+// where x is the voting power on the Hyperion contract. This allows us
 // to only use integer division which produces a known rounding error
 // from truncation equal to the ratio of the validators
 // Cosmos power / total cosmos power ratio, leaving us at uint32 Max - 1
@@ -716,7 +716,7 @@ func (k *Keeper) GetBridgeChainID(ctx sdk.Context) uint64 {
 	return params.BridgeChainId
 }
 
-func (k *Keeper) GetPeggyID(ctx sdk.Context) string {
+func (k *Keeper) GetHyperionID(ctx sdk.Context) string {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -725,7 +725,7 @@ func (k *Keeper) GetPeggyID(ctx sdk.Context) string {
 		return ""
 	}
 
-	return params.PeggyId
+	return params.HyperionId
 }
 
 // GetCosmosCoinDenom returns native cosmos coin denom

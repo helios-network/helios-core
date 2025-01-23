@@ -1,8 +1,8 @@
-# `Peggy`
+# `Hyperion`
 
 ## Abstract
 
-The peggy module enables the Helios Chain to support a trustless, on-chain bidirectional ERC-20 token bridge to Ethereum. In this system,
+The hyperion module enables the Helios Chain to support a trustless, on-chain bidirectional ERC-20 token bridge to Ethereum. In this system,
 holders of ERC-20 tokens on Ethereum can convert their ERC-20 tokens to Cosmos-native coins on
 the Helios Chain and vice-versa.  
 
@@ -21,16 +21,16 @@ This decentralized bridge is secured and operated by the validators of the Helio
 
 ### Components
 
-1. **[Peggy](https://etherscan.io/address/0xF955C57f9EA9Dc8781965FEaE0b6A2acE2BAD6f3) smart contract on Ethereum**
-2. **Peggy module on the Helios Chain**
+1. **[Hyperion](https://etherscan.io/address/0xF955C57f9EA9Dc8781965FEaE0b6A2acE2BAD6f3) smart contract on Ethereum**
+2. **Hyperion module on the Helios Chain**
 3. **[Peggo](https://github.com/Helios-Chain-Labs/peggo) (off-chain relayer aka orchestrator)**
-    - **Oracle** (Observes events of Peggy contract and send claims to the Peggy module)
-    - **EthSigner** (Signs Valset and Batch confirmations to the Peggy module)
-    - **Batch Requester** (Sends batch token withdrawal requests to the Peggy module)
-    - **Valset Relayer** (Submits Validator set updates to the Peggy contract)
-    - **Batch Relayer** (Submits batches of token withdrawals to the Peggy contract)
+    - **Oracle** (Observes events of Hyperion contract and send claims to the Hyperion module)
+    - **EthSigner** (Signs Valset and Batch confirmations to the Hyperion module)
+    - **Batch Requester** (Sends batch token withdrawal requests to the Hyperion module)
+    - **Valset Relayer** (Submits Validator set updates to the Hyperion contract)
+    - **Batch Relayer** (Submits batches of token withdrawals to the Hyperion contract)
 
-In addition to running an `heliades` node to sign blocks, Helios Chain validators must also run the `peggo` orchestrator to relay data from the Peggy smart contract on Ethereum and the Peggy module on the Helios Chain.
+In addition to running an `heliades` node to sign blocks, Helios Chain validators must also run the `peggo` orchestrator to relay data from the Hyperion smart contract on Ethereum and the Hyperion module on the Helios Chain.
 
 ### Peggo Functionalities
 

@@ -27,7 +27,7 @@ func NewAttestationHandler(bankKeeper types.BankKeeper, keeper Keeper) Attestati
 		bankKeeper: bankKeeper,
 
 		svcTags: metrics.Tags{
-			"svc": "peggy_att",
+			"svc": "hyperion_att",
 		},
 	}
 }

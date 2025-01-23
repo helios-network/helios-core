@@ -45,7 +45,7 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 	defer doneFn()
 
 	// Get checkpoint of the supposed bad signature (fake valset, batch, or logic call submitted to eth)
-	hyperionID := k.GetPeggyID(ctx)
+	hyperionID := k.GetHyperionID(ctx)
 	checkpoint := subject.GetCheckpoint(hyperionID)
 
 	// Try to find the checkpoint in the archives. If it exists, we don't slash because

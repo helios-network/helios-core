@@ -5,11 +5,11 @@ title: Parameters
 
 # Params
 
-This document describes and advises configuration of the Peggy module's parameters. The default parameters can be found in the genesis.go of the peggy module.
+This document describes and advises configuration of the Hyperion module's parameters. The default parameters can be found in the genesis.go of the hyperion module.
 
 ```go
 type Params struct {
-	PeggyId                       string                                 
+	HyperionId                       string                                 
 	ContractSourceHash            string                                 
 	BridgeEthereumAddress         string                                 
 	BridgeChainId                 uint64                                 
@@ -33,37 +33,37 @@ type Params struct {
 }
 ```
 
-## `peggy_id`
+## `hyperion_id`
 
 A random 32 byte value to prevent signature reuse, for example if the
 Helios Chain validators decided to use the same Ethereum keys for another chain
-also running Peggy we would not want it to be possible to play a deposit
-from chain A back on chain B's Peggy. This value IS USED ON ETHEREUM so
+also running Hyperion we would not want it to be possible to play a deposit
+from chain A back on chain B's Hyperion. This value IS USED ON ETHEREUM so
 it must be set in your genesis.json before launch and not changed after
-deploying Peggy. Changing this value after deploying Peggy will result
+deploying Hyperion. Changing this value after deploying Hyperion will result
 in the bridge being non-functional. To recover just set it back to the original
 value the contract was deployed with.
 
 ## `contract_source_hash`
 
-The code hash of a known good version of the Peggy contract
+The code hash of a known good version of the Hyperion contract
 solidity code. This can be used to verify the correct version
 of the contract has been deployed. This is a reference value for
-governance action only it is never read by any Peggy code
+governance action only it is never read by any Hyperion code
 
 ## `bridge_ethereum_address`
 
 is address of the bridge contract on the Ethereum side, this is a
 reference value for governance only and is not actually used by any
-Peggy module code.
+Hyperion module code.
 
-The Ethereum bridge relayer use this value to interact with Peggy contract for querying events and submitting valset/batches to Peggy contract.
+The Ethereum bridge relayer use this value to interact with Hyperion contract for querying events and submitting valset/batches to Hyperion contract.
 
 ## `bridge_chain_id`
 
-The bridge chain ID is the unique identifier of the Ethereum chain. This is a reference value only and is not actually used by any Peggy code
+The bridge chain ID is the unique identifier of the Ethereum chain. This is a reference value only and is not actually used by any Hyperion code
 
-These reference values may be used by future Peggy client implementations to allow for consistency checks.
+These reference values may be used by future Hyperion client implementations to allow for consistency checks.
 
 ## Signing windows
 
@@ -102,11 +102,11 @@ to produce a block
 * `slash_fraction_claim`
 * `slash_fraction_conflicting_claim`
 
-The slashing fractions for the various peggy related slashing conditions. The first three
+The slashing fractions for the various hyperion related slashing conditions. The first three
 refer to not submitting a particular message, the third for failing to submit a claim and the last for submitting a different claim than other validators.
 
 Note that claim slashing is currently disabled as outlined in the [slashing spec](./05_slashing.md)
 
 ## `valset_reward`
 
-Valset reward is the reward amount paid to a relayer when they relay a valset to the Peggy contract on Ethereum.
+Valset reward is the reward amount paid to a relayer when they relay a valset to the Hyperion contract on Ethereum.

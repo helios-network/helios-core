@@ -47,7 +47,7 @@ yes 12345678 | heliades tx bank send genesis $FEEDADMIN 1000000helios --chain-id
 
 
 ### get transaction file ###
-heliades tx ocr create-feed --feed-id="BTC/USDT" --signers="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --transmitters="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --f=1 --offchain-config-version=1 --offchain-config="A641132V" --min-answer="0.01" --max-answer="100.0" --link-per-observation="10" --link-per-transmission="20" --link-denom="peggy0x514910771AF9Ca656af840dff83E8264EcF986CA" --unique-reports=true --feed-config-description="BTC/USDT feed" --feed-admin=$FEEDADMIN  --billing-admin=$FEEDADMIN  --from=$FEEDADMIN  --yes --keyring-backend=file --chain-id=4242 --generate-only > createfeed.json
+heliades tx ocr create-feed --feed-id="BTC/USDT" --signers="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --transmitters="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --f=1 --offchain-config-version=1 --offchain-config="A641132V" --min-answer="0.01" --max-answer="100.0" --link-per-observation="10" --link-per-transmission="20" --link-denom="hyperion0x514910771AF9Ca656af840dff83E8264EcF986CA" --unique-reports=true --feed-config-description="BTC/USDT feed" --feed-admin=$FEEDADMIN  --billing-admin=$FEEDADMIN  --from=$FEEDADMIN  --yes --keyring-backend=file --chain-id=4242 --generate-only > createfeed.json
 
 ### get signatures of 3 keys (mykey, alicekey, bobkey) ###
 yes 12345678 | heliades tx sign createfeed.json --from $SIGNER1 --chain-id=4242 --multisig=$FEEDADMIN > signature1.json
@@ -63,7 +63,7 @@ heliades tx broadcast signedcreatefeed.json
 ####### others for testing #######
 
 ### Try creating with non-module account ###
-yes 12345678 | heliades tx ocr create-feed --feed-id="BTC/USDT" --signers="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --transmitters="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --f=1 --offchain-config-version=1 --offchain-config="A641132V" --min-answer="0.01" --max-answer="100.0" --link-per-observation="10" --link-per-transmission="20" --link-denom="peggy0x514910771AF9Ca656af840dff83E8264EcF986CA" --unique-reports=true --feed-config-description="BTC/USDT feed" --feed-admin=$FEEDADMIN  --billing-admin=$FEEDADMIN  --from=genesis --keyring-backend=file --yes --chain-id=4242
+yes 12345678 | heliades tx ocr create-feed --feed-id="BTC/USDT" --signers="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --transmitters="$SIGNER1,$SIGNER2,$SIGNER3,$SIGNER4,$SIGNER5" --f=1 --offchain-config-version=1 --offchain-config="A641132V" --min-answer="0.01" --max-answer="100.0" --link-per-observation="10" --link-per-transmission="20" --link-denom="hyperion0x514910771AF9Ca656af840dff83E8264EcF986CA" --unique-reports=true --feed-config-description="BTC/USDT feed" --feed-admin=$FEEDADMIN  --billing-admin=$FEEDADMIN  --from=genesis --keyring-backend=file --yes --chain-id=4242
 
 ### Create feed config with proposal ###
 heliades tx ocr set-config-proposal \
@@ -79,7 +79,7 @@ heliades tx ocr set-config-proposal \
     --max-answer="100.0" \
     --link-per-observation="10" \
     --link-per-transmission="20" \
-    --link-denom="peggy0x514910771AF9Ca656af840dff83E8264EcF986CA" \
+    --link-denom="hyperion0x514910771AF9Ca656af840dff83E8264EcF986CA" \
     --unique-reports=true \
     --feed-config-description="BTC/USDT feed" \
     --feed-admin=$FEEDADMIN \

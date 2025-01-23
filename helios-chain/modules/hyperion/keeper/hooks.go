@@ -21,14 +21,14 @@ func NewHooks(keeper *Keeper) Hooks {
 	return Hooks{
 		k: keeper,
 		svcTags: metrics.Tags{
-			"svc": "peggy_hooks",
+			"svc": "hyperion_hooks",
 		},
 	}
 }
 
 var _ stakingtypes.StakingHooks = Hooks{}
 
-// Create new peggy hooks
+// Create new hyperion hooks
 func (k *Keeper) Hooks() Hooks { return NewHooks(k) }
 
 func (h Hooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {

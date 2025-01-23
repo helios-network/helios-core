@@ -98,7 +98,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find valset")
 	}
 
-	hyperionID := k.GetPeggyID(ctx)
+	hyperionID := k.GetHyperionID(ctx)
 	checkpoint := valset.GetCheckpoint(hyperionID)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
@@ -231,7 +231,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find batch")
 	}
 
-	hyperionID := k.GetPeggyID(ctx)
+	hyperionID := k.GetHyperionID(ctx)
 	checkpoint := batch.GetCheckpoint(hyperionID)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
@@ -530,7 +530,7 @@ func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.Ms
 
 	isValidSigner := k.authority == msg.Signer || k.isAdmin(sdkContext, msg.Signer)
 	if !isValidSigner {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Peggy module admins", msg.Signer)
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Hyperion module admins", msg.Signer)
 	}
 
 	for _, address := range msg.BlacklistAddresses {
@@ -551,7 +551,7 @@ func (k msgServer) RevokeEthereumBlacklist(ctx context.Context, msg *types.MsgRe
 
 	isValidSigner := k.authority == msg.Signer || k.isAdmin(sdkContext, msg.Signer)
 	if !isValidSigner {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Peggy module admins", msg.Signer)
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Hyperion module admins", msg.Signer)
 	}
 
 	for _, blacklistAddress := range msg.BlacklistAddresses {

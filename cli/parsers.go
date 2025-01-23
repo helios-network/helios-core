@@ -14,10 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/grpc"
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/pflag"
-
-	"helios-core/helios-chain/modules/exchange/types"
 )
 
 // parseNumFields returns number of zero fields in the struct that needs to be parsed from args
@@ -55,7 +52,7 @@ func parseNumFields(message any, flagsMap FlagsMapping, argsMap ArgsMapping) int
 	return num
 }
 
-// fillSenderFromCtx fills in "Sender", "FeeRecipient", "Proposer" and "SubaccountId" fields of msg and it's internal structs (if present) with the From value from the context
+// fillSenderFromCtx fills in "Sender", "FeeRecipient", "Proposer" fields of msg and it's internal structs (if present) with the From value from the context
 func fillSenderFromCtx(msg sdk.Msg, clientCtx client.Context) error {
 	fromAddress := clientCtx.GetFromAddress().String()
 	var fillSenderInStruct func(any) error
@@ -69,14 +66,6 @@ func fillSenderFromCtx(msg sdk.Msg, clientCtx client.Context) error {
 			switch {
 			case isFilledFromCtx(fieldName) && field.IsZero():
 				switch fieldName {
-				case "SubaccountId", "SourceSubaccountId": // subaccounts
-					senderAddr, err := sdk.AccAddressFromBech32(fromAddress)
-					if err != nil {
-						continue
-					}
-					ethAddress := common.BytesToAddress(senderAddr.Bytes())
-					subaccountID := types.EthAddressToSubaccountID(ethAddress)
-					field.SetString(subaccountID.Hex())
 				default: // addresses
 					field.SetString(fromAddress)
 				}

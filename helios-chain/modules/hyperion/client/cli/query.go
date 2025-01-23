@@ -31,8 +31,8 @@ func GetQueryCmd() *cobra.Command {
 		// CmdGetAttestationRequest(),
 		QueryObserved(),
 		QueryApproved(),
-		QueryPeggyParams(),
-		QueryPeggyModuleState(),
+		QueryHyperionParams(),
+		QueryHyperionModuleState(),
 	}...)
 
 	return hyperionQueryCmd
@@ -208,8 +208,8 @@ func CmdGetPendingOutgoingTXBatchRequest() *cobra.Command {
 	return cmd
 }
 
-// QueryPeggyParams queries hyperion module params info
-func QueryPeggyParams() *cobra.Command {
+// QueryHyperionParams queries hyperion module params info
+func QueryHyperionParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
 		Short: "Gets hyperion params info.",
@@ -238,11 +238,11 @@ func QueryPeggyParams() *cobra.Command {
 	return cmd
 }
 
-// QueryPeggyModuleState creates a new command for querying the current state of the Peggy module
-func QueryPeggyModuleState() *cobra.Command {
+// QueryHyperionModuleState creates a new command for querying the current state of the Hyperion module
+func QueryHyperionModuleState() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "module-state",
-		Short: "Query the current state of the Peggy module",
+		Short: "Query the current state of the Hyperion module",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -250,7 +250,7 @@ func QueryPeggyModuleState() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			res, err := queryClient.PeggyModuleState(
+			res, err := queryClient.HyperionModuleState(
 				cmd.Context(),
 				&types.QueryModuleStateRequest{},
 			)

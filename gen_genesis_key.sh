@@ -2,9 +2,8 @@
 
 rm -rf ./helios_keys_backup
 
-# Generate 12 keys
+# Generate 11 keys
 keys=(
-    "wasm_key"
     "validator_key"
     "user1_key"
     "user2_key"

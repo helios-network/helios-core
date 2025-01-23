@@ -7,9 +7,9 @@ title: State
 
 ## Params
 
-Params is a module-wide configuration structure that stores system parameters and defines overall functioning of the peggy module. Detailed specification for each parameter can be found in the [Parameters section](08_params.md). 
+Params is a module-wide configuration structure that stores system parameters and defines overall functioning of the hyperion module. Detailed specification for each parameter can be found in the [Parameters section](08_params.md). 
 
-- Params: `Paramsspace("peggy") -> legacy_amino(params)`
+- Params: `Paramsspace("hyperion") -> legacy_amino(params)`
 
 ### Validator Info
 
@@ -32,10 +32,10 @@ Stores each Validator's account address indexed by Ethereum address.
 ### OutgoingTxBatch
 
 Stored in two possible ways, first with a height and second without (unsafe). Unsafe is used for testing and export and import of state.
-Currently [Peggy.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Peggy.sol) is hardcoded to only accept batches with a single token type and only pay rewards in that same token type.
+Currently [Hyperion.sol](https://github.com/Helios-Chain-Labs/peggo/blob/master/solidity/contracts/Hyperion.sol) is hardcoded to only accept batches with a single token type and only pay rewards in that same token type.
 
 ```go
-// OutgoingTxBatch represents a batch of transactions going from Peggy to ETH
+// OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH
 type OutgoingTxBatch struct {
 	BatchNonce    uint64               
 	BatchTimeout  uint64               
@@ -56,7 +56,7 @@ This is the validator set of the bridge.
 Stored in two possible ways, first with a height and second without (unsafe). Unsafe is used for testing and export and import of state.
 
 ```go
-// Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+// Valset is the Ethereum Bridge Multsig Set, each hyperion validator also
 // maintains an ETH key to sign messages, these are used to check signatures on
 // ETH because of the significant gas savings
 type Valset struct {
@@ -157,7 +157,7 @@ A validator has an associated counter chain address.
 
 Sets an outgoing transactions into the applications transaction pool to be included into a batch. 
 ```go
-// OutgoingTransferTx represents an individual send from Peggy to ETH
+// OutgoingTransferTx represents an individual send from Hyperion to ETH
 type OutgoingTransferTx struct {
 	Id          uint64     
 	Sender      string     
@@ -216,12 +216,12 @@ This is the last observed height on ethereum. There will always only be a single
 // Attestation is an aggregate of `claims` that eventually becomes `observed` by
 // all orchestrators
 // EVENT_NONCE:
-// EventNonce a nonce provided by the peggy contract that is unique per event fired
+// EventNonce a nonce provided by the hyperion contract that is unique per event fired
 // These event nonces must be relayed in order. This is a correctness issue,
 // if relaying out of order transaction replay attacks become possible
 // OBSERVED:
 // Observed indicates that >67% of validators have attested to the event,
-// and that the event should be executed by the peggy state machine
+// and that the event should be executed by the hyperion state machine
 type Attestation struct {
 	Observed bool       
 	Votes    []string   

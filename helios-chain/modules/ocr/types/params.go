@@ -50,7 +50,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		LinkDenom:           "peggy0x514910771AF9Ca656af840dff83E8264EcF986CA",
+		LinkDenom:           "hyperion0x514910771AF9Ca656af840dff83E8264EcF986CA",
 		PayoutBlockInterval: 100000,
 		ModuleAdmin:         "",
 	}

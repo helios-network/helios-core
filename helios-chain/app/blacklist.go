@@ -1,7 +1,7 @@
 package app
 
 // obtained from the USDC blacklisted addresses https://dune.com/queries/1112221
-var PeggyBlacklistedAddresses = []string{
+var HyperionBlacklistedAddresses = []string{
 	"0xaa05f7c7eb9af63d6cc03c36c4f4ef6c37431ee0",
 	"0x7f367cc41522ce07553e823bf3be79a889debe1b",
 	"0x1da5821544e25c636c1417ba96ade4cf6d2f9b5a",

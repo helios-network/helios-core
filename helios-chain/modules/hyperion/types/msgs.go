@@ -269,7 +269,7 @@ func (msg MsgConfirmBatch) GetSigners() []sdk.AccAddress {
 
 // EthereumClaim represents a claim on ethereum state
 type EthereumClaim interface {
-	// All Ethereum claims that we relay from the Peggy contract and into the module
+	// All Ethereum claims that we relay from the Hyperion contract and into the module
 	// have a nonce that is monotonically increasing and unique, since this nonce is
 	// issued by the Ethereum contract it is immutable and must be agreed on by all validators
 	// any disagreement on what claim goes to what nonce means someone is lying.

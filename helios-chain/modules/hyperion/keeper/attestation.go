@@ -6,12 +6,10 @@ import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/Helios-Chain-Labs/metrics"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	exchangetypes "helios-core/helios-chain/modules/exchange/types"
 	"helios-core/helios-chain/modules/hyperion/types"
 )
 
@@ -269,37 +267,18 @@ func (k *Keeper) ProcessClaimData(ctx sdk.Context, claim types.EthereumClaim) {
 
 			// Check if the claim data is a valid sdk.Msg. If not, ignore the data
 			ethereumSenderHeliosAccAddr := sdk.AccAddress(common.FromHex(claim.EthereumSender))
-			claimDataMsg, err := k.ValidateClaimData(ctx, claim.Data, ethereumSenderHeliosAccAddr)
+			_, err := k.ValidateClaimData(ctx, claim.Data, ethereumSenderHeliosAccAddr)
 			if err != nil {
 				k.Logger(ctx).Info("claim data is not a valid sdk.Msg", err)
 				return
 			}
 
 			// then execute sdk.msg in a new cache ctx so that we can avoid state changes on failure
-			xCtx, commit := ctx.CacheContext()
-			xCtx = xCtx.WithValue(baseapp.DoNotFailFastSendContextKey, nil) // enable fail fast during msg execution
-
+			_, commit := ctx.CacheContext()
+			// xCtx = xCtx.WithValue(baseapp.DoNotFailFastSendContextKey, nil) // enable fail fast during msg execution
+			commit()
 			// Process the claim data msg
-			switch msg := claimDataMsg.(type) {
-			case *exchangetypes.MsgDeposit:
-				// Enforce that the deposit denom is same as deposit claim amount denom
-				// Enforce the deposit amount is not greater than the deposit claim amount
-				_, denom := k.ERC20ToDenomLookup(xCtx, common.HexToAddress(claim.TokenContract))
-				if msg.Amount.Denom != denom {
-					k.Logger(ctx).Error("deposit denom should be same as deposit claim amount denom", "deposit_denom", msg.Amount.Denom, "claim_denom", denom)
-					return
-				}
-
-				claimAmount := sdk.NewCoin(denom, claim.Amount)
-				if claimAmount.IsLT(msg.Amount) {
-					k.Logger(ctx).Error("deposit amount exceeds deposit claim amount", "deposit_amount", msg.Amount.String(), "claim_amount", claimAmount.String())
-					return
-				}
-
-				commit()
-			case *exchangetypes.MsgCreateSpotMarketOrder:
-				commit()
-			}
+			// TODO: Define the claim data msg type to process
 		}
 	}
 }

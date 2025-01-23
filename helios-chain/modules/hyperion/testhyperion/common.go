@@ -19,9 +19,6 @@ import (
 	helioscodectypes "helios-core/helios-chain/codec/types"
 	chaintypes "helios-core/helios-chain/types"
 
-	insurancekeeper "helios-core/helios-chain/modules/insurance/keeper"
-	insurancetypes "helios-core/helios-chain/modules/insurance/types"
-
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
 	"cosmossdk.io/x/evidence"
@@ -67,19 +64,12 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/ibc-go/modules/capability"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
-	exchangekeeper "helios-core/helios-chain/modules/exchange/keeper"
-	exchangetypes "helios-core/helios-chain/modules/exchange/types"
-	oraclekeeper "helios-core/helios-chain/modules/oracle/keeper"
-	oracletypes "helios-core/helios-chain/modules/oracle/types"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
-
-	"helios-core/helios-chain/modules/exchange"
 
 	hyperionKeeper "helios-core/helios-chain/modules/hyperion/keeper"
 	"helios-core/helios-chain/modules/hyperion/types"
@@ -108,7 +98,6 @@ var (
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		exchange.AppModuleBasic{},
 	)
 
 	// Ensure that StakingKeeperMock implements required interface
@@ -210,9 +199,9 @@ var (
 		MinCommissionRate: math.LegacyZeroDec(),
 	}
 
-	// TestingPeggyParams is a set of hyperion params for testing
-	TestingPeggyParams = &types.Params{
-		PeggyId:                       "testhyperionid",
+	// TestingHyperionParams is a set of hyperion params for testing
+	TestingHyperionParams = &types.Params{
+		HyperionId:                    "testhyperionid",
 		ContractSourceHash:            "62328f7bc12efb28f86111d08c29b39285680a906ea0e524e0209d6f6657b713",
 		BridgeEthereumAddress:         common.HexToAddress("0x8858eeb3dfffa017d4bce9801d340d36cf895ccf").Hex(),
 		CosmosCoinErc20Contract:       common.HexToAddress("0x8f3798462111bd6d7fa4d32ba0ab4ee4899bd4b7").Hex(),
@@ -235,11 +224,10 @@ var (
 
 // TestInput stores the various keepers required to test hyperion
 type TestInput struct {
-	PeggyKeeper    hyperionKeeper.Keeper
+	HyperionKeeper hyperionKeeper.Keeper
 	AccountKeeper  authkeeper.AccountKeeper
 	StakingKeeper  stakingkeeper.Keeper
 	SlashingKeeper slashingkeeper.Keeper
-	ExchangeKeeper exchangekeeper.Keeper
 	DistKeeper     distrkeeper.Keeper
 	BankKeeper     bankkeeper.BaseKeeper
 	GovKeeper      govkeeper.Keeper
@@ -287,7 +275,7 @@ func SetupFiveValChain(t *testing.T) (TestInput, sdk.Context) {
 
 	// Register eth addresses for each validator
 	for i, addr := range ValAddrs {
-		input.PeggyKeeper.SetEthAddressForValidator(input.Context, addr, EthAddrs[i])
+		input.HyperionKeeper.SetEthAddressForValidator(input.Context, addr, EthAddrs[i])
 	}
 
 	// Return the test input
@@ -372,13 +360,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 	tkeyParams := storetypes.NewTransientStoreKey(paramstypes.TStoreKey)
 	keyGov := storetypes.NewKVStoreKey(govtypes.StoreKey)
 	keySlashing := storetypes.NewKVStoreKey(slashingtypes.StoreKey)
-	keyOracle := storetypes.NewKVStoreKey(oracletypes.StoreKey)
-	keyOracleMemStore := storetypes.NewKVStoreKey(oracletypes.MemStoreKey)
 	keyCapability := storetypes.NewKVStoreKey(capabilitytypes.StoreKey)
-	keyCapabilityMemStore := storetypes.NewKVStoreKey(capabilitytypes.MemStoreKey)
-	keyInsurance := storetypes.NewKVStoreKey(insurancetypes.StoreKey)
-	keyExchange := storetypes.NewKVStoreKey(exchangetypes.StoreKey)
-	tkeyExchange := storetypes.NewTransientStoreKey(exchangetypes.TStoreKey)
 
 	// Initialize memory database and mount stores on it
 	db := dbm.NewMemDB()
@@ -395,12 +377,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 	ms.MountStoreWithDB(tkeyParams, storetypes.StoreTypeTransient, nil)
 	ms.MountStoreWithDB(keyGov, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keySlashing, storetypes.StoreTypeIAVL, nil)
-	ms.MountStoreWithDB(keyOracle, storetypes.StoreTypeIAVL, nil)
-	ms.MountStoreWithDB(keyOracleMemStore, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyCapability, storetypes.StoreTypeIAVL, nil)
-	ms.MountStoreWithDB(keyInsurance, storetypes.StoreTypeIAVL, nil)
-	ms.MountStoreWithDB(keyExchange, storetypes.StoreTypeIAVL, nil)
-	ms.MountStoreWithDB(tkeyExchange, storetypes.StoreTypeIAVL, nil)
 	err := ms.LoadLatestVersion()
 	require.Nil(t, err)
 
@@ -422,9 +399,6 @@ func CreateTestEnv(t *testing.T) TestInput {
 	paramsKeeper.Subspace(govtypes.ModuleName)
 	paramsKeeper.Subspace(types.DefaultParamspace)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
-	paramsKeeper.Subspace(oracletypes.ModuleName)
-	paramsKeeper.Subspace(insurancetypes.ModuleName)
-	paramsKeeper.Subspace(exchangetypes.ModuleName)
 
 	// this is also used to initialize module accounts for all the map keys
 	maccPerms := map[string][]string{
@@ -435,7 +409,6 @@ func CreateTestEnv(t *testing.T) TestInput {
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		types.ModuleName:               {authtypes.Minter, authtypes.Burner},
-		exchangetypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 	}
 
 	accountKeeper := authkeeper.NewAccountKeeper(
@@ -549,46 +522,6 @@ func CreateTestEnv(t *testing.T) TestInput {
 		authority,
 	)
 
-	// add capability keeper and ScopeToModule for ibc module
-	capabilityKeeper := capabilitykeeper.NewKeeper(marshaler, keyCapability, keyCapabilityMemStore)
-	scopedOracleKeeper := capabilityKeeper.ScopeToModule(oracletypes.ModuleName)
-	oracleKeeper := oraclekeeper.NewKeeper(
-		marshaler,
-		keyOracle,
-		keyOracleMemStore,
-		accountKeeper,
-		bankKeeper,
-		nil,
-		nil,
-		scopedOracleKeeper,
-		nil,
-		authority,
-	)
-
-	exchangeKeeper := new(exchangekeeper.Keeper)
-	insuranceKeeper := insurancekeeper.NewKeeper(
-		marshaler,
-		keyInsurance,
-		accountKeeper,
-		bankKeeper,
-		exchangeKeeper,
-		authority,
-	)
-
-	*exchangeKeeper = exchangekeeper.NewKeeper(
-		marshaler,
-		keyExchange,
-		tkeyExchange,
-		accountKeeper,
-		bankKeeper,
-		&oracleKeeper,
-		&insuranceKeeper,
-		distKeeper,
-		stakingKeeper,
-		nil, // TODO: FIX!
-		authority,
-	)
-
 	k := hyperionKeeper.NewKeeper(
 		marshaler,
 		hyperionKey,
@@ -606,17 +539,16 @@ func CreateTestEnv(t *testing.T) TestInput {
 		k.Hooks(),
 	))
 
-	k.SetParams(ctx, TestingPeggyParams)
+	k.SetParams(ctx, TestingHyperionParams)
 	k.SetLastOutgoingBatchID(ctx, uint64(0))
 	k.SetLastOutgoingPoolID(ctx, uint64(0))
 
 	return TestInput{
-		PeggyKeeper:    k,
+		HyperionKeeper: k,
 		AccountKeeper:  accountKeeper,
 		BankKeeper:     bankKeeper,
 		StakingKeeper:  *stakingKeeper,
 		SlashingKeeper: slashingKeeper,
-		ExchangeKeeper: *exchangeKeeper,
 		DistKeeper:     distKeeper,
 		GovKeeper:      *govKeeper,
 		Context:        ctx,
@@ -657,7 +589,7 @@ func MakeTestMarshaler() codec.Codec {
 // nolint:all
 // MintVouchersFromAir creates new hyperion vouchers given erc20tokens
 //func MintVouchersFromAir(t *testing.T, ctx sdk.Context, k hyperionKeeper.Keeper, dest sdk.AccAddress, amount types.ERC20Token) sdk.Coin {
-//	coin := amount.PeggyCoin()
+//	coin := amount.HyperionCoin()
 //	vouchers := sdk.Coins{coin}
 //	err := k.BankKeeper.MintCoins(ctx, types.ModuleName, vouchers)
 //	err = k.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, dest, vouchers)

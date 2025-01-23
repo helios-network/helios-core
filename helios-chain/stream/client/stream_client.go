@@ -38,38 +38,6 @@ func main() {
 		BankBalancesFilter: &types.BankBalancesFilter{
 			Accounts: []string{"*"},
 		},
-		SpotOrdersFilter: &types.OrdersFilter{
-			MarketIds:     []string{"*"},
-			SubaccountIds: []string{"*"},
-		},
-		DerivativeOrdersFilter: &types.OrdersFilter{
-			MarketIds:     []string{"*"},
-			SubaccountIds: []string{"*"},
-		},
-		SpotTradesFilter: &types.TradesFilter{
-			MarketIds:     []string{"*"},
-			SubaccountIds: []string{"*"},
-		},
-		SubaccountDepositsFilter: &types.SubaccountDepositsFilter{
-			SubaccountIds: []string{"*"},
-		},
-		DerivativeOrderbooksFilter: &types.OrderbookFilter{
-			MarketIds: []string{"*"},
-		},
-		SpotOrderbooksFilter: &types.OrderbookFilter{
-			MarketIds: []string{"*"},
-		},
-		PositionsFilter: &types.PositionsFilter{
-			SubaccountIds: []string{"*"},
-			MarketIds:     []string{"*"},
-		},
-		DerivativeTradesFilter: &types.TradesFilter{
-			SubaccountIds: []string{"*"},
-			MarketIds:     []string{"*"},
-		},
-		OraclePriceFilter: &types.OraclePriceFilter{
-			Symbol: []string{"*"},
-		},
 	})
 	if err != nil {
 		panic(err)
