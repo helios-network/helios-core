@@ -13,14 +13,14 @@ import (
 
 var (
 	_ sdk.Msg = &MsgValsetConfirm{}
-	_ sdk.Msg = &MsgSendToEth{}
+	_ sdk.Msg = &MsgSendToChain{}
 	_ sdk.Msg = &MsgRequestBatch{}
 	_ sdk.Msg = &MsgConfirmBatch{}
 	_ sdk.Msg = &MsgSetOrchestratorAddresses{}
 	_ sdk.Msg = &MsgERC20DeployedClaim{}
 	_ sdk.Msg = &MsgDepositClaim{}
 	_ sdk.Msg = &MsgWithdrawClaim{}
-	_ sdk.Msg = &MsgCancelSendToEth{}
+	_ sdk.Msg = &MsgCancelSendToChain{}
 	_ sdk.Msg = &MsgValsetUpdatedClaim{}
 	_ sdk.Msg = &MsgSubmitBadSignatureEvidence{}
 	_ sdk.Msg = &MsgUpdateParams{}
@@ -138,25 +138,25 @@ func (msg *MsgValsetConfirm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{acc}
 }
 
-// NewMsgSendToEth returns a new msgSendToEth
-func NewMsgSendToEth(sender sdk.AccAddress, destAddress string, send, bridgeFee sdk.Coin) *MsgSendToEth {
-	return &MsgSendToEth{
+// NewMsgSendToChain returns a new msgSendToChain
+func NewMsgSendToChain(sender sdk.AccAddress, destAddress string, send, bridgeFee sdk.Coin) *MsgSendToChain {
+	return &MsgSendToChain{
 		Sender:    sender.String(),
-		EthDest:   destAddress,
+		Dest:      destAddress,
 		Amount:    send,
 		BridgeFee: bridgeFee,
 	}
 }
 
 // Route should return the name of the module
-func (msg MsgSendToEth) Route() string { return RouterKey }
+func (msg MsgSendToChain) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgSendToEth) Type() string { return "send_to_chain" }
+func (msg MsgSendToChain) Type() string { return "send_to_chain" }
 
 // ValidateBasic runs stateless checks on the message
 // Checks if the Eth address is valid
-func (msg MsgSendToEth) ValidateBasic() error {
+func (msg MsgSendToChain) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
@@ -172,19 +172,19 @@ func (msg MsgSendToEth) ValidateBasic() error {
 	if !msg.BridgeFee.IsValid() || msg.BridgeFee.IsZero() {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, "fee")
 	}
-	if err := ValidateEthAddress(msg.EthDest); err != nil {
+	if err := ValidateEthAddress(msg.Dest); err != nil {
 		return errors.Wrap(err, "ethereum address")
 	}
 	return nil
 }
 
 // GetSignBytes encodes the message for signing
-func (msg MsgSendToEth) GetSignBytes() []byte {
+func (msg MsgSendToChain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg MsgSendToEth) GetSigners() []sdk.AccAddress {
+func (msg MsgSendToChain) GetSigners() []sdk.AccAddress {
 	acc, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -269,6 +269,8 @@ func (msg MsgConfirmBatch) GetSigners() []sdk.AccAddress {
 
 // EthereumClaim represents a claim on ethereum state
 type EthereumClaim interface {
+	// The hyperion id of the counterparty chain that the claimed event occurred on.
+	GetHyperionId() string
 	// All Ethereum claims that we relay from the Hyperion contract and into the module
 	// have a nonce that is monotonically increasing and unique, since this nonce is
 	// issued by the Ethereum contract it is immutable and must be agreed on by all validators
@@ -557,22 +559,22 @@ func (b *MsgValsetUpdatedClaim) ClaimHash() []byte {
 	return tmhash.Sum([]byte(path))
 }
 
-// NewMsgCancelSendToEth returns a new msgMsgCancelSendToEth
-func NewMsgCancelSendToEth(sender sdk.AccAddress, id uint64) *MsgCancelSendToEth {
-	return &MsgCancelSendToEth{
+// NewMsgCancelSendToChain returns a new msgMsgCancelSendToChain
+func NewMsgCancelSendToChain(sender sdk.AccAddress, id uint64) *MsgCancelSendToChain {
+	return &MsgCancelSendToChain{
 		TransactionId: id,
 		Sender:        sender.String(),
 	}
 }
 
 // Route should return the name of the module
-func (msg *MsgCancelSendToEth) Route() string { return RouterKey }
+func (msg *MsgCancelSendToChain) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg *MsgCancelSendToEth) Type() string { return "cancel_send_to_chain" }
+func (msg *MsgCancelSendToChain) Type() string { return "cancel_send_to_chain" }
 
 // ValidateBasic performs stateless checks
-func (msg *MsgCancelSendToEth) ValidateBasic() (err error) {
+func (msg *MsgCancelSendToChain) ValidateBasic() (err error) {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
@@ -580,12 +582,12 @@ func (msg *MsgCancelSendToEth) ValidateBasic() (err error) {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgCancelSendToEth) GetSignBytes() []byte {
+func (msg *MsgCancelSendToChain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg *MsgCancelSendToEth) GetSigners() []sdk.AccAddress {
+func (msg *MsgCancelSendToChain) GetSigners() []sdk.AccAddress {
 	acc, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

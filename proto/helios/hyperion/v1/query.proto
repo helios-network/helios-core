@@ -57,7 +57,7 @@ service Query {
   }
 
   // batch
-  rpc GetPendingSendToEth(QueryPendingSendToChain)
+  rpc GetPendingSendToChain(QueryPendingSendToChain)
       returns (QueryPendingSendToChainResponse) {
     option (google.api.http).get = "/hyperion/v1/pending_send_to_chain";
   }
@@ -127,7 +127,7 @@ message QueryAttestationRequest {
 
 message QueryAttestationResponse { Attestation attestation = 1; }
 
-message QueryCurrentValsetRequest {}
+message QueryCurrentValsetRequest {string hyperion_id = 1; }
 message QueryCurrentValsetResponse { Valset valset = 1; }
 
 message QueryValsetRequestRequest { uint64 nonce = 1; }
@@ -164,14 +164,16 @@ message QueryOutgoingTxBatchesRequest {}
 message QueryOutgoingTxBatchesResponse { repeated OutgoingTxBatch batches = 1; }
 
 message QueryBatchRequestByNonceRequest {
-  uint64 nonce = 1;
-  string contract_address = 2;
+  string hyperion_id = 1;
+  uint64 nonce = 2;
+  string contract_address = 3;
 }
 message QueryBatchRequestByNonceResponse { OutgoingTxBatch batch = 1; }
 
 message QueryBatchConfirmsRequest {
-  uint64 nonce = 1;
-  string contract_address = 2;
+  string hyperion_id = 1;
+  uint64 nonce = 2;
+  string contract_address = 3;
 }
 message QueryBatchConfirmsResponse { repeated MsgConfirmBatch confirms = 1; }
 
@@ -179,7 +181,7 @@ message QueryLastEventByAddrRequest { string address = 1; }
 message QueryLastEventByAddrResponse { LastClaimEvent last_claim_event = 1; }
 
 message QueryERC20ToDenomRequest { 
-  string chain_id = 1;
+  string hyperion_id = 1;
   string erc20 = 2; 
 }
 message QueryERC20ToDenomResponse {
@@ -188,7 +190,7 @@ message QueryERC20ToDenomResponse {
 }
 
 message QueryDenomToERC20Request { 
-  string chain_id = 1;
+  string hyperion_id = 1;
   string denom = 2; 
 }
 message QueryDenomToERC20Response {

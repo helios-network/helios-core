@@ -51,7 +51,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		}
 
 		// Check if coin is Cosmos-originated asset and get denom
-		isCosmosOriginated, denom := a.keeper.ERC20ToDenomLookup(ctx, common.HexToAddress(claim.TokenContract))
+		isCosmosOriginated, denom := a.keeper.ERC20ToDenomLookup(ctx, common.HexToAddress(claim.TokenContract), claim.HyperionId)
 
 		coins := sdk.Coins{
 			sdk.NewCoin(denom, claim.Amount),
@@ -105,7 +105,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		// withdraw in this context means a withdraw from the Ethereum side of the bridge
 	case *types.MsgWithdrawClaim:
 		tokenContract := common.HexToAddress(claim.TokenContract)
-		a.keeper.OutgoingTxBatchExecuted(ctx, tokenContract, claim.BatchNonce)
+		a.keeper.OutgoingTxBatchExecuted(ctx, tokenContract, claim.BatchNonce, claim.HyperionId)
 		return nil
 	case *types.MsgERC20DeployedClaim:
 		// Check if it already exists

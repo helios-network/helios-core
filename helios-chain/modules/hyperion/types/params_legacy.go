@@ -3,6 +3,9 @@ package types
 import paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 var (
+	// ParamsCounterpartyChainParams stores the couterparty chain params
+	ParamsCounterpartyChainParams = []byte("CounterpartyChainParams")
+
 	// ParamsStoreKeyHyperionID stores the hyperion id
 	ParamsStoreKeyHyperionID = []byte("HyperionID")
 
@@ -82,27 +85,6 @@ func ParamKeyTable() paramtypes.KeyTable {
 // pairs of auth module's parameters.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamsStoreKeyHyperionID, &p.HyperionId, validateHyperionID),
-		paramtypes.NewParamSetPair(ParamsStoreKeyContractHash, &p.ContractSourceHash, validateContractHash),
-		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractAddress, &p.BridgeEthereumAddress, validateBridgeContractAddress),
-		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractChainID, &p.BridgeChainId, validateBridgeChainID),
-		paramtypes.NewParamSetPair(ParamsStoreKeyCosmosCoinDenom, &p.CosmosCoinDenom, validateCosmosCoinDenom),
-		paramtypes.NewParamSetPair(ParamsStoreKeyCosmosCoinErc20Contract, &p.CosmosCoinErc20Contract, validateCosmosCoinErc20Contract),
-		paramtypes.NewParamSetPair(ParamsStoreKeySignedValsetsWindow, &p.SignedValsetsWindow, validateSignedValsetsWindow),
-		paramtypes.NewParamSetPair(ParamsStoreKeySignedBatchesWindow, &p.SignedBatchesWindow, validateSignedBatchesWindow),
-		paramtypes.NewParamSetPair(ParamsStoreKeySignedClaimsWindow, &p.SignedClaimsWindow, validateSignedClaimsWindow),
-		paramtypes.NewParamSetPair(ParamsStoreKeyAverageBlockTime, &p.AverageBlockTime, validateAverageBlockTime),
-		paramtypes.NewParamSetPair(ParamsStoreKeyTargetBatchTimeout, &p.TargetBatchTimeout, validateTargetBatchTimeout),
-		paramtypes.NewParamSetPair(ParamsStoreKeyAverageEthereumBlockTime, &p.AverageEthereumBlockTime, validateAverageEthereumBlockTime),
-		paramtypes.NewParamSetPair(ParamsStoreSlashFractionValset, &p.SlashFractionValset, validateSlashFractionValset),
-		paramtypes.NewParamSetPair(ParamsStoreSlashFractionBatch, &p.SlashFractionBatch, validateSlashFractionBatch),
-		paramtypes.NewParamSetPair(ParamsStoreSlashFractionClaim, &p.SlashFractionClaim, validateSlashFractionClaim),
-		paramtypes.NewParamSetPair(ParamsStoreSlashFractionConflictingClaim, &p.SlashFractionConflictingClaim, validateSlashFractionConflictingClaim),
-		paramtypes.NewParamSetPair(ParamStoreSlashFractionBadEthSignature, &p.SlashFractionBadEthSignature, validateSlashFractionBadEthSignature),
-		paramtypes.NewParamSetPair(ParamStoreUnbondSlashingValsetsWindow, &p.UnbondSlashingValsetsWindow, validateUnbondSlashingValsetsWindow),
-		paramtypes.NewParamSetPair(ParamStoreClaimSlashingEnabled, &p.ClaimSlashingEnabled, validateClaimSlashingEnabled),
-		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractStartHeight, &p.BridgeContractStartHeight, validateBridgeContractStartHeight),
-		paramtypes.NewParamSetPair(ParamStoreValsetRewardAmount, &p.ValsetReward, validateValsetReward),
-		paramtypes.NewParamSetPair(ParamStoreAdmins, &p.Admins, validateAdmins),
+		paramtypes.NewParamSetPair(ParamsCounterpartyChainParams, &p.CounterpartyChainParams, validateCounterpartyChainParams),
 	}
 }

@@ -57,7 +57,7 @@ message EventValsetConfirm {
 }
 
 message EventSendToChain {
-  string chain_id = 1;
+  string hyperion_id = 1;
   uint64 outgoing_tx_id = 2;
   string sender = 3;
   string receiver = 4;
@@ -84,7 +84,7 @@ message EventAttestationVote {
 }
 
 message EventDepositClaim {
-  string chain_id = 1;
+  string hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -100,7 +100,7 @@ message EventDepositClaim {
 }
 
 message EventWithdrawClaim {
-  string chain_id = 1;
+  string hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -110,7 +110,7 @@ message EventWithdrawClaim {
 }
 
 message EventERC20DeployedClaim {
-  string chain_id = 1;
+  string hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -123,7 +123,7 @@ message EventERC20DeployedClaim {
 }
 
 message EventValsetUpdateClaim {
-  string chain_id = 1;
+  string hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;

@@ -89,11 +89,11 @@ func NewKeeper(
 
 // SetValsetRequest returns a new instance of the Hyperion BridgeValidatorSet
 // i.e. {"nonce": 1, "memebers": [{"eth_addr": "foo", "power": 11223}]}
-func (k *Keeper) SetValsetRequest(ctx sdk.Context) *types.Valset {
+func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId string) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	valset := k.GetCurrentValset(ctx)
+	valset := k.GetCurrentValset(ctx, hyperionId)
 
 	// If none of the bonded validators has registered eth key, then valset.Members = 0.
 	if len(valset.Members) == 0 {
@@ -102,7 +102,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context) *types.Valset {
 
 	k.StoreValset(ctx, valset)
 	// Store the checkpoint as a legit past valset
-	checkpoint := valset.GetCheckpoint(k.GetHyperionID(ctx))
+	checkpoint := valset.GetCheckpoint(hyperionId)
 	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
 
 	// nolint:errcheck //ignored on purpose
@@ -586,7 +586,7 @@ func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, ethAddr common.Addres
 // and submit a valset and they don't have their eth keys set they can never
 // update the validator set again and the bridge and all its' funds are lost.
 // For this reason we exclude validators with unset eth keys from validator sets
-func (k *Keeper) GetCurrentValset(ctx sdk.Context) *types.Valset {
+func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId string) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -615,7 +615,7 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context) *types.Valset {
 	}
 
 	// get the reward from the params store
-	reward := k.GetParams(ctx).ValsetReward
+	reward := k.GetValsetReward(ctx)[hyperionId]
 	var rewardToken common.Address
 	var rewardAmount math.Int
 	if reward.Denom == "" {
@@ -626,7 +626,7 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context) *types.Valset {
 		rewardAmount = math.NewIntFromUint64(0)
 
 	} else {
-		rewardToken, rewardAmount = k.RewardToERC20Lookup(ctx, reward)
+		rewardToken, rewardAmount = k.RewardToERC20Lookup(ctx, reward, hyperionId)
 	}
 	// TODO: make the nonce an incrementing one (i.e. fetch last nonce from state, increment, set here)
 	return types.NewValset(uint64(ctx.BlockHeight()), uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
@@ -690,68 +690,126 @@ func (k *Keeper) SetParams(ctx sdk.Context, params *types.Params) {
 	store.Set(types.ParamKey, bz)
 }
 
-// GetBridgeContractAddress returns the bridge contract address on ETH
-func (k *Keeper) GetBridgeContractAddress(ctx sdk.Context) common.Address {
+// GetCounterpartyChainParams returns a mapping (hyperion id => the counterparty chain params)
+func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[string]*types.CounterpartyChainParams {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return common.Address{}
+		return map[string]*types.CounterpartyChainParams{}
 	}
 
-	return common.HexToAddress(params.BridgeEthereumAddress)
+	counterpartyChainParamsMap := make(map[string]*types.CounterpartyChainParams)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		counterpartyChainParamsMap[counterpartyChainParams.HyperionId] = counterpartyChainParams
+	}
+
+	return counterpartyChainParamsMap
 }
 
-// GetBridgeChainID returns the chain id of the ETH chain we are running against
-func (k *Keeper) GetBridgeChainID(ctx sdk.Context) uint64 {
+// GetBridgeContractAddress returns a mapping (hyperion id => the bridge contract address on the counterparty chain)
+func (k *Keeper) GetBridgeContractAddress(ctx sdk.Context) map[string]common.Address {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return 0
+		return map[string]common.Address{}
 	}
 
-	return params.BridgeChainId
+	bridgeContractAddressMap := make(map[string]common.Address)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		bridgeContractAddressMap[counterpartyChainParams.HyperionId] = common.HexToAddress(counterpartyChainParams.BridgeCounterpartyAddress)
+	}
+
+	return bridgeContractAddressMap
 }
 
-func (k *Keeper) GetHyperionID(ctx sdk.Context) string {
+// GetBridgeChainID returns a mapping (hyperion id => the chain id of the counterparty chain)
+func (k *Keeper) GetBridgeChainID(ctx sdk.Context) map[string]uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return ""
+		return map[string]uint64{}
 	}
 
-	return params.HyperionId
+	bridgeChainIdMap := make(map[string]uint64)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		bridgeChainIdMap[counterpartyChainParams.HyperionId] = counterpartyChainParams.BridgeChainId
+	}
+
+	return bridgeChainIdMap
 }
 
-// GetCosmosCoinDenom returns native cosmos coin denom
-func (k *Keeper) GetCosmosCoinDenom(ctx sdk.Context) string {
+func (k *Keeper) GetHyperionID(ctx sdk.Context) map[string]string {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return ""
+		return map[string]string{}
 	}
 
-	return params.CosmosCoinDenom
+	hyperionIdMap := make(map[string]string)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		hyperionIdMap[counterpartyChainParams.HyperionId] = counterpartyChainParams.HyperionId
+	}
+
+	return hyperionIdMap
 }
 
-// GetCosmosCoinERC20Contract returns the Cosmos coin ERC20 contract address
-func (k *Keeper) GetCosmosCoinERC20Contract(ctx sdk.Context) common.Address {
+// GetCosmosCoinDenom returns a mapping (hyperion id => the Cosmos native coin)
+func (k *Keeper) GetCosmosCoinDenom(ctx sdk.Context) map[string]string {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return common.Address{}
+		return map[string]string{}
+	}
+	cosmosCoinDenom := make(map[string]string)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		cosmosCoinDenom[counterpartyChainParams.HyperionId] = counterpartyChainParams.CosmosCoinDenom
 	}
 
-	return common.HexToAddress(params.CosmosCoinErc20Contract)
+	return cosmosCoinDenom
+}
+
+// GetCosmosCoinERC20Contract returns a mapping (hyperion id => the Cosmos coin ERC20 contract address of the counterparty chain)
+func (k *Keeper) GetCosmosCoinERC20Contract(ctx sdk.Context) map[string]common.Address {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	params := k.GetParams(ctx)
+	if params == nil {
+		return map[string]common.Address{}
+	}
+	cosmosCoinErc20ContractMap := make(map[string]common.Address)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		cosmosCoinErc20ContractMap[counterpartyChainParams.HyperionId] = common.HexToAddress(counterpartyChainParams.CosmosCoinErc20Contract)
+	}
+
+	return cosmosCoinErc20ContractMap
+}
+
+func (k *Keeper) GetValsetReward(ctx sdk.Context) map[string]sdk.Coin {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	params := k.GetParams(ctx)
+	if params == nil {
+		return map[string]sdk.Coin{}
+	}
+
+	valsetRewardMap := make(map[string]sdk.Coin)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		valsetRewardMap[counterpartyChainParams.HyperionId] = counterpartyChainParams.ValsetReward
+	}
+
+	return valsetRewardMap
 }
 
 func (k *Keeper) UnpackAttestationClaim(attestation *types.Attestation) (types.EthereumClaim, error) {
@@ -938,13 +996,13 @@ func (k *Keeper) DeleteEthereumBlacklistAddress(ctx sdk.Context, addr common.Add
 	k.getStore(ctx).Delete(types.GetEthereumBlacklistStoreKey(addr))
 }
 
-// InvalidSendToEthAddress Returns true if the provided address is invalid to send to Ethereum this could be
+// InvalidSendToChainAddress Returns true if the provided address is invalid to send to EVM chain this could be
 // for one of several reasons. (1) it is invalid in general like the Zero address, (2)
 // it is invalid for a subset of ERC20 addresses or (3) it is on the governance deposit/withdraw
 // blacklist. (2) is not yet implemented
 // Blocking some addresses is technically motivated, if any ERC20 transfers in a batch fail the entire batch
 // becomes impossible to execute.
-func (k *Keeper) InvalidSendToEthAddress(ctx sdk.Context, addr common.Address) bool {
+func (k *Keeper) InvalidSendToChainAddress(ctx sdk.Context, addr common.Address) bool {
 	return k.IsOnBlacklist(ctx, addr) || addr == types.ZeroAddress()
 }
 

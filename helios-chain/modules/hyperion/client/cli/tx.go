@@ -31,11 +31,11 @@ func GetTxCmd(storeKey string) *cobra.Command {
 	}
 
 	hyperionTxCmd.AddCommand([]*cobra.Command{
-		CmdSendToEth(),
+		CmdSendToChain(),
 		CmdRequestBatch(),
 		CmdSetOrchestratorAddress(),
 		GetUnsafeTestingCmd(),
-		NewCancelSendToEth(),
+		NewCancelSendToChain(),
 		BlacklistEthereumAddresses(),
 		RevokeBlacklistEthereumAddresses(),
 	}...)
@@ -99,9 +99,9 @@ func CmdUnsafeETHAddr() *cobra.Command {
 	}
 }
 
-func CmdSendToEth() *cobra.Command {
+func CmdSendToChain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "send-to-eth [eth-dest] [amount] [bridge-fee]",
+		Use:   "send-to-chain [dest-hyperion-id] [eth-dest] [amount] [bridge-fee]",
 		Short: "Adds a new entry to the transaction pool to withdraw an amount from the Ethereum bridge contract",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -111,11 +111,11 @@ func CmdSendToEth() *cobra.Command {
 			}
 			cosmosAddr := cliCtx.GetFromAddress()
 
-			amount, err := sdk.ParseCoinsNormalized(args[1])
+			amount, err := sdk.ParseCoinsNormalized(args[2])
 			if err != nil {
 				return errors.Wrap(err, "amount")
 			}
-			bridgeFee, err := sdk.ParseCoinsNormalized(args[2])
+			bridgeFee, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return errors.Wrap(err, "bridge fee")
 			}
@@ -125,11 +125,12 @@ func CmdSendToEth() *cobra.Command {
 			}
 
 			// Make the message
-			msg := types.MsgSendToEth{
-				Sender:    cosmosAddr.String(),
-				EthDest:   args[0],
-				Amount:    amount[0],
-				BridgeFee: bridgeFee[0],
+			msg := types.MsgSendToChain{
+				Sender:         cosmosAddr.String(),
+				DestHyperionId: args[0],
+				Dest:           args[1],
+				Amount:         amount[0],
+				BridgeFee:      bridgeFee[0],
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -142,10 +143,10 @@ func CmdSendToEth() *cobra.Command {
 	return cmd
 }
 
-func NewCancelSendToEth() *cobra.Command {
+func NewCancelSendToChain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "cancel-send-to-eth [id]",
-		Short: "Cancels send to eth",
+		Use:   "cancel-send-to-chain [id]",
+		Short: "Cancels send to chain",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -156,7 +157,7 @@ func NewCancelSendToEth() *cobra.Command {
 
 			id, _ := strconv.Atoi(args[0])
 			// Make the message
-			msg := types.MsgCancelSendToEth{
+			msg := types.MsgCancelSendToChain{
 				TransactionId: uint64(id),
 				Sender:        cosmosAddr.String(),
 			}

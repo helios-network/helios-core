@@ -35,16 +35,19 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 	defer doneFn()
 
 	params := h.k.GetParams(ctx)
-
-	h.slashing(ctx, params)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		h.slashing(ctx, counterpartyChainParams)
+	}
 	h.attestationTally(ctx)
 	h.cleanupTimedOutBatches(ctx)
-	h.createValsets(ctx)
-	h.pruneValsets(ctx, params)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		h.createValsets(ctx, counterpartyChainParams)
+		h.pruneValsets(ctx, counterpartyChainParams)
+	}
 	h.pruneAttestations(ctx)
 }
 
-func (h *BlockHandler) createValsets(ctx sdk.Context) {
+func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 
@@ -61,9 +64,9 @@ func (h *BlockHandler) createValsets(ctx sdk.Context) {
 	lastUnbondingHeight := h.k.GetLastUnbondingBlockHeight(ctx)
 
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) ||
-		(types.BridgeValidators(h.k.GetCurrentValset(ctx).Members).PowerDiff(latestValset.Members) > 0.05) {
+		(types.BridgeValidators(h.k.GetCurrentValset(ctx, params.HyperionId).Members).PowerDiff(latestValset.Members) > 0.05) {
 		// if the conditions are true, put in a new validator set request to be signed and submitted to Ethereum
-		h.k.SetValsetRequest(ctx)
+		h.k.SetValsetRequest(ctx, params.HyperionId)
 	}
 }
 
@@ -103,7 +106,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 	}
 }
 
-func (h *BlockHandler) slashing(ctx sdk.Context, params *types.Params) {
+func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 
@@ -185,7 +188,7 @@ func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
 
 	for _, batch := range batches {
 		if batch.BatchTimeout < ethereumHeight {
-			err := h.k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce)
+			err := h.k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
 			if err != nil {
 				ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
 			}
@@ -193,7 +196,7 @@ func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
 	}
 }
 
-func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Params) {
+func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 
@@ -326,7 +329,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Params) {
 	}
 }
 
-func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Params) {
+func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 
@@ -396,7 +399,7 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Params) {
 	}
 }
 
-func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.Params) {
+func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 

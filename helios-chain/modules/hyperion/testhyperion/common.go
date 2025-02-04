@@ -199,11 +199,10 @@ var (
 		MinCommissionRate: math.LegacyZeroDec(),
 	}
 
-	// TestingHyperionParams is a set of hyperion params for testing
-	TestingHyperionParams = &types.Params{
+	TestingHyperionEthereumParams = &types.CounterpartyChainParams{
 		HyperionId:                    "testhyperionid",
 		ContractSourceHash:            "62328f7bc12efb28f86111d08c29b39285680a906ea0e524e0209d6f6657b713",
-		BridgeEthereumAddress:         common.HexToAddress("0x8858eeb3dfffa017d4bce9801d340d36cf895ccf").Hex(),
+		BridgeCounterpartyAddress:     common.HexToAddress("0x8858eeb3dfffa017d4bce9801d340d36cf895ccf").Hex(),
 		CosmosCoinErc20Contract:       common.HexToAddress("0x8f3798462111bd6d7fa4d32ba0ab4ee4899bd4b7").Hex(),
 		CosmosCoinDenom:               "helios",
 		BridgeChainId:                 11,
@@ -213,12 +212,17 @@ var (
 		SignedClaimsWindow:            10,
 		TargetBatchTimeout:            60001,
 		AverageBlockTime:              5000,
-		AverageEthereumBlockTime:      15000,
+		AverageCounterpartyBlockTime:  15000,
 		SlashFractionValset:           math.LegacyNewDecWithPrec(1, 2),
 		SlashFractionBatch:            math.LegacyNewDecWithPrec(1, 2),
 		SlashFractionClaim:            math.LegacyNewDecWithPrec(1, 2),
 		SlashFractionConflictingClaim: math.LegacyNewDecWithPrec(1, 2),
 		SlashFractionBadEthSignature:  math.LegacyNewDecWithPrec(1, 2),
+	}
+
+	// TestingHyperionParams is a set of hyperion params for testing
+	TestingHyperionParams = &types.Params{
+		CounterpartyChainParams: []*types.CounterpartyChainParams{TestingHyperionEthereumParams},
 	}
 )
 

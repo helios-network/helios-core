@@ -21,15 +21,23 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		HyperionId:                    "hyperion-helios",
-		BridgeEthereumAddress:         common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
-		BridgeChainId:                 56,
+		CounterpartyChainParams: []*CounterpartyChainParams{DefaultCounterpartyChainParams()},
+		Admins:                  []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
+	}
+}
+
+// DefaultCounterpartyChainParams returns a copy of the default counterparty chain params
+func DefaultCounterpartyChainParams() *CounterpartyChainParams {
+	return &CounterpartyChainParams{
+		HyperionId:                    "hyperion-ethereum-mainnet",
+		BridgeCounterpartyAddress:     common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
+		BridgeChainId:                 1,
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
 		TargetBatchTimeout:            43200000,
 		AverageBlockTime:              2000,
-		AverageEthereumBlockTime:      15000,
+		AverageCounterpartyBlockTime:  15000,
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
@@ -39,77 +47,18 @@ func DefaultParams() *Params {
 		CosmosCoinErc20Contract:       "",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		Admins:                        []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 		ValsetReward:                  sdktypes.Coin{Denom: "helios", Amount: math.NewInt(0)},
 	}
 }
 
 // ValidateBasic checks that the parameters have valid values.
 func (p Params) ValidateBasic() error {
-	if err := validateHyperionID(p.HyperionId); err != nil {
-		return errors.Wrap(err, "hyperion id")
-	}
-	if err := validateContractHash(p.ContractSourceHash); err != nil {
-		return errors.Wrap(err, "contract hash")
-	}
-	if err := validateBridgeContractAddress(p.BridgeEthereumAddress); err != nil {
-		return errors.Wrap(err, "bridge contract address")
-	}
-	if err := validateBridgeContractStartHeight(p.BridgeContractStartHeight); err != nil {
-		return errors.Wrap(err, "bridge contract start height")
-	}
-	if err := validateBridgeChainID(p.BridgeChainId); err != nil {
-		return errors.Wrap(err, "bridge chain id")
-	}
-	if err := validateCosmosCoinDenom(p.CosmosCoinDenom); err != nil {
-		return errors.Wrap(err, "cosmos coin denom")
-	}
-	if err := validateCosmosCoinErc20Contract(p.CosmosCoinErc20Contract); err != nil {
-		return errors.Wrap(err, "cosmos coin erc20 contract address")
-	}
-	if err := validateTargetBatchTimeout(p.TargetBatchTimeout); err != nil {
-		return errors.Wrap(err, "Batch timeout")
-	}
-	if err := validateAverageBlockTime(p.AverageBlockTime); err != nil {
-		return errors.Wrap(err, "Block time")
-	}
-	if err := validateAverageEthereumBlockTime(p.AverageEthereumBlockTime); err != nil {
-		return errors.Wrap(err, "Ethereum block time")
-	}
-	if err := validateSignedValsetsWindow(p.SignedValsetsWindow); err != nil {
-		return errors.Wrap(err, "signed blocks window")
-	}
-	if err := validateSignedBatchesWindow(p.SignedBatchesWindow); err != nil {
-		return errors.Wrap(err, "signed blocks window")
-	}
-	if err := validateSignedClaimsWindow(p.SignedClaimsWindow); err != nil {
-		return errors.Wrap(err, "signed blocks window")
-	}
-	if err := validateSlashFractionValset(p.SlashFractionValset); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionBatch(p.SlashFractionBatch); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionClaim(p.SlashFractionClaim); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionConflictingClaim(p.SlashFractionConflictingClaim); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionBadEthSignature(p.SlashFractionBadEthSignature); err != nil {
-		return errors.Wrap(err, "slash fraction BadEthSignature")
-	}
-	if err := validateUnbondSlashingValsetsWindow(p.UnbondSlashingValsetsWindow); err != nil {
-		return errors.Wrap(err, "unbond Slashing valset window")
-	}
-	if err := validateClaimSlashingEnabled(p.ClaimSlashingEnabled); err != nil {
-		return errors.Wrap(err, "claim slashing enabled")
+	for _, cp := range p.CounterpartyChainParams {
+		validateCounterpartyChainParams(cp)
 	}
 	if err := validateAdmins(p.Admins); err != nil {
 		return errors.Wrap(err, "admins")
 	}
-
 	return nil
 }
 
@@ -118,6 +67,75 @@ func (p Params) Equal(p2 Params) bool {
 	bz1 := ModuleCdc.MustMarshalLengthPrefixed(&p)
 	bz2 := ModuleCdc.MustMarshalLengthPrefixed(&p2)
 	return bytes.Equal(bz1, bz2)
+}
+
+func validateCounterpartyChainParams(i interface{}) error {
+	v, ok := i.(CounterpartyChainParams)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if err := validateHyperionID(v.HyperionId); err != nil {
+		return errors.Wrap(err, "hyperion id")
+	}
+	if err := validateContractHash(v.ContractSourceHash); err != nil {
+		return errors.Wrap(err, "contract hash")
+	}
+	if err := validateBridgeContractAddress(v.BridgeCounterpartyAddress); err != nil {
+		return errors.Wrap(err, "bridge contract address")
+	}
+	if err := validateBridgeContractStartHeight(v.BridgeContractStartHeight); err != nil {
+		return errors.Wrap(err, "bridge contract start height")
+	}
+	if err := validateBridgeChainID(v.BridgeChainId); err != nil {
+		return errors.Wrap(err, "bridge chain id")
+	}
+	if err := validateCosmosCoinDenom(v.CosmosCoinDenom); err != nil {
+		return errors.Wrap(err, "cosmos coin denom")
+	}
+	if err := validateCosmosCoinErc20Contract(v.CosmosCoinErc20Contract); err != nil {
+		return errors.Wrap(err, "cosmos coin erc20 contract address")
+	}
+	if err := validateTargetBatchTimeout(v.TargetBatchTimeout); err != nil {
+		return errors.Wrap(err, "Batch timeout")
+	}
+	if err := validateAverageBlockTime(v.AverageBlockTime); err != nil {
+		return errors.Wrap(err, "Block time")
+	}
+	if err := validateAverageEthereumBlockTime(v.AverageCounterpartyBlockTime); err != nil {
+		return errors.Wrap(err, "Ethereum block time")
+	}
+	if err := validateSignedValsetsWindow(v.SignedValsetsWindow); err != nil {
+		return errors.Wrap(err, "signed blocks window")
+	}
+	if err := validateSignedBatchesWindow(v.SignedBatchesWindow); err != nil {
+		return errors.Wrap(err, "signed blocks window")
+	}
+	if err := validateSignedClaimsWindow(v.SignedClaimsWindow); err != nil {
+		return errors.Wrap(err, "signed blocks window")
+	}
+	if err := validateSlashFractionValset(v.SlashFractionValset); err != nil {
+		return errors.Wrap(err, "slash fraction valset")
+	}
+	if err := validateSlashFractionBatch(v.SlashFractionBatch); err != nil {
+		return errors.Wrap(err, "slash fraction valset")
+	}
+	if err := validateSlashFractionClaim(v.SlashFractionClaim); err != nil {
+		return errors.Wrap(err, "slash fraction valset")
+	}
+	if err := validateSlashFractionConflictingClaim(v.SlashFractionConflictingClaim); err != nil {
+		return errors.Wrap(err, "slash fraction valset")
+	}
+	if err := validateSlashFractionBadEthSignature(v.SlashFractionBadEthSignature); err != nil {
+		return errors.Wrap(err, "slash fraction BadEthSignature")
+	}
+	if err := validateUnbondSlashingValsetsWindow(v.UnbondSlashingValsetsWindow); err != nil {
+		return errors.Wrap(err, "unbond Slashing valset window")
+	}
+	if err := validateClaimSlashingEnabled(v.ClaimSlashingEnabled); err != nil {
+		return errors.Wrap(err, "claim slashing enabled")
+	}
+
+	return nil
 }
 
 func validateHyperionID(i interface{}) error {

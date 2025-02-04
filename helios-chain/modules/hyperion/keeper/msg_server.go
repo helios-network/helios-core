@@ -98,8 +98,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find valset")
 	}
 
-	hyperionID := k.GetHyperionID(ctx)
-	checkpoint := valset.GetCheckpoint(hyperionID)
+	checkpoint := valset.GetCheckpoint(msg.HyperionId)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
 	if err != nil {
@@ -122,7 +121,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	if err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress); err != nil {
 		description := fmt.Sprintf(
 			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
-			ethAddress, hyperionID, checkpoint.Hex(), msg.Signature,
+			ethAddress, msg.HyperionId, checkpoint.Hex(), msg.Signature,
 		)
 
 		metrics.ReportFuncError(k.svcTags)
@@ -145,8 +144,8 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	return &types.MsgValsetConfirmResponse{}, nil
 }
 
-// SendToEth handles MsgSendToEth
-func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types.MsgSendToEthResponse, error) {
+// SendToChain handles MsgSendToChain
+func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*types.MsgSendToChainResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -156,26 +155,26 @@ func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types
 		return nil, err
 	}
 
-	dest := common.HexToAddress(msg.EthDest)
-	if k.InvalidSendToEthAddress(ctx, dest) {
+	dest := common.HexToAddress(msg.Dest)
+	if k.InvalidSendToChainAddress(ctx, dest) {
 		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination address is invalid or blacklisted")
 	}
 
-	txID, err := k.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.EthDest), msg.Amount, msg.BridgeFee)
+	txID, err := k.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, msg.DestHyperionId)
 	if err != nil {
 		return nil, err
 	}
 
 	// nolint:errcheck //ignored on purpose
-	ctx.EventManager().EmitTypedEvent(&types.EventSendToEth{
+	ctx.EventManager().EmitTypedEvent(&types.EventSendToChain{
 		OutgoingTxId: txID,
 		Sender:       sender.String(),
-		Receiver:     msg.EthDest,
+		Receiver:     msg.Dest,
 		Amount:       msg.Amount,
 		BridgeFee:    msg.BridgeFee,
 	})
 
-	return &types.MsgSendToEthResponse{}, nil
+	return &types.MsgSendToChainResponse{}, nil
 }
 
 // RequestBatch handles MsgRequestBatch
@@ -187,12 +186,12 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 
 	// Check if the denom is a hyperion coin, if not, check if there is a deployed ERC20 representing it.
 	// If not, error out
-	_, tokenContract, err := k.DenomToERC20Lookup(ctx, msg.Denom)
+	_, tokenContract, err := k.DenomToERC20Lookup(ctx, msg.Denom, msg.HyperionId)
 	if err != nil {
 		return nil, err
 	}
 
-	batch, err := k.BuildOutgoingTXBatch(ctx, tokenContract, OutgoingTxBatchSize)
+	batch, err := k.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize)
 	if err != nil {
 		return nil, err
 	}
@@ -225,14 +224,13 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	tokenContract := common.HexToAddress(msg.TokenContract)
 
 	// fetch the outgoing batch given the nonce
-	batch := k.GetOutgoingTXBatch(ctx, tokenContract, msg.Nonce)
+	batch := k.GetOutgoingTXBatch(ctx, tokenContract, msg.Nonce, msg.HyperionId)
 	if batch == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find batch")
 	}
 
-	hyperionID := k.GetHyperionID(ctx)
-	checkpoint := batch.GetCheckpoint(hyperionID)
+	checkpoint := batch.GetCheckpoint(msg.HyperionId)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
 	if err != nil {
@@ -257,7 +255,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	if err != nil {
 		description := fmt.Sprintf(
 			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
-			ethAddress, hyperionID, checkpoint.Hex(), msg.Signature,
+			ethAddress, msg.HyperionId, checkpoint.Hex(), msg.Signature,
 		)
 
 		metrics.ReportFuncError(k.svcTags)
@@ -459,7 +457,7 @@ func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpda
 	return &types.MsgValsetUpdatedClaimResponse{}, nil
 }
 
-func (k msgServer) CancelSendToEth(c context.Context, msg *types.MsgCancelSendToEth) (*types.MsgCancelSendToEthResponse, error) {
+func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSendToChain) (*types.MsgCancelSendToChainResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -477,11 +475,11 @@ func (k msgServer) CancelSendToEth(c context.Context, msg *types.MsgCancelSendTo
 	}
 
 	// nolint:errcheck //ignored on purpose
-	ctx.EventManager().EmitTypedEvent(&types.EventCancelSendToEth{
+	ctx.EventManager().EmitTypedEvent(&types.EventCancelSendToChain{
 		OutgoingTxId: msg.TransactionId,
 	})
 
-	return &types.MsgCancelSendToEthResponse{}, nil
+	return &types.MsgCancelSendToChainResponse{}, nil
 }
 
 func (k msgServer) SubmitBadSignatureEvidence(c context.Context, msg *types.MsgSubmitBadSignatureEvidence) (*types.MsgSubmitBadSignatureEvidenceResponse, error) {

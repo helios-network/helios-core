@@ -242,8 +242,8 @@ func (k *Keeper) emitObservedEvent(ctx sdk.Context, _ *types.Attestation, claim 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventAttestationObserved{
 		AttestationType: claim.GetType(),
-		BridgeContract:  k.GetBridgeContractAddress(ctx).Hex(),
-		BridgeChainId:   k.GetBridgeChainID(ctx),
+		BridgeContract:  k.GetBridgeContractAddress(ctx)[claim.GetHyperionId()].Hex(),
+		BridgeChainId:   k.GetBridgeChainID(ctx)[claim.GetHyperionId()],
 		AttestationId:   types.GetAttestationKey(claim.GetEventNonce(), claim.ClaimHash()),
 		Nonce:           claim.GetEventNonce(),
 	})

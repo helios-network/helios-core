@@ -23,7 +23,7 @@ const OutgoingTxBatchSize = 100
 //   - select available transactions from the outgoing transaction pool sorted by fee desc
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
-func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, maxElements int) (*types.OutgoingTxBatch, error) {
+func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, hyperionId string, maxElements int) (*types.OutgoingTxBatch, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -61,25 +61,25 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 	nextID := k.AutoIncrementID(ctx, types.KeyLastOutgoingBatchID)
 	batch := &types.OutgoingTxBatch{
 		BatchNonce:    nextID,
-		BatchTimeout:  k.getBatchTimeoutHeight(ctx),
+		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
 		Transactions:  selectedTx,
 		TokenContract: contractAddress.Hex(),
 	}
 	k.StoreBatch(ctx, batch)
 
 	// Get the checkpoint and store it as a legit past batch
-	checkpoint := batch.GetCheckpoint(k.GetHyperionID(ctx))
+	checkpoint := batch.GetCheckpoint(hyperionId)
 	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
 
 	return batch, nil
 }
 
-// / This gets the batch timeout height in Ethereum blocks.
-func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context) uint64 {
+// / This gets the batch timeout height in the counterparty chain blocks.
+func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId string) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	params := k.GetParams(ctx)
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
 	currentCosmosHeight := ctx.BlockHeight()
 	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
 	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
@@ -88,12 +88,12 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context) uint64 {
 		return 0
 	}
 	// we project how long it has been in milliseconds since the last Ethereum block height was observed
-	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * params.AverageBlockTime
+	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
 	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
-	projectedCurrentEthereumHeight := (projectedMillis / params.AverageEthereumBlockTime) + heights.EthereumBlockHeight
+	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
 	// we convert our target time for block timeouts (lets say 12 hours) into a number of blocks to
 	// place on top of our projection of the current Ethereum block height.
-	blocksToAdd := params.TargetBatchTimeout / params.AverageEthereumBlockTime
+	blocksToAdd := counterpartyChainParams.TargetBatchTimeout / counterpartyChainParams.AverageCounterpartyBlockTime
 
 	return projectedCurrentEthereumHeight + blocksToAdd
 }
@@ -101,11 +101,11 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context) uint64 {
 // OutgoingTxBatchExecuted is run when the Cosmos chain detects that a batch has been executed on Ethereum
 // It frees all the transactions in the batch, then cancels all earlier batches, this function panics instead
 // of returning errors because any failure will cause a double spend.
-func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.Address, nonce uint64) {
+func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId string) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	b := k.GetOutgoingTXBatch(ctx, tokenContract, nonce)
+	b := k.GetOutgoingTXBatch(ctx, tokenContract, nonce, hyperionId)
 	if b == nil {
 		metrics.ReportFuncError(k.svcTags)
 		panic(fmt.Sprintf("unknown batch nonce for outgoing tx batch %s %d", tokenContract, nonce))
@@ -121,7 +121,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	k.IterateOutgoingTXBatches(ctx, func(key []byte, iter_batch *types.OutgoingTxBatch) bool {
 		// If the iterated batches nonce is lower than the one that was just executed, cancel it
 		if iter_batch.BatchNonce < b.BatchNonce && common.HexToAddress(iter_batch.TokenContract) == tokenContract {
-			err := k.CancelOutgoingTXBatch(ctx, tokenContract, iter_batch.BatchNonce)
+			err := k.CancelOutgoingTXBatch(ctx, tokenContract, iter_batch.BatchNonce, iter_batch.HyperionId)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
 				panic(fmt.Sprintf("Failed cancel out batch %s %d while trying to execute %s %d with %s", tokenContract, iter_batch.BatchNonce, tokenContract, nonce, err))
@@ -142,7 +142,7 @@ func (k *Keeper) StoreBatch(ctx sdk.Context, batch *types.OutgoingTxBatch) {
 	store := ctx.KVStore(k.storeKey)
 	// set the current block height when storing the batch
 	batch.Block = uint64(ctx.BlockHeight())
-	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce)
+	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	blockKey := types.GetOutgoingTxBatchBlockKey(batch.Block)
@@ -155,7 +155,7 @@ func (k *Keeper) StoreBatchUnsafe(ctx sdk.Context, batch *types.OutgoingTxBatch)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce)
+	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	blockKey := types.GetOutgoingTxBatchBlockKey(batch.Block)
@@ -175,7 +175,7 @@ func (k *Keeper) DeleteBatch(ctx sdk.Context, batch types.OutgoingTxBatch) {
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce))
+	store.Delete(types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId))
 	store.Delete(types.GetOutgoingTxBatchBlockKey(batch.Block))
 }
 
@@ -206,12 +206,12 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 }
 
 // GetOutgoingTXBatch loads a batch object. Returns nil when not exists.
-func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64) *types.OutgoingTxBatch {
+func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId string) *types.OutgoingTxBatch {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetOutgoingTxBatchKey(tokenContract, nonce)
+	key := types.GetOutgoingTxBatchKey(tokenContract, nonce, hyperionId)
 	bz := store.Get(key)
 	if len(bz) == 0 {
 		return nil
@@ -228,11 +228,11 @@ func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addres
 }
 
 // CancelOutgoingTXBatch releases all TX in the batch and deletes the batch
-func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64) error {
+func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId string) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	batch := k.GetOutgoingTXBatch(ctx, tokenContract, nonce)
+	batch := k.GetOutgoingTXBatch(ctx, tokenContract, nonce, hyperionId)
 	if batch == nil {
 		return types.ErrUnknown
 	}
@@ -247,8 +247,8 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventOutgoingBatchCanceled{
-		BridgeContract: k.GetBridgeContractAddress(ctx).Hex(),
-		BridgeChainId:  k.GetBridgeChainID(ctx),
+		BridgeContract: k.GetBridgeContractAddress(ctx)[hyperionId].Hex(),
+		BridgeChainId:  k.GetBridgeChainID(ctx)[hyperionId],
 		BatchId:        nonce,
 		Nonce:          nonce,
 	})

@@ -14,6 +14,8 @@ message Params {
   option (gogoproto.stringer) = false;
 
   repeated CounterpartyChainParams counterparty_chain_params = 1;
+
+  repeated string admins = 2;
 }
 
 // CounterpartyChainParams represent the hyperion genesis and store parameters 
@@ -22,8 +24,8 @@ message Params {
 // a random 32 byte value to prevent signature reuse, for example if the
 // cosmos validators decided to use the same Ethereum keys for another chain
 // also running Hyperion we would not want it to be possible to play a deposit
-// from chain A back on chain B's hyperion. This value IS USED ON ETHEREUM so
-// it must be set in your genesis.json before launch and not changed after
+// from chain A back on chain B's hyperion. This value IS USED ON EACH COUNTERPARTY
+// CHAIN so it must be set in your genesis.json before launch and not changed after
 // deploying Hyperion
 //
 // contract_hash:
@@ -38,7 +40,7 @@ message Params {
 // Hyperion code
 //
 // bridge_chain_id:
-// the unique identifier of the Ethereum chain, this is a reference value
+// the unique identifier of the EVM counterparty chain, this is a reference value
 // only and is not actually used by any Hyperion code
 //
 // These reference values may be used by future Hyperion client implemetnations
@@ -65,7 +67,7 @@ message Params {
 // average_block_time
 // average_counterparty_block_time
 //
-// These values are the average Cosmos block time and Ethereum block time
+// These values are the average Cosmos block time and EVM counterparty block time
 // repsectively and they are used to copute what the target batch timeout is. It
 // is important that governance updates these in case of any major, prolonged
 // change in the time it takes to produce a block
@@ -141,6 +143,4 @@ message CounterpartyChainParams {
   uint64 bridge_contract_start_height = 20;
 
   cosmos.base.v1beta1.Coin valset_reward = 21 [ (gogoproto.nullable) = false ];
-
-  repeated string admins = 22;
 }

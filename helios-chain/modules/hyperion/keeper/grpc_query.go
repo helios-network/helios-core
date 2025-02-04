@@ -34,7 +34,7 @@ func (k *Keeper) CurrentValset(c context.Context, req *types.QueryCurrentValsetR
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	return &types.QueryCurrentValsetResponse{Valset: k.GetCurrentValset(sdk.UnwrapSDKContext(c))}, nil
+	return &types.QueryCurrentValsetResponse{Valset: k.GetCurrentValset(sdk.UnwrapSDKContext(c), req.HyperionId)}, nil
 }
 
 // ValsetRequest queries the ValsetRequest of the hyperion module
@@ -181,7 +181,7 @@ func (k *Keeper) BatchRequestByNonce(c context.Context, req *types.QueryBatchReq
 		return nil, errors.Wrap(sdkerrors.ErrUnknownRequest, err.Error())
 	}
 
-	foundBatch := k.GetOutgoingTXBatch(sdk.UnwrapSDKContext(c), common.HexToAddress(req.ContractAddress), req.Nonce)
+	foundBatch := k.GetOutgoingTXBatch(sdk.UnwrapSDKContext(c), common.HexToAddress(req.ContractAddress), req.Nonce, req.HyperionId)
 	if foundBatch == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(sdkerrors.ErrUnknownRequest, "Can not find tx batch")
@@ -253,7 +253,7 @@ func (k *Keeper) DenomToERC20(c context.Context, req *types.QueryDenomToERC20Req
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	cosmosOriginated, erc20, err := k.DenomToERC20Lookup(ctx, req.Denom)
+	cosmosOriginated, erc20, err := k.DenomToERC20Lookup(ctx, req.Denom, req.HyperionId)
 
 	var ret types.QueryDenomToERC20Response
 	ret.Erc20 = erc20.Hex()
@@ -268,7 +268,7 @@ func (k *Keeper) ERC20ToDenom(c context.Context, req *types.QueryERC20ToDenomReq
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	cosmosOriginated, name := k.ERC20ToDenomLookup(ctx, common.HexToAddress(req.Erc20))
+	cosmosOriginated, name := k.ERC20ToDenomLookup(ctx, common.HexToAddress(req.Erc20), req.HyperionId)
 
 	var ret types.QueryERC20ToDenomResponse
 	ret.Denom = name
@@ -353,7 +353,7 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 	return nil, errors.Wrap(types.ErrInvalid, "No validator")
 }
 
-func (k *Keeper) GetPendingSendToEth(c context.Context, req *types.QueryPendingSendToEth) (*types.QueryPendingSendToEthResponse, error) {
+func (k *Keeper) GetPendingSendToChain(c context.Context, req *types.QueryPendingSendToChain) (*types.QueryPendingSendToChainResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
@@ -362,7 +362,7 @@ func (k *Keeper) GetPendingSendToEth(c context.Context, req *types.QueryPendingS
 	unbatchedTx := k.GetPoolTransactions(ctx)
 	senderAddress := req.SenderAddress
 
-	res := &types.QueryPendingSendToEthResponse{}
+	res := &types.QueryPendingSendToChainResponse{}
 	res.TransfersInBatches = make([]*types.OutgoingTransferTx, 0)
 	res.UnbatchedTransfers = make([]*types.OutgoingTransferTx, 0)
 

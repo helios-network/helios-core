@@ -21,7 +21,7 @@ import (
 // - burns the voucher for transfer amount and fees
 // - persists an OutgoingTx
 // - adds the TX to the `available` TX pool via a second index
-func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, counterpartReceiver common.Address, amount, fee sdk.Coin) (uint64, error) {
+func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, counterpartReceiver common.Address, amount, fee sdk.Coin, hyperionId string) (uint64, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -31,7 +31,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	// If the coin is a hyperion voucher, burn the coins. If not, check if there is a deployed ERC20 contract representing it.
 	// If there is, lock the coins.
 
-	isCosmosOriginated, tokenContract, err := k.DenomToERC20Lookup(ctx, totalAmount.Denom)
+	isCosmosOriginated, tokenContract, err := k.DenomToERC20Lookup(ctx, totalAmount.Denom, hyperionId)
 	if err != nil {
 		return 0, err
 	}
@@ -140,9 +140,9 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 
 	// reissue the amount and the fee
 	var totalToRefundCoins sdk.Coins
-	isCosmosOriginated, denom := k.ERC20ToDenomLookup(ctx, common.HexToAddress(tx.Erc20Token.Contract))
+	isCosmosOriginated, denom := k.ERC20ToDenomLookup(ctx, common.HexToAddress(tx.Erc20Token.Contract), tx.HyperionId)
 	// native cosmos coin denom
-	if denom == k.GetCosmosCoinDenom(ctx) {
+	if denom == k.GetCosmosCoinDenom(ctx)[tx.HyperionId] {
 		// hyperion denom
 		totalToRefund := sdk.NewCoin(denom, tx.Erc20Token.Amount)
 		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
@@ -175,8 +175,8 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventBridgeWithdrawCanceled{
-		BridgeContract: k.GetBridgeContractAddress(ctx).Hex(),
-		BridgeChainId:  k.GetBridgeChainID(ctx),
+		BridgeContract: k.GetBridgeContractAddress(ctx)[tx.HyperionId].Hex(),
+		BridgeChainId:  k.GetBridgeChainID(ctx)[tx.HyperionId],
 	})
 
 	return nil

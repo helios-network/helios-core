@@ -30,9 +30,9 @@ func (k *Keeper) CheckBadSignatureEvidence(
 
 	switch subject := subject.(type) {
 	case *types.OutgoingTxBatch:
-		return k.checkBadSignatureEvidenceInternal(ctx, subject, msg.Signature)
+		return k.checkBadSignatureEvidenceInternal(ctx, subject, msg.Signature, subject.HyperionId)
 	case *types.Valset:
-		return k.checkBadSignatureEvidenceInternal(ctx, subject, msg.Signature)
+		return k.checkBadSignatureEvidenceInternal(ctx, subject, msg.Signature, subject.HyperionId)
 
 	default:
 		metrics.ReportFuncError(k.svcTags)
@@ -40,13 +40,12 @@ func (k *Keeper) CheckBadSignatureEvidence(
 	}
 }
 
-func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject types.EthereumSigned, signature string) error {
+func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject types.EthereumSigned, signature string, hyperionId string) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	// Get checkpoint of the supposed bad signature (fake valset, batch, or logic call submitted to eth)
-	hyperionID := k.GetHyperionID(ctx)
-	checkpoint := subject.GetCheckpoint(hyperionID)
+	checkpoint := subject.GetCheckpoint(hyperionId)
 
 	// Try to find the checkpoint in the archives. If it exists, we don't slash because
 	// this is not a bad signature
@@ -83,8 +82,8 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 		return errors.Wrap(err, "Could not get consensus key address for validator")
 	}
 
-	params := k.GetParams(ctx)
-	_, err = k.StakingKeeper.Slash(ctx, cons, ctx.BlockHeight(), val.ConsensusPower(k.StakingKeeper.PowerReduction(ctx)), params.SlashFractionBadEthSignature)
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	_, err = k.StakingKeeper.Slash(ctx, cons, ctx.BlockHeight(), val.ConsensusPower(k.StakingKeeper.PowerReduction(ctx)), counterpartyChainParams.SlashFractionBadEthSignature)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrap(err, "Could not slash validator")

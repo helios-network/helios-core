@@ -12,8 +12,10 @@ import (
 // NormalizeGenesis takes care of formatting in the internal structures, as they're used as values
 // in the keeper eventually, while having raw strings in them.
 func NormalizeGenesis(data *types.GenesisState) {
-	data.Params.BridgeEthereumAddress = common.HexToAddress(data.Params.BridgeEthereumAddress).Hex()
-	data.Params.CosmosCoinErc20Contract = common.HexToAddress(data.Params.CosmosCoinErc20Contract).Hex()
+	for _, counterpartyParams := range data.Params.CounterpartyChainParams {
+		counterpartyParams.BridgeCounterpartyAddress = common.HexToAddress(counterpartyParams.BridgeCounterpartyAddress).Hex()
+		counterpartyParams.CosmosCoinErc20Contract = common.HexToAddress(counterpartyParams.CosmosCoinErc20Contract).Hex()
+	}
 
 	for _, valset := range data.Valsets {
 		for _, member := range valset.Members {

@@ -24,7 +24,7 @@ func init() {
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgValsetConfirm{},
-		&MsgSendToEth{},
+		&MsgSendToChain{},
 		&MsgRequestBatch{},
 		&MsgConfirmBatch{},
 		&MsgDepositClaim{},
@@ -32,7 +32,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgERC20DeployedClaim{},
 		&MsgSetOrchestratorAddresses{},
 		&MsgValsetUpdatedClaim{},
-		&MsgCancelSendToEth{},
+		&MsgCancelSendToChain{},
 		&MsgSubmitBadSignatureEvidence{},
 		&MsgUpdateParams{},
 		&MsgBlacklistEthereumAddresses{},
@@ -55,8 +55,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetOrchestratorAddresses{}, "hyperion/MsgSetOrchestratorAddresses", nil)
 	cdc.RegisterConcrete(&MsgValsetConfirm{}, "hyperion/MsgValsetConfirm", nil)
-	cdc.RegisterConcrete(&MsgSendToEth{}, "hyperion/MsgSendToEth", nil)
-	cdc.RegisterConcrete(&MsgCancelSendToEth{}, "hyperion/MsgCancelSendToEth", nil)
+	cdc.RegisterConcrete(&MsgSendToChain{}, "hyperion/MsgSendToEth", nil)
+	cdc.RegisterConcrete(&MsgCancelSendToChain{}, "hyperion/MsgCancelSendToEth", nil)
 	cdc.RegisterConcrete(&MsgRequestBatch{}, "hyperion/MsgRequestBatch", nil)
 	cdc.RegisterConcrete(&MsgConfirmBatch{}, "hyperion/MsgConfirmBatch", nil)
 	cdc.RegisterConcrete(&Valset{}, "hyperion/Valset", nil)
