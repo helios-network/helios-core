@@ -93,6 +93,7 @@ func emitNewClaimEvent(ctx sdk.Context, claim types.EthereumClaim, attestationId
 	case *types.MsgDepositClaim:
 		// nolint:errcheck //ignored on purpose
 		ctx.EventManager().EmitTypedEvent(&types.EventDepositClaim{
+			HyperionId:          claim.HyperionId,
 			EventNonce:          claim.GetEventNonce(),
 			EventHeight:         claim.GetBlockHeight(),
 			EthereumSender:      claim.GetEthereumSender(),
@@ -106,6 +107,7 @@ func emitNewClaimEvent(ctx sdk.Context, claim types.EthereumClaim, attestationId
 	case *types.MsgWithdrawClaim:
 		// nolint:errcheck //ignored on purpose
 		ctx.EventManager().EmitTypedEvent(&types.EventWithdrawClaim{
+			HyperionId:          claim.HyperionId,
 			EventNonce:          claim.GetEventNonce(),
 			EventHeight:         claim.GetBlockHeight(),
 			BatchNonce:          claim.GetBatchNonce(),
@@ -116,6 +118,7 @@ func emitNewClaimEvent(ctx sdk.Context, claim types.EthereumClaim, attestationId
 	case *types.MsgERC20DeployedClaim:
 		// nolint:errcheck //ignored on purpose
 		ctx.EventManager().EmitTypedEvent(&types.EventERC20DeployedClaim{
+			HyperionId:          claim.HyperionId,
 			EventNonce:          claim.GetEventNonce(),
 			EventHeight:         claim.GetBlockHeight(),
 			CosmosDenom:         claim.GetCosmosDenom(),
@@ -129,6 +132,7 @@ func emitNewClaimEvent(ctx sdk.Context, claim types.EthereumClaim, attestationId
 	case *types.MsgValsetUpdatedClaim:
 		// nolint:errcheck //ignored on purpose
 		ctx.EventManager().EmitTypedEvent(&types.EventValsetUpdateClaim{
+			HyperionId:          claim.HyperionId,
 			EventNonce:          claim.GetEventNonce(),
 			EventHeight:         claim.GetBlockHeight(),
 			ValsetNonce:         claim.GetValsetNonce(),

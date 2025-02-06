@@ -107,6 +107,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId string) *types.Val
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetUpdateRequest{
+		HyperionId:    hyperionId,
 		ValsetNonce:   valset.Nonce,
 		ValsetHeight:  valset.Height,
 		ValsetMembers: valset.Members,

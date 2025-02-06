@@ -247,6 +247,7 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventOutgoingBatchCanceled{
+		HyperionId:     hyperionId,
 		BridgeContract: k.GetBridgeContractAddress(ctx)[hyperionId].Hex(),
 		BridgeChainId:  k.GetBridgeChainID(ctx)[hyperionId],
 		BatchId:        nonce,

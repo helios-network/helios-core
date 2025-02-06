@@ -257,6 +257,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 
 					// nolint:errcheck //ignored on purpose
 					ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
+						HyperionId:       params.HyperionId,
 						Power:            consPower,
 						Reason:           "missing_valset_confirm",
 						ConsensusAddress: sdk.ConsAddress(consAddr).String(),
@@ -313,6 +314,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 
 						// nolint:errcheck //ignored on purpose
 						ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
+							HyperionId:       params.HyperionId,
 							Power:            consPower,
 							Reason:           "missing_valset_confirm",
 							ConsensusAddress: validator.String(),
@@ -385,6 +387,7 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 
 				// nolint:errcheck //ignored on purpose
 				ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
+					HyperionId:       params.HyperionId,
 					Power:            consPower,
 					Reason:           "missing_batch_confirm",
 					ConsensusAddress: currentBondedSet[i].String(),

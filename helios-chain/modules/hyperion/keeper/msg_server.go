@@ -137,6 +137,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetConfirm{
+		HyperionId:          msg.HyperionId,
 		ValsetNonce:         msg.Nonce,
 		OrchestratorAddress: orchaddr.String(),
 	})
@@ -167,6 +168,7 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSendToChain{
+		HyperionId:   msg.DestHyperionId,
 		OutgoingTxId: txID,
 		Sender:       sender.String(),
 		Receiver:     msg.Dest,
@@ -204,6 +206,7 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventOutgoingBatch{
+		HyperionId:          msg.HyperionId,
 		Denom:               msg.Denom,
 		OrchestratorAddress: msg.Orchestrator,
 		BatchNonce:          batch.BatchNonce,
@@ -271,6 +274,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventConfirmBatch{
+		HyperionId:          msg.HyperionId,
 		BatchNonce:          msg.Nonce,
 		OrchestratorAddress: orchaddr.String(),
 	})

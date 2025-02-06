@@ -21,29 +21,32 @@ message EventBridgeWithdrawCanceled {
 }
 
 message EventOutgoingBatch {
-  string denom = 1;
-  string orchestrator_address = 2;
-  uint64 batch_nonce = 3;
-  uint64 batch_timeout = 4;
-  repeated uint64 batch_tx_ids = 5;
+  string hyperion_id = 1;
+  string denom = 2;
+  string orchestrator_address = 3;
+  uint64 batch_nonce = 4;
+  uint64 batch_timeout = 5;
+  repeated uint64 batch_tx_ids = 6;
 }
 
 message EventOutgoingBatchCanceled {
-  string bridge_contract = 1;
-  uint64 bridge_chain_id = 2;
-  uint64 batch_id = 3;
-  uint64 nonce = 4;
+  string hyperion_id = 1;
+  string bridge_contract = 2;
+  uint64 bridge_chain_id = 3;
+  uint64 batch_id = 4;
+  uint64 nonce = 5;
 }
 
 message EventValsetUpdateRequest {
-  uint64 valset_nonce = 1;
-  uint64 valset_height = 2;
-  repeated BridgeValidator valset_members = 3;
-  string reward_amount = 4 [
+  string hyperion_id = 1;
+  uint64 valset_nonce = 2;
+  uint64 valset_height = 3;
+  repeated BridgeValidator valset_members = 4;
+  string reward_amount = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
-  string reward_token = 5;
+  string reward_token = 6;
 }
 message EventSetOrchestratorAddresses {
   string validator_address = 1;
@@ -52,8 +55,9 @@ message EventSetOrchestratorAddresses {
 }
 
 message EventValsetConfirm {
-  uint64 valset_nonce = 1;
-  string orchestrator_address = 2;
+  string hyperion_id = 1;
+  uint64 valset_nonce = 2;
+  string orchestrator_address = 3;
 }
 
 message EventSendToChain {
@@ -73,8 +77,9 @@ message EventSendToChain {
 }
 
 message EventConfirmBatch {
-  uint64 batch_nonce = 1;
-  string orchestrator_address = 2;
+  string hyperion_id = 1;
+  uint64 batch_nonce = 2;
+  string orchestrator_address = 3;
 }
 
 message EventAttestationVote {
@@ -145,9 +150,10 @@ message EventSubmitBadSignatureEvidence {
 }
 
 message EventValidatorSlash {
-  int64 power = 1;
-  string reason = 2;
-  string consensus_address = 3;
-  string operator_address = 4;
-  string moniker = 5;
+  string hyperion_id = 1;
+  int64 power = 2;
+  string reason = 3;
+  string consensus_address = 4;
+  string operator_address = 5;
+  string moniker = 6;
 }
