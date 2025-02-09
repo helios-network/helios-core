@@ -7,13 +7,13 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	evmostypes "helios-core/helios-chain/types"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	evmostypes "helios-core/helios-chain/types"
 
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/cli"
@@ -85,6 +85,9 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			config.P2P.MaxNumOutboundPeers = 30
 			config.Mempool.Size = 10000
 			config.StateSync.TrustPeriod = 112 * time.Hour
+
+			// Set Concensus commit interval timeout
+			config.Consensus.TimeoutCommit = 2500 * time.Millisecond
 
 			config.SetRoot(clientCtx.HomeDir)
 
