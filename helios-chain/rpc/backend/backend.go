@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -61,6 +62,9 @@ type EVMBackend interface {
 	GetBlockByNumber(blockNum rpctypes.BlockNumber, fullTx bool) (map[string]interface{}, error)
 	GetBlockByHash(hash common.Hash, fullTx bool) (map[string]interface{}, error)
 	GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
+
+	// Proposals Info
+	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*govtypes.Proposal, error)
 
 	GetBlockTransactionCountByHash(hash common.Hash) *hexutil.Uint
 	GetBlockTransactionCountByNumber(blockNum rpctypes.BlockNumber) *hexutil.Uint

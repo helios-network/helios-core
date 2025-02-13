@@ -20,6 +20,8 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 // The Ethereum API allows applications to connect to an Evmos node that is
@@ -39,6 +41,9 @@ type EthereumAPI interface {
 	GetBlockTransactionCountByNumber(blockNum rpctypes.BlockNumber) *hexutil.Uint
 
 	GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
+
+	// GetProposalBy(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*govtypes.Proposal, error)
 
 	// Reading Transactions
 	//
@@ -165,6 +170,13 @@ func (e *PublicAPI) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]in
 func (e *PublicAPI) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error) {
 	e.logger.Debug("eth_getLatestBlocks", "page", page, "size", size, "full", fullTx)
 	return e.backend.GetBlocksByPageAndSize(page, size, fullTx)
+}
+
+// Proposals
+
+func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*govtypes.Proposal, error) {
+	e.logger.Debug("eth_getProposalsByPageAndSize", "page", page, "size", size, "full")
+	return e.backend.GetProposalsByPageAndSize(page, size)
 }
 
 ///////////////////////////////////////////////////////////////////////////////

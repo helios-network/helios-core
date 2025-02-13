@@ -7,6 +7,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/tx"
 
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/proto/tendermint/crypto"
 
@@ -24,6 +26,7 @@ type QueryClient struct {
 	tx.ServiceClient
 	evmtypes.QueryClient
 	FeeMarket feemarkettypes.QueryClient
+	Gov       govtypes.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -32,6 +35,7 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		ServiceClient: tx.NewServiceClient(clientCtx),
 		QueryClient:   evmtypes.NewQueryClient(clientCtx),
 		FeeMarket:     feemarkettypes.NewQueryClient(clientCtx),
+		Gov:           govtypes.NewQueryClient(clientCtx),
 	}
 }
 
