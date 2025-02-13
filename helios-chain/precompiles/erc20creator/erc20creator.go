@@ -33,6 +33,7 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 	vm "helios-core/helios-chain/x/evm/core/vm"
 
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -172,6 +173,17 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 
 	// Enable dynamic precompiles for the deployed ERC20 contract
 	p.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+
+	ctx.EventManager().EmitEvent(
+    sdktypes.NewEvent(
+        "erc20_created", // todo: add to sdktypes
+        sdktypes.NewAttribute("denom", base),
+        sdktypes.NewAttribute("symbol", symbol),
+        sdktypes.NewAttribute("contract_address", contractAddr.String()),
+        sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
+        sdktypes.NewAttribute("supply", supply.String()),
+    ),
+)
 
 	// TODO REMOVE AFTER
 	asset := types.Asset{
