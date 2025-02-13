@@ -38,6 +38,8 @@ type EthereumAPI interface {
 	GetBlockTransactionCountByHash(hash common.Hash) *hexutil.Uint
 	GetBlockTransactionCountByNumber(blockNum rpctypes.BlockNumber) *hexutil.Uint
 
+	GetLatestBlocks(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
+
 	// Reading Transactions
 	//
 	// Retrieves information on the state data for addresses regardless of whether
@@ -112,6 +114,10 @@ type EthereumAPI interface {
 	// eth_getWork (on Ethereum.org)
 	// eth_submitWork (on Ethereum.org)
 	// eth_submitHashrate (on Ethereum.org)
+
+	// Staking
+	GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Uint64, error)
+	// eth_stakedPowers
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -154,6 +160,11 @@ func (e *PublicAPI) GetBlockByNumber(ethBlockNum rpctypes.BlockNumber, fullTx bo
 func (e *PublicAPI) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]interface{}, error) {
 	e.logger.Debug("eth_getBlockByHash", "hash", hash.Hex(), "full", fullTx)
 	return e.backend.GetBlockByHash(hash, fullTx)
+}
+
+func (e *PublicAPI) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getLatestBlocks", "page", page, "size", size, "full", fullTx)
+	return e.backend.GetBlocksByPageAndSize(page, size, fullTx)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -503,4 +514,13 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 	}
 
 	return result, nil
+}
+
+func (e *PublicAPI) GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Uint64, error) {
+	e.logger.Debug("eth_getStakedPowers", "address", address.Hex(), "block number or hash", blockNrOrHash)
+	blockNum, err := e.backend.BlockNumberFromTendermint(blockNrOrHash)
+	if err != nil {
+		return nil, err
+	}
+	return e.backend.GetStakedPowers(address, blockNum)
 }

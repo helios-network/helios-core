@@ -8,6 +8,9 @@ import (
 	"math/big"
 	"strconv"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
@@ -18,8 +21,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // BlockNumber returns the current block number in abci app state. Because abci
@@ -106,6 +107,53 @@ func (b *Backend) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]inte
 	}
 
 	return res, nil
+}
+
+func (b *Backend) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error) {
+	// Get the current block number
+	latestBlockNumber, err := b.BlockNumber()
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate the starting block number based on the page and size
+	startBlockNumber := uint64(latestBlockNumber) - ((uint64(page) - 1) * uint64(size))
+
+	var blocks []map[string]interface{}
+	var block *tmrpctypes.ResultBlock
+
+	// Loop to fetch blocks until we reach the desired size or run out of blocks
+	for i := uint64(0); i < uint64(size); i++ {
+		if startBlockNumber <= 0 {
+			break // No more blocks to fetch
+		}
+		// Fetch the block by number
+		block, err = b.TendermintBlockByNumber(rpctypes.BlockNumber(startBlockNumber))
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch block number %d: %w", startBlockNumber, err)
+		}
+
+		if block != nil {
+
+			blockRes, err := b.rpcClient.BlockResults(b.ctx, &block.Block.Height)
+			if err != nil {
+				b.logger.Debug("failed to fetch block result from Tendermint", "height", startBlockNumber, "error", err.Error())
+				return nil, nil
+			}
+			// Format the block as needed (this is a placeholder, implement your formatting logic)
+			formattedBlock, err := b.RPCBlockFromTendermintBlock(block, blockRes, fullTx)
+			if err != nil {
+				b.logger.Debug("GetEthBlockFromTendermint failed", "height", startBlockNumber, "error", err.Error())
+				return nil, err
+			}
+			blocks = append(blocks, formattedBlock)
+		}
+
+		// Move to the previous block
+		startBlockNumber--
+	}
+
+	return blocks, nil
 }
 
 // GetBlockTransactionCountByHash returns the number of Ethereum transactions in
