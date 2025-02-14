@@ -3,11 +3,12 @@ package bech32_test
 import (
 	"math/big"
 
+	"helios-core/helios-chain/precompiles/bech32"
+	"helios-core/helios-chain/types"
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/cmd/config"
-	"helios-core/helios-chain/precompiles/bech32"
-	"helios-core/helios-chain/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestNewPrecompile() {
@@ -110,7 +111,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
 					s.keyring.GetAddr(0),
-					config.Bech32Prefix,
+					types.Bech32Prefix,
 				)
 				s.Require().NoError(err, "failed to pack input")
 				contract.Input = input
@@ -136,7 +137,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
 					common.BytesToAddress(valAddrBz),
-					config.Bech32PrefixValAddr,
+					types.Bech32PrefixValAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
 				contract.Input = input
@@ -159,7 +160,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
 					s.keyring.GetAddr(0),
-					config.Bech32PrefixConsAddr,
+					types.Bech32PrefixConsAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
 				contract.Input = input

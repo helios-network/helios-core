@@ -5,18 +5,20 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
 	"helios-core/helios-chain/x/erc20/keeper"
+
+	"cosmossdk.io/math"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
+	"helios-core/helios-chain/crypto/ethsecp256k1"
+	"helios-core/helios-chain/testutil"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"helios-core/helios-chain/crypto/ethsecp256k1"
-	"helios-core/helios-chain/testutil"
 
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
@@ -105,7 +107,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		{
 			name: "error - invalid sender (no '1')",
 			malleate: func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", "evmos", ethsecpAddrCosmos, "")
+				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", "helios", ethsecpAddrCosmos, "")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
@@ -315,7 +317,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 	var ctx sdk.Context
-	senderAddr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
+	senderAddr := "helios1x2w87cvt5mqjncav4lxy8yfreynn273x9pafg0"
 
 	baseDenom, err := sdk.GetBaseDenom()
 	suite.Require().NoError(err)

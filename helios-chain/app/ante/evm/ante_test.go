@@ -15,11 +15,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
+	utiltx "helios-core/helios-chain/testutil/tx"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	utiltx "helios-core/helios-chain/testutil/tx"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestAnteHandler() {
@@ -515,7 +516,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
 				amount := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
-				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "evmos_9002-1", gas, amount)
+				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "9002-1", gas, amount)
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
@@ -539,7 +540,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
 				amount := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
-				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "evmos_9000-1", gas, amount)
+				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "9000-1", gas, amount)
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
@@ -733,7 +734,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					privKeys,
 					signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
 					msg,
-					"evmos_9005-1",
+					"9005-1",
 					2000000,
 					"mixed",
 				)

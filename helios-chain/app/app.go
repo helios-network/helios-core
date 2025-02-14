@@ -12,8 +12,6 @@ import (
 	icahost "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 
-	"helios-core/helios-chain/wasmbinding"
-
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	tx "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
@@ -104,16 +102,9 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
 	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
-	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
-	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/keeper"
-	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -140,32 +131,15 @@ import (
 
 	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
-	"helios-core/helios-chain/modules/auction"
-	auctionkeeper "helios-core/helios-chain/modules/auction/keeper"
-	auctiontypes "helios-core/helios-chain/modules/auction/types"
-	"helios-core/helios-chain/modules/exchange"
-	exchangekeeper "helios-core/helios-chain/modules/exchange/keeper"
-	exchangetypes "helios-core/helios-chain/modules/exchange/types"
-	"helios-core/helios-chain/modules/insurance"
-	insurancekeeper "helios-core/helios-chain/modules/insurance/keeper"
-	insurancetypes "helios-core/helios-chain/modules/insurance/types"
 	"helios-core/helios-chain/modules/ocr"
 	ocrkeeper "helios-core/helios-chain/modules/ocr/keeper"
 	ocrtypes "helios-core/helios-chain/modules/ocr/types"
-	"helios-core/helios-chain/modules/oracle"
-	oraclekeeper "helios-core/helios-chain/modules/oracle/keeper"
-	oracletypes "helios-core/helios-chain/modules/oracle/types"
 	"helios-core/helios-chain/modules/peggy"
 	peggyKeeper "helios-core/helios-chain/modules/peggy/keeper"
 	peggytypes "helios-core/helios-chain/modules/peggy/types"
-	permissionskeeper "helios-core/helios-chain/modules/permissions/keeper"
-	permissionsmodule "helios-core/helios-chain/modules/permissions/module"
 	"helios-core/helios-chain/modules/tokenfactory"
 	tokenfactorykeeper "helios-core/helios-chain/modules/tokenfactory/keeper"
 	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
-	"helios-core/helios-chain/modules/wasmx"
-	wasmxkeeper "helios-core/helios-chain/modules/wasmx/keeper"
-	wasmxtypes "helios-core/helios-chain/modules/wasmx/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 
@@ -182,7 +156,6 @@ import (
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
-	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
 
 	epochstypes "helios-core/helios-chain/x/epochs/types"
 	inflation "helios-core/helios-chain/x/inflation/v1"
@@ -262,7 +235,6 @@ var (
 		ibctm.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		ibcfee.AppModuleBasic{},
-		ibchooks.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
@@ -270,17 +242,9 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		packetforward.AppModuleBasic{},
-
-		insurance.AppModuleBasic{},
-		exchange.AppModuleBasic{},
-		auction.AppModuleBasic{},
-		oracle.AppModuleBasic{},
 		peggy.AppModuleBasic{},
 		ocr.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
-		permissionsmodule.AppModuleBasic{},
-		wasm.AppModuleBasic{},
-		wasmx.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 	)
 
@@ -296,14 +260,8 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		ibcfeetypes.ModuleName:         nil,
 		peggytypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		exchangetypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		auctiontypes.ModuleName:        {authtypes.Burner},
-		insurancetypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 		ocrtypes.ModuleName:            nil,
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-		permissionsmodule.ModuleName:   nil,
-		wasmtypes.ModuleName:           {authtypes.Burner},
-		wasmxtypes.ModuleName:          {authtypes.Burner},
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -314,13 +272,9 @@ var (
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
 		distrtypes.ModuleName:        true,
-		auctiontypes.ModuleName:      true,
-		insurancetypes.ModuleName:    true,
-		exchangetypes.ModuleName:     true,
 		ocrtypes.ModuleName:          true,
 		peggytypes.ModuleName:        true,
 		tokenfactorytypes.ModuleName: true,
-		wasmxtypes.ModuleName:        true,
 	}
 )
 
@@ -356,16 +310,9 @@ type HeliosApp struct {
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	// helios keepers
-	AuctionKeeper      auctionkeeper.Keeper
-	ExchangeKeeper     exchangekeeper.Keeper
-	InsuranceKeeper    insurancekeeper.Keeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
-	PermissionsKeeper  permissionskeeper.Keeper
 	PeggyKeeper        peggyKeeper.Keeper
-	OracleKeeper       oraclekeeper.Keeper
 	OcrKeeper          ocrkeeper.Keeper
-	WasmKeeper         wasmkeeper.Keeper
-	WasmxKeeper        wasmxkeeper.Keeper
 
 	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -374,14 +321,11 @@ type HeliosApp struct {
 	TransferKeeper      transferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	PacketForwardKeeper *packetforwardkeeper.Keeper
-	IBCHooksKeeper      ibchookskeeper.Keeper
 
 	// scoped keepers
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
-	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
-	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
 
 	BasicModuleManager module.BasicManager
 	mm                 *module.Manager
@@ -401,7 +345,6 @@ type HeliosApp struct {
 	InflationKeeper inflationkeeper.Keeper
 	Erc20Keeper     erc20keeper.Keeper
 	EpochsKeeper    epochskeeper.Keeper
-	VestingKeeper   vestingkeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
 }
@@ -416,15 +359,11 @@ func NewHeliosApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *HeliosApp {
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
-	}
 
 	app := initHeliosApp(appName, logger, db, traceStore, baseAppOptions...)
 
-	oracleModule := app.initKeepers(authority, appOpts, wasmConfig)
-	app.initManagers(oracleModule)
+	app.initKeepers(authority, appOpts)
+	app.initManagers()
 	app.registerUpgradeHandlers()
 
 	app.configurator = module.NewConfigurator(app.codec, app.MsgServiceRouter(), app.GRPCQueryRouter())
@@ -466,7 +405,6 @@ func NewHeliosApp(
 	if !skipAnteHandlers {
 		maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-		//TODO: Merge WASM
 		options := ante.HandlerOptions{
 			Cdc:                    app.codec,
 			AccountKeeper:          app.AccountKeeper,
@@ -535,18 +473,11 @@ func initHeliosApp(
 			upgradetypes.StoreKey, evidencetypes.StoreKey, ibctransfertypes.StoreKey,
 			capabilitytypes.StoreKey, feegrant.StoreKey, authzkeeper.StoreKey,
 			icahosttypes.StoreKey, ibcfeetypes.StoreKey, crisistypes.StoreKey,
-			consensustypes.StoreKey, packetforwardtypes.StoreKey, ibchookstypes.StoreKey,
+			consensustypes.StoreKey, packetforwardtypes.StoreKey,
 			// Helios keys
-			exchangetypes.StoreKey,
-			oracletypes.StoreKey,
-			insurancetypes.StoreKey,
 			peggytypes.StoreKey,
-			auctiontypes.StoreKey,
 			ocrtypes.StoreKey,
 			tokenfactorytypes.StoreKey,
-			permissionsmodule.StoreKey,
-			wasmtypes.StoreKey,
-			wasmxtypes.StoreKey,
 			epochstypes.StoreKey,
 			// Add missing EVM-related keys
 			evmtypes.StoreKey,
@@ -559,7 +490,6 @@ func initHeliosApp(
 		tKeys = storetypes.NewTransientStoreKeys(
 			paramstypes.TStoreKey,
 			banktypes.TStoreKey,
-			exchangetypes.TStoreKey,
 			ocrtypes.TStoreKey,
 			// Add missing EVM-related transient keys
 			evmtypes.TransientKey,
@@ -710,6 +640,11 @@ func (app *HeliosApp) AppCodec() codec.Codec {
 	return app.codec
 }
 
+// DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
+func (app *HeliosApp) DefaultGenesis() evmostypes.GenesisState {
+	return app.BasicModuleManager.DefaultGenesis(app.codec)
+}
+
 // InterfaceRegistry returns HeliosApp's InterfaceRegistry
 func (app *HeliosApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
@@ -804,7 +739,7 @@ func (app *HeliosApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
 }
 
-func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptions, wasmConfig wasmtypes.WasmConfig) oracle.AppModule {
+func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptions) {
 	app.ParamsKeeper = initParamsKeeper(
 		app.codec,
 		app.amino,
@@ -889,6 +824,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		runtime.NewKVStoreService(app.keys[stakingtypes.StoreKey]),
 		app.AccountKeeper,
 		app.BankKeeper,
+		app.Erc20Keeper,
 		authority,
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
@@ -973,71 +909,15 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.AccountKeeper,
 	)
 
-	app.ScopedOracleKeeper = app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
-	app.OracleKeeper = oraclekeeper.NewKeeper(
-		app.codec,
-		app.keys[oracletypes.StoreKey],
-		app.keys[oracletypes.MemStoreKey],
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.PortKeeper,
-		app.ScopedOracleKeeper,
-		&app.OcrKeeper,
-		authority,
-	)
-
 	app.OcrKeeper.SetHooks(ocrtypes.NewMultiOcrHooks(
-		app.OracleKeeper.Hooks(),
+		nil,
 	))
-
-	app.AuctionKeeper = auctionkeeper.NewKeeper(
-		app.codec,
-		app.keys[auctiontypes.StoreKey],
-		app.AccountKeeper,
-		app.BankKeeper,
-		authority,
-	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		app.codec,
 		runtime.NewKVStoreService(app.keys[feegrant.StoreKey]),
 		&app.AccountKeeper,
 	)
-
-	app.WasmxKeeper = wasmxkeeper.NewKeeper(
-		app.codec,
-		app.keys[wasmxtypes.StoreKey],
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.FeeGrantKeeper,
-		authority,
-	)
-
-	app.InsuranceKeeper = insurancekeeper.NewKeeper(
-		app.codec,
-		app.keys[insurancetypes.StoreKey],
-		app.AccountKeeper,
-		app.BankKeeper,
-		&app.ExchangeKeeper,
-		authority,
-	)
-
-	app.ExchangeKeeper = exchangekeeper.NewKeeper(
-		app.codec,
-		app.keys[exchangetypes.StoreKey],
-		app.tKeys[exchangetypes.TStoreKey],
-		app.AccountKeeper,
-		app.BankKeeper,
-		&app.OracleKeeper,
-		&app.InsuranceKeeper,
-		app.DistrKeeper,
-		app.StakingKeeper,
-		app.MsgServiceRouter(),
-		authority,
-	)
-
-	app.InsuranceKeeper.SetExchangeKeeper(&app.ExchangeKeeper)
 
 	app.PeggyKeeper = peggyKeeper.NewKeeper(
 		app.codec,
@@ -1046,7 +926,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.BankKeeper,
 		app.SlashingKeeper,
 		app.DistrKeeper,
-		app.ExchangeKeeper,
 		authority,
 		app.AccountKeeper,
 	)
@@ -1075,16 +954,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.BankKeeper,
 	)
 
-	// 'ibc-hooks' module - depends on
-	// 1. 'auth'
-	// 2. 'bank'
-	// 3. 'distr'
-	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(app.keys[ibchookstypes.StoreKey])
-
-	// ics20WasmHooks.ContractKeeper needs to be set later
-	ics20WasmHooks := ibchooks.NewWasmHooks(&app.IBCHooksKeeper, &app.WasmKeeper, chaintypes.Bech32Prefix)
-	hooksICS4Wrapper := ibchooks.NewICS4Middleware(app.IBCKeeper.ChannelKeeper, ics20WasmHooks)
-
 	// Initialize packet forward middleware router
 	app.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
 		app.codec,
@@ -1093,7 +962,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.IBCKeeper.ChannelKeeper,
 		app.DistrKeeper,
 		app.BankKeeper,
-		hooksICS4Wrapper,
+		app.IBCFeeKeeper,
 		authority,
 	)
 
@@ -1122,62 +991,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	app.PacketForwardKeeper.SetTransferKeeper(app.TransferKeeper)
 
-	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-	wasmDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "wasm")
-
-	// The last arguments can contain custom message handlers, and custom query handlers,
-	// if we want to allow any custom callbacks
-	// See https://github.com/CosmWasm/cosmwasm/blob/main/docs/CAPABILITIES-BUILT-IN.md
-	availableCapabilities := append(wasmkeeper.BuiltInCapabilities(), "helios")
-	wasmOpts := GetWasmOpts(appOpts)
-	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(
-		&app.AuthzKeeper,
-		app.BankKeeper.(bankkeeper.BaseKeeper),
-		&app.AuctionKeeper,
-		&app.ExchangeKeeper,
-		&app.FeeGrantKeeper,
-		&app.OracleKeeper,
-		&app.TokenFactoryKeeper,
-		&app.WasmxKeeper,
-		app.MsgServiceRouter())...,
-	)
-
-	wasmOpts = append(wasmbinding.RegisterStargateQueries(*app.GRPCQueryRouter(), app.codec), wasmOpts...)
-
-	app.ScopedWasmKeeper = app.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
-	app.WasmKeeper = wasmkeeper.NewKeeper(
-		app.codec,
-		runtime.NewKVStoreService(app.keys[wasmtypes.StoreKey]),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.StakingKeeper,
-		distrkeeper.NewQuerier(app.DistrKeeper),
-		app.IBCFeeKeeper, // ISC4 Wrapper: fee IBC middleware
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.PortKeeper,
-		app.ScopedWasmKeeper,
-		app.TransferKeeper,
-		app.MsgServiceRouter(),
-		app.GRPCQueryRouter(),
-		wasmDir,
-		wasmConfig,
-		availableCapabilities,
-		authority,
-		wasmOpts...,
-	)
-
-	app.WasmxKeeper.SetWasmKeeper(app.WasmKeeper)
-	ics20WasmHooks.ContractKeeper = &app.WasmKeeper
-
-	app.PermissionsKeeper = permissionskeeper.NewKeeper(
-		app.keys[permissionsmodule.StoreKey],
-		app.BankKeeper,
-		app.TokenFactoryKeeper,
-		app.WasmKeeper,
-		authtypes.NewModuleAddress(tokenfactorytypes.ModuleName).String(),
-		authority,
-	)
-
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.ICAHostKeeper = icahostkeeper.NewKeeper(
 		app.codec,
@@ -1199,15 +1012,13 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-
-	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
-	transferStack = ibchooks.NewIBCMiddleware(transferStack, &hooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(transferStack,
 		app.PacketForwardKeeper,
 		0,
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
+	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper)
 
 	// Create Interchain Accounts Stack
 	// SendPacket, since it is originating from the application to core IBC:
@@ -1219,32 +1030,14 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	icaHostStack = icahost.NewIBCModule(app.ICAHostKeeper)
 	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, app.IBCFeeKeeper)
 
-	// Create fee enabled wasm ibc Stack
-	var wasmStack porttypes.IBCModule
-	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
-	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
-
-	// note: oracle app module is initialized earlier for IBC stack
-	oracleModule := oracle.NewAppModule(
-		app.OracleKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.GetSubspace(oracletypes.ModuleName),
-	)
-
 	// Create static IBC router, add ibctransfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
-		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(oracletypes.ModuleName, oracleModule).
-		AddRoute(wasmtypes.ModuleName, wasmStack)
+		AddRoute(ibctransfertypes.ModuleName, transferStack)
 
 	// Setting Router will finalize all routes by sealing router
 	// No more routes can be added
 	app.IBCKeeper.SetRouter(ibcRouter)
-
-	app.ExchangeKeeper.SetWasmKeepers(app.WasmKeeper, app.WasmxKeeper)
-	app.ExchangeKeeper.SetGovKeeper(app.GovKeeper)
 
 	// Create FeeMarket keeper
 
@@ -1284,6 +1077,9 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	)
 	app.Erc20Keeper = erc20Keeper
 
+	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
+	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
+
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
@@ -1298,7 +1094,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.DistrKeeper,
 			app.BankKeeper,
 			app.Erc20Keeper,
-			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
@@ -1311,15 +1106,10 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
-		AddRoute(exchangetypes.RouterKey, exchange.NewExchangeProposalHandler(app.ExchangeKeeper)).
-		AddRoute(oracletypes.RouterKey, oracle.NewOracleProposalHandler(app.OracleKeeper)).
-		AddRoute(auctiontypes.RouterKey, auction.NewAuctionProposalHandler(app.AuctionKeeper)).
 		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
-		AddRoute(wasmxtypes.RouterKey, wasmx.NewWasmxProposalHandler(app.WasmxKeeper, wasmkeeper.NewLegacyWasmProposalHandler(app.WasmKeeper, GetEnabledProposals()))) //nolint:staticcheck // still using legacy governance, will need to migrate and use the new gov v1 later
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
-	return oracleModule
 }
 
 func (app *HeliosApp) setPostHandler() {
@@ -1335,7 +1125,7 @@ func (app *HeliosApp) setPostHandler() {
 	app.SetPostHandler(post.NewPostHandler(options))
 }
 
-func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
+func (app *HeliosApp) initManagers() {
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
 	// we prefer to be more strict in what arguments the modules expect.
 	// var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
@@ -1372,27 +1162,17 @@ func (app *HeliosApp) initManagers(oracleModule oracle.AppModule) {
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ibctm.NewAppModule(),
-		ibchooks.NewAppModule(app.AccountKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Helios app modules
-		exchange.NewAppModule(app.ExchangeKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(exchangetypes.ModuleName)),
-		auction.NewAppModule(app.AuctionKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(auctiontypes.ModuleName)),
-		insurance.NewAppModule(app.InsuranceKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(insurancetypes.ModuleName)),
-		oracleModule,
 		peggy.NewAppModule(app.PeggyKeeper, app.BankKeeper, app.GetSubspace(peggytypes.ModuleName)),
 		ocr.NewAppModule(app.OcrKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(ocrtypes.ModuleName)),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
-		permissionsmodule.NewAppModule(app.PermissionsKeeper, app.BankKeeper, app.TokenFactoryKeeper, app.WasmKeeper, app.GetSubspace(permissionsmodule.ModuleName)),
-		// this line is used by starport scaffolding # stargate/app/appModule
-		wasm.NewAppModule(app.codec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
-		wasmx.NewAppModule(app.WasmxKeeper, app.AccountKeeper, app.BankKeeper, app.ExchangeKeeper, app.GetSubspace(wasmxtypes.ModuleName)),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
-		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper), //TODO: CHECK IF CREATE ISSUES CAUSE MODIFIED
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1456,18 +1236,10 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
-	// wasm subspace
-	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	// helios subspaces
-	paramsKeeper.Subspace(auctiontypes.ModuleName)
-	paramsKeeper.Subspace(insurancetypes.ModuleName)
-	paramsKeeper.Subspace(oracletypes.ModuleName)
-	paramsKeeper.Subspace(exchangetypes.ModuleName)
 	paramsKeeper.Subspace(peggytypes.ModuleName)
 	paramsKeeper.Subspace(ocrtypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
-	paramsKeeper.Subspace(permissionsmodule.ModuleName)
-	paramsKeeper.Subspace(wasmxtypes.ModuleName)
 
 	// FIX: do we need a keytable?
 	paramsKeeper.Subspace(ratelimittypes.ModuleName)
@@ -1517,19 +1289,9 @@ func initGenesisOrder() []string {
 		packetforwardtypes.ModuleName,
 
 		// Helios modules
-		auctiontypes.ModuleName,
-		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		permissionsmodule.ModuleName,
-		insurancetypes.ModuleName,
-		exchangetypes.ModuleName,
 		peggytypes.ModuleName,
 		ocrtypes.ModuleName,
-
-		ibchookstypes.ModuleName,
-		wasmtypes.ModuleName,
-		wasmxtypes.ModuleName,
-
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
@@ -1554,10 +1316,8 @@ func beginBlockerOrder() []string {
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
-		auctiontypes.ModuleName,
 		peggytypes.ModuleName,
 		paramstypes.ModuleName,
-		insurancetypes.ModuleName,
 		authtypes.ModuleName,
 		crisistypes.ModuleName,
 		feegrant.ModuleName,
@@ -1573,22 +1333,14 @@ func beginBlockerOrder() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
-		ibchookstypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		exchangetypes.ModuleName,
-		oracletypes.ModuleName,
 		ocrtypes.ModuleName,
 		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
-		permissionsmodule.ModuleName,
-		ibchookstypes.ModuleName,
-		wasmtypes.ModuleName,
-		wasmxtypes.ModuleName,
 	}
 }
 
 func endBlockerOrder() []string {
-	// NOTE: exchange endblocker must occur after gov endblocker and bank endblocker must be last
 	return []string{
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -1598,7 +1350,6 @@ func endBlockerOrder() []string {
 		authz.ModuleName,
 		ibctransfertypes.ModuleName,
 		consensustypes.ModuleName,
-		oracletypes.ModuleName,
 		minttypes.ModuleName,
 		slashingtypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -1612,21 +1363,12 @@ func endBlockerOrder() []string {
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
-
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
-
 		peggytypes.ModuleName,
-		exchangetypes.ModuleName,
-		auctiontypes.ModuleName,
-		insurancetypes.ModuleName,
 		ocrtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		permissionsmodule.ModuleName,
-		wasmtypes.ModuleName,
-		ibchookstypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		wasmxtypes.ModuleName,
 		banktypes.ModuleName,
 	}
 }

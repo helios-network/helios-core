@@ -8,26 +8,26 @@ import (
 	"maps"
 	"slices"
 
+	bankprecompile "helios-core/helios-chain/precompiles/bank"
+	"helios-core/helios-chain/precompiles/bech32"
+	distprecompile "helios-core/helios-chain/precompiles/distribution"
+	"helios-core/helios-chain/precompiles/erc20creator"
+	govprecompile "helios-core/helios-chain/precompiles/gov"
+	ics20precompile "helios-core/helios-chain/precompiles/ics20"
+	"helios-core/helios-chain/precompiles/p256"
+	stakingprecompile "helios-core/helios-chain/precompiles/staking"
+	erc20Keeper "helios-core/helios-chain/x/erc20/keeper"
+	"helios-core/helios-chain/x/evm/core/vm"
+	"helios-core/helios-chain/x/evm/types"
+	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
+	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	bankprecompile "helios-core/helios-chain/precompiles/bank"
-	"helios-core/helios-chain/precompiles/bech32"
-	distprecompile "helios-core/helios-chain/precompiles/distribution"
-	govprecompile "helios-core/helios-chain/precompiles/gov"
-	ics20precompile "helios-core/helios-chain/precompiles/ics20"
-	"helios-core/helios-chain/precompiles/p256"
-	stakingprecompile "helios-core/helios-chain/precompiles/staking"
-	vestingprecompile "helios-core/helios-chain/precompiles/vesting"
-	erc20Keeper "helios-core/helios-chain/x/erc20/keeper"
-	"helios-core/helios-chain/x/evm/core/vm"
-	"helios-core/helios-chain/x/evm/types"
-	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
-	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
-	vestingkeeper "helios-core/helios-chain/x/vesting/keeper"
 )
 
 const bech32PrecompileBaseGas = 6_000
@@ -39,7 +39,6 @@ func NewAvailableStaticPrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
@@ -54,6 +53,11 @@ func NewAvailableStaticPrecompiles(
 	bech32Precompile, err := bech32.NewPrecompile(bech32PrecompileBaseGas)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bech32 precompile: %w", err))
+	}
+
+	erc20CreatorPrecompile, err := erc20creator.NewPrecompile(erc20Keeper, bankKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate erc20Creator precompile: %w", err))
 	}
 
 	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
@@ -80,11 +84,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
 
-	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate vesting precompile: %w", err))
-	}
-
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
@@ -97,13 +96,13 @@ func NewAvailableStaticPrecompiles(
 
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
+	precompiles[erc20CreatorPrecompile.Address()] = erc20CreatorPrecompile
 	precompiles[p256Precompile.Address()] = p256Precompile
 
 	// Stateful precompiles
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
-	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	return precompiles

@@ -41,6 +41,7 @@ func ParseChainID(chainID string) (*big.Int, error) {
 
 	// verify that the chain-id entered is a base 10 integer
 	chainIDInt, ok := new(big.Int).SetString(matches[2], 10)
+
 	if !ok {
 		return nil, errors.Wrapf(ErrInvalidChainID, "epoch %s must be base-10 integer format", matches[2])
 	}

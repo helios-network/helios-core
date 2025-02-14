@@ -6,10 +6,11 @@ import (
 	"strconv"
 	"testing"
 
+	"helios-core/helios-chain/testutil/integration/common/network"
+	"helios-core/helios-chain/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"helios-core/helios-chain/cmd/config"
-	"helios-core/helios-chain/testutil/integration/common/network"
 )
 
 // getIBCChains returns a map of TestChain's for the given network interface.
@@ -40,7 +41,7 @@ func generateDummyChains(t *testing.T, coord *ibctesting.Coordinator, numberOfCh
 		ids[i-1] = chainID
 		ibcChains[chainID] = ibctesting.NewTestChain(t, coord, chainID)
 	}
-	config.SetBech32Prefixes(cfg)
+	types.SetBech32Prefixes(cfg)
 	return ibcChains, ids
 }
 

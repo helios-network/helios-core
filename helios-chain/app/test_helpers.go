@@ -12,12 +12,14 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
@@ -150,6 +152,22 @@ func NextBlock(app *HeliosApp, ctx sdk.Context, jumpTime time.Duration) (sdk.Con
 }
 
 func Cleanup(app *HeliosApp) {
-	app.WasmKeeper.Cleanup()                // release cosmwasm instance cache lock
 	_ = os.RemoveAll(defaultHomeDirForTest) // remove default dir, if it was overridden during test Setup, it's a responsibility of the sender to remove the folder
+}
+
+// SetupTestingApp initializes the IBC-go testing application
+// need to keep this design to comply with the ibctesting SetupTestingApp func
+// and be able to set the chainID for the tests properly
+func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		testAppOpts := simtestutil.AppOptionsMap{"trace": true}
+		db := dbm.NewMemDB()
+		app := NewHeliosApp(
+			log.NewNopLogger(),
+			db, nil, true,
+			testAppOpts,
+			baseapp.SetChainID(chainID),
+		)
+		return app, app.DefaultGenesis()
+	}
 }

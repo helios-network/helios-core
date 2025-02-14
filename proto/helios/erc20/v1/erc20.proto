@@ -96,9 +96,10 @@ message AddNewAssetConsensusProposal {
 
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
-  string title = 1;          // Title of the proposal
-  string description = 2;    // Description of the proposal
-  repeated Asset assets = 3; // List of assets to whitelist
+  string title = 1;           // Title of the proposal
+  string description = 2;     // Description of the proposal
+  repeated Asset assets = 3;  // List of assets to whitelist
+  uint64 initial_deposit = 4; // Initial deposit for the proposal
 }
 
 message RemoveAssetConsensusProposal {
@@ -110,6 +111,20 @@ message RemoveAssetConsensusProposal {
   string title = 1;           // Title of the proposal
   string description = 2;     // Description of the proposal
   repeated string denoms = 3; // List of asset denominations to remove
+  uint64 initial_deposit = 4; // Initial deposit for the proposal
+}
+
+message UpdateAssetConsensusProposal {
+  option (amino.name) = "erc20/UpdateAssetConsensusProposal";
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_getters) = false;
+
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
+
+  string title = 1;                  // Title of the proposal
+  string description = 2;            // Description of the proposal
+  repeated WeightUpdate updates = 3; // List of weight updates
+  uint64 initial_deposit = 4;        // Initial deposit for the proposal
 }
 
 message Asset {
@@ -121,4 +136,12 @@ message Asset {
   uint64 decimals = 4;         // Number of decimal places
   uint64 base_weight = 5;      // Base weight for rewards calculation
   string metadata = 6;         // Additional metadata (e.g., description or URL)
+}
+
+message WeightUpdate {
+  option (gogoproto.equal) = true; // Enable the Equal method generation
+
+  string denom = 1;     // Asset denomination (e.g., ETH, BNB, USDT)
+  string magnitude = 2; // Magnitude of weight change: small, medium, or high
+  string direction = 3; // Direction of weight change: up or down
 }

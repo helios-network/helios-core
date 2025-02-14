@@ -7,7 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"helios-core/helios-chain/app"
 	"helios-core/helios-chain/precompiles/gov"
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/statedb"
@@ -94,7 +93,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				To:        &contractAddr,
 				Amount:    nil,
 				GasLimit:  100000,
-				GasPrice:  app.MainnetMinGasPrices.BigInt(),
+				GasPrice:  big.NewInt(1e9),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
 				Accesses:  &ethtypes.AccessList{},

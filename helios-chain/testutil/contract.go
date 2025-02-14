@@ -53,7 +53,7 @@ type ContractCallArgs struct {
 // compiled contract data and constructor arguments
 func DeployContract(
 	ctx sdk.Context,
-	evmosApp *app.Evmos,
+	heliosApp *app.HeliosApp,
 	priv cryptotypes.PrivKey,
 	queryClientEvm evm.QueryClient,
 	contract evm.CompiledContract,
@@ -61,7 +61,7 @@ func DeployContract(
 ) (common.Address, error) {
 	chainID := evm.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
+	nonce := heliosApp.EvmKeeper.GetNonce(ctx, from)
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {
@@ -74,7 +74,7 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
-	baseFeeRes, err := evmosApp.EvmKeeper.BaseFee(ctx, &evm.QueryBaseFeeRequest{})
+	baseFeeRes, err := heliosApp.EvmKeeper.BaseFee(ctx, &evm.QueryBaseFeeRequest{})
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -94,12 +94,12 @@ func DeployContract(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := DeliverEthTx(heliosApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, err
 	}
 
-	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, heliosApp.AppCodec()); err != nil {
 		return common.Address{}, err
 	}
 
@@ -110,14 +110,14 @@ func DeployContract(
 // with the provided factoryAddress
 func DeployContractWithFactory(
 	ctx sdk.Context,
-	evmosApp *app.Evmos,
+	heliosApp *app.HeliosApp,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ExecTxResult, error) {
 	chainID := evm.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	factoryNonce := evmosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
-	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
+	factoryNonce := heliosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
+	nonce := heliosApp.EvmKeeper.GetNonce(ctx, from)
 
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:  chainID,
@@ -128,12 +128,12 @@ func DeployContractWithFactory(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := DeliverEthTx(heliosApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, abci.ExecTxResult{}, err
 	}
 
-	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, heliosApp.AppCodec()); err != nil {
 		return common.Address{}, abci.ExecTxResult{}, err
 	}
 

@@ -40,6 +40,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -75,6 +76,8 @@ import (
 	exchangetypes "helios-core/helios-chain/modules/exchange/types"
 	oraclekeeper "helios-core/helios-chain/modules/oracle/keeper"
 	oracletypes "helios-core/helios-chain/modules/oracle/types"
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	erc20types "helios-core/helios-chain/x/erc20/types"
 
 	"helios-core/helios-chain/modules/exchange"
 
@@ -357,7 +360,9 @@ func CreateTestEnv(t *testing.T) TestInput {
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	// Initialize store keys
+	erc20Key := storetypes.NewKVStoreKey(erc20types.StoreKey)
 	peggyKey := storetypes.NewKVStoreKey(types.StoreKey)
+	keyAuthz := storetypes.NewKVStoreKey(authzkeeper.StoreKey)
 	keyAcc := storetypes.NewKVStoreKey(authtypes.StoreKey)
 	keyStaking := storetypes.NewKVStoreKey(stakingtypes.StoreKey)
 	keyBank := storetypes.NewKVStoreKey(banktypes.StoreKey)
@@ -378,8 +383,10 @@ func CreateTestEnv(t *testing.T) TestInput {
 	// Initialize memory database and mount stores on it
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, logger, storemetrics.NewNoOpMetrics())
+	ms.MountStoreWithDB(erc20Key, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(peggyKey, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyAcc, storetypes.StoreTypeIAVL, nil)
+	ms.MountStoreWithDB(keyAuthz, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyParams, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyStaking, storetypes.StoreTypeIAVL, nil)
 	ms.MountStoreWithDB(keyBank, storetypes.StoreTypeIAVL, nil)
@@ -408,6 +415,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 
 	paramsKeeper := paramskeeper.NewKeeper(marshaler, cdc, keyParams, tkeyParams)
 	paramsKeeper.Subspace(authtypes.ModuleName)
+	paramsKeeper.Subspace(authzkeeper.StoreKey)
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
@@ -435,8 +443,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 		runtime.NewKVStoreService(keyAcc), // target store service
 		authtypes.ProtoBaseAccount,        // prototype
 		maccPerms,
-		authcodec.NewBech32Codec(chaintypes.HeliosBech32Prefix),
-		chaintypes.HeliosBech32Prefix,
+		authcodec.NewBech32Codec(chaintypes.Bech32Prefix),
+		chaintypes.Bech32Prefix,
 		authority,
 	)
 
@@ -452,11 +460,16 @@ func CreateTestEnv(t *testing.T) TestInput {
 	)
 	bankKeeper.SetParams(ctx, banktypes.Params{DefaultSendEnabled: true})
 
+	authzKeeper := authzkeeper.NewKeeper(runtime.NewKVStoreService(keyAuthz), marshaler, nil, accountKeeper)
+
+	erc20Keeper := erc20keeper.NewKeeper(erc20Key, marshaler, authtypes.NewModuleAddress(govtypes.ModuleName), accountKeeper, bankKeeper, nil, nil, authzKeeper, nil)
+
 	stakingKeeper := stakingkeeper.NewKeeper(
 		marshaler,
 		runtime.NewKVStoreService(keyStaking),
 		accountKeeper,
 		bankKeeper,
+		erc20Keeper,
 		authority,
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
@@ -583,7 +596,6 @@ func CreateTestEnv(t *testing.T) TestInput {
 		bankKeeper,
 		slashingKeeper,
 		distKeeper,
-		*exchangeKeeper,
 		authority,
 		accountKeeper,
 	)

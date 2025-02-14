@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
 	"helios-core/helios-chain/precompiles/authorization"
 	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/precompiles/staking"
 	testutiltx "helios-core/helios-chain/testutil/tx"
 	"helios-core/helios-chain/x/evm/core/vm"
+
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 func (s *PrecompileTestSuite) TestDelegation() {
@@ -203,7 +204,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 
 			valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
 			s.Require().NoError(err)
-			_, _, err = s.network.App.StakingKeeper.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), valAddr, math.LegacyNewDec(1))
+			_, _, err = s.network.App.StakingKeeper.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), valAddr, math.LegacyNewDec(1), s.network.GetDenom())
 			s.Require().NoError(err)
 
 			bz, err := s.precompile.UnbondingDelegation(s.network.GetContext(), contract, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))

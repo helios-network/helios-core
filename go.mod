@@ -304,13 +304,14 @@ replace (
 	cosmossdk.io/x/feegrant => github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-20
 	cosmossdk.io/x/upgrade => github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-20
 
-	github.com/CosmWasm/wasmd => github.com/Helios-Chain-Labs/wasmd v0.50.10-helios-5
+	github.com/CosmWasm/wasmd => github.com/Helios-Chain-Labs/wasmd v0.50.10-helios-6
 	github.com/bandprotocol/bandchain-packet => github.com/Helios-Chain-Labs/bandchain-packet v0.50.10-helios-1
 	github.com/cometbft/cometbft => github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-8
 
-	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-20
+	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-34
+	// github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/Helios-Chain-Labs/ibc-apps/modules/ibc-hooks/v8 v8.50.10-helios-1
-	github.com/cosmos/ibc-go/v8 => github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-2
+	github.com/cosmos/ibc-go/v8 => github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-34
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc4
 	github.com/miguelmota/go-ethereum-hdwallet => github.com/Helios-Chain-Labs/go-ethereum-hdwallet v0.50.10-helios-1
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7

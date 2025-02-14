@@ -23,7 +23,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"helios-core/helios-chain/cmd/config"
+	"helios-core/helios-chain/types"
 	"helios-core/helios-chain/utils"
 
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -78,7 +78,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
 	suite.denom = evmtypes.GetEVMCoinDenom()
 
-	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
+	sdk.GetConfig().SetBech32PrefixForAccount(types.Bech32Prefix, "")
 }
 
 // createTestAddress creates random test addresses for messages
@@ -364,7 +364,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					AccountNumber: params.accountNumber,
 					Sequence:      params.sequence,
 					PubKey:        pubKey,
-					Address:       sdk.MustBech32ifyAddressBytes(config.Bech32Prefix, pubKey.Bytes()),
+					Address:       sdk.MustBech32ifyAddressBytes(types.Bech32Prefix, pubKey.Bytes()),
 				}
 
 				bz, err := authsigning.GetSignBytesAdapter(

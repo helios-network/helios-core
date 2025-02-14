@@ -5,11 +5,15 @@ package gov
 
 import (
 	"fmt"
+	"helios-core/helios-chain/utils"
+	"math/big"
+	"reflect"
+
+	"helios-core/helios-chain/x/erc20/types"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -106,6 +110,28 @@ type TallyResultData struct {
 	Abstain    string
 	No         string
 	NoWithVeto string
+}
+
+// AddNewAssetConsensusProposalOutput defines the structure for the output of adding a new asset to the consensus.
+type AddNewAssetConsensusProposalOutput struct {
+	Proposal AddNewAssetConsensusProposalData
+}
+
+// AddNewAssetConsensusProposalData contains the detailed information of the proposal.
+type AddNewAssetConsensusProposalData struct {
+	Title       string      `json:"title"`       // Title of the proposal.
+	Description string      `json:"description"` // Description of the proposal.
+	Assets      []AssetData `json:"assets"`      // List of assets included in the proposal.
+}
+
+// AssetData defines the structure of an individual asset within the proposal.
+type AssetData struct {
+	Denom           string `json:"denom"`            // Denomination of the asset (e.g., 'USDT').
+	ContractAddress string `json:"contract_address"` // Smart contract address associated with the asset.
+	ChainId         string `json:"chain_id"`         // Chain where the asset is deployed (e.g., 'ethereum').
+	Decimals        uint32 `json:"decimals"`         // Number of decimal places for the asset.
+	BaseWeight      uint64 `json:"base_weight"`      // Base stake weight or value of the asset.
+	Metadata        string `json:"metadata"`         // Additional metadata for the asset.
 }
 
 // NewMsgVote creates a new MsgVote instance.
@@ -333,6 +359,236 @@ func ParseTallyResultArgs(args []interface{}) (*govv1.QueryTallyResultRequest, e
 
 	return &govv1.QueryTallyResultRequest{
 		ProposalId: proposalID,
+	}, nil
+}
+
+// Define a struct for parsing the assets
+type ParsedAsset struct {
+	Denom           string `json:"denom"`
+	ContractAddress string `json:"contractAddress"`
+	ChainId         string `json:"chainId"`
+	Decimals        uint64 `json:"decimals"`
+	BaseWeight      uint64 `json:"baseWeight"`
+	Metadata        string `json:"metadata"`
+}
+
+func ParseAddNewAssetProposalArgs(args []interface{}) (*types.AddNewAssetConsensusProposal, error) {
+	// Validate the number of arguments; the method expects exactly 3.
+	if len(args) != 4 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	}
+
+	// Extract the title argument and ensure it is a non-empty string.
+	title, ok := args[0].(string)
+	if !ok || title == "" {
+		return nil, fmt.Errorf("invalid title argument: %v", args[0])
+	}
+
+	// Extract the description argument and ensure it is a non-empty string.
+	description, ok := args[1].(string)
+	if !ok || description == "" {
+		return nil, fmt.Errorf("invalid description argument: %v", args[1])
+	}
+
+	// Cast args[2] to a slice of interfaces
+	rawAssets := reflect.ValueOf(args[2])
+	if rawAssets.Kind() != reflect.Slice || rawAssets.Len() == 0 {
+		return nil, fmt.Errorf("invalid or empty assets argument: %v", args[2])
+	}
+
+	// Convert each element of rawAssets into ParsedAsset and validate
+	protoAssets := make([]*types.Asset, rawAssets.Len())
+	for i := 0; i < rawAssets.Len(); i++ {
+		rawAsset := rawAssets.Index(i).Interface()
+
+		// Ensure the rawAsset is a struct and extract its fields
+		assetStruct, ok := rawAsset.(struct {
+			Denom           string `json:"denom"`
+			ContractAddress string `json:"contractAddress"`
+			ChainId         string `json:"chainId"`
+			Decimals        uint32 `json:"decimals"`
+			BaseWeight      uint64 `json:"baseWeight"`
+			Metadata        string `json:"metadata"`
+		})
+		if !ok {
+			return nil, fmt.Errorf("invalid asset structure at index %d: %v", i, rawAsset)
+		}
+
+		// Validate fields in the struct.
+		if assetStruct.Denom == "" {
+			return nil, fmt.Errorf("invalid denom for asset at index %d: %+v", i, assetStruct)
+		}
+		if assetStruct.ContractAddress == "" {
+			return nil, fmt.Errorf("invalid contractAddress for asset at index %d: %+v", i, assetStruct)
+		}
+		if assetStruct.ChainId == "" {
+			return nil, fmt.Errorf("invalid chainId for asset at index %d: %+v", i, assetStruct)
+		}
+		if assetStruct.Decimals == 0 {
+			return nil, fmt.Errorf("invalid decimals for asset at index %d: %+v", i, assetStruct)
+		}
+		if assetStruct.BaseWeight == 0 {
+			return nil, fmt.Errorf("invalid baseWeight for asset at index %d: %+v", i, assetStruct)
+		}
+		// Add the validated asset to the list.
+		protoAssets[i] = &types.Asset{
+			Denom:           assetStruct.Denom,
+			ContractAddress: assetStruct.ContractAddress,
+			ChainId:         assetStruct.ChainId,
+			Decimals:        uint64(assetStruct.Decimals),
+			BaseWeight:      assetStruct.BaseWeight,
+			Metadata:        assetStruct.Metadata,
+		}
+	}
+
+	initialDeposit, ok := args[3].(*big.Int)
+	if !ok || initialDeposit == nil || initialDeposit.Sign() < 0 {
+		return nil, fmt.Errorf("invalid or missing initialDeposit argument: %v", args[3])
+	}
+
+	// Vérifie si la valeur tient dans un uint64
+	if initialDeposit.BitLen() > 64 {
+		return nil, fmt.Errorf("initialDeposit value out of range for uint64: %v", initialDeposit)
+	}
+
+	// Construct and return the AddNewAssetConsensusProposal object.
+	return &types.AddNewAssetConsensusProposal{
+		Title:          title,
+		Description:    description,
+		Assets:         protoAssets,
+		InitialDeposit: initialDeposit.Uint64(),
+	}, nil
+}
+
+func ParseUpdateAssetProposalArgs(args []interface{}) (*types.UpdateAssetConsensusProposal, error) {
+	// Validate the number of arguments; the method expects exactly 3.
+	if len(args) != 4 {
+		return nil, fmt.Errorf("invalid number of arguments, expected 3, got %d", len(args))
+	}
+
+	// Extract the title argument and ensure it is a non-empty string.
+	title, ok := args[0].(string)
+	if !ok || title == "" {
+		return nil, fmt.Errorf("invalid title argument: %v", args[0])
+	}
+
+	// Extract the description argument and ensure it is a non-empty string.
+	description, ok := args[1].(string)
+	if !ok || description == "" {
+		return nil, fmt.Errorf("invalid description argument: %v", args[1])
+	}
+
+	// Extract the updates array from args[2].
+	rawUpdates := reflect.ValueOf(args[2])
+	if rawUpdates.Kind() != reflect.Slice || rawUpdates.Len() == 0 {
+		return nil, fmt.Errorf("invalid or empty updates argument: %v", args[2])
+	}
+
+	// Convert each element of rawUpdates into WeightUpdateData and validate.
+	parsedUpdates := make([]*types.WeightUpdate, rawUpdates.Len())
+	for i := 0; i < rawUpdates.Len(); i++ {
+		rawUpdate := rawUpdates.Index(i).Interface()
+
+		// Ensure the rawUpdate is a struct and extract its fields.
+		updateStruct, ok := rawUpdate.(struct {
+			Denom     string `json:"denom"`
+			Magnitude string `json:"magnitude"`
+			Direction string `json:"direction"`
+		})
+		if !ok {
+			return nil, fmt.Errorf("invalid update structure at index %d: %v", i, rawUpdate)
+		}
+
+		// Validate fields in the struct.
+		if updateStruct.Denom == "" {
+			return nil, fmt.Errorf("invalid denom for update at index %d: %+v", i, updateStruct)
+		}
+		if updateStruct.Magnitude == "" {
+			return nil, fmt.Errorf("invalid magnitude for update at index %d: %+v", i, updateStruct)
+		}
+		if updateStruct.Direction != "up" && updateStruct.Direction != "down" {
+			return nil, fmt.Errorf("invalid direction for update at index %d: %+v", i, updateStruct)
+		}
+
+		// Add the validated update to the list.
+		parsedUpdates[i] = &types.WeightUpdate{
+			Denom:     updateStruct.Denom,
+			Magnitude: updateStruct.Magnitude,
+			Direction: updateStruct.Direction,
+		}
+	}
+
+	initialDeposit, ok := args[3].(*big.Int)
+	if !ok || initialDeposit == nil || initialDeposit.Sign() < 0 {
+		return nil, fmt.Errorf("invalid or missing initialDeposit argument: %v", args[3])
+	}
+
+	// Vérifie si la valeur tient dans un uint64
+	if initialDeposit.BitLen() > 64 {
+		return nil, fmt.Errorf("initialDeposit value out of range for uint64: %v", initialDeposit)
+	}
+
+	// Construct and return the UpdateAssetConsensusProposal object.
+	return &types.UpdateAssetConsensusProposal{
+		Title:          title,
+		Description:    description,
+		Updates:        parsedUpdates,
+		InitialDeposit: initialDeposit.Uint64(),
+	}, nil
+}
+
+func ParseRemoveAssetProposalArgs(args []interface{}) (*types.RemoveAssetConsensusProposal, error) {
+	// Validate the number of arguments; the function expects exactly 4.
+	// Arguments: title (string), description (string), denoms ([]string), initialDeposit (*big.Int).
+	if len(args) != 4 {
+		return nil, fmt.Errorf("invalid number of arguments, expected 4, got %d", len(args))
+	}
+
+	// Extract and validate the title (must be a non-empty string).
+	title, ok := args[0].(string)
+	if !ok || title == "" {
+		return nil, fmt.Errorf("invalid title argument: %v", args[0])
+	}
+
+	// Extract and validate the description (must be a non-empty string).
+	description, ok := args[1].(string)
+	if !ok || description == "" {
+		return nil, fmt.Errorf("invalid description argument: %v", args[1])
+	}
+
+	// Extract and validate the denoms (must be a non-empty slice of strings).
+	rawDenoms := reflect.ValueOf(args[2])
+	if rawDenoms.Kind() != reflect.Slice || rawDenoms.Len() == 0 {
+		return nil, fmt.Errorf("invalid or empty denoms argument: %v", args[2])
+	}
+
+	// Convert denoms into a slice of strings and validate each entry.
+	parsedDenoms := make([]string, rawDenoms.Len())
+	for i := 0; i < rawDenoms.Len(); i++ {
+		denom, ok := rawDenoms.Index(i).Interface().(string)
+		if !ok || denom == "" {
+			return nil, fmt.Errorf("invalid denom at index %d: %v", i, rawDenoms.Index(i))
+		}
+		parsedDenoms[i] = denom
+	}
+
+	// Extract and validate the initialDeposit (must be a non-negative *big.Int).
+	initialDeposit, ok := args[3].(*big.Int)
+	if !ok || initialDeposit == nil || initialDeposit.Sign() < 0 {
+		return nil, fmt.Errorf("invalid or missing initialDeposit argument: %v", args[3])
+	}
+
+	// Ensure the initialDeposit value fits within a uint64.
+	if initialDeposit.BitLen() > 64 {
+		return nil, fmt.Errorf("initialDeposit value out of range for uint64: %v", initialDeposit)
+	}
+
+	// Construct and return the RemoveAssetConsensusProposal object.
+	return &types.RemoveAssetConsensusProposal{
+		Title:          title,
+		Description:    description,
+		Denoms:         parsedDenoms,
+		InitialDeposit: initialDeposit.Uint64(),
 	}, nil
 }
 

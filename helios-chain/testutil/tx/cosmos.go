@@ -7,6 +7,8 @@ import (
 
 	protov2 "google.golang.org/protobuf/proto"
 
+	evmostypes "helios-core/helios-chain/types"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -14,7 +16,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	evmostypes "helios-core/helios-chain/types"
 
 	"helios-core/helios-chain/app"
 )
@@ -48,7 +49,7 @@ type CosmosTxArgs struct {
 // It returns the signed transaction and an error
 func PrepareCosmosTx(
 	ctx sdk.Context,
-	appEvmos *app.Evmos,
+	appHelios *app.HeliosApp,
 	args CosmosTxArgs,
 ) (authsigning.Tx, error) {
 	txBuilder := args.TxCfg.NewTxBuilder()
@@ -71,7 +72,7 @@ func PrepareCosmosTx(
 
 	return signCosmosTx(
 		ctx,
-		appEvmos,
+		appHelios,
 		args,
 		txBuilder,
 	)
@@ -81,12 +82,12 @@ func PrepareCosmosTx(
 // the provided private key
 func signCosmosTx(
 	ctx sdk.Context,
-	appEvmos *app.Evmos,
+	appHelios *app.HeliosApp,
 	args CosmosTxArgs,
 	txBuilder client.TxBuilder,
 ) (authsigning.Tx, error) {
 	addr := sdk.AccAddress(args.Priv.PubKey().Address().Bytes())
-	seq, err := apphelios.AccountKeeper.GetSequence(ctx, addr)
+	seq, err := appHelios.AccountKeeper.GetSequence(ctx, addr)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +115,7 @@ func signCosmosTx(
 	}
 
 	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := apphelios.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
+	accNumber := appHelios.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
 	signerData := authsigning.SignerData{
 		ChainID:       args.ChainID,
 		AccountNumber: accNumber,

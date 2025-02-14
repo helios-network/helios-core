@@ -28,9 +28,9 @@ var (
 		StakingPrecompileAddress,      // Staking precompile
 		DistributionPrecompileAddress, // Distribution precompile
 		ICS20PrecompileAddress,        // ICS20 transfer precompile
-		VestingPrecompileAddress,      // Vesting precompile
 		BankPrecompileAddress,         // Bank precompile
 		GovPrecompileAddress,          // Gov precompile
+		Erc20CreatorPrecompileAddress, // Erc20Creator precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled

@@ -138,7 +138,8 @@ func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewRegisterERC20Proposal(tc.title, tc.description, tc.pair.Erc20Address)
+		tx := &types.RegisterERC20Proposal{Title: tc.title, Description: tc.description, Erc20Addresses: []string{tc.pair.Erc20Address}}
+
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
@@ -177,7 +178,7 @@ func (suite *ProposalTestSuite) TestToggleTokenConversionProposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewToggleTokenConversionProposal(tc.title, tc.description, tc.token)
+		tx := &types.ToggleTokenConversionProposal{Title: tc.title, Description: tc.description, Token: tc.token}
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {

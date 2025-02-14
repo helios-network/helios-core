@@ -5,6 +5,9 @@ package keeper
 import (
 	"math/big"
 
+	"helios-core/helios-chain/x/evm/core/vm"
+	"helios-core/helios-chain/x/evm/wrappers"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
@@ -17,8 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"helios-core/helios-chain/x/evm/core/vm"
-	"helios-core/helios-chain/x/evm/wrappers"
 
 	"helios-core/helios-chain/x/evm/statedb"
 	"helios-core/helios-chain/x/evm/types"
@@ -319,4 +320,8 @@ func (k Keeper) AddTransientGasUsed(ctx sdk.Context, gasUsed uint64) (uint64, er
 	}
 	k.SetTransientGasUsed(ctx, result)
 	return result, nil
+}
+
+func (k *Keeper) SetErc20Keeper(erc20Keeper types.Erc20Keeper) {
+	k.erc20Keeper = erc20Keeper
 }

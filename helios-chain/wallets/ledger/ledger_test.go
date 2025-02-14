@@ -4,13 +4,14 @@
 package ledger_test
 
 import (
+	"helios-core/helios-chain/wallets/accounts"
+	"helios-core/helios-chain/wallets/ledger"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"helios-core/helios-chain/wallets/accounts"
-	"helios-core/helios-chain/wallets/ledger"
 )
 
 func (suite *LedgerTestSuite) TestEvmosLedgerDerivation() {
@@ -206,7 +207,7 @@ func (suite *LedgerTestSuite) TestGetAddressPubKeySECP256K1() {
 	suite.Require().NoError(err)
 
 	addr := crypto.PubkeyToAddress(privKey.PublicKey)
-	expAddr, err := sdk.Bech32ifyAddressBytes("evmos", common.HexToAddress(addr.String()).Bytes())
+	expAddr, err := sdk.Bech32ifyAddressBytes("helios", common.HexToAddress(addr.String()).Bytes())
 	suite.Require().NoError(err)
 
 	testCases := []struct {

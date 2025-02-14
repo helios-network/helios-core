@@ -23,6 +23,7 @@ const (
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
 	ProposalAddNewAssetConsensus      string = "AddNewAssetConsensus"
 	ProposalRemoveAssetConsensus      string = "RemoveAssetConsensus"
+	ProposalUpdateAssetConsensus      string = "UpdateAssetConsensus"
 )
 
 // Implements Proposal Interface
@@ -32,6 +33,7 @@ var (
 	_ v1beta1.Content = &ToggleTokenConversionProposal{}
 	_ v1beta1.Content = &AddNewAssetConsensusProposal{}
 	_ v1beta1.Content = &RemoveAssetConsensusProposal{}
+	_ v1beta1.Content = &UpdateAssetConsensusProposal{}
 )
 
 func init() {
@@ -39,6 +41,7 @@ func init() {
 	v1beta1.RegisterProposalType(ProposalTypeToggleTokenConversion)
 	v1beta1.RegisterProposalType(ProposalAddNewAssetConsensus)
 	v1beta1.RegisterProposalType(ProposalRemoveAssetConsensus)
+	v1beta1.RegisterProposalType(ProposalUpdateAssetConsensus)
 }
 
 func (rtbp *RegisterCoinProposal) ValidateBasic() error {
@@ -235,4 +238,66 @@ func (*RegisterERC20Proposal) ProposalRoute() string {
 // ProposalType returns the proposal type for this proposal.
 func (*RegisterERC20Proposal) ProposalType() string {
 	return ProposalTypeRegisterERC20
+}
+
+// GetDescription returns the description of this proposal.
+func (p *UpdateAssetConsensusProposal) GetDescription() string {
+	return p.Description
+}
+
+// GetTitle returns the title of the proposal.
+func (p *UpdateAssetConsensusProposal) GetTitle() string {
+	return p.Title
+}
+
+// ProposalRoute returns the router key for this proposal.
+func (*UpdateAssetConsensusProposal) ProposalRoute() string {
+	return RouterKey
+}
+
+// ProposalType returns the proposal type for this proposal.
+func (*UpdateAssetConsensusProposal) ProposalType() string {
+	return ProposalUpdateAssetConsensus
+}
+
+// ValidateBasic performs a stateless check of the proposal fields.
+func (p *UpdateAssetConsensusProposal) ValidateBasic() error {
+	// Validate title
+	if strings.TrimSpace(p.Title) == "" {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal title cannot be empty")
+	}
+
+	// Validate description
+	if strings.TrimSpace(p.Description) == "" {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal description cannot be empty")
+	}
+
+	// Validate updates
+	if len(p.Updates) == 0 {
+		return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "proposal must include at least one asset update")
+	}
+
+	for _, update := range p.Updates {
+		// Validate denom
+		if strings.TrimSpace(update.Denom) == "" {
+			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset denom cannot be empty")
+		}
+
+		// Validate magnitude
+		validMagnitudes := map[string]bool{
+			"small":  true,
+			"medium": true,
+			"high":   true,
+		}
+		if !validMagnitudes[update.Magnitude] {
+			return errorsmod.Wrapf(v1beta1.ErrInvalidLengthQuery, "invalid magnitude: %s, must be one of small, medium, or high", update.Magnitude)
+		}
+
+		// Validate direction
+		if update.Direction != "up" && update.Direction != "down" {
+			return errorsmod.Wrapf(v1beta1.ErrInvalidLengthQuery, "invalid direction: %s, must be 'up' or 'down'", update.Direction)
+		}
+	}
+
+	return nil
 }

@@ -1,0 +1,25 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ERC20Creator",
+  "sourceName": "solidity/precompiles/erc20creator/ERC20Creator.sol",
+  "abi": [
+    {
+      "inputs": [
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "symbol", "type": "string" },
+        { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
+        { "internalType": "uint8", "name": "decimals", "type": "uint8" }
+      ],
+      "name": "createErc20",
+      "outputs": [
+        { "internalType": "address", "name": "tokenAddress", "type": "address" }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

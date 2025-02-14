@@ -6,13 +6,14 @@ package keeper
 import (
 	"math/big"
 
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	"helios-core/helios-chain/contracts"
 	"helios-core/helios-chain/x/erc20/types"
@@ -55,6 +56,53 @@ func (k Keeper) DeployERC20Contract(
 	}
 
 	return contractAddr, nil
+}
+
+func (k Keeper) MintERC20Tokens(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	recipient common.Address,
+	amount *big.Int,
+) error {
+	// Pack the arguments for the mint call: mint(address to, uint256 amount)
+	mintData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", recipient, amount)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to pack mint call data")
+	}
+
+	// Execute the call from the module account (which has the MINTER_ROLE) to the contract
+	_, err = k.evmKeeper.CallEVMWithData(ctx, types.ModuleAddress, &contractAddr, mintData, true)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to mint tokens")
+	}
+
+	return nil
+}
+
+// DoesERC20ContractExist checks if an ERC20 contract exists on the EVM by validating a call to its `totalSupply` method.
+func (k Keeper) DoesERC20ContractExist(
+	ctx sdk.Context,
+	contract common.Address,
+) (bool, error) {
+	// Use the ABI of the ERC20 contract
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	// Call the `totalSupply` function on the contract
+	res, err := k.evmKeeper.CallEVM(ctx, erc20ABI, types.ModuleAddress, contract, false, "totalSupply")
+	if err != nil {
+		// If the call fails, it indicates the contract may not exist or is not an ERC20
+		return false, nil
+	}
+
+	// Attempt to unpack the result to ensure the contract responds correctly
+	unpacked, err := erc20ABI.Unpack("totalSupply", res.Ret)
+	if err != nil || len(unpacked) == 0 {
+		return false, nil
+	}
+
+	// If unpacked successfully and the response is valid, the contract exists
+	_, ok := unpacked[0].(*big.Int)
+	return ok, nil
 }
 
 // QueryERC20 returns the data of a deployed ERC20 contract

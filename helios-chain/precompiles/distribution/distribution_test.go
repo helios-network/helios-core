@@ -7,13 +7,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
-	"helios-core/helios-chain/app"
 	"helios-core/helios-chain/precompiles/distribution"
 	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -230,7 +230,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				To:        &contractAddr,
 				Amount:    nil,
 				GasLimit:  100000,
-				GasPrice:  app.MainnetMinGasPrices.BigInt(),
+				GasPrice:  gasPrice.BigInt(),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
 				Accesses:  &gethtypes.AccessList{},

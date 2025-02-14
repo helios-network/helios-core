@@ -24,13 +24,13 @@ import (
 
 const (
 	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
-	MainnetChainID = "evmos_9001"
+	MainnetChainID = "4242"
 	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
-	TestnetChainID = "evmos_9000"
+	TestnetChainID = "9000"
 	// SixDecChainID defines the Evmos EIP155 chain ID with 6 decimals precision
-	SixDecChainID = "evmosix_9000"
+	SixDecChainID = "heliosix_9000"
 	// ICSChainID defines the Evmos EIP155 chain ID with IBC uatom as denom with 6 decimals precision
-	ICSChainID = "evmosics_9000"
+	ICSChainID = "heliosics_9000"
 )
 
 // EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address

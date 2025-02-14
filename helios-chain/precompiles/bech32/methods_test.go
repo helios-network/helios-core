@@ -3,11 +3,12 @@ package bech32_test
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/cmd/config"
 	"helios-core/helios-chain/precompiles/bech32"
 	cmn "helios-core/helios-chain/precompiles/common"
+	"helios-core/helios-chain/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 func (s *PrecompileTestSuite) TestHexToBech32() {
@@ -61,7 +62,7 @@ func (s *PrecompileTestSuite) TestHexToBech32() {
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
-					config.Bech32Prefix,
+					types.Bech32Prefix,
 				}
 			},
 			func(data []byte) {
@@ -133,18 +134,18 @@ func (s *PrecompileTestSuite) TestBech32ToHex() {
 			"fail - invalid bech32 address",
 			func() []interface{} {
 				return []interface{}{
-					config.Bech32Prefix,
+					types.Bech32Prefix,
 				}
 			},
 			func([]byte) {},
 			true,
-			fmt.Sprintf("invalid bech32 address: %s", config.Bech32Prefix),
+			fmt.Sprintf("invalid bech32 address: %s", types.Bech32Prefix),
 		},
 		{
 			"fail - decoding bech32 failed",
 			func() []interface{} {
 				return []interface{}{
-					config.Bech32Prefix + "1",
+					types.Bech32Prefix + "1",
 				}
 			},
 			func([]byte) {},

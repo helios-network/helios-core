@@ -85,6 +85,7 @@ func NewMonoDecoratorUtils(
 	evmParams := ek.GetParams(ctx)
 	ethCfg := evmtypes.GetEthChainConfig()
 	blockHeight := big.NewInt(ctx.BlockHeight())
+
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx)
 	baseDenom := evmtypes.GetEVMCoinDenom()
@@ -122,10 +123,6 @@ func NewMonoDecoratorUtils(
 
 // AnteHandle handles the entire decorator chain for EVM transactions using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// accountExpenses is used to keep track of the expenses associated with
-	// the sender of the tx. This struct is required to properly manage vesting
-	// accounts.
-	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 
 	ethCfg := evmtypes.GetEthChainConfig()
 	baseDenom := evmtypes.GetEVMCoinDenom()
@@ -255,23 +252,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 8. vesting
-		acc := md.accountKeeper.GetAccount(ctx, from)
-		// safety check: shouldn't happen since if account is nil it is set in
-		// account balance verification step.
-		if acc == nil {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
-				"account %s does not exist", acc)
-		}
-
-		if err := CheckVesting(
-			ctx,
-			md.evmKeeper,
-			acc,
-			accountExpenses,
-			txData.GetValue(),
-		); err != nil {
-			return ctx, err
-		}
+		// NOTE: Helios doesn't implement Evmos' x/vesting module
+		// Instead, we will use Solidity to implement vesting at the contract level
 
 		// 9. gas consumption
 		msgFees, err := evmkeeper.VerifyFee(
@@ -325,6 +307,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		decUtils.TxGasLimit += gas
 
 		// 10. increment sequence
+		acc := md.accountKeeper.GetAccount(ctx, from)
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
 			return ctx, err
 		}
