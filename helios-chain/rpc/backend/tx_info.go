@@ -499,7 +499,6 @@ func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil
 					return transactions, nil
 				}
 			}
-			counter++
 		}
 	}
 
