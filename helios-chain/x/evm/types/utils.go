@@ -67,6 +67,25 @@ func DecodeTransactionLogs(data []byte) (TransactionLogs, error) {
 }
 
 // UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx
+func UnwrapEthereumMsgTx(tx *sdk.Tx) (*MsgEthereumTx, error) {
+	if tx == nil {
+		return nil, fmt.Errorf("invalid tx: nil")
+	}
+
+	for _, msg := range (*tx).GetMsgs() {
+		ethMsg, ok := msg.(*MsgEthereumTx)
+		if !ok {
+			return nil, fmt.Errorf("invalid tx type: %T", tx)
+		}
+		txHash := ethMsg.AsTransaction().Hash()
+		ethMsg.Hash = txHash.Hex()
+		return ethMsg, nil
+	}
+
+	return nil, nil
+}
+
+// UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx
 func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) {
 	if tx == nil {
 		return nil, fmt.Errorf("invalid tx: nil")

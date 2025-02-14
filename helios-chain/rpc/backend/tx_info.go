@@ -9,6 +9,10 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+	"helios-core/helios-chain/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,9 +21,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	"helios-core/helios-chain/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // GetTransactionByHash returns the Ethereum format transaction identified by Ethereum transaction hash
@@ -451,4 +452,89 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 		baseFee,
 		b.chainID,
 	)
+}
+
+func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
+	transactions := make([]*rpctypes.RPCTransaction, 0)
+
+	// Get current block number using proper context
+	latestBlockNumber, err := b.BlockNumber()
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate starting position
+	start := false
+	counter := uint64(0)
+	currentBlockNum := uint64(latestBlockNumber)
+
+	// Get pending transactions first
+	pendingTxs, err := b.PendingTransactions()
+	if err == nil && len(pendingTxs) > 0 {
+		for _, tx := range pendingTxs {
+			counter++
+			if counter >= (uint64(page)-1)*uint64(size) {
+				start = true
+			}
+			if start {
+
+				msg, err := evmtypes.UnwrapEthereumMsgTx(tx)
+				if err != nil {
+					// not ethereum tx
+					continue
+				}
+				rpctx, err := rpctypes.NewTransactionFromMsg(
+					msg,
+					common.Hash{},
+					uint64(0),
+					uint64(0),
+					nil,
+					b.chainID,
+				)
+				if err != nil {
+					return nil, err
+				}
+				transactions = append(transactions, rpctx)
+				if uint64(len(transactions)) >= uint64(size) {
+					return transactions, nil
+				}
+			}
+			counter++
+		}
+	}
+
+	// Then get transactions from blocks
+	for currentBlockNum > 0 && uint64(len(transactions)) < uint64(size) {
+		block, err := b.GetBlockByNumber(rpctypes.BlockNumber(currentBlockNum), true)
+		if err != nil {
+			b.logger.Error("failed to get block", "number", currentBlockNum, "error", err.Error())
+			break
+		}
+
+		b.logger.Info("tx_info", "number", currentBlockNum, "tx_count", len(block["transactions"].([]interface{})))
+
+		if txs, ok := block["transactions"].([]interface{}); ok {
+			for _, tx := range txs {
+				counter++
+				b.logger.Info("tx_info_tx", "tx", tx)
+				if counter >= (uint64(page)-1)*uint64(size) {
+					start = true
+				}
+				if start {
+					b.logger.Info("tx_info_txAdd")
+					if ethTx, ok := tx.(*rpctypes.RPCTransaction); ok {
+						b.logger.Info("tx_info_txAddCasted")
+						transactions = append(transactions, ethTx)
+						if uint64(len(transactions)) >= uint64(size) {
+							return transactions, nil
+						}
+					}
+				}
+			}
+		}
+
+		currentBlockNum--
+	}
+
+	return transactions, nil
 }
