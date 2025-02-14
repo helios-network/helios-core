@@ -14,6 +14,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 
+	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 )
@@ -27,6 +28,7 @@ type QueryClient struct {
 	evmtypes.QueryClient
 	FeeMarket feemarkettypes.QueryClient
 	Gov       govtypes.QueryClient
+	Erc20     erc20types.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -36,6 +38,7 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		QueryClient:   evmtypes.NewQueryClient(clientCtx),
 		FeeMarket:     feemarkettypes.NewQueryClient(clientCtx),
 		Gov:           govtypes.NewQueryClient(clientCtx),
+		Erc20:         erc20types.NewQueryClient(clientCtx),
 	}
 }
 

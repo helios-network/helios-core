@@ -91,6 +91,9 @@ type EthereumAPI interface {
 	MaxPriorityFeePerGas() (*hexutil.Big, error)
 	ChainId() (*hexutil.Big, error)
 
+	// Tokens Information
+	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+
 	// Getting Uncles
 	//
 	// Returns information on uncle blocks are which are network rejected blocks and replaced by a canonical block instead.
@@ -368,7 +371,16 @@ func (e *PublicAPI) ChainId() (*hexutil.Big, error) { //nolint
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-///                           Uncles															          ///
+///                           Tokens									    ///
+///////////////////////////////////////////////////////////////////////////////
+
+func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getTokensByPageAndSize", "page", page, "size", size)
+	return e.backend.GetTokensByPageAndSize(page, size)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///                           Uncles										///
 ///////////////////////////////////////////////////////////////////////////////
 
 // GetUncleByBlockHashAndIndex returns the uncle identified by hash and index. Always returns nil.
