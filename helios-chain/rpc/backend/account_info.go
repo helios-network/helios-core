@@ -9,6 +9,9 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,8 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // GetCode returns the contract code at the given address and block number.
@@ -212,4 +213,86 @@ func (b *Backend) GetTransactionCount(address common.Address, blockNum rpctypes.
 
 	n = hexutil.Uint64(nonce)
 	return &n, nil
+}
+
+// GetTransactionCount returns the number of transactions at the given address up to the given block number.
+func (b *Backend) GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
+	transactions := make([]*rpctypes.RPCTransaction, 0)
+
+	// Get current block number using proper context
+	latestBlockNumber, err := b.BlockNumber()
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate starting position
+	start := false
+	counter := uint64(0)
+	currentBlockNum := uint64(latestBlockNumber)
+
+	// Get pending transactions first
+	pendingTxs, err := b.PendingTransactions()
+	if err == nil && len(pendingTxs) > 0 {
+		for _, tx := range pendingTxs {
+			msg, err := evmtypes.UnwrapEthereumMsgTx(tx)
+			if err != nil {
+				// not ethereum tx
+				continue
+			}
+			rpctx, err := rpctypes.NewTransactionFromMsg(
+				msg,
+				common.Hash{},
+				uint64(0),
+				uint64(0),
+				nil,
+				b.chainID,
+			)
+			if err != nil {
+				return nil, err
+			}
+			if rpctx.From == address || (rpctx.To != nil && *rpctx.To == address) {
+				counter++
+				if counter >= (uint64(page)-1)*uint64(size) {
+					start = true
+				}
+				if start {
+					transactions = append(transactions, rpctx)
+					if uint64(len(transactions)) >= uint64(size) {
+						return transactions, nil
+					}
+				}
+			}
+		}
+	}
+
+	// Iterate through blocks from latest to first
+	for currentBlockNum > 0 && uint64(len(transactions)) < uint64(size) {
+		block, err := b.GetBlockByNumber(rpctypes.BlockNumber(currentBlockNum), true)
+		if err != nil {
+			b.logger.Error("failed to get block", "number", currentBlockNum, "error", err.Error())
+			break
+		}
+		// Check each transaction in the block
+		if txs, ok := block["transactions"].([]interface{}); ok {
+			for _, tx := range txs {
+				if ethTx, ok := tx.(*rpctypes.RPCTransaction); ok {
+					// Check if the address is either the sender or receiver
+					if ethTx.From == address || (ethTx.To != nil && *ethTx.To == address) {
+						counter++
+						if counter >= (uint64(page)-1)*uint64(size) {
+							start = true
+						}
+						if start {
+							transactions = append(transactions, ethTx)
+							if uint64(len(transactions)) >= uint64(size) {
+								return transactions, nil
+							}
+						}
+					}
+				}
+			}
+		}
+		currentBlockNum--
+	}
+	return transactions, nil
 }

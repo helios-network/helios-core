@@ -74,6 +74,7 @@ type EthereumAPI interface {
 	GetStorageAt(address common.Address, key string, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetProof(address common.Address, storageKeys []string, blockNrOrHash rpctypes.BlockNumberOrHash) (*rpctypes.AccountResult, error)
+	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
 
 	// EVM/Smart Contract Execution
 	//
@@ -290,6 +291,11 @@ func (e *PublicAPI) GetProof(address common.Address,
 ) (*rpctypes.AccountResult, error) {
 	e.logger.Debug("eth_getProof", "address", address.Hex(), "keys", storageKeys, "block number or hash", blockNrOrHash)
 	return e.backend.GetProof(address, storageKeys, blockNrOrHash)
+}
+
+func (e *PublicAPI) GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
+	e.logger.Debug("eth_getProof", "address", address.Hex(), "page", page, "size", size)
+	return e.backend.GetAccountTransactionsByPageAndSize(address, page, size)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
