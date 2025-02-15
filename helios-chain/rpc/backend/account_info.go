@@ -20,6 +20,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
+
+	erc20types "helios-core/helios-chain/x/erc20/types"
 )
 
 // GetCode returns the contract code at the given address and block number.
@@ -176,6 +178,83 @@ func (b *Backend) GetBalance(address common.Address, blockNrOrHash rpctypes.Bloc
 	}
 
 	return (*hexutil.Big)(val.BigInt()), nil
+}
+
+// GetTokenBalance returns specifical token balance for an account
+func (b *Backend) GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error) {
+	blockNum, err := b.BlockNumberFromTendermint(blockNrOrHash)
+	if err != nil {
+		return nil, err
+	}
+
+	balanceReq := &erc20types.QueryERC20BalanceOfRequest{
+		Token:   tokenAddress.String(),
+		Address: address.String(),
+	}
+
+	balanceRes, err := b.queryClient.Erc20.ERC20BalanceOf(rpctypes.ContextWithHeight(blockNum.Int64()), balanceReq)
+	if err != nil {
+		b.logger.Debug("failed to get ERC20 balance",
+			"token", tokenAddress.String(),
+			"error", err.Error())
+		return nil, nil
+	}
+
+	val, ok := sdkmath.NewIntFromString(balanceRes.Balance)
+	if !ok {
+		b.logger.Debug("failed to parse ERC20 balance", "token", tokenAddress.String())
+		return nil, nil
+	}
+
+	return (*hexutil.Big)(val.BigInt()), nil
+}
+
+// GetTokensBalance returns all token balances for an account
+func (b *Backend) GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error) {
+	balances := make([]rpctypes.TokenBalance, 0)
+
+	// 2. Get Cosmos balances using bank query
+	blockNum, err := b.BlockNumberFromTendermint(blockNrOrHash)
+	if err != nil {
+		return nil, err
+	}
+	// Get ERC20 balances using erc20 query
+	// Create the query request
+	erc20Req := &erc20types.QueryTokenPairsRequest{}
+	erc20Res, err := b.queryClient.Erc20.TokenPairs(b.ctx, erc20Req)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, token := range erc20Res.TokenPairs {
+		// Query balance for each token
+		balanceReq := &erc20types.QueryERC20BalanceOfRequest{
+			Token:   token.Erc20Address,
+			Address: address.String(),
+		}
+
+		balanceRes, err := b.queryClient.Erc20.ERC20BalanceOf(rpctypes.ContextWithHeight(blockNum.Int64()), balanceReq)
+		if err != nil {
+			b.logger.Debug("failed to get ERC20 balance",
+				"token", token.Erc20Address,
+				"error", err.Error())
+			continue
+		}
+
+		val, ok := sdkmath.NewIntFromString(balanceRes.Balance)
+		if !ok {
+			b.logger.Debug("failed to parse ERC20 balance", "token", token.Denom)
+			continue
+		}
+
+		balances = append(balances, rpctypes.TokenBalance{
+			Address: common.HexToAddress(token.Erc20Address),
+			Symbol:  token.Denom,
+			Balance: (*hexutil.Big)(val.BigInt()),
+		})
+	}
+
+	return balances, nil
 }
 
 // GetTransactionCount returns the number of transactions at the given address up to the given block number.

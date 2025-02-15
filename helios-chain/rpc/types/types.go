@@ -13,6 +13,13 @@ import (
 // Copied the Account and StorageResult types since they are registered under an
 // internal pkg on geth.
 
+// TokenBalance représente la balance d'un token spécifique
+type TokenBalance struct {
+	Address common.Address `json:"address"`
+	Symbol  string         `json:"symbol"`
+	Balance *hexutil.Big   `json:"balance"`
+}
+
 // AccountResult struct for account proof
 type AccountResult struct {
 	Address      common.Address  `json:"address"`

@@ -75,6 +75,9 @@ type EthereumAPI interface {
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetProof(address common.Address, storageKeys []string, blockNrOrHash rpctypes.BlockNumberOrHash) (*rpctypes.AccountResult, error)
 	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
+	GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
+	// experimental
+	GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error)
 
 	// EVM/Smart Contract Execution
 	//
@@ -296,6 +299,16 @@ func (e *PublicAPI) GetProof(address common.Address,
 func (e *PublicAPI) GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
 	e.logger.Debug("eth_getProof", "address", address.Hex(), "page", page, "size", size)
 	return e.backend.GetAccountTransactionsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error) {
+	e.logger.Debug("eth_getTokenBalance", "address", address.String(), "tokenAddress", tokenAddress, "block number or hash", blockNrOrHash)
+	return e.backend.GetTokenBalance(address, tokenAddress, blockNrOrHash)
+}
+
+func (e *PublicAPI) GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error) {
+	e.logger.Debug("eth_getTokensBalance", "address", address.String(), "block number or hash", blockNrOrHash)
+	return e.backend.GetTokensBalance(address, blockNrOrHash)
 }
 
 ///////////////////////////////////////////////////////////////////////////////

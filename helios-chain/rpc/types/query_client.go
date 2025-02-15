@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/tx"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -29,6 +30,7 @@ type QueryClient struct {
 	FeeMarket feemarkettypes.QueryClient
 	Gov       govtypes.QueryClient
 	Erc20     erc20types.QueryClient
+	Bank      banktypes.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -39,6 +41,7 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		FeeMarket:     feemarkettypes.NewQueryClient(clientCtx),
 		Gov:           govtypes.NewQueryClient(clientCtx),
 		Erc20:         erc20types.NewQueryClient(clientCtx),
+		Bank:          banktypes.NewQueryClient(clientCtx),
 	}
 }
 
