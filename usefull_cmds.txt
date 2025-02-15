@@ -19,7 +19,7 @@ heliades keys export NAME_WALLET --unarmored-hex --unsafe
 
 heliades query erc20 token-pairs --node http://localhost:26657
 
-heliades query bank balances heliosaddr --node http://localhost:26657
+
 
 heliades keys unsafe-export-eth-key NAME_WALLET --keyring-backend test
 
@@ -29,3 +29,16 @@ heliades keys add genesis --recover
 heliades tx staking delegate heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla 1000000000000000000ahelios --from genesis --chain-id 4242 --fees 500000000ahelios
 heliades query staking delegations $(heliades keys show genesis -a)
 heliades tx gov vote 1 yes --from genesis --chain-id 4242 --gas-prices 280000000ahelios
+heliades q staking validators --chain-id 4242 --output json
+
+
+GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel"
+heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
+
+heliades query bank balances helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf --node http://localhost:26657
+
+- amount: "5000000000000000000000000"
+
+998956169189915995450163
+998946702537536734190845
+000001000000000000000000

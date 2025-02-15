@@ -172,7 +172,8 @@ interface StakingI is authorization.AuthorizationI {
     function delegate(
         address delegatorAddress,
         string memory validatorAddress,
-        uint256 amount
+        uint256 amount,
+        string denom
     ) external returns (bool success);
 
     /// @dev Defines a method for performing an undelegation from a delegate and a validator.
@@ -184,7 +185,8 @@ interface StakingI is authorization.AuthorizationI {
     function undelegate(
         address delegatorAddress,
         string memory validatorAddress,
-        uint256 amount
+        uint256 amount,
+        string denom
     ) external returns (int64 completionTime);
 
     /// @dev Defines a method for performing a redelegation

@@ -8,16 +8,18 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"helios-core/helios-chain/precompiles/authorization"
+	cmn "helios-core/helios-chain/precompiles/common"
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	"helios-core/helios-chain/x/evm/core/vm"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/authorization"
-	cmn "helios-core/helios-chain/precompiles/common"
-	"helios-core/helios-chain/x/evm/core/vm"
-	evmtypes "helios-core/helios-chain/x/evm/types"
-	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -31,6 +33,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	stakingKeeper stakingkeeper.Keeper
+	erc20Keeper   erc20keeper.Keeper
 }
 
 // LoadABI loads the staking ABI from the embedded abi.json file
@@ -44,6 +47,7 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -59,6 +63,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		stakingKeeper: stakingKeeper,
+		erc20Keeper:   erc20Keeper,
 	}
 	// SetAddress defines the address of the staking precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.StakingPrecompileAddress))

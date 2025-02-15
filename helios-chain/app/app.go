@@ -435,7 +435,6 @@ func NewHeliosApp(
 			tmos.Exit(err.Error())
 		}
 	}
-
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
 	app.CapabilityKeeper.Seal()

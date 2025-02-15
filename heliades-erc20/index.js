@@ -116,8 +116,8 @@ async function delegate() {
 async function main() {
   //await create();
   //await create();
-  //await fetch();
-  await delegate();
+  //await fetch();sc
+  //await delegate();
 }
 
 main();
