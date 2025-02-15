@@ -228,8 +228,8 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks
 // on the given arguments before populating the message.
-func NewMsgDelegate(args []interface{}, denom string) (*stakingtypes.MsgDelegate, common.Address, error) {
-	delegatorAddr, validatorAddress, amount, err := checkDelegationUndelegationArgs(args)
+func NewMsgDelegate(args []interface{}) (*stakingtypes.MsgDelegate, common.Address, error) {
+	delegatorAddr, validatorAddress, amount, denom, err := checkDelegationUndelegationArgs(args)
 	if err != nil {
 		return nil, common.Address{}, err
 	}
@@ -248,8 +248,8 @@ func NewMsgDelegate(args []interface{}, denom string) (*stakingtypes.MsgDelegate
 
 // NewMsgUndelegate creates a new MsgUndelegate instance and does sanity checks
 // on the given arguments before populating the message.
-func NewMsgUndelegate(args []interface{}, denom string) (*stakingtypes.MsgUndelegate, common.Address, error) {
-	delegatorAddr, validatorAddress, amount, err := checkDelegationUndelegationArgs(args)
+func NewMsgUndelegate(args []interface{}) (*stakingtypes.MsgUndelegate, common.Address, error) {
+	delegatorAddr, validatorAddress, amount, denom, err := checkDelegationUndelegationArgs(args)
 	if err != nil {
 		return nil, common.Address{}, err
 	}
@@ -836,27 +836,32 @@ func NewUnbondingDelegationRequest(args []interface{}) (*stakingtypes.QueryUnbon
 }
 
 // checkDelegationUndelegationArgs checks the arguments for the delegation and undelegation functions.
-func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string, *big.Int, error) {
-	if len(args) != 3 {
-		return common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string, *big.Int, string, error) {
+	if len(args) != 4 {
+		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
 	}
 
 	delegatorAddr, ok := args[0].(common.Address)
 	if !ok || delegatorAddr == (common.Address{}) {
-		return common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
+		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
 	validatorAddress, ok := args[1].(string)
 	if !ok {
-		return common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
+		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidAmount, args[2])
 	}
 
-	return delegatorAddr, validatorAddress, amount, nil
+	denom, ok := args[3].(string)
+	if !ok {
+		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidAmount, args[3])
+	}
+
+	return delegatorAddr, validatorAddress, amount, denom, nil
 }
 
 // FormatConsensusPubkey format ConsensusPubkey into a base64 string
