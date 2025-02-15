@@ -24,6 +24,14 @@ import (
 	erc20types "helios-core/helios-chain/x/erc20/types"
 )
 
+func (b *Backend) GetCosmosAddress(address common.Address) (string, error) {
+	return sdk.AccAddress(address.Bytes()).String(), nil
+}
+
+func (b *Backend) GetCosmosValoperAddress(address common.Address) (string, error) {
+	return sdk.ValAddress(sdk.AccAddress(address.Bytes())).String(), nil
+}
+
 // GetCode returns the contract code at the given address and block number.
 func (b *Backend) GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error) {
 	blockNum, err := b.BlockNumberFromTendermint(blockNrOrHash)

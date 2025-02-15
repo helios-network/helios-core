@@ -9,6 +9,7 @@ import (
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/proto/tendermint/crypto"
@@ -31,6 +32,7 @@ type QueryClient struct {
 	Gov       govtypes.QueryClient
 	Erc20     erc20types.QueryClient
 	Bank      banktypes.QueryClient
+	Staking   stakingtypes.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -42,6 +44,7 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		Gov:           govtypes.NewQueryClient(clientCtx),
 		Erc20:         erc20types.NewQueryClient(clientCtx),
 		Bank:          banktypes.NewQueryClient(clientCtx),
+		Staking:       stakingtypes.NewQueryClient(clientCtx),
 	}
 }
 

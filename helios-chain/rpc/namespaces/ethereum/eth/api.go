@@ -70,6 +70,8 @@ type EthereumAPI interface {
 	//
 	// Returns information regarding an address's stored on-chain data.
 	Accounts() ([]common.Address, error)
+	GetCosmosAddress(address common.Address) (string, error)
+	GetCosmosValoperAddress(address common.Address) (string, error)
 	GetBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
 	GetStorageAt(address common.Address, key string, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
@@ -129,7 +131,7 @@ type EthereumAPI interface {
 	// eth_submitHashrate (on Ethereum.org)
 
 	// Staking
-	GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Uint64, error)
+	GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (string, error)
 	// eth_stakedPowers
 }
 
@@ -267,6 +269,16 @@ func (e *PublicAPI) SendTransaction(args evmtypes.TransactionArgs) (common.Hash,
 func (e *PublicAPI) Accounts() ([]common.Address, error) {
 	e.logger.Debug("eth_accounts")
 	return e.backend.Accounts()
+}
+
+func (e *PublicAPI) GetCosmosAddress(address common.Address) (string, error) {
+	e.logger.Debug("eth_getCosmosAddress", "address", address.String())
+	return e.backend.GetCosmosAddress(address)
+}
+
+func (e *PublicAPI) GetCosmosValoperAddress(address common.Address) (string, error) {
+	e.logger.Debug("eth_getCosmosValoperAddress", "address", address.String())
+	return e.backend.GetCosmosValoperAddress(address)
 }
 
 // GetBalance returns the provided account's balance up to the provided block number.
@@ -565,11 +577,11 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 	return result, nil
 }
 
-func (e *PublicAPI) GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Uint64, error) {
+func (e *PublicAPI) GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (string, error) {
 	e.logger.Debug("eth_getStakedPowers", "address", address.Hex(), "block number or hash", blockNrOrHash)
 	blockNum, err := e.backend.BlockNumberFromTendermint(blockNrOrHash)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	return e.backend.GetStakedPowers(address, blockNum)
 }

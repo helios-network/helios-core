@@ -3,49 +3,30 @@
 package backend
 
 import (
-	errorsmod "cosmossdk.io/errors"
-
 	rpctypes "helios-core/helios-chain/rpc/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // GetTransactionCount returns the number of transactions at the given address up to the given block number.
-func (b *Backend) GetStakedPowers(address common.Address, blockNum rpctypes.BlockNumber) (*hexutil.Uint64, error) {
-	n := hexutil.Uint64(0)
-	bn, err := b.BlockNumber()
-	if err != nil {
-		return &n, err
-	}
-	height := blockNum.Int64()
+func (b *Backend) GetStakedPowers(delegatorAddress common.Address, blockNum rpctypes.BlockNumber) (string, error) {
 
-	currentHeight := int64(bn) //#nosec G701 G115 -- checked for int overflow already
-	if height > currentHeight {
-		return &n, errorsmod.Wrapf(
-			sdkerrors.ErrInvalidHeight,
-			"cannot query with height in the future (current: %d, queried: %d); please provide a valid height",
-			currentHeight, height,
-		)
-	}
-	// Get nonce (sequence) from account
-	from := sdk.AccAddress(address.Bytes())
-	accRet := b.clientCtx.AccountRetriever
+	delegatorBech32Addr := sdk.AccAddress(delegatorAddress.Bytes())
+	// valAddr := sdk.ValAddress(delegatorBech32Addr)
 
-	err = accRet.EnsureExists(b.clientCtx, from)
-	if err != nil {
-		// account doesn't exist yet, return 0
-		return &n, nil
-	}
+	// delegatorEthAddr := common.BytesToAddress(delegatorBech32Addr.Bytes())
 
-	includePending := blockNum == rpctypes.EthPendingBlockNumber
-	nonce, err := b.getAccountNonce(address, includePending, blockNum.Int64(), b.logger)
-	if err != nil {
-		return nil, err
-	}
+	// req := &stakingtypes.QueryDelegationRequest{
+	// 	DelegatorAddr: addr.String(),
+	// 	ValidatorAddr: addr.String(),
+	// }
+	// res, err := b.queryClient.Staking.Delegation(b.ctx, req)
+	// if err != nil {
+	// 	return nil, nil
+	// }
 
-	n = hexutil.Uint64(nonce)
-	return &n, nil
+	// res.DelegationResponse.Balance.Amount
+
+	return delegatorBech32Addr.String(), nil
 }
