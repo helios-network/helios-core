@@ -9,6 +9,7 @@ import (
 	govprecompilestypes "helios-core/helios-chain/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -23,7 +24,12 @@ func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Ui
 		govtypes.ProposalStatus_PROPOSAL_STATUS_FAILED:         "FAILED",
 	}
 	proposalsResult := make([]map[string]interface{}, 0)
-	proposals, err := b.queryClient.Gov.Proposals(b.ctx, &govtypes.QueryProposalsRequest{}) //.Params(b.ctx, &govtypes.QueryParamsRequest{})
+	proposals, err := b.queryClient.Gov.Proposals(b.ctx, &govtypes.QueryProposalsRequest{
+		Pagination: &query.PageRequest{
+			Offset: (uint64(page) - 1) * uint64(size),
+			Limit:  uint64(size),
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
