@@ -245,6 +245,8 @@ github.com/Helios-Chain-Labs/bandchain-packet v0.50.10-helios-1 h1:JvuTl/B8ALhei
 github.com/Helios-Chain-Labs/bandchain-packet v0.50.10-helios-1/go.mod h1:hM5+CrH/OweLqWojeJAiHHv94QOOvXUmtW4oSGSuuYg=
 github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-8 h1:M2BNAh1KZmbrYyUXM/ls8LlT5to5T/L3vLTz1Ep65D8=
 github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-8/go.mod h1:WreBJKC7CtZ9cNsb5p6uNpfCBwNWDu+risVb58GTLfY=
+github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-38 h1:2Ett0rQMuFWenSC8x1VUMIFZpjobOG1AUuPDVBWIpfo=
+github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-38/go.mod h1:U2PdqT82IaG8rqrvMNo3FwHN1iEDcII6PRLgkeuK/Ek=
 github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-20 h1:IrbfnLW0yY7hM2Vt6YfzsfsVFHD3nFB/v6cplgaQbcw=
 github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-20/go.mod h1:ZW4eIE98wivInyQyhxU2nHqEielc/iZAcr41qNyWSrw=
 github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-20 h1:ctXT7mG7CpCwctgGZLN58keHiq1m4ixPMJ8SvGj20WM=
@@ -253,8 +255,6 @@ github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-20 h1:5VzKnkD
 github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-20/go.mod h1:Tnwfp0+AmtSF3sktmOwt5Sk4PbRMrDAWsJTr6cX1Hj8=
 github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-20 h1:++89X0gfII65n8bnYDtM+OnNn5bxVP8aV5xBjIltZ94=
 github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-20/go.mod h1:Cn5qF2yRpXZcd+yJM6mu0UGt1p75IherhBhfeAvkmPc=
-github.com/Helios-Chain-Labs/ibc-apps/modules/ibc-hooks/v8 v8.50.10-helios-1 h1:UNBRz0h/avjRtlMCnWOAOPpqh6rTeiYmUd/xzX3ZxNg=
-github.com/Helios-Chain-Labs/ibc-apps/modules/ibc-hooks/v8 v8.50.10-helios-1/go.mod h1:PHprZxk8AHj4RAMuiI55eFkVusU+WVUKbWThEOhHY28=
 github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-34 h1:8WBPtks4WwUbUGaG/2GPEE0vCe3Eajj+6Xcox4KF2Wo=
 github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-34/go.mod h1:yr6+3Z6GeZYi60Oe382uufRqMRy8nRROY11+HuGvdZQ=
 github.com/Helios-Chain-Labs/metrics v0.50.10-helios-2 h1:os51E5nojjXF2N5NKn0BN8MsLzgZAvueg3SLiUGxGCA=
