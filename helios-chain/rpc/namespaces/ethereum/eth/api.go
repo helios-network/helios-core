@@ -11,6 +11,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -20,8 +21,6 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
-
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 // The Ethereum API allows applications to connect to an Evmos node that is
@@ -43,7 +42,7 @@ type EthereumAPI interface {
 	GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
 
 	// GetProposalBy(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
-	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*govtypes.Proposal, error)
+	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 
 	// Reading Transactions
 	//
@@ -131,8 +130,8 @@ type EthereumAPI interface {
 	// eth_submitHashrate (on Ethereum.org)
 
 	// Staking
-	GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (string, error)
-	// eth_stakedPowers
+	GetDelegations(address common.Address) ([]stakingtypes.Delegation, error)
+	// eth_getDelegations
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -184,7 +183,7 @@ func (e *PublicAPI) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uin
 
 // Proposals
 
-func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*govtypes.Proposal, error) {
+func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
 	e.logger.Debug("eth_getProposalsByPageAndSize", "page", page, "size", size, "full")
 	return e.backend.GetProposalsByPageAndSize(page, size)
 }
@@ -577,11 +576,7 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 	return result, nil
 }
 
-func (e *PublicAPI) GetStakedPowers(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (string, error) {
-	e.logger.Debug("eth_getStakedPowers", "address", address.Hex(), "block number or hash", blockNrOrHash)
-	blockNum, err := e.backend.BlockNumberFromTendermint(blockNrOrHash)
-	if err != nil {
-		return "", err
-	}
-	return e.backend.GetStakedPowers(address, blockNum)
+func (e *PublicAPI) GetDelegations(address common.Address) ([]stakingtypes.Delegation, error) {
+	e.logger.Debug("eth_getStakedPowers", "address", address.Hex())
+	return e.backend.GetDelegations(address)
 }

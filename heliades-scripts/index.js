@@ -141,8 +141,8 @@ const updateProposalAbi = [
 
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
-const tokenName = 'USDTeeeee';
-const tokenSymbol = 'USDTeeeee';
+const tokenName = 'WETH';
+const tokenSymbol = 'WETH';
 const tokenTotalSupply = ethers.parseUnits('5000000', 18);
 const tokenDecimals = 18;
 
@@ -233,7 +233,10 @@ async function addNewConsensusProposal() {
     console.log('Ajout d\'une nouvelle proposition au consensus...');
     console.log('Arguments envoyés au contrat :', { title, description, assets });
     
-    const tx = await contract.addNewAssetProposal(title, description, assets, "1000000000000000000");
+    const tx = await contract.addNewAssetProposal(title, description, assets, "1000000000000000000", {
+      gasPrice: 50000000000,
+      gasLimit: 500000
+    });
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -352,10 +355,10 @@ async function undelegate() {
 }
 
 async function main() {
-  await create();
+  // await create();
   //await fetch();
   //await delegate();
-  //await addNewConsensusProposal();
+  await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
   //await undelegate();

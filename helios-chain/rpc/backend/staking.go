@@ -3,30 +3,44 @@
 package backend
 
 import (
-	rpctypes "helios-core/helios-chain/rpc/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 // GetTransactionCount returns the number of transactions at the given address up to the given block number.
-func (b *Backend) GetStakedPowers(delegatorAddress common.Address, blockNum rpctypes.BlockNumber) (string, error) {
+func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]stakingtypes.Delegation, error) {
+	delegations := make([]map[string]interface{}, 0)
+	queryMsg := &stakingtypes.QueryGetDelegationsRequest{
+		DelegatorAddr: sdk.AccAddress(delegatorAddress.Bytes()).String(),
+	}
+	res, err := b.queryClient.Staking.GetDelegations(b.ctx, queryMsg)
+	if err != nil {
+		b.logger.Error("GetDelegations", "err", err)
+		return make([]stakingtypes.Delegation, 0), nil
+	}
 
-	delegatorBech32Addr := sdk.AccAddress(delegatorAddress.Bytes())
-	// valAddr := sdk.ValAddress(delegatorBech32Addr)
+	for _, delegation := range res.Delegations {
+		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
+		if err != nil {
+			b.logger.Error("GetDelegations", "err", err)
+			return make([]stakingtypes.Delegation, 0), nil
+		}
+		b.logger.Info("GetDelegations", "valAddr", valAddr)
+		cosmosAddressOfTheValidator := sdk.AccAddress(valAddr.Bytes())
+		b.logger.Info("GetDelegations", "cosmosAddressOfTheValidator", cosmosAddressOfTheValidator.String())
+		evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
+		b.logger.Info("GetDelegations", "evmAddressOfTheValidator", evmAddressOfTheValidator)
+		delegations = append(delegations, map[string]interface{}{
+			"validator_address": evmAddressOfTheValidator,
+			"shares":            delegation.Shares.String(),
+			// "balance": map[string]interface{}{
+			// 	"denom": delegation.AssetWeights//.GetBalance().Denom,
+			// 	"amount": delegation.GetBalance().Amount.String(),
+			// },
+		})
+	}
 
-	// delegatorEthAddr := common.BytesToAddress(delegatorBech32Addr.Bytes())
-
-	// req := &stakingtypes.QueryDelegationRequest{
-	// 	DelegatorAddr: addr.String(),
-	// 	ValidatorAddr: addr.String(),
-	// }
-	// res, err := b.queryClient.Staking.Delegation(b.ctx, req)
-	// if err != nil {
-	// 	return nil, nil
-	// }
-
-	// res.DelegationResponse.Balance.Amount
-
-	return delegatorBech32Addr.String(), nil
+	return res.Delegations, nil
 }
