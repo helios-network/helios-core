@@ -65,6 +65,7 @@ type EVMBackend interface {
 
 	// Proposals Info
 	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 
 	GetBlockTransactionCountByHash(hash common.Hash) *hexutil.Uint
 	GetBlockTransactionCountByNumber(blockNum rpctypes.BlockNumber) *hexutil.Uint
