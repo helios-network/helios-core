@@ -3,8 +3,10 @@
   "version": "2.0.0",
   "description": "A collection of smart contracts used in the development of the Evmos blockchain.",
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
     "@openzeppelin/contracts": "^4.9.6",
-    "hardhat": "^2.22.2"
+    "ethers": "^6.13.5",
+    "hardhat": "^2.22.18"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
