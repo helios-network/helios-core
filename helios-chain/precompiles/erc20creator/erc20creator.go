@@ -33,9 +33,9 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 	vm "helios-core/helios-chain/x/evm/core/vm"
 
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -129,6 +129,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	coinMetadata := banktypes.Metadata{
 		Description: fmt.Sprintf("Token %s created with ERC20Creator precompile", base),
 		Base:        base,
+		Name:        base,
 		Symbol:      symbol,
 		Decimals:    uint32(decimals),
 		DenomUnits: []*banktypes.DenomUnit{
@@ -157,6 +158,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	recipient := sdk.AccAddress(evm.Origin.Bytes())
 	coins := sdk.NewCoins(sdk.NewCoin(base, sdkmath.NewIntFromBigInt(supply)))
 
+	p.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
+
 	// Mint native coins to the module account
 	if err := p.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
 		return nil, fmt.Errorf("failed to mint coins on-chain: %w", err)
@@ -175,15 +178,15 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	p.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
 
 	ctx.EventManager().EmitEvent(
-    sdktypes.NewEvent(
-        "erc20_created", // todo: add to sdktypes
-        sdktypes.NewAttribute("denom", base),
-        sdktypes.NewAttribute("symbol", symbol),
-        sdktypes.NewAttribute("contract_address", contractAddr.String()),
-        sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
-        sdktypes.NewAttribute("supply", supply.String()),
-    ),
-)
+		sdktypes.NewEvent(
+			"erc20_created", // todo: add to sdktypes
+			sdktypes.NewAttribute("denom", base),
+			sdktypes.NewAttribute("symbol", symbol),
+			sdktypes.NewAttribute("contract_address", contractAddr.String()),
+			sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
+			sdktypes.NewAttribute("supply", supply.String()),
+		),
+	)
 
 	// TODO REMOVE AFTER
 	asset := types.Asset{
