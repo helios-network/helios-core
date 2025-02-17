@@ -132,6 +132,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		Name:        base,
 		Symbol:      symbol,
 		Decimals:    uint32(decimals),
+		Display:     base,
 		DenomUnits: []*banktypes.DenomUnit{
 			{
 				Denom:    base,
