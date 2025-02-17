@@ -101,7 +101,7 @@ interface DistributionI {
     /// @return amount The amount of Coin withdrawn
     function withdrawDelegatorRewards(
         address delegatorAddress,
-        string memory validatorAddress
+        address validatorAddress
     ) external returns (Coin[] calldata amount);
 
     /// @dev Withdraws the rewards commission of a validator.

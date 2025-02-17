@@ -160,8 +160,8 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 			MaxChangeRate: math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
 		},
 		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
-		DelegatorAddress:  sdk.AccAddress(validatorAddress.Bytes()).String(),
-		ValidatorAddress:  sdk.ValAddress(validatorAddress.Bytes()).String(),
+		DelegatorAddress:  cmn.AccAddressFromHexAddress(validatorAddress).String(),
+		ValidatorAddress:  cmn.ValAddressFromHexAddress(validatorAddress).String(),
 		Pubkey:            pubkey,
 		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
 	}
@@ -218,7 +218,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 			SecurityContact: description.SecurityContact,
 			Details:         description.Details,
 		},
-		ValidatorAddress:  sdk.ValAddress(validatorHexAddr.Bytes()).String(),
+		ValidatorAddress:  cmn.ValAddressFromHexAddress(validatorHexAddr).String(),
 		CommissionRate:    commissionRate,
 		MinSelfDelegation: minSelfDelegation,
 	}
@@ -235,8 +235,8 @@ func NewMsgDelegate(args []interface{}) (*stakingtypes.MsgDelegate, common.Addre
 	}
 
 	msg := &stakingtypes.MsgDelegate{
-		DelegatorAddress: sdk.AccAddress(delegatorAddr.Bytes()).String(),
-		ValidatorAddress: validatorAddress,
+		DelegatorAddress: cmn.AccAddressFromHexAddress(delegatorAddr).String(),
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 		Amount: sdk.Coin{
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
@@ -255,8 +255,8 @@ func NewMsgUndelegate(args []interface{}) (*stakingtypes.MsgUndelegate, common.A
 	}
 
 	msg := &stakingtypes.MsgUndelegate{
-		DelegatorAddress: sdk.AccAddress(delegatorAddr.Bytes()).String(),
-		ValidatorAddress: validatorAddress,
+		DelegatorAddress: cmn.AccAddressFromHexAddress(delegatorAddr).String(),
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 		Amount: sdk.Coin{
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
@@ -318,9 +318,9 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, ok := args[1].(string)
+	validatorAddress, ok := args[1].(common.Address)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
@@ -334,8 +334,8 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 	}
 
 	msg := &stakingtypes.MsgCancelUnbondingDelegation{
-		DelegatorAddress: sdk.AccAddress(delegatorAddr.Bytes()).String(), // bech32 formatted
-		ValidatorAddress: validatorAddress,
+		DelegatorAddress: cmn.AccAddressFromHexAddress(delegatorAddr).String(), // bech32 formatted
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 		Amount: sdk.Coin{
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
@@ -836,29 +836,29 @@ func NewUnbondingDelegationRequest(args []interface{}) (*stakingtypes.QueryUnbon
 }
 
 // checkDelegationUndelegationArgs checks the arguments for the delegation and undelegation functions.
-func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string, *big.Int, string, error) {
+func checkDelegationUndelegationArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
 	if len(args) != 4 {
-		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
 	}
 
 	delegatorAddr, ok := args[0].(common.Address)
 	if !ok || delegatorAddr == (common.Address{}) {
-		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, ok := args[1].(string)
+	validatorAddress, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidAmount, args[2])
 	}
 
 	denom, ok := args[3].(string)
 	if !ok {
-		return common.Address{}, "", nil, "", fmt.Errorf(cmn.ErrInvalidAmount, args[3])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidAmount, args[3])
 	}
 
 	return delegatorAddr, validatorAddress, amount, denom, nil

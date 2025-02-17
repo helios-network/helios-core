@@ -33,11 +33,11 @@ const abi = [
   }
 ];
 
-const addNewProposal = [
+const delegateAbi = [
   {
     "inputs": [
       { "internalType": "address", "name": "delegatorAddress", "type": "address" },
-      { "internalType": "string", "name": "validatorAddress", "type": "string" },
+      { "internalType": "address", "name": "validatorAddress", "type": "address" },
       { "internalType": "uint256", "name": "amount", "type": "uint256" },
       { "internalType": "string", "name": "denom", "type": "string" }
     ],
@@ -52,7 +52,7 @@ const unstakingAbi = [
   {
     "inputs": [
       { "internalType": "address", "name": "delegatorAddress", "type": "address" },
-      { "internalType": "string", "name": "validatorAddress", "type": "string" },
+      { "internalType": "address", "name": "validatorAddress", "type": "address" },
       { "internalType": "uint256", "name": "amount", "type": "uint256" },
       { "internalType": "string", "name": "denom", "type": "string" }
     ],
@@ -147,9 +147,9 @@ const withdrawDelegatorRewardsAbi = [
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "withdrawDelegatorRewards",
@@ -232,14 +232,14 @@ const name = await contract.name();
 
 async function delegate() {
 
-  const validatorAddress = 'heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla'; // Adresse Cosmos du validateur
+  const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
   const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
   try {
     console.log('Délégation en cours...');
 
-    const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', addNewProposal, wallet);
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', delegateAbi, wallet);
     const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "WETH");
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -373,7 +373,7 @@ async function vote(){
 
 async function undelegate() {
 
-  const validatorAddress = 'heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla'; // Adresse Cosmos du validateur
+  const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
   const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
@@ -395,7 +395,7 @@ async function undelegate() {
 
 async function getRewards() {
 
-  const validatorAddress = 'heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla'; // Adresse Cosmos du validateur
+  const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse Cosmos du validateur
   const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
@@ -424,7 +424,7 @@ async function main() {
   //await vote();
   //await undelegate();
 
-  // await getRewards();
+  await getRewards();
   
 }
 

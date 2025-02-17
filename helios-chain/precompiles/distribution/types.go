@@ -111,11 +111,14 @@ func NewMsgWithdrawDelegatorReward(args []interface{}) (*distributiontypes.MsgWi
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, _ := args[1].(string)
+	validatorAddress, ok := args[1].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
+	}
 
 	msg := &distributiontypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		ValidatorAddress: validatorAddress,
+		DelegatorAddress: cmn.AccAddressFromHexAddress(delegatorAddress).String(),
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 	}
 
 	return msg, delegatorAddress, nil
