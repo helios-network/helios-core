@@ -78,13 +78,13 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 			b.logger.Error("GetDelegations", "err", err)
 			return delegations, nil
 		}
-		assets := make([]map[string]interface{}, 0)
 		b.logger.Info("GetDelegations", "valAddr", valAddr)
 		cosmosAddressOfTheValidator := sdk.AccAddress(valAddr.Bytes())
 		b.logger.Info("GetDelegations", "cosmosAddressOfTheValidator", cosmosAddressOfTheValidator.String())
 		evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
 		b.logger.Info("GetDelegations", "evmAddressOfTheValidator", evmAddressOfTheValidator)
 
+		assets := make([]map[string]interface{}, 0)
 		for _, asset := range delegation.AssetWeights {
 			assets = append(assets, map[string]interface{}{
 				"symbol": asset.Denom,
@@ -112,6 +112,50 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 	}
 
 	return delegations, nil
+}
+
+func (b *Backend) GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error) {
+
+	// transform evm address to validator cosmos address
+	validatorBech32Addr := sdk.AccAddress(validatorAddress.Bytes())
+	valAddr := sdk.ValAddress(validatorBech32Addr)
+
+	queryMsg := &stakingtypes.QueryDelegationRequest{
+		DelegatorAddr: sdk.AccAddress(address.Bytes()).String(),
+		ValidatorAddr: valAddr.String(),
+	}
+	res, err := b.queryClient.Staking.Delegation(b.ctx, queryMsg)
+	if err != nil {
+		b.logger.Error("GetDelegation", "err", err)
+		return nil, nil
+	}
+	delegation := res.DelegationResponse.Delegation
+
+	assets := make([]map[string]interface{}, 0)
+	assets = append(assets, map[string]interface{}{
+		"symbol": res.DelegationResponse.Balance.Denom,
+		"amount": res.DelegationResponse.Balance.Amount,
+	})
+	for _, asset := range delegation.AssetWeights {
+		assets = append(assets, map[string]interface{}{
+			"symbol": asset.Denom,
+			"amount": asset.BaseAmount,
+			// un nececary for front-end
+			// "weightedAmount": asset.WeightedAmount,
+		})
+	}
+
+	delegationRewardsResponse, err := b.queryClient.Distribution.DelegationRewards(b.ctx, &distributiontypes.QueryDelegationRewardsRequest{
+		DelegatorAddress: sdk.AccAddress(address.Bytes()).String(),
+		ValidatorAddress: delegation.ValidatorAddress,
+	})
+
+	return map[string]interface{}{
+		"validator_address": validatorAddress,
+		"shares":            delegation.Shares.String(),
+		"assets":            assets,
+		"rewards":           delegationRewardsResponse.Rewards,
+	}, nil
 }
 
 func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {

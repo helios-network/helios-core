@@ -131,6 +131,7 @@ type EthereumAPI interface {
 
 	// Staking
 	GetDelegations(address common.Address) ([]map[string]interface{}, error)
+	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	// eth_getDelegations
 }
@@ -590,4 +591,9 @@ func (e *PublicAPI) GetDelegations(address common.Address) ([]map[string]interfa
 func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
 	e.logger.Debug("eth_getValidatorsByPageAndSize", "page", page, "size", size)
 	return e.backend.GetValidatorsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getDelegation", "address", address.Hex(), "validatorAddress", validatorAddress)
+	return e.backend.GetDelegation(address, validatorAddress)
 }

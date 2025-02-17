@@ -136,6 +136,7 @@ type EVMBackend interface {
 
 	// Staking [to update]
 	GetDelegations(address common.Address) ([]map[string]interface{}, error)
+	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 }
 
