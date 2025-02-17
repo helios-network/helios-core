@@ -847,8 +847,8 @@ func checkDelegationUndelegationArgs(args []interface{}) (common.Address, common
 	}
 
 	validatorAddress, ok := args[1].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
+	if !ok || validatorAddress == (common.Address{}) {
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidValidator, args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
