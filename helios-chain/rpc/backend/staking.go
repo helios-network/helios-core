@@ -132,10 +132,6 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	delegation := res.DelegationResponse.Delegation
 
 	assets := make([]map[string]interface{}, 0)
-	assets = append(assets, map[string]interface{}{
-		"symbol": res.DelegationResponse.Balance.Denom,
-		"amount": res.DelegationResponse.Balance.Amount,
-	})
 	for _, asset := range delegation.AssetWeights {
 		assets = append(assets, map[string]interface{}{
 			"symbol": asset.Denom,
