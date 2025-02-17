@@ -19,6 +19,9 @@ import (
 	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // QueryClient defines a gRPC Client used for:
@@ -28,11 +31,13 @@ import (
 type QueryClient struct {
 	tx.ServiceClient
 	evmtypes.QueryClient
-	FeeMarket feemarkettypes.QueryClient
-	Gov       govtypes.QueryClient
-	Erc20     erc20types.QueryClient
-	Bank      banktypes.QueryClient
-	Staking   stakingtypes.QueryClient
+	FeeMarket    feemarkettypes.QueryClient
+	Gov          govtypes.QueryClient
+	Erc20        erc20types.QueryClient
+	Bank         banktypes.QueryClient
+	Staking      stakingtypes.QueryClient
+	Mint         minttypes.QueryClient
+	Distribution distributiontypes.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -45,6 +50,8 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		Erc20:         erc20types.NewQueryClient(clientCtx),
 		Bank:          banktypes.NewQueryClient(clientCtx),
 		Staking:       stakingtypes.NewQueryClient(clientCtx),
+		Mint:          minttypes.NewQueryClient(clientCtx),
+		Distribution:  distributiontypes.NewQueryClient(clientCtx),
 	}
 }
 

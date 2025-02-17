@@ -136,6 +136,45 @@ const updateProposalAbi = [
     "stateMutability": "nonpayable",
     "type": "function"
   }
+];
+
+const withdrawDelegatorRewardsAbi = [
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "delegatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "validatorAddress",
+        "type": "string"
+      }
+    ],
+    "name": "withdrawDelegatorRewards",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "denom",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Coin[]",
+        "name": "amount",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ]
 
 
@@ -354,14 +393,38 @@ async function undelegate() {
   }
 }
 
+async function getRewards() {
+
+  const validatorAddress = 'heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla'; // Adresse Cosmos du validateur
+  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+    // Extraire et afficher la clé publique
+    console.log("wallet : ", wallet.address)
+  try {
+    console.log('WithdrawRewards en cours...');
+
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000801', withdrawDelegatorRewardsAbi, wallet);
+    const tx = await contract.withdrawDelegatorRewards(wallet.address, validatorAddress);
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log('WithdrawRewards réussie !');
+  } catch (error) {
+    console.error('Erreur lors de la WithdrawRewards :', error);
+  }
+}
+
 async function main() {
   // await create();
   //await fetch();
   //await delegate();
-  await addNewConsensusProposal();
+  // await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
   //await undelegate();
+
+  // await getRewards();
   
 }
 

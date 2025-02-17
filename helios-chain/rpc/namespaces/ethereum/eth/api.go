@@ -11,7 +11,6 @@ import (
 
 	"cosmossdk.io/log"
 
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -131,7 +130,8 @@ type EthereumAPI interface {
 	// eth_submitHashrate (on Ethereum.org)
 
 	// Staking
-	GetDelegations(address common.Address) ([]stakingtypes.Delegation, error)
+	GetDelegations(address common.Address) ([]map[string]interface{}, error)
+	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	// eth_getDelegations
 }
 
@@ -582,7 +582,12 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 	return result, nil
 }
 
-func (e *PublicAPI) GetDelegations(address common.Address) ([]stakingtypes.Delegation, error) {
-	e.logger.Debug("eth_getStakedPowers", "address", address.Hex())
+func (e *PublicAPI) GetDelegations(address common.Address) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getDelegations", "address", address.Hex())
 	return e.backend.GetDelegations(address)
+}
+
+func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getValidatorsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetValidatorsByPageAndSize(page, size)
 }
