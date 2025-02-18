@@ -87,10 +87,10 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 		assets := make([]map[string]interface{}, 0)
 		for _, asset := range delegation.AssetWeights {
 			assets = append(assets, map[string]interface{}{
-				"symbol": asset.Denom,
-				"amount": asset.BaseAmount,
+				"symbol":     asset.Denom,
+				"baseAmount": asset.BaseAmount,
 				// un nececary for front-end
-				// "weightedAmount": asset.WeightedAmount,
+				"weightedAmount": asset.WeightedAmount,
 			})
 		}
 
