@@ -49,7 +49,7 @@ jq '.app_state["mint"]["params"]["mint_denom"]="ahelios"' $GENESIS_CONFIG > $TMP
 jq '.app_state["auction"]["params"]["auction_period"]="10"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["module_admin"]="'$FEEDADMIN'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["ocr"]["params"]["payout_block_interval"]="5"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["staking"]["params"]["unbonding_time"]="180s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["staking"]["params"]["unbonding_time"]="5s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 # Set gas limit in genesis
 jq '.consensus_params["block"]["max_gas"]="10000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 # Set base fee in genesis
@@ -126,8 +126,11 @@ DENOM_DECIMALS='['${HELIOS},${PEGGY_DENOM_DECIMALS},${IBC_DENOM_DECIMALS}']'
 jq '.app_state["exchange"]["denom_decimals"]='${DENOM_DECIMALS} $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 # Add genesis accounts
-GENESIS_VALIDATOR_ADDRESS="helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"
+GENESIS_VALIDATOR_ADDRESS="helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf" # DO NOT FORGET TO UPDATE FOR HELIOS!!!
 GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel"
+
+# Save as treasury wallet
+jq '.app_state["staking"]["params"]["treasury_address"]="'$GENESIS_VALIDATOR_ADDRESS'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 # Add GENESIS VALIDATOR key
 heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
 # Integrate GENESIS VALIDATOR into the genesis block with specifical large balance

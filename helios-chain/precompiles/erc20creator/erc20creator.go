@@ -190,7 +190,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	)
 
 	// TODO REMOVE AFTER
-	/*asset := types.Asset{
+	asset := types.Asset{
 		Denom:           base,
 		ContractAddress: contractAddr.Hex(),
 		ChainId:         "ethereum", // Exemple de chainId, à ajuster si nécessaire
@@ -203,7 +203,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	if err := p.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset); err != nil {
 		return nil, fmt.Errorf("failed to add ERC20 asset to whitelist: %w", err)
 	}
-	*/
+
 	return method.Outputs.Pack(contractAddr)
 }
 

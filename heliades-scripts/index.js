@@ -180,9 +180,9 @@ const withdrawDelegatorRewardsAbi = [
 
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
-const tokenName = 'WETH';
-const tokenSymbol = 'WETH';
-const tokenTotalSupply = ethers.parseUnits('5000000', 18);
+const tokenName = 'BNB';
+const tokenSymbol = 'BNB';
+const tokenTotalSupply = ethers.parseUnits('100', 18);
 const tokenDecimals = 18;
 
 async function create(){
@@ -214,26 +214,38 @@ async function create(){
 }
 
 async function fetch(){
-const contractAddress = '0xD4949664cD82660AaE99bEdc034a0deA8A0bd517';
+  const contractAddress = '0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd';
 
-const abi = [
-  'function name() view returns (string)',
-  'function symbol() view returns (string)',
-  'function decimals() view returns (uint8)',
-  'function totalSupply() view returns (uint256)',
-  'function balanceOf(address account) view returns (uint256)',
-];
+  const abi = [
+    'function name() view returns (string)',
+    'function symbol() view returns (string)',
+    'function decimals() view returns (uint8)',
+    'function totalSupply() view returns (uint256)',
+    'function balanceOf(address account) view returns (uint256)',
+  ];
 
-// Créer une instance du contrat
-const contract = new ethers.Contract(contractAddress, abi, provider);
-const name = await contract.name();
+  // Créer une instance du contrat
+  const contract = new ethers.Contract(contractAddress, abi, provider);
+  
+  // Récupérer les informations du token
+  const name = await contract.name();
+  const symbol = await contract.symbol();
+  const decimals = await contract.decimals();
+  const totalSupply = await contract.totalSupply();
+  const balance = await contract.balanceOf(wallet.address); // Assuming you want the balance of the wallet
 
+  // Afficher les informations
+  console.log('Token Name:', name);
+  console.log('Token Symbol:', symbol);
+  console.log('Token Decimals:', decimals);
+  console.log('Total Supply:', totalSupply.toString());
+  console.log('Balance of Wallet:', balance.toString());
 }
 
 async function delegate() {
 
   const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
-  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+  const delegateAmount = ethers.parseUnits('1.5', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
   try {
@@ -294,9 +306,9 @@ async function updateConsensusProposal() {
   const description = 'update WETH';
   const updates = [
     {
-      denom: 'WETH',
+      denom: 'BNB',
       magnitude: 'high',
-      direction: 'down'
+      direction: 'up'
     }
   ];
 
@@ -359,7 +371,7 @@ async function vote(){
   try {
     console.log('Ajout d\'une nouvelle proposition au consensus...');
     
-    const tx = await contract.vote(wallet.address, 4, 1, "voting testtest");
+    const tx = await contract.vote(wallet.address, 2, 1, "voting testtest");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -374,14 +386,14 @@ async function vote(){
 async function undelegate() {
 
   const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
-  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+  const delegateAmount = ethers.parseUnits('0.1', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
   try {
     console.log('UnDélégation en cours...');
 
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', unstakingAbi, wallet);
-    const tx = await contract.undelegate(wallet.address, validatorAddress, delegateAmount, "WETH");
+    const tx = await contract.undelegate(wallet.address, validatorAddress, delegateAmount, "BNB");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -416,15 +428,15 @@ async function getRewards() {
 }
 
 async function main() {
-  // await create();
+  //await create();
   //await fetch();
-  //await delegate();
+  await delegate();
   // await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
   //await undelegate();
 
-  await getRewards();
+  //await getRewards();
   
 }
 
