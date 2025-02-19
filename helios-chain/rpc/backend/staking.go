@@ -4,7 +4,11 @@ package backend
 
 import (
 	"fmt"
+	"slices"
 
+	erc20types "helios-core/helios-chain/x/erc20/types"
+
+	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -72,6 +76,8 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 		return delegations, nil
 	}
 
+	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+
 	for _, delegation := range res.Delegations {
 		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
 		if err != nil {
@@ -86,10 +92,17 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 
 		assets := make([]map[string]interface{}, 0)
 		for _, asset := range delegation.AssetWeights {
+
+			idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
+			baseWeight := math.NewIntFromUint64(1)
+			if idx != -1 {
+				baseWeight = math.NewIntFromUint64(whitelistedAssetsResp.Assets[idx].GetBaseWeight())
+			}
+
 			assets = append(assets, map[string]interface{}{
-				"symbol":     asset.Denom,
-				"baseAmount": asset.BaseAmount,
-				// un nececary for front-end
+				"symbol":         asset.Denom,
+				"baseAmount":     asset.BaseAmount,
+				"amount":         asset.WeightedAmount.Quo(baseWeight),
 				"weightedAmount": asset.WeightedAmount,
 			})
 		}
@@ -99,13 +112,17 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 			ValidatorAddress: delegation.ValidatorAddress,
 		})
 
+		if err != nil {
+			return delegations, err
+		}
+
 		// delegationTotalRewardsResponse, err := b.queryClient.Distribution.DelegationTotalRewards(b.ctx, &distributiontypes.QueryDelegationTotalRewardsRequest{
 		// 	DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
 		// })
 
 		delegations = append(delegations, map[string]interface{}{
 			"validator_address": evmAddressOfTheValidator,
-			"shares":            delegation.Shares.String(),
+			"shares":            delegation.Shares.TruncateInt(),
 			"assets":            assets,
 			"rewards":           delegationRewardsResponse.Rewards,
 		})
@@ -131,13 +148,22 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	}
 	delegation := res.DelegationResponse.Delegation
 
+	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+
 	assets := make([]map[string]interface{}, 0)
 	for _, asset := range delegation.AssetWeights {
+
+		idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
+		baseWeight := math.NewIntFromUint64(1)
+		if idx != -1 {
+			baseWeight = math.NewIntFromUint64(whitelistedAssetsResp.Assets[idx].GetBaseWeight())
+		}
+
 		assets = append(assets, map[string]interface{}{
-			"symbol": asset.Denom,
-			"amount": asset.BaseAmount,
-			// un nececary for front-end
-			// "weightedAmount": asset.WeightedAmount,
+			"symbol":         asset.Denom,
+			"baseAmount":     asset.BaseAmount,
+			"amount":         asset.WeightedAmount.Quo(baseWeight),
+			"weightedAmount": asset.WeightedAmount,
 		})
 	}
 
@@ -146,9 +172,13 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		ValidatorAddress: delegation.ValidatorAddress,
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
 	return map[string]interface{}{
 		"validator_address": validatorAddress,
-		"shares":            delegation.Shares.String(),
+		"shares":            delegation.Shares.TruncateInt(),
 		"assets":            assets,
 		"rewards":           delegationRewardsResponse.Rewards,
 	}, nil
