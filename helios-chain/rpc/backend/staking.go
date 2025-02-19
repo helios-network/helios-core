@@ -124,7 +124,10 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 			"validator_address": evmAddressOfTheValidator,
 			"shares":            delegation.Shares.TruncateInt(),
 			"assets":            assets,
-			"rewards":           delegationRewardsResponse.Rewards,
+			"rewards": map[string]interface{}{
+				"denom":  delegationRewardsResponse.Rewards[0].Denom,
+				"amount": delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+			},
 		})
 	}
 
@@ -180,7 +183,10 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		"validator_address": validatorAddress,
 		"shares":            delegation.Shares.TruncateInt(),
 		"assets":            assets,
-		"rewards":           delegationRewardsResponse.Rewards,
+		"rewards": map[string]interface{}{
+			"denom":  delegationRewardsResponse.Rewards[0].Denom,
+			"amount": delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+		},
 	}, nil
 }
 
