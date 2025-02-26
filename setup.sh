@@ -31,7 +31,7 @@ heliades init $MONIKER --chain-id $CHAINID
 # echo 'api = ["eth","txpool","personal","net","debug","web3"]' >> ~/.heliades/config/app.toml
 
 # Update configuration files
-perl -i -pe 's/^timeout_commit = ".*?"/timeout_commit = "2500ms"/' ~/.heliades/config/config.toml
+perl -i -pe 's/^timeout_commit = ".*?"/timeout_commit = "5000ms"/' ~/.heliades/config/config.toml
 perl -i -pe 's/^minimum-gas-prices = ".*?"/minimum-gas-prices = "500000000ahelios"/' ~/.heliades/config/app.toml
 
 # Update genesis file with new denominations and parameters

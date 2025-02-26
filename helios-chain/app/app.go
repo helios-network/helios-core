@@ -151,14 +151,10 @@ import (
 	evmkeeper "helios-core/helios-chain/x/evm/keeper"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
+	epochstypes "helios-core/helios-chain/x/epochs/types"
 	"helios-core/helios-chain/x/feemarket"
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
-	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
-	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
-
-	epochstypes "helios-core/helios-chain/x/epochs/types"
-	inflation "helios-core/helios-chain/x/inflation/v1"
 
 	srvflags "helios-core/helios-chain/server/flags"
 
@@ -262,7 +258,6 @@ var (
 		peggytypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		ocrtypes.ModuleName:            nil,
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		ratelimittypes.ModuleName:      nil,
@@ -341,10 +336,9 @@ type HeliosApp struct {
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
 
-	// Evmos keepers
-	InflationKeeper inflationkeeper.Keeper
-	Erc20Keeper     erc20keeper.Keeper
-	EpochsKeeper    epochskeeper.Keeper
+	// Helios keepers
+	Erc20Keeper  erc20keeper.Keeper
+	EpochsKeeper epochskeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
 }
@@ -482,7 +476,6 @@ func initHeliosApp(
 			evmtypes.StoreKey,
 			feemarkettypes.StoreKey,
 			erc20types.StoreKey,
-			inflationtypes.StoreKey,
 			ratelimittypes.StoreKey,
 		)
 
@@ -1042,13 +1035,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	// ALL EVM
 
-	// Evmos Keeper
-	app.InflationKeeper = inflationkeeper.NewKeeper(
-		app.keys[inflationtypes.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper,
-		authtypes.FeeCollectorName,
-	)
-
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
@@ -1082,8 +1068,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
-			// insert epoch hooks receivers here
-			app.InflationKeeper.Hooks(),
+		// insert epoch hooks receivers here
+		//app.InflationKeeper.Hooks(),
 		),
 	)
 
@@ -1106,7 +1092,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
 		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper))
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
+		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
 }
@@ -1167,8 +1154,6 @@ func (app *HeliosApp) initManagers() {
 		peggy.NewAppModule(app.PeggyKeeper, app.BankKeeper, app.GetSubspace(peggytypes.ModuleName)),
 		ocr.NewAppModule(app.OcrKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(ocrtypes.ModuleName)),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
-			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
@@ -1246,7 +1231,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
-	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	return paramsKeeper
@@ -1291,7 +1275,6 @@ func initGenesisOrder() []string {
 		tokenfactorytypes.ModuleName,
 		peggytypes.ModuleName,
 		ocrtypes.ModuleName,
-		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,

@@ -180,8 +180,8 @@ const withdrawDelegatorRewardsAbi = [
 
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
-const tokenName = 'BNB';
-const tokenSymbol = 'BNB';
+const tokenName = 'BNBFDP1';
+const tokenSymbol = 'BNBFDP1';
 const tokenTotalSupply = ethers.parseUnits('100', 18);
 const tokenDecimals = 18;
 
@@ -428,10 +428,10 @@ async function getRewards() {
 }
 
 async function main() {
-  //await create();
+  await create();
   //await fetch();
-  await delegate();
-  // await addNewConsensusProposal();
+  //await delegate();
+  //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
   //await undelegate();
