@@ -10,6 +10,8 @@ import (
 	"helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
 
+	"fmt"
+
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -94,7 +96,7 @@ func HandleUpdateAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, propos
 		}
 
 		// Determine the adjustment factor
-		percentFactor, adjustmentFactor, err := getAdjustmentFactors(update.Magnitude)
+		percentFactor, adjustmentFactor, err := getAdjustmentFactors(asset, update.Magnitude, update.Direction)
 		if err != nil {
 			return err
 		}
@@ -120,17 +122,36 @@ func HandleUpdateAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, propos
 }
 
 // Helper to determine adjustment factors based on magnitude
-func getAdjustmentFactors(magnitude string) (math.LegacyDec, float64, error) {
+func getAdjustmentFactors(asset types.Asset, magnitude string, direction string) (math.LegacyDec, float64, error) {
+
+	var baseFactor float64
 	switch magnitude {
 	case "small":
-		return math.LegacyMustNewDecFromStr("0.05"), 0.05, nil
+		baseFactor = 0.05
 	case "medium":
-		return math.LegacyMustNewDecFromStr("0.15"), 0.15, nil
+		baseFactor = 0.15
 	case "high":
-		return math.LegacyMustNewDecFromStr("0.30"), 0.30, nil
+		baseFactor = 0.30
 	default:
 		return math.LegacyDec{}, 0, errors.Wrapf(types.ErrInvalidLengthQuery, "invalid magnitude: %s", magnitude)
 	}
+
+	// manage the weight one by one under 10 baseWeight
+	adjustedFactor := baseFactor
+	if asset.BaseWeight < 10 {
+		if direction == "down" {
+			if asset.BaseWeight == 1 {
+				return math.LegacyDec{}, 0, errors.Wrapf(types.ErrInvalidLengthQuery, "BaseWeight minimum reach")
+			}
+			targetWeight := float64(asset.BaseWeight - 1)
+			adjustedFactor = (float64(asset.BaseWeight) - targetWeight) / float64(asset.BaseWeight)
+		} else {
+			targetWeight := float64(asset.BaseWeight + 1)
+			adjustedFactor = (targetWeight - float64(asset.BaseWeight)) / float64(asset.BaseWeight)
+		}
+	}
+	adjustedFactorStr := fmt.Sprintf("%.2f", adjustedFactor) // 2 decimals
+	return math.LegacyMustNewDecFromStr(adjustedFactorStr), adjustedFactor, nil
 }
 
 // Helper to apply weight adjustment based on direction
