@@ -64,6 +64,34 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 	return validatorsResult, nil
 }
 
+func (b *Backend) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
+	whitelistedAssets := make([]map[string]interface{}, 0)
+	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+	if err != nil {
+		b.logger.Error("GetAllWhitelistedAssets", "err", err)
+		return nil, err
+	}
+	repartitionMap, err := b.queryClient.Staking.ShareRepartitionMap(b.ctx, &stakingtypes.QueryShareRepartitionMapRequest{})
+	if err != nil {
+		b.logger.Error("GetAllWhitelistedAssets", "err", err)
+		return nil, err
+	}
+	for _, asset := range whitelistedAssetsResp.Assets {
+		whitelistedAssets = append(whitelistedAssets, map[string]interface{}{
+			"denom":                         asset.Denom,
+			"baseWeight":                    asset.BaseWeight,
+			"chainId":                       asset.ChainId,
+			"decimals":                      asset.Decimals,
+			"metadata":                      asset.Metadata,
+			"contractAddress":               asset.ContractAddress,
+			"totalShares":                   repartitionMap.SharesRepartitionMap[asset.Denom].NetworkShares,
+			"networkPercentageSecurisation": repartitionMap.SharesRepartitionMap[asset.Denom].NetworkPercentageSecurisation,
+		})
+	}
+
+	return whitelistedAssets, err
+}
+
 // GetTransactionCount returns the number of transactions at the given address up to the given block number.
 func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]interface{}, error) {
 	delegations := make([]map[string]interface{}, 0)
