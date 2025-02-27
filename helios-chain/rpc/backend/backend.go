@@ -81,8 +81,8 @@ type EVMBackend interface {
 	EthBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults) (*ethtypes.Block, error)
 
 	// Account Info
-	GetCosmosAddress(address common.Address) (string, error)
-	GetCosmosValoperAddress(address common.Address) (string, error)
+	GetHeliosAddress(address common.Address) (string, error)
+	GetHeliosValoperAddress(address common.Address) (string, error)
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
 	GetStorageAt(address common.Address, key string, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)

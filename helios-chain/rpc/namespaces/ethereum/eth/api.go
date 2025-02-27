@@ -69,8 +69,8 @@ type EthereumAPI interface {
 	//
 	// Returns information regarding an address's stored on-chain data.
 	Accounts() ([]common.Address, error)
-	GetCosmosAddress(address common.Address) (string, error)
-	GetCosmosValoperAddress(address common.Address) (string, error)
+	GetHeliosAddress(address common.Address) (string, error)
+	GetHeliosValoperAddress(address common.Address) (string, error)
 	GetBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
 	GetStorageAt(address common.Address, key string, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
@@ -278,14 +278,14 @@ func (e *PublicAPI) Accounts() ([]common.Address, error) {
 	return e.backend.Accounts()
 }
 
-func (e *PublicAPI) GetCosmosAddress(address common.Address) (string, error) {
-	e.logger.Debug("eth_getCosmosAddress", "address", address.String())
-	return e.backend.GetCosmosAddress(address)
+func (e *PublicAPI) GetHeliosAddress(address common.Address) (string, error) {
+	e.logger.Debug("eth_getHeliosAddress", "address", address.String())
+	return e.backend.GetHeliosAddress(address)
 }
 
-func (e *PublicAPI) GetCosmosValoperAddress(address common.Address) (string, error) {
-	e.logger.Debug("eth_getCosmosValoperAddress", "address", address.String())
-	return e.backend.GetCosmosValoperAddress(address)
+func (e *PublicAPI) GetHeliosValoperAddress(address common.Address) (string, error) {
+	e.logger.Debug("eth_getHeliosValoperAddress", "address", address.String())
+	return e.backend.GetHeliosValoperAddress(address)
 }
 
 // GetBalance returns the provided account's balance up to the provided block number.

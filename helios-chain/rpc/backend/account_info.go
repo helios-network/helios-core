@@ -24,11 +24,11 @@ import (
 	erc20types "helios-core/helios-chain/x/erc20/types"
 )
 
-func (b *Backend) GetCosmosAddress(address common.Address) (string, error) {
+func (b *Backend) GetHeliosAddress(address common.Address) (string, error) {
 	return sdk.AccAddress(address.Bytes()).String(), nil
 }
 
-func (b *Backend) GetCosmosValoperAddress(address common.Address) (string, error) {
+func (b *Backend) GetHeliosValoperAddress(address common.Address) (string, error) {
 	return sdk.ValAddress(sdk.AccAddress(address.Bytes())).String(), nil
 }
 
