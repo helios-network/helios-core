@@ -55,6 +55,24 @@ jq '.consensus_params["block"]["max_gas"]="10000000"' $GENESIS_CONFIG > $TMP_GEN
 # Set base fee in genesis
 jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
+# HELIOS DEFAULT COMMUNITY TAX
+jq '.app_state["distribution"]["params"]["community_tax"]="0.02"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
+#DEFAULT STAKE OVERALL DISTRIB MANAGEMENT
+#- `dominance_threshold`: Percentage threshold above which reduction begins
+#- `curve_steepness`: Controls how quickly reduction increases
+#- `max_reduction`: Maximum possible reduction percentage
+#- `enabled`: Whether the mechanism is active
+
+jq '.app_state["staking"]["params"]["delegator_stake_reduction"] |= 
+    { 
+      "enabled": true, 
+      "dominance_threshold": "0.05",
+      "max_reduction": "0.90",
+      "curve_steepness": "10.0"
+    }' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
+
 # Zero address account (burn)
 #jq '.app_state.bank.balances += [{"address": "helios1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49", "coins": [{"denom": "helios", "amount": "1"}]}]' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 

@@ -50,7 +50,7 @@ import protopkg from '@helios-chain-labs/proto'
       // Based on the error message, we need to match the scale of 0.150000000000000000
       // For 16%, we need 0.160000000000000000
       // Which as an integer would be 160000000000000000
-      new_rate: '190000000000000000' // 16% as an integer with the correct scale
+      new_rate: '300000000000000000' // 16% as an integer with the correct scale
     });
 
 
