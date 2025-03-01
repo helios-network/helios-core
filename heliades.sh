@@ -2,7 +2,7 @@ yes 12345678 | heliades start \
 --chain-id 4242 \
 --log_level "info" \
 --rpc.laddr "tcp://0.0.0.0:26657" \
---minimum-gas-prices "0.1helios" \
+--minimum-gas-prices "0.1ahelios" \
 --grpc.enable=true \
 --grpc.address="0.0.0.0:9090" \
 --grpc-web.enable=true \
