@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
 	"cosmossdk.io/math"
@@ -19,6 +20,43 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
+
+func (b *Backend) GetValidator(address common.Address) (map[string]interface{}, error) {
+	queryMsg := &stakingtypes.QueryValidatorRequest{
+		ValidatorAddr: cmn.ValAddressFromHexAddress(address).String(),
+	}
+	res, err := b.queryClient.Staking.Validator(b.ctx, queryMsg)
+	if err != nil {
+		return nil, err
+	}
+	validator := res.Validator
+	valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+	if err != nil {
+		b.logger.Error("GetDelegations", "err", err)
+		return nil, err
+	}
+	cosmosAddressOfTheValidator := sdk.AccAddress(valAddr.Bytes())
+	evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
+
+	apr, err := b.GetValidatorAPR(validator.OperatorAddress)
+
+	return map[string]interface{}{
+		"validatorAddress":        evmAddressOfTheValidator,
+		"shares":                  validator.DelegatorShares.String(),
+		"moniker":                 validator.GetMoniker(),
+		"commission":              validator.Commission,
+		"description":             validator.Description,
+		"status":                  validator.Status,
+		"unbondingHeight":         validator.UnbondingHeight,
+		"unbondingIds":            validator.UnbondingIds,
+		"jailed":                  validator.Jailed,
+		"unbondingOnHoldRefCount": validator.UnbondingOnHoldRefCount,
+		"unbondingTime":           validator.UnbondingTime,
+		"minSelfDelegation":       validator.MinSelfDelegation,
+		"apr":                     apr,
+		// todo details of the staking
+	}, nil
+}
 
 func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
 	validatorsResult := make([]map[string]interface{}, 0)

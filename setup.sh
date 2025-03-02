@@ -47,17 +47,17 @@ MNEMONICS=(
 
 # Import keys from mnemonics
 for i in "${!KEYS[@]}"; do
-    heliades keys add ${KEYS[$i]} --from-mnemonic "${MNEMONICS[$i]}"
+    heliades keys add ${KEYS[$i]} --from-mnemonic "${MNEMONICS[$i]}" --keyring-backend="local"
 done
 
 # Integrate accounts into the genesis block with specifical balance
 for key in "${KEYS[@]}"; do
-    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend="local") 1000000000000000000000ahelios --keyring-backend="local"
 done
 
 echo "Signing genesis transaction"
 # Register as Validator genesis account and delegate 900000 ahelios
-heliades gentx user0 900000000000000000000ahelios --chain-id $CHAINID --gas-prices "1000000000ahelios"
+heliades gentx user0 900000000000000000000ahelios --chain-id $CHAINID --keyring-backend="local" --gas-prices "1000000000ahelios"
 
 echo "Collecting genesis transaction"
 # Collect genesis Validators tx
