@@ -58,6 +58,23 @@ func (b *Backend) GetValidator(address common.Address) (map[string]interface{}, 
 	}, nil
 }
 
+func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error) {
+	validator, err := b.GetValidator(address)
+
+	if err != nil {
+		return nil, err
+	}
+	delegation, err := b.GetDelegation(address, address)
+
+	if err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{
+		"validator":  validator,
+		"delegation": delegation,
+	}, nil
+}
+
 func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
 	validatorsResult := make([]map[string]interface{}, 0)
 	queryMsg := &stakingtypes.QueryValidatorsRequest{

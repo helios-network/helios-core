@@ -133,6 +133,7 @@ type EthereumAPI interface {
 	GetDelegations(address common.Address) ([]map[string]interface{}, error)
 	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
 	GetValidator(address common.Address) (map[string]interface{}, error)
+	GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
 	// eth_getDelegations
@@ -593,6 +594,11 @@ func (e *PublicAPI) GetDelegations(address common.Address) ([]map[string]interfa
 func (e *PublicAPI) GetValidator(address common.Address) (map[string]interface{}, error) {
 	e.logger.Debug("eth_getValidator", "address", address)
 	return e.backend.GetValidator(address)
+}
+
+func (e *PublicAPI) GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getValidatorAndHisDelegation", "address", address)
+	return e.backend.GetValidatorAndHisDelegation(address)
 }
 
 func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
