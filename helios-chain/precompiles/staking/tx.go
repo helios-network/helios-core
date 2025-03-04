@@ -74,6 +74,7 @@ func (p Precompile) CreateValidator(
 		"validator_address", validatorHexAddr.String(),
 		"pubkey", msg.Pubkey.String(),
 		"value", msg.Value.Amount.String(),
+		"min_delegation", msg.MinDelegation.String(),
 	)
 
 	// ATM there's no authorization type for the MsgCreateValidator
@@ -125,6 +126,7 @@ func (p Precompile) EditValidator(
 		"validator_address", msg.ValidatorAddress,
 		"commission_rate", msg.CommissionRate,
 		"min_self_delegation", msg.MinSelfDelegation,
+		"min_delegation", msg.MinDelegation,
 	)
 
 	// ATM there's no authorization type for the MsgCreateValidator
@@ -345,11 +347,7 @@ func (p Precompile) Redelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return nil, err
-	}
-	msg, delegatorHexAddr, err := NewMsgRedelegate(args, bondDenom)
+	msg, delegatorHexAddr, err := NewMsgRedelegate(args)
 	if err != nil {
 		return nil, err
 	}

@@ -12,10 +12,11 @@ heliades q staking validators
 heliades keys list
 
 #EXPORT KEYS TENDERMINT FORMAT
-heliades keys export NAME_WALLET
+heliades keys export signer2
 
 #EXPORT KEYS ETHER FORMAT
-heliades keys export NAME_WALLET --unarmored-hex --unsafe
+
+heliades keys export genesis --unarmored-hex --unsafe
 
 heliades query erc20 token-pairs --node http://localhost:26657
 
@@ -37,8 +38,9 @@ heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
 
 heliades query bank balances helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf --node http://localhost:26657
 
-- amount: "5000000000000000000000000"
+heliades query distribution rewards #addr
 
-998956169189915995450163
-998946702537536734190845
-000001000000000000000000
+heliades tendermint show-validator => to get the pubkey
+
+
+heliades keys list
