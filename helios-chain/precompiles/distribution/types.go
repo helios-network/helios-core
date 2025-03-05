@@ -130,10 +130,13 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, _ := args[0].(string)
+	validatorAddress, ok := args[0].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
+	}
 
 	msg := &distributiontypes.MsgWithdrawValidatorCommission{
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 	}
 
 	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)

@@ -108,7 +108,7 @@ interface DistributionI {
     /// @param validatorAddress The address of the validator
     /// @return amount The amount of Coin withdrawn
     function withdrawValidatorCommission(
-        string memory validatorAddress
+        address validatorAddress
     ) external returns (Coin[] calldata amount);
 
     /// @dev fundCommunityPool defines a method to allow an account to directly
