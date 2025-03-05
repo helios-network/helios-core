@@ -134,6 +134,10 @@ type EthereumAPI interface {
 	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
 	GetValidator(address common.Address) (map[string]interface{}, error)
 	GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error)
+	GetValidatorCommission(address common.Address) (map[string]interface{}, error)
+	GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error)
+	GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error)
+	GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
 	// eth_getDelegations
@@ -599,6 +603,26 @@ func (e *PublicAPI) GetValidator(address common.Address) (map[string]interface{}
 func (e *PublicAPI) GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error) {
 	e.logger.Debug("eth_getValidatorAndHisDelegation", "address", address)
 	return e.backend.GetValidatorAndHisDelegation(address)
+}
+
+func (e *PublicAPI) GetValidatorCommission(address common.Address) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getValidatorCommission", "address", address)
+	return e.backend.GetValidatorCommission(address)
+}
+
+func (e *PublicAPI) GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getValidatorOutStandingRewards", "address", address)
+	return e.backend.GetValidatorOutStandingRewards(address)
+}
+
+func (e *PublicAPI) GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getValidatorWithHisDelegationAndCommission", "address", address)
+	return e.backend.GetValidatorWithHisDelegationAndCommission(address)
+}
+
+func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getValidatorAndHisCommission", "address", address)
+	return e.backend.GetValidatorAndHisCommission(address)
 }
 
 func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {

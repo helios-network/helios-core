@@ -139,6 +139,10 @@ type EVMBackend interface {
 	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
 	GetValidator(address common.Address) (map[string]interface{}, error)
 	GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error)
+	GetValidatorCommission(address common.Address) (map[string]interface{}, error)
+	GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error)
+	GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error)
+	GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
 }

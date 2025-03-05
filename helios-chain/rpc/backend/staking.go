@@ -21,6 +21,36 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+func (b *Backend) GetValidatorCommission(address common.Address) (map[string]interface{}, error) {
+	queryMsg := &distributiontypes.QueryValidatorCommissionRequest{
+		ValidatorAddress: cmn.ValAddressFromHexAddress(address).String(),
+	}
+	res, err := b.queryClient.Distribution.ValidatorCommission(b.ctx, queryMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"amount": res.Commission.Commission.AmountOf("ahelios").TruncateInt(),
+		"denom":  "ahelios",
+	}, nil
+}
+
+func (b *Backend) GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error) {
+	queryMsg := &distributiontypes.QueryValidatorOutstandingRewardsRequest{
+		ValidatorAddress: cmn.ValAddressFromHexAddress(address).String(),
+	}
+	res, err := b.queryClient.Distribution.ValidatorOutstandingRewards(b.ctx, queryMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"amount": res.Rewards.Rewards.AmountOf("ahelios").TruncateInt(),
+		"denom":  "ahelios",
+	}, nil
+}
+
 func (b *Backend) GetValidator(address common.Address) (map[string]interface{}, error) {
 	queryMsg := &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: cmn.ValAddressFromHexAddress(address).String(),
@@ -58,6 +88,23 @@ func (b *Backend) GetValidator(address common.Address) (map[string]interface{}, 
 	}, nil
 }
 
+func (b *Backend) GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error) {
+	validator, err := b.GetValidator(address)
+
+	if err != nil {
+		return nil, err
+	}
+	commission, err := b.GetValidatorCommission(address)
+
+	if err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{
+		"validator":  validator,
+		"commission": commission,
+	}, nil
+}
+
 func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error) {
 	validator, err := b.GetValidator(address)
 
@@ -72,6 +119,29 @@ func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (map[stri
 	return map[string]interface{}{
 		"validator":  validator,
 		"delegation": delegation,
+	}, nil
+}
+
+func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error) {
+	validator, err := b.GetValidator(address)
+
+	if err != nil {
+		return nil, err
+	}
+	delegation, err := b.GetDelegation(address, address)
+
+	if err != nil {
+		return nil, err
+	}
+	commission, err := b.GetValidatorCommission(address)
+
+	if err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{
+		"validator":  validator,
+		"delegation": delegation,
+		"commission": commission,
 	}, nil
 }
 
