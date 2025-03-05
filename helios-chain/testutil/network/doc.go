@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 /*
 Package network implements and exposes a fully operational in-process Tendermint
 test network that consists of at least one or potentially many validators. This
