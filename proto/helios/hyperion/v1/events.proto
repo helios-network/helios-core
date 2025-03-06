@@ -21,7 +21,7 @@ message EventBridgeWithdrawCanceled {
 }
 
 message EventOutgoingBatch {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   string denom = 2;
   string orchestrator_address = 3;
   uint64 batch_nonce = 4;
@@ -30,7 +30,7 @@ message EventOutgoingBatch {
 }
 
 message EventOutgoingBatchCanceled {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   string bridge_contract = 2;
   uint64 bridge_chain_id = 3;
   uint64 batch_id = 4;
@@ -38,7 +38,7 @@ message EventOutgoingBatchCanceled {
 }
 
 message EventValsetUpdateRequest {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 valset_nonce = 2;
   uint64 valset_height = 3;
   repeated BridgeValidator valset_members = 4;
@@ -55,13 +55,13 @@ message EventSetOrchestratorAddresses {
 }
 
 message EventValsetConfirm {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 valset_nonce = 2;
   string orchestrator_address = 3;
 }
 
 message EventSendToChain {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 outgoing_tx_id = 2;
   string sender = 3;
   string receiver = 4;
@@ -77,7 +77,7 @@ message EventSendToChain {
 }
 
 message EventConfirmBatch {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 batch_nonce = 2;
   string orchestrator_address = 3;
 }
@@ -89,7 +89,7 @@ message EventAttestationVote {
 }
 
 message EventDepositClaim {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -105,7 +105,7 @@ message EventDepositClaim {
 }
 
 message EventWithdrawClaim {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -115,7 +115,7 @@ message EventWithdrawClaim {
 }
 
 message EventERC20DeployedClaim {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -128,7 +128,7 @@ message EventERC20DeployedClaim {
 }
 
 message EventValsetUpdateClaim {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 event_height = 3;
   bytes attestation_id = 4;
@@ -150,7 +150,7 @@ message EventSubmitBadSignatureEvidence {
 }
 
 message EventValidatorSlash {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   int64 power = 2;
   string reason = 3;
   string consensus_address = 4;

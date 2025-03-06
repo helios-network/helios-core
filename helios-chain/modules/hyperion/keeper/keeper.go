@@ -89,7 +89,7 @@ func NewKeeper(
 
 // SetValsetRequest returns a new instance of the Hyperion BridgeValidatorSet
 // i.e. {"nonce": 1, "memebers": [{"eth_addr": "foo", "power": 11223}]}
-func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId string) *types.Valset {
+func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -587,7 +587,7 @@ func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, ethAddr common.Addres
 // and submit a valset and they don't have their eth keys set they can never
 // update the validator set again and the bridge and all its' funds are lost.
 // For this reason we exclude validators with unset eth keys from validator sets
-func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId string) *types.Valset {
+func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -692,16 +692,16 @@ func (k *Keeper) SetParams(ctx sdk.Context, params *types.Params) {
 }
 
 // GetCounterpartyChainParams returns a mapping (hyperion id => the counterparty chain params)
-func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[string]*types.CounterpartyChainParams {
+func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[uint64]*types.CounterpartyChainParams {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]*types.CounterpartyChainParams{}
+		return map[uint64]*types.CounterpartyChainParams{}
 	}
 
-	counterpartyChainParamsMap := make(map[string]*types.CounterpartyChainParams)
+	counterpartyChainParamsMap := make(map[uint64]*types.CounterpartyChainParams)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		counterpartyChainParamsMap[counterpartyChainParams.HyperionId] = counterpartyChainParams
 	}
@@ -710,16 +710,16 @@ func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[string]*types.C
 }
 
 // GetBridgeContractAddress returns a mapping (hyperion id => the bridge contract address on the counterparty chain)
-func (k *Keeper) GetBridgeContractAddress(ctx sdk.Context) map[string]common.Address {
+func (k *Keeper) GetBridgeContractAddress(ctx sdk.Context) map[uint64]common.Address {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]common.Address{}
+		return map[uint64]common.Address{}
 	}
 
-	bridgeContractAddressMap := make(map[string]common.Address)
+	bridgeContractAddressMap := make(map[uint64]common.Address)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		bridgeContractAddressMap[counterpartyChainParams.HyperionId] = common.HexToAddress(counterpartyChainParams.BridgeCounterpartyAddress)
 	}
@@ -728,16 +728,16 @@ func (k *Keeper) GetBridgeContractAddress(ctx sdk.Context) map[string]common.Add
 }
 
 // GetBridgeChainID returns a mapping (hyperion id => the chain id of the counterparty chain)
-func (k *Keeper) GetBridgeChainID(ctx sdk.Context) map[string]uint64 {
+func (k *Keeper) GetBridgeChainID(ctx sdk.Context) map[uint64]uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]uint64{}
+		return map[uint64]uint64{}
 	}
 
-	bridgeChainIdMap := make(map[string]uint64)
+	bridgeChainIdMap := make(map[uint64]uint64)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		bridgeChainIdMap[counterpartyChainParams.HyperionId] = counterpartyChainParams.BridgeChainId
 	}
@@ -745,16 +745,16 @@ func (k *Keeper) GetBridgeChainID(ctx sdk.Context) map[string]uint64 {
 	return bridgeChainIdMap
 }
 
-func (k *Keeper) GetHyperionID(ctx sdk.Context) map[string]string {
+func (k *Keeper) GetHyperionID(ctx sdk.Context) map[uint64]uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]string{}
+		return map[uint64]uint64{}
 	}
 
-	hyperionIdMap := make(map[string]string)
+	hyperionIdMap := make(map[uint64]uint64)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		hyperionIdMap[counterpartyChainParams.HyperionId] = counterpartyChainParams.HyperionId
 	}
@@ -763,15 +763,15 @@ func (k *Keeper) GetHyperionID(ctx sdk.Context) map[string]string {
 }
 
 // GetCosmosCoinDenom returns a mapping (hyperion id => the Cosmos native coin)
-func (k *Keeper) GetCosmosCoinDenom(ctx sdk.Context) map[string]string {
+func (k *Keeper) GetCosmosCoinDenom(ctx sdk.Context) map[uint64]string {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]string{}
+		return map[uint64]string{}
 	}
-	cosmosCoinDenom := make(map[string]string)
+	cosmosCoinDenom := make(map[uint64]string)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		cosmosCoinDenom[counterpartyChainParams.HyperionId] = counterpartyChainParams.CosmosCoinDenom
 	}
@@ -780,15 +780,15 @@ func (k *Keeper) GetCosmosCoinDenom(ctx sdk.Context) map[string]string {
 }
 
 // GetCosmosCoinERC20Contract returns a mapping (hyperion id => the Cosmos coin ERC20 contract address of the counterparty chain)
-func (k *Keeper) GetCosmosCoinERC20Contract(ctx sdk.Context) map[string]common.Address {
+func (k *Keeper) GetCosmosCoinERC20Contract(ctx sdk.Context) map[uint64]common.Address {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]common.Address{}
+		return map[uint64]common.Address{}
 	}
-	cosmosCoinErc20ContractMap := make(map[string]common.Address)
+	cosmosCoinErc20ContractMap := make(map[uint64]common.Address)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		cosmosCoinErc20ContractMap[counterpartyChainParams.HyperionId] = common.HexToAddress(counterpartyChainParams.CosmosCoinErc20Contract)
 	}
@@ -796,16 +796,16 @@ func (k *Keeper) GetCosmosCoinERC20Contract(ctx sdk.Context) map[string]common.A
 	return cosmosCoinErc20ContractMap
 }
 
-func (k *Keeper) GetValsetReward(ctx sdk.Context) map[string]sdk.Coin {
+func (k *Keeper) GetValsetReward(ctx sdk.Context) map[uint64]sdk.Coin {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	params := k.GetParams(ctx)
 	if params == nil {
-		return map[string]sdk.Coin{}
+		return map[uint64]sdk.Coin{}
 	}
 
-	valsetRewardMap := make(map[string]sdk.Coin)
+	valsetRewardMap := make(map[uint64]sdk.Coin)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		valsetRewardMap[counterpartyChainParams.HyperionId] = counterpartyChainParams.ValsetReward
 	}

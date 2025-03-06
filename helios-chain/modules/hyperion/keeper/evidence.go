@@ -40,7 +40,7 @@ func (k *Keeper) CheckBadSignatureEvidence(
 	}
 }
 
-func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject types.EthereumSigned, signature string, hyperionId string) error {
+func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject types.EthereumSigned, signature string, hyperionId uint64) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 

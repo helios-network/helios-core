@@ -154,7 +154,7 @@ func (m *EventBridgeWithdrawCanceled) GetBridgeChainId() uint64 {
 }
 
 type EventOutgoingBatch struct {
-	HyperionId          string   `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64   `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	Denom               string   `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 	OrchestratorAddress string   `protobuf:"bytes,3,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 	BatchNonce          uint64   `protobuf:"varint,4,opt,name=batch_nonce,json=batchNonce,proto3" json:"batch_nonce,omitempty"`
@@ -195,11 +195,11 @@ func (m *EventOutgoingBatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventOutgoingBatch proto.InternalMessageInfo
 
-func (m *EventOutgoingBatch) GetHyperionId() string {
+func (m *EventOutgoingBatch) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventOutgoingBatch) GetDenom() string {
@@ -238,7 +238,7 @@ func (m *EventOutgoingBatch) GetBatchTxIds() []uint64 {
 }
 
 type EventOutgoingBatchCanceled struct {
-	HyperionId     string `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId     uint64 `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	BridgeContract string `protobuf:"bytes,2,opt,name=bridge_contract,json=bridgeContract,proto3" json:"bridge_contract,omitempty"`
 	BridgeChainId  uint64 `protobuf:"varint,3,opt,name=bridge_chain_id,json=bridgeChainId,proto3" json:"bridge_chain_id,omitempty"`
 	BatchId        uint64 `protobuf:"varint,4,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
@@ -278,11 +278,11 @@ func (m *EventOutgoingBatchCanceled) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventOutgoingBatchCanceled proto.InternalMessageInfo
 
-func (m *EventOutgoingBatchCanceled) GetHyperionId() string {
+func (m *EventOutgoingBatchCanceled) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventOutgoingBatchCanceled) GetBridgeContract() string {
@@ -314,7 +314,7 @@ func (m *EventOutgoingBatchCanceled) GetNonce() uint64 {
 }
 
 type EventValsetUpdateRequest struct {
-	HyperionId    string                `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId    uint64                `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	ValsetNonce   uint64                `protobuf:"varint,2,opt,name=valset_nonce,json=valsetNonce,proto3" json:"valset_nonce,omitempty"`
 	ValsetHeight  uint64                `protobuf:"varint,3,opt,name=valset_height,json=valsetHeight,proto3" json:"valset_height,omitempty"`
 	ValsetMembers []*BridgeValidator    `protobuf:"bytes,4,rep,name=valset_members,json=valsetMembers,proto3" json:"valset_members,omitempty"`
@@ -355,11 +355,11 @@ func (m *EventValsetUpdateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventValsetUpdateRequest proto.InternalMessageInfo
 
-func (m *EventValsetUpdateRequest) GetHyperionId() string {
+func (m *EventValsetUpdateRequest) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventValsetUpdateRequest) GetValsetNonce() uint64 {
@@ -451,7 +451,7 @@ func (m *EventSetOrchestratorAddresses) GetOperatorEthAddress() string {
 }
 
 type EventValsetConfirm struct {
-	HyperionId          string `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64 `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	ValsetNonce         uint64 `protobuf:"varint,2,opt,name=valset_nonce,json=valsetNonce,proto3" json:"valset_nonce,omitempty"`
 	OrchestratorAddress string `protobuf:"bytes,3,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
@@ -489,11 +489,11 @@ func (m *EventValsetConfirm) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventValsetConfirm proto.InternalMessageInfo
 
-func (m *EventValsetConfirm) GetHyperionId() string {
+func (m *EventValsetConfirm) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventValsetConfirm) GetValsetNonce() uint64 {
@@ -511,7 +511,7 @@ func (m *EventValsetConfirm) GetOrchestratorAddress() string {
 }
 
 type EventSendToChain struct {
-	HyperionId   string                                  `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId   uint64                                  `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	OutgoingTxId uint64                                  `protobuf:"varint,2,opt,name=outgoing_tx_id,json=outgoingTxId,proto3" json:"outgoing_tx_id,omitempty"`
 	Sender       string                                  `protobuf:"bytes,3,opt,name=sender,proto3" json:"sender,omitempty"`
 	Receiver     string                                  `protobuf:"bytes,4,opt,name=receiver,proto3" json:"receiver,omitempty"`
@@ -552,11 +552,11 @@ func (m *EventSendToChain) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventSendToChain proto.InternalMessageInfo
 
-func (m *EventSendToChain) GetHyperionId() string {
+func (m *EventSendToChain) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventSendToChain) GetOutgoingTxId() uint64 {
@@ -581,7 +581,7 @@ func (m *EventSendToChain) GetReceiver() string {
 }
 
 type EventConfirmBatch struct {
-	HyperionId          string `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64 `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	BatchNonce          uint64 `protobuf:"varint,2,opt,name=batch_nonce,json=batchNonce,proto3" json:"batch_nonce,omitempty"`
 	OrchestratorAddress string `protobuf:"bytes,3,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
@@ -619,11 +619,11 @@ func (m *EventConfirmBatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventConfirmBatch proto.InternalMessageInfo
 
-func (m *EventConfirmBatch) GetHyperionId() string {
+func (m *EventConfirmBatch) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventConfirmBatch) GetBatchNonce() uint64 {
@@ -701,7 +701,7 @@ func (m *EventAttestationVote) GetVoter() string {
 }
 
 type EventDepositClaim struct {
-	HyperionId          string                `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64                `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	EventNonce          uint64                `protobuf:"varint,2,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
 	EventHeight         uint64                `protobuf:"varint,3,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
 	AttestationId       []byte                `protobuf:"bytes,4,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
@@ -746,11 +746,11 @@ func (m *EventDepositClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventDepositClaim proto.InternalMessageInfo
 
-func (m *EventDepositClaim) GetHyperionId() string {
+func (m *EventDepositClaim) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventDepositClaim) GetEventNonce() uint64 {
@@ -810,7 +810,7 @@ func (m *EventDepositClaim) GetData() string {
 }
 
 type EventWithdrawClaim struct {
-	HyperionId          string `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64 `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	EventNonce          uint64 `protobuf:"varint,2,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
 	EventHeight         uint64 `protobuf:"varint,3,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
 	AttestationId       []byte `protobuf:"bytes,4,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
@@ -852,11 +852,11 @@ func (m *EventWithdrawClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventWithdrawClaim proto.InternalMessageInfo
 
-func (m *EventWithdrawClaim) GetHyperionId() string {
+func (m *EventWithdrawClaim) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventWithdrawClaim) GetEventNonce() uint64 {
@@ -902,7 +902,7 @@ func (m *EventWithdrawClaim) GetOrchestratorAddress() string {
 }
 
 type EventERC20DeployedClaim struct {
-	HyperionId          string `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64 `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	EventNonce          uint64 `protobuf:"varint,2,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
 	EventHeight         uint64 `protobuf:"varint,3,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
 	AttestationId       []byte `protobuf:"bytes,4,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
@@ -947,11 +947,11 @@ func (m *EventERC20DeployedClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventERC20DeployedClaim proto.InternalMessageInfo
 
-func (m *EventERC20DeployedClaim) GetHyperionId() string {
+func (m *EventERC20DeployedClaim) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventERC20DeployedClaim) GetEventNonce() uint64 {
@@ -1018,7 +1018,7 @@ func (m *EventERC20DeployedClaim) GetOrchestratorAddress() string {
 }
 
 type EventValsetUpdateClaim struct {
-	HyperionId          string                `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId          uint64                `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	EventNonce          uint64                `protobuf:"varint,2,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
 	EventHeight         uint64                `protobuf:"varint,3,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
 	AttestationId       []byte                `protobuf:"bytes,4,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
@@ -1062,11 +1062,11 @@ func (m *EventValsetUpdateClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventValsetUpdateClaim proto.InternalMessageInfo
 
-func (m *EventValsetUpdateClaim) GetHyperionId() string {
+func (m *EventValsetUpdateClaim) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventValsetUpdateClaim) GetEventNonce() uint64 {
@@ -1215,7 +1215,7 @@ func (m *EventSubmitBadSignatureEvidence) GetBadEthSignatureSubject() string {
 }
 
 type EventValidatorSlash struct {
-	HyperionId       string `protobuf:"bytes,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	HyperionId       uint64 `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
 	Power            int64  `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
 	Reason           string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
 	ConsensusAddress string `protobuf:"bytes,4,opt,name=consensus_address,json=consensusAddress,proto3" json:"consensus_address,omitempty"`
@@ -1256,11 +1256,11 @@ func (m *EventValidatorSlash) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventValidatorSlash proto.InternalMessageInfo
 
-func (m *EventValidatorSlash) GetHyperionId() string {
+func (m *EventValidatorSlash) GetHyperionId() uint64 {
 	if m != nil {
 		return m.HyperionId
 	}
-	return ""
+	return 0
 }
 
 func (m *EventValidatorSlash) GetPower() int64 {
@@ -1343,66 +1343,66 @@ var fileDescriptor_26d0bd3a761f8331 = []byte{
 	0x45, 0xe8, 0x41, 0x6d, 0x51, 0x1f, 0x82, 0x0b, 0x27, 0x24, 0x6f, 0xe9, 0x37, 0xb7, 0xf5, 0x91,
 	0x5f, 0x70, 0xe5, 0xb3, 0x88, 0x3e, 0xe9, 0xd0, 0xd0, 0x83, 0x01, 0xb0, 0x69, 0xce, 0x5a, 0xf3,
 	0x3a, 0x9b, 0x9b, 0xe2, 0xac, 0xf3, 0x97, 0x45, 0x6c, 0x7d, 0xe1, 0xc3, 0x91, 0xea, 0x0b, 0x1e,
-	0xf6, 0xdb, 0x54, 0x79, 0xbe, 0xbd, 0x49, 0x56, 0x12, 0xf8, 0x62, 0x53, 0xbc, 0x83, 0x24, 0x22,
-	0xf4, 0x9e, 0x41, 0x28, 0x02, 0x83, 0x15, 0x2e, 0xec, 0xdb, 0x64, 0x5d, 0x44, 0x9e, 0x0f, 0x52,
-	0x45, 0x54, 0x89, 0xa8, 0x4b, 0x19, 0x8b, 0x40, 0x4a, 0x8d, 0x53, 0xc9, 0xbd, 0x38, 0xb9, 0x77,
-	0x17, 0xb7, 0xe2, 0x9b, 0x7a, 0xf1, 0x95, 0x5d, 0x04, 0xa3, 0xa0, 0x9d, 0x24, 0x5a, 0xf4, 0x20,
-	0x96, 0xd8, 0xd7, 0xc8, 0x2a, 0x2a, 0x28, 0x1e, 0x80, 0x18, 0x29, 0x83, 0x57, 0x59, 0x0b, 0xf7,
-	0x51, 0x66, 0x37, 0x48, 0xd9, 0x28, 0x3d, 0xed, 0x72, 0x26, 0x6b, 0xc5, 0x46, 0x3e, 0x3d, 0x66,
-	0xff, 0xe9, 0x2e, 0x93, 0xce, 0xaf, 0x16, 0xd9, 0xc8, 0x3e, 0x34, 0x05, 0xf6, 0xd4, 0x07, 0x9f,
-	0x39, 0x4d, 0x2e, 0x93, 0x65, 0x74, 0xd9, 0x10, 0xa4, 0xe0, 0x2e, 0xe9, 0xf5, 0x4c, 0x6a, 0xfc,
-	0x92, 0x33, 0xf9, 0xf0, 0x88, 0x0e, 0x24, 0xa8, 0xcf, 0x87, 0x8c, 0x2a, 0x70, 0xe1, 0xeb, 0x11,
-	0x48, 0x75, 0xba, 0xff, 0x57, 0x49, 0x79, 0xac, 0xed, 0x0c, 0xd0, 0xc8, 0x86, 0x15, 0x94, 0xa5,
-	0x48, 0x1b, 0x15, 0x1f, 0x78, 0xdf, 0x57, 0xc6, 0x6f, 0x63, 0x77, 0x5f, 0xcb, 0xec, 0x4f, 0x49,
-	0xc5, 0x28, 0x05, 0x10, 0xf4, 0x20, 0x92, 0xb5, 0x42, 0x23, 0xbf, 0xbd, 0x72, 0xe7, 0xda, 0xb4,
-	0xb4, 0x43, 0x16, 0x3f, 0xa2, 0x03, 0xce, 0xe2, 0x98, 0xbb, 0xe6, 0xfc, 0xcf, 0xd0, 0xd2, 0x6e,
-	0x93, 0xd5, 0x08, 0x9e, 0xd0, 0x88, 0x75, 0x69, 0x20, 0x46, 0x21, 0x86, 0xb6, 0xd4, 0xbe, 0xf2,
-	0xec, 0xc5, 0xe6, 0xc2, 0x1f, 0x2f, 0x36, 0xff, 0xe7, 0x09, 0x19, 0x08, 0x29, 0xd9, 0x41, 0x93,
-	0x8b, 0x56, 0x40, 0x95, 0xdf, 0xdc, 0x0d, 0x95, 0x5b, 0x46, 0x9b, 0xbb, 0xda, 0x24, 0x7e, 0x97,
-	0x39, 0x43, 0x89, 0x03, 0x08, 0x6b, 0x45, 0xfd, 0xf2, 0x15, 0x94, 0xed, 0xc7, 0x22, 0xe7, 0x67,
-	0x8b, 0x5c, 0xd1, 0xc0, 0xed, 0x81, 0x7a, 0x98, 0xa5, 0x20, 0x48, 0xfb, 0x3d, 0x72, 0x61, 0x9c,
-	0x38, 0x99, 0x92, 0x16, 0x31, 0x5c, 0x4b, 0x37, 0x12, 0xc6, 0xce, 0x22, 0x79, 0x6e, 0x36, 0xc9,
-	0x6f, 0x91, 0x75, 0x31, 0x04, 0x54, 0x07, 0xe5, 0x9f, 0xc8, 0x0b, 0x3b, 0xd9, 0xdb, 0x51, 0xbe,
-	0xb1, 0x70, 0xbe, 0x4d, 0xf2, 0x12, 0x83, 0xdd, 0x11, 0xe1, 0x63, 0x1e, 0x05, 0x67, 0x12, 0xe6,
-	0xd7, 0x4f, 0x52, 0xe7, 0xc7, 0x1c, 0x59, 0x33, 0x08, 0x86, 0x6c, 0x5f, 0x68, 0x0a, 0x9f, 0xee,
-	0xcb, 0x75, 0x52, 0x11, 0x26, 0xd9, 0x30, 0x2f, 0x8d, 0x37, 0xe5, 0x44, 0x1a, 0x67, 0xa6, 0x7d,
-	0x89, 0x14, 0x25, 0x84, 0x0c, 0x22, 0xe3, 0x80, 0x59, 0xd9, 0x1b, 0x64, 0x39, 0x02, 0x0f, 0xf8,
-	0x18, 0x22, 0x9d, 0x1f, 0x25, 0x37, 0x5d, 0xdb, 0x9f, 0x90, 0xe2, 0x31, 0xc6, 0xb4, 0x0c, 0x63,
-	0xb6, 0xfa, 0x5c, 0xf9, 0xa3, 0x5e, 0xd3, 0x13, 0x41, 0x0b, 0xc9, 0x63, 0x7e, 0x6e, 0x4a, 0x76,
-	0x60, 0x9a, 0x4b, 0x47, 0xf0, 0xd0, 0x35, 0xe6, 0xf6, 0x03, 0x42, 0x4c, 0xb2, 0x3e, 0x06, 0x40,
-	0xee, 0xbc, 0xfe, 0x61, 0x25, 0x3c, 0xe2, 0x63, 0x00, 0xe7, 0x1b, 0x8b, 0x5c, 0xd0, 0x40, 0x99,
-	0x80, 0xcd, 0x59, 0x4d, 0x4f, 0x14, 0xc1, 0x5c, 0xa6, 0x08, 0xbe, 0x41, 0xcc, 0x14, 0x59, 0x3f,
-	0xd9, 0x3d, 0x1f, 0x09, 0x05, 0xf1, 0x5d, 0xba, 0xad, 0x9b, 0xbb, 0x2c, 0xbc, 0x4b, 0x8b, 0xf0,
-	0xae, 0x6c, 0xff, 0xca, 0xcd, 0xe8, 0x5f, 0x63, 0xa1, 0xd2, 0xb0, 0xe1, 0xc2, 0xf9, 0x3e, 0x6f,
-	0x00, 0xb8, 0x07, 0x43, 0x21, 0xb9, 0xd2, 0x8d, 0x77, 0x2e, 0x00, 0x26, 0x9d, 0xca, 0x65, 0x9c,
-	0xba, 0x4a, 0xca, 0xa8, 0x70, 0xac, 0x34, 0xa1, 0x91, 0xa9, 0x4c, 0x73, 0xf6, 0xdd, 0x2d, 0x52,
-	0x05, 0xe5, 0x43, 0x04, 0xa3, 0xa0, 0x6b, 0x88, 0xb7, 0x88, 0x85, 0x3c, 0x11, 0xef, 0x21, 0x01,
-	0xb7, 0x48, 0x15, 0xe3, 0xdd, 0x4d, 0x79, 0x88, 0xc5, 0xa5, 0x82, 0x62, 0x37, 0x61, 0xe3, 0x0d,
-	0x52, 0xd1, 0xb5, 0xe7, 0xa8, 0x33, 0x2c, 0x69, 0xbd, 0x55, 0x2d, 0x4d, 0x1b, 0xc3, 0x07, 0x29,
-	0x69, 0x97, 0xe7, 0x29, 0x73, 0x09, 0x45, 0x67, 0x85, 0xbe, 0x34, 0xbb, 0xdc, 0xd8, 0xa4, 0xc0,
-	0xa8, 0xa2, 0x35, 0xa2, 0x55, 0xf4, 0xb7, 0xf3, 0x43, 0xce, 0x14, 0x94, 0x74, 0xa6, 0x38, 0x77,
-	0x91, 0x39, 0x91, 0x05, 0x8b, 0x99, 0x2c, 0xc8, 0x02, 0x5d, 0x9c, 0x06, 0xf4, 0x2c, 0xc4, 0x96,
-	0x66, 0x27, 0xcb, 0xdf, 0x39, 0xf2, 0x7f, 0x8d, 0xce, 0x8e, 0xdb, 0xb9, 0x73, 0xeb, 0x1e, 0x0c,
-	0x07, 0xe2, 0x10, 0xd8, 0xf9, 0x83, 0xe8, 0x2a, 0x29, 0x1b, 0x4e, 0xe2, 0xf4, 0x85, 0xcc, 0x5d,
-	0x41, 0xd9, 0x3d, 0x3d, 0x83, 0xcd, 0x09, 0x92, 0x4d, 0x0a, 0x21, 0x0d, 0xc0, 0x80, 0xa2, 0xbf,
-	0x75, 0x29, 0x3e, 0x0c, 0x7a, 0x62, 0x80, 0x0c, 0x75, 0xcd, 0x2a, 0x2e, 0xc5, 0x0c, 0x3c, 0x1e,
-	0xd0, 0x01, 0xd2, 0xae, 0xe0, 0xa6, 0xeb, 0x99, 0x60, 0x93, 0xd9, 0x60, 0xff, 0x94, 0x27, 0x97,
-	0x32, 0x83, 0xcc, 0xb9, 0xc4, 0xfa, 0x58, 0x2b, 0x5d, 0xcc, 0xb6, 0xd2, 0xec, 0x30, 0x54, 0x3c,
-	0xbb, 0x61, 0x68, 0xe9, 0xbf, 0x0f, 0x43, 0xcb, 0x99, 0x61, 0xe8, 0x0d, 0xca, 0x89, 0xf3, 0x91,
-	0x09, 0x17, 0x0e, 0xcb, 0x93, 0x23, 0x40, 0xb6, 0xc3, 0x5b, 0xd9, 0x0e, 0x1f, 0x37, 0xc5, 0x4d,
-	0x9c, 0x1e, 0x46, 0xbd, 0x80, 0xab, 0x36, 0x65, 0x7b, 0xbc, 0x1f, 0x52, 0x35, 0x8a, 0x60, 0x67,
-	0xcc, 0x19, 0xc4, 0x48, 0xbe, 0x4b, 0x2e, 0xf4, 0x28, 0xd3, 0xc3, 0x91, 0x4c, 0x36, 0x4d, 0xf8,
-	0xab, 0x3d, 0xca, 0x76, 0x94, 0x9f, 0xda, 0xd8, 0x1f, 0x92, 0xcb, 0x19, 0xdd, 0xae, 0x1c, 0xf5,
-	0xbe, 0x82, 0x74, 0x28, 0xbf, 0x74, 0xc2, 0x66, 0x0f, 0x77, 0x9d, 0xdf, 0x2c, 0x72, 0x31, 0xa1,
-	0x1e, 0x86, 0x61, 0x6f, 0x40, 0xe5, 0x7c, 0xff, 0x77, 0x86, 0xe2, 0x09, 0x44, 0xfa, 0xfc, 0xbc,
-	0x8b, 0x8b, 0x38, 0x61, 0x22, 0xa0, 0x52, 0x84, 0xc9, 0xec, 0x82, 0xab, 0x78, 0x9e, 0xf4, 0x44,
-	0x28, 0x21, 0x94, 0x23, 0x99, 0x22, 0x8c, 0x43, 0xcc, 0x5a, 0xba, 0x91, 0x54, 0xeb, 0x77, 0xc8,
-	0x5a, 0x3a, 0x1c, 0x26, 0xba, 0x98, 0xd7, 0xd5, 0x44, 0x9e, 0xa8, 0xd6, 0xc8, 0x52, 0x20, 0x42,
-	0x7e, 0x90, 0xb6, 0xa2, 0x64, 0xd9, 0xde, 0x7d, 0xf6, 0xb2, 0x6e, 0x3d, 0x7f, 0x59, 0xb7, 0xfe,
-	0x7c, 0x59, 0xb7, 0xbe, 0x7b, 0x55, 0x5f, 0x78, 0xfe, 0xaa, 0xbe, 0xf0, 0xfb, 0xab, 0xfa, 0xc2,
-	0x97, 0x2d, 0xa4, 0xe2, 0x4d, 0x4f, 0x44, 0x90, 0x7e, 0xc7, 0xd1, 0x6b, 0x05, 0x82, 0x8d, 0x06,
-	0x30, 0xf1, 0x07, 0x5c, 0xcf, 0x34, 0xbd, 0xa2, 0xfe, 0xfb, 0xfd, 0xfe, 0xbf, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0x13, 0xff, 0xec, 0x43, 0x11, 0x10, 0x00, 0x00,
+	0xf6, 0xdb, 0x54, 0x79, 0xbe, 0xbd, 0x49, 0x56, 0x12, 0xf8, 0x62, 0x53, 0x4b, 0x9b, 0x92, 0x44,
+	0x84, 0xde, 0x33, 0x08, 0x45, 0x60, 0xb0, 0xc2, 0x85, 0x7d, 0x9b, 0xac, 0x8b, 0xc8, 0xf3, 0x41,
+	0xaa, 0x88, 0x2a, 0x11, 0x75, 0x29, 0x63, 0x11, 0x48, 0xa9, 0x71, 0x2a, 0xb9, 0x17, 0x27, 0xf7,
+	0xee, 0xe2, 0x56, 0x7c, 0x53, 0x2f, 0xbe, 0xb2, 0x8b, 0x60, 0x14, 0xf0, 0x26, 0x2d, 0x7a, 0x10,
+	0x4b, 0xec, 0x6b, 0x64, 0x15, 0x15, 0x14, 0x0f, 0x40, 0x8c, 0x94, 0xc1, 0xab, 0xac, 0x85, 0xfb,
+	0x28, 0xb3, 0x1b, 0xa4, 0x6c, 0x94, 0x9e, 0x76, 0x39, 0x93, 0xb5, 0x62, 0x23, 0x9f, 0x1e, 0xb3,
+	0xff, 0x74, 0x97, 0x49, 0xe7, 0x57, 0x8b, 0x6c, 0x64, 0x1f, 0x9a, 0x02, 0x7b, 0xea, 0x83, 0xcf,
+	0x9c, 0x26, 0x97, 0xc9, 0x32, 0xba, 0x6c, 0x08, 0x52, 0x70, 0x97, 0xf4, 0x7a, 0x26, 0x35, 0x7e,
+	0xc9, 0x99, 0x7c, 0x78, 0x44, 0x07, 0x12, 0xd4, 0xe7, 0x43, 0x46, 0x15, 0xb8, 0xf0, 0xf5, 0x08,
+	0xa4, 0x3a, 0xdd, 0xff, 0xab, 0xa4, 0x3c, 0xd6, 0x76, 0x06, 0x68, 0x64, 0xc3, 0x0a, 0xca, 0x52,
+	0xa4, 0x8d, 0x8a, 0x0f, 0xbc, 0xef, 0x2b, 0xe3, 0xb7, 0xb1, 0xbb, 0xaf, 0x65, 0xf6, 0xa7, 0xa4,
+	0x62, 0x94, 0x02, 0x08, 0x7a, 0x10, 0xc9, 0x5a, 0xa1, 0x91, 0xdf, 0x5e, 0xb9, 0x73, 0x6d, 0x5a,
+	0xda, 0x21, 0x8b, 0x1f, 0xd1, 0x01, 0x67, 0x71, 0xcc, 0x5d, 0x73, 0xfe, 0x67, 0x68, 0x69, 0xb7,
+	0xc9, 0x6a, 0x04, 0x4f, 0x68, 0xc4, 0xba, 0x34, 0x10, 0xa3, 0x10, 0x43, 0x5b, 0x6a, 0x5f, 0x79,
+	0xf6, 0x62, 0x73, 0xe1, 0x8f, 0x17, 0x9b, 0xff, 0xf3, 0x84, 0x0c, 0x84, 0x94, 0xec, 0xa0, 0xc9,
+	0x45, 0x2b, 0xa0, 0xca, 0x6f, 0xee, 0x86, 0xca, 0x2d, 0xa3, 0xcd, 0x5d, 0x6d, 0x12, 0xbf, 0xcb,
+	0x9c, 0xa1, 0xc4, 0x01, 0x84, 0xb5, 0xa2, 0x0e, 0xca, 0x0a, 0xca, 0xf6, 0x63, 0x91, 0xf3, 0xb3,
+	0x45, 0xae, 0x68, 0xe0, 0xf6, 0x40, 0x3d, 0xcc, 0x52, 0x10, 0xa4, 0xfd, 0x1e, 0xb9, 0x30, 0x4e,
+	0x9c, 0x4c, 0x49, 0x8b, 0x89, 0xb5, 0x96, 0x6e, 0x24, 0x8c, 0x9d, 0x45, 0xf2, 0xdc, 0x6c, 0x92,
+	0xdf, 0x22, 0xeb, 0x62, 0x08, 0xa8, 0x0e, 0xca, 0x3f, 0x91, 0x17, 0x76, 0xb2, 0xb7, 0xa3, 0x7c,
+	0x63, 0xe1, 0x7c, 0x9b, 0xe4, 0x25, 0x06, 0xbb, 0x23, 0xc2, 0xc7, 0x3c, 0x0a, 0xce, 0x24, 0xcc,
+	0xaf, 0x9f, 0xa4, 0xce, 0x8f, 0x39, 0xb2, 0x66, 0x10, 0x0c, 0xd9, 0xbe, 0xd0, 0x14, 0x3e, 0xdd,
+	0x97, 0xeb, 0xa4, 0x22, 0x4c, 0xb2, 0x61, 0x5e, 0x1a, 0x6f, 0xca, 0x89, 0x34, 0xce, 0x4c, 0xfb,
+	0x12, 0x29, 0x4a, 0x08, 0x19, 0x44, 0xc6, 0x01, 0xb3, 0xb2, 0x37, 0xc8, 0x72, 0x04, 0x1e, 0xf0,
+	0x31, 0x44, 0x3a, 0x3f, 0x4a, 0x6e, 0xba, 0xb6, 0x3f, 0x21, 0xc5, 0x63, 0x8c, 0x69, 0x19, 0xc6,
+	0x6c, 0xf5, 0xb9, 0xf2, 0x47, 0xbd, 0xa6, 0x27, 0x82, 0x16, 0x92, 0xc7, 0xfc, 0xdc, 0x94, 0xec,
+	0xc0, 0x34, 0x97, 0x8e, 0xe0, 0xa1, 0x6b, 0xcc, 0xed, 0x07, 0x84, 0x98, 0x64, 0x7d, 0x0c, 0x80,
+	0xdc, 0x79, 0xfd, 0xc3, 0x4a, 0x78, 0xc4, 0xc7, 0x00, 0xce, 0x37, 0x16, 0xb9, 0xa0, 0x81, 0x32,
+	0x01, 0x9b, 0xb3, 0x9a, 0x9e, 0x28, 0x82, 0xb9, 0x4c, 0x11, 0x7c, 0x83, 0x98, 0x29, 0xb2, 0x7e,
+	0xb2, 0x7b, 0x3e, 0x12, 0x0a, 0xe2, 0xbb, 0x74, 0x5b, 0x37, 0x77, 0x19, 0x67, 0xb4, 0x08, 0xef,
+	0xca, 0xf6, 0xaf, 0xdc, 0x8c, 0xfe, 0x35, 0x16, 0x2a, 0x0d, 0x1b, 0x2e, 0x9c, 0xef, 0xf3, 0x06,
+	0x80, 0x7b, 0x30, 0x14, 0x92, 0x2b, 0xdd, 0x78, 0xe7, 0x02, 0x60, 0xd2, 0xa9, 0x5c, 0xc6, 0xa9,
+	0xab, 0xa4, 0x8c, 0x0a, 0xc7, 0x4a, 0x13, 0x1a, 0x99, 0xca, 0x34, 0x67, 0xdf, 0xdd, 0x22, 0x55,
+	0x50, 0x3e, 0x44, 0x30, 0x0a, 0xba, 0x86, 0x78, 0x8b, 0x58, 0xc8, 0x13, 0xf1, 0x1e, 0x12, 0x70,
+	0x8b, 0x54, 0x31, 0xde, 0xdd, 0x94, 0x87, 0x58, 0x5c, 0x2a, 0x28, 0x76, 0x13, 0x36, 0xde, 0x20,
+	0x15, 0x5d, 0x7b, 0x8e, 0x3a, 0xc3, 0x92, 0xd6, 0x5b, 0xd5, 0xd2, 0xb4, 0x31, 0x7c, 0x90, 0x92,
+	0x76, 0x79, 0x9e, 0x32, 0x97, 0x50, 0x74, 0x56, 0xe8, 0x4b, 0xb3, 0xcb, 0x8d, 0x4d, 0x0a, 0x8c,
+	0x2a, 0x5a, 0x23, 0x5a, 0x45, 0x7f, 0x3b, 0x3f, 0xe4, 0x4c, 0x41, 0x49, 0x67, 0x8a, 0x73, 0x17,
+	0x99, 0x13, 0x59, 0xb0, 0x98, 0xc9, 0x82, 0x2c, 0xd0, 0xc5, 0x69, 0x40, 0xcf, 0x42, 0x6c, 0x69,
+	0x76, 0xb2, 0xfc, 0x9d, 0x23, 0xff, 0xd7, 0xe8, 0xec, 0xb8, 0x9d, 0x3b, 0xb7, 0xee, 0xc1, 0x70,
+	0x20, 0x0e, 0x81, 0x9d, 0x3f, 0x88, 0xae, 0x92, 0xb2, 0xe1, 0x24, 0x4e, 0x5f, 0xc8, 0xdc, 0x15,
+	0x94, 0xdd, 0xd3, 0x33, 0xd8, 0x9c, 0x20, 0xd9, 0xa4, 0x10, 0xd2, 0x00, 0x0c, 0x28, 0xfa, 0x5b,
+	0x97, 0xe2, 0xc3, 0xa0, 0x27, 0x06, 0xc8, 0x50, 0xd7, 0xac, 0xe2, 0x52, 0xcc, 0xc0, 0xe3, 0x01,
+	0x1d, 0x20, 0xed, 0x0a, 0x6e, 0xba, 0x9e, 0x09, 0x36, 0x99, 0x0d, 0xf6, 0x4f, 0x79, 0x72, 0x29,
+	0x33, 0xc8, 0x9c, 0x4b, 0xac, 0x8f, 0xb5, 0xd2, 0xc5, 0x6c, 0x2b, 0xcd, 0x0e, 0x43, 0xc5, 0xb3,
+	0x1b, 0x86, 0x96, 0xfe, 0xfb, 0x30, 0xb4, 0x9c, 0x19, 0x86, 0xde, 0xa0, 0x9c, 0x38, 0x1f, 0x99,
+	0x70, 0xe1, 0xb0, 0x3c, 0x39, 0x02, 0x64, 0x3b, 0xbc, 0x95, 0xed, 0xf0, 0x71, 0x53, 0xdc, 0xc4,
+	0xe9, 0x61, 0xd4, 0x0b, 0xb8, 0x6a, 0x53, 0xb6, 0xc7, 0xfb, 0x21, 0x55, 0xa3, 0x08, 0x76, 0xc6,
+	0x9c, 0x41, 0x8c, 0xe4, 0xbb, 0xe4, 0x42, 0x8f, 0x32, 0x3d, 0x1c, 0xc9, 0x64, 0xd3, 0x4c, 0x60,
+	0xd5, 0x1e, 0x65, 0x3b, 0xca, 0x4f, 0x6d, 0xec, 0x0f, 0xc9, 0xe5, 0x8c, 0x6e, 0x57, 0x8e, 0x7a,
+	0x5f, 0x41, 0x3a, 0x94, 0x5f, 0x3a, 0x61, 0xb3, 0x87, 0xbb, 0xce, 0x6f, 0x16, 0xb9, 0x98, 0x50,
+	0x0f, 0xc3, 0xb0, 0x37, 0xa0, 0x72, 0xbe, 0xff, 0x3b, 0x43, 0xf1, 0x04, 0x22, 0x7d, 0x7e, 0xde,
+	0xc5, 0x45, 0x9c, 0x30, 0x11, 0x50, 0x29, 0xc2, 0x64, 0x76, 0xc1, 0x55, 0x3c, 0x4f, 0x7a, 0x22,
+	0x94, 0x10, 0xca, 0x91, 0x4c, 0x11, 0xc6, 0x21, 0x66, 0x2d, 0xdd, 0x48, 0xaa, 0xf5, 0x3b, 0x64,
+	0x2d, 0x1d, 0x0e, 0x13, 0x5d, 0xcc, 0xeb, 0x6a, 0x22, 0x4f, 0x54, 0x6b, 0x64, 0x29, 0x10, 0x21,
+	0x3f, 0x48, 0x5b, 0x51, 0xb2, 0x6c, 0xef, 0x3e, 0x7b, 0x59, 0xb7, 0x9e, 0xbf, 0xac, 0x5b, 0x7f,
+	0xbe, 0xac, 0x5b, 0xdf, 0xbd, 0xaa, 0x2f, 0x3c, 0x7f, 0x55, 0x5f, 0xf8, 0xfd, 0x55, 0x7d, 0xe1,
+	0xcb, 0x16, 0x52, 0xf1, 0xa6, 0x27, 0x22, 0x48, 0xbf, 0xe3, 0xe8, 0xb5, 0x02, 0xc1, 0x46, 0x03,
+	0x98, 0xf8, 0x03, 0xae, 0x67, 0x9a, 0x5e, 0x51, 0xff, 0xfd, 0x7e, 0xff, 0xdf, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x31, 0xda, 0x11, 0xe1, 0x11, 0x10, 0x00, 0x00,
 }
 
 func (m *EventAttestationObserved) Marshal() (dAtA []byte, err error) {
@@ -1554,12 +1554,10 @@ func (m *EventOutgoingBatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1606,12 +1604,10 @@ func (m *EventOutgoingBatchCanceled) MarshalToSizedBuffer(dAtA []byte) (int, err
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1677,12 +1673,10 @@ func (m *EventValsetUpdateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1763,12 +1757,10 @@ func (m *EventValsetConfirm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1832,12 +1824,10 @@ func (m *EventSendToChain) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1874,12 +1864,10 @@ func (m *EventConfirmBatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -2008,12 +1996,10 @@ func (m *EventDepositClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -2074,12 +2060,10 @@ func (m *EventWithdrawClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -2161,12 +2145,10 @@ func (m *EventERC20DeployedClaim) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -2251,12 +2233,10 @@ func (m *EventValsetUpdateClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -2379,12 +2359,10 @@ func (m *EventValidatorSlash) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.HyperionId) > 0 {
-		i -= len(m.HyperionId)
-		copy(dAtA[i:], m.HyperionId)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.HyperionId)))
+	if m.HyperionId != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.HyperionId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -2448,9 +2426,8 @@ func (m *EventOutgoingBatch) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	l = len(m.Denom)
 	if l > 0 {
@@ -2482,9 +2459,8 @@ func (m *EventOutgoingBatchCanceled) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	l = len(m.BridgeContract)
 	if l > 0 {
@@ -2508,9 +2484,8 @@ func (m *EventValsetUpdateRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.ValsetNonce != 0 {
 		n += 1 + sovEvents(uint64(m.ValsetNonce))
@@ -2560,9 +2535,8 @@ func (m *EventValsetConfirm) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.ValsetNonce != 0 {
 		n += 1 + sovEvents(uint64(m.ValsetNonce))
@@ -2580,9 +2554,8 @@ func (m *EventSendToChain) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.OutgoingTxId != 0 {
 		n += 1 + sovEvents(uint64(m.OutgoingTxId))
@@ -2608,9 +2581,8 @@ func (m *EventConfirmBatch) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.BatchNonce != 0 {
 		n += 1 + sovEvents(uint64(m.BatchNonce))
@@ -2648,9 +2620,8 @@ func (m *EventDepositClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.EventNonce != 0 {
 		n += 1 + sovEvents(uint64(m.EventNonce))
@@ -2693,9 +2664,8 @@ func (m *EventWithdrawClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.EventNonce != 0 {
 		n += 1 + sovEvents(uint64(m.EventNonce))
@@ -2727,9 +2697,8 @@ func (m *EventERC20DeployedClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.EventNonce != 0 {
 		n += 1 + sovEvents(uint64(m.EventNonce))
@@ -2773,9 +2742,8 @@ func (m *EventValsetUpdateClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.EventNonce != 0 {
 		n += 1 + sovEvents(uint64(m.EventNonce))
@@ -2844,9 +2812,8 @@ func (m *EventValidatorSlash) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.HyperionId)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovEvents(uint64(m.HyperionId))
 	}
 	if m.Power != 0 {
 		n += 1 + sovEvents(uint64(m.Power))
@@ -3180,10 +3147,10 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -3193,24 +3160,11 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
@@ -3440,10 +3394,10 @@ func (m *EventOutgoingBatchCanceled) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -3453,24 +3407,11 @@ func (m *EventOutgoingBatchCanceled) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field BridgeContract", wireType)
@@ -3611,10 +3552,10 @@ func (m *EventValsetUpdateRequest) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -3624,24 +3565,11 @@ func (m *EventValsetUpdateRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ValsetNonce", wireType)
@@ -3977,10 +3905,10 @@ func (m *EventValsetConfirm) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -3990,24 +3918,11 @@ func (m *EventValsetConfirm) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ValsetNonce", wireType)
@@ -4110,10 +4025,10 @@ func (m *EventSendToChain) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -4123,24 +4038,11 @@ func (m *EventSendToChain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field OutgoingTxId", wireType)
@@ -4343,10 +4245,10 @@ func (m *EventConfirmBatch) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -4356,24 +4258,11 @@ func (m *EventConfirmBatch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field BatchNonce", wireType)
@@ -4611,10 +4500,10 @@ func (m *EventDepositClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -4624,24 +4513,11 @@ func (m *EventDepositClaim) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
@@ -4959,10 +4835,10 @@ func (m *EventWithdrawClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -4972,24 +4848,11 @@ func (m *EventWithdrawClaim) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
@@ -5196,10 +5059,10 @@ func (m *EventERC20DeployedClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -5209,24 +5072,11 @@ func (m *EventERC20DeployedClaim) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
@@ -5529,10 +5379,10 @@ func (m *EventValsetUpdateClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -5542,24 +5392,11 @@ func (m *EventValsetUpdateClaim) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
@@ -6017,10 +5854,10 @@ func (m *EventValidatorSlash) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var stringLen uint64
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -6030,24 +5867,11 @@ func (m *EventValidatorSlash) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HyperionId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)

@@ -270,7 +270,7 @@ func (msg MsgConfirmBatch) GetSigners() []sdk.AccAddress {
 // EthereumClaim represents a claim on ethereum state
 type EthereumClaim interface {
 	// The hyperion id of the counterparty chain that the claimed event occurred on.
-	GetHyperionId() string
+	GetHyperionId() uint64
 	// All Ethereum claims that we relay from the Hyperion contract and into the module
 	// have a nonce that is monotonically increasing and unique, since this nonce is
 	// issued by the Ethereum contract it is immutable and must be agreed on by all validators

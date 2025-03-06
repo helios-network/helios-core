@@ -110,7 +110,10 @@ func CmdSendToChain() *cobra.Command {
 				return err
 			}
 			cosmosAddr := cliCtx.GetFromAddress()
-
+			destHypperionId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "dest hypperionId")
+			}
 			amount, err := sdk.ParseCoinsNormalized(args[2])
 			if err != nil {
 				return errors.Wrap(err, "amount")
@@ -127,7 +130,7 @@ func CmdSendToChain() *cobra.Command {
 			// Make the message
 			msg := types.MsgSendToChain{
 				Sender:         cosmosAddr.String(),
-				DestHyperionId: args[0],
+				DestHyperionId: destHypperionId,
 				Dest:           args[1],
 				Amount:         amount[0],
 				BridgeFee:      bridgeFee[0],

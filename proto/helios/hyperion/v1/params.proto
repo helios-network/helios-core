@@ -106,7 +106,7 @@ message CounterpartyChainParams {
   option (amino.name) = "hyperion/CounterpartyChainParams";
   option (gogoproto.stringer) = false;
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   string contract_source_hash = 2;
   string bridge_counterparty_address = 3;
   uint64 bridge_chain_id = 4;

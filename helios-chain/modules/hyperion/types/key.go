@@ -199,10 +199,10 @@ func GetOutgoingTxPoolKey(id uint64) []byte {
 // GetOutgoingTxBatchKey returns the following key format
 // prefix      hyperionId                nonce                     eth-contract-address
 // [0xa][hyperion-ethereum-mainnet][0 0 0 0 0 0 0 1][0xc783df8a850f42e7F7e57013759C285caa701eB6]
-func GetOutgoingTxBatchKey(tokenContract common.Address, nonce uint64, hyperionId string) []byte {
-	buf := make([]byte, 0, len(OutgoingTXBatchKey)+8+ETHContractAddressLen+len(hyperionId))
+func GetOutgoingTxBatchKey(tokenContract common.Address, nonce uint64, hyperionId uint64) []byte {
+	buf := make([]byte, 0, len(OutgoingTXBatchKey)+8+8+ETHContractAddressLen)
 	buf = append(buf, OutgoingTXBatchKey...)
-	buf = append(buf, hyperionId...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(nonce)...)
 	buf = append(buf, tokenContract.Bytes()...)
 

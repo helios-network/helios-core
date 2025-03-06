@@ -11,20 +11,11 @@ import (
 )
 
 // GetCheckpoint gets the checkpoint signature from the given outgoing tx batch
-func (b OutgoingTxBatch) GetCheckpoint(hyperionIDstring string) common.Hash {
+func (b OutgoingTxBatch) GetCheckpoint(hyperionID uint64) common.Hash {
 
 	abi, err := accountsabi.JSON(strings.NewReader(OutgoingBatchTxCheckpointABIJSON))
 	if err != nil {
 		panic("Bad ABI constant!")
-	}
-
-	// the contract argument is not a arbitrary length array but a fixed length 32 byte
-	// array, therefore we have to utf8 encode the string (the default in this case) and
-	// then copy the variable length encoded data into a fixed length array. This function
-	// will panic if hyperionId is too long to fit in 32 bytes
-	hyperionID, err := strToFixByteArray(hyperionIDstring)
-	if err != nil {
-		panic(err)
 	}
 
 	// Create the methodName argument which salts the signature

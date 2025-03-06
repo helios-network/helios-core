@@ -23,7 +23,7 @@ const OutgoingTxBatchSize = 100
 //   - select available transactions from the outgoing transaction pool sorted by fee desc
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
-func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, hyperionId string, maxElements int) (*types.OutgoingTxBatch, error) {
+func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -75,7 +75,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 }
 
 // / This gets the batch timeout height in the counterparty chain blocks.
-func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId string) uint64 {
+func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -101,7 +101,7 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId string) uint6
 // OutgoingTxBatchExecuted is run when the Cosmos chain detects that a batch has been executed on Ethereum
 // It frees all the transactions in the batch, then cancels all earlier batches, this function panics instead
 // of returning errors because any failure will cause a double spend.
-func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId string) {
+func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -206,7 +206,7 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 }
 
 // GetOutgoingTXBatch loads a batch object. Returns nil when not exists.
-func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId string) *types.OutgoingTxBatch {
+func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64) *types.OutgoingTxBatch {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -228,7 +228,7 @@ func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addres
 }
 
 // CancelOutgoingTXBatch releases all TX in the batch and deletes the batch
-func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId string) error {
+func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 

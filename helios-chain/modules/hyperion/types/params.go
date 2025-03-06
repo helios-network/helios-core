@@ -29,7 +29,7 @@ func DefaultParams() *Params {
 // DefaultEthereumChainParams returns a copy of the default counterparty chain params for Ethereum
 func DefaultEthereumChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
-		HyperionId:                    "hyperion-ethereum-mainnet",
+		HyperionId:                    0,
 		BridgeCounterpartyAddress:     common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
 		BridgeChainId:                 1,
 		SignedValsetsWindow:           25000,
@@ -54,7 +54,7 @@ func DefaultEthereumChainParams() *CounterpartyChainParams {
 // DefaultEthereumChainParams returns a copy of the default counterparty chain params for Polygon Amoy
 func DefaultPolygonAmoyTestnetChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
-		HyperionId:                    "hyperion-polygon-amoy",
+		HyperionId:                    1,
 		BridgeCounterpartyAddress:     common.HexToAddress("0x75B83dDeb27dbEF2702bdC462B4F1fEFF0dB0E68").Hex(),
 		BridgeChainId:                 80002,
 		SignedValsetsWindow:           25000,

@@ -110,7 +110,7 @@ message MsgValsetConfirm {
   option (amino.name) = "hyperion/MsgValsetConfirm";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 nonce = 2;
   string orchestrator = 3;
   string eth_address = 4;
@@ -136,7 +136,7 @@ message MsgSendToChain {
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
-  string dest_hyperion_id = 2;
+  uint64 dest_hyperion_id = 2;
   string dest = 3;
   cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin bridge_fee = 5 [ (gogoproto.nullable) = false ];
@@ -156,7 +156,7 @@ message MsgSendToChainResponse {}
 message MsgRequestBatch {
   option (amino.name) = "hyperion/MsgRequestBatch";
   option (cosmos.msg.v1.signer) = "orchestrator";
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   string orchestrator = 2;
   string denom = 3;
 }
@@ -175,7 +175,7 @@ message MsgConfirmBatch {
   option (amino.name) = "hyperion/MsgConfirmBatch";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 nonce = 2;
   string token_contract = 3;
   string eth_signer = 4;
@@ -194,7 +194,7 @@ message MsgDepositClaim {
   option (amino.name) = "hyperion/MsgDepositClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 block_height = 3;
   string token_contract = 4;
@@ -216,7 +216,7 @@ message MsgWithdrawClaim {
   option (amino.name) = "hyperion/MsgWithdrawClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 block_height = 3;
   uint64 batch_nonce = 4;
@@ -233,7 +233,7 @@ message MsgERC20DeployedClaim {
   option (amino.name) = "hyperion/MsgERC20DeployedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 block_height = 3;
   string cosmos_denom = 4;
@@ -279,7 +279,7 @@ message MsgValsetUpdatedClaim {
   option (amino.name) = "hyperion/MsgValsetUpdatedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 event_nonce = 2;
   uint64 valset_nonce = 3;
   uint64 block_height = 4;

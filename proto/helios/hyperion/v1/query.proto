@@ -127,7 +127,7 @@ message QueryAttestationRequest {
 
 message QueryAttestationResponse { Attestation attestation = 1; }
 
-message QueryCurrentValsetRequest {string hyperion_id = 1; }
+message QueryCurrentValsetRequest {uint64 hyperion_id = 1; }
 message QueryCurrentValsetResponse { Valset valset = 1; }
 
 message QueryValsetRequestRequest { uint64 nonce = 1; }
@@ -164,14 +164,14 @@ message QueryOutgoingTxBatchesRequest {}
 message QueryOutgoingTxBatchesResponse { repeated OutgoingTxBatch batches = 1; }
 
 message QueryBatchRequestByNonceRequest {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 nonce = 2;
   string contract_address = 3;
 }
 message QueryBatchRequestByNonceResponse { OutgoingTxBatch batch = 1; }
 
 message QueryBatchConfirmsRequest {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 nonce = 2;
   string contract_address = 3;
 }
@@ -181,7 +181,7 @@ message QueryLastEventByAddrRequest { string address = 1; }
 message QueryLastEventByAddrResponse { LastClaimEvent last_claim_event = 1; }
 
 message QueryERC20ToDenomRequest { 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   string erc20 = 2; 
 }
 message QueryERC20ToDenomResponse {
@@ -190,7 +190,7 @@ message QueryERC20ToDenomResponse {
 }
 
 message QueryDenomToERC20Request { 
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   string denom = 2; 
 }
 message QueryDenomToERC20Response {

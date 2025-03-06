@@ -8,7 +8,7 @@ option go_package = "helios-core/helios-chain/modules/hyperion/types";
 
 // OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH
 message OutgoingTxBatch {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 batch_nonce = 2;
   uint64 batch_timeout = 3;
   repeated OutgoingTransferTx transactions = 4;
@@ -18,7 +18,7 @@ message OutgoingTxBatch {
 
 // OutgoingTransferTx represents an individual send from Hyperion to ETH
 message OutgoingTransferTx {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 id = 2;
   string sender = 3;
   string dest_address = 4;

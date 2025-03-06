@@ -52,7 +52,7 @@ func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, denom string, 
 // DenomToERC20 returns if an asset is native to Cosmos or Ethereum, and get its corresponding ERC20 address
 // This will return an error if it cant parse the denom as a hyperion denom, and then also can't find the denom
 // in an index of ERC20 contracts deployed on Ethereum to serve as synthetic Cosmos assets.
-func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId string) (isCosmosOriginated bool, tokenContract common.Address, err error) {
+func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId uint64) (isCosmosOriginated bool, tokenContract common.Address, err error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -90,7 +90,7 @@ func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId
 
 // RewardToERC20Lookup is a specialized function wrapping DenomToERC20Lookup designed to validate
 // the validator set reward any time we generate a validator set
-func (k *Keeper) RewardToERC20Lookup(ctx sdk.Context, coin sdk.Coin, hyperionId string) (common.Address, math.Int) {
+func (k *Keeper) RewardToERC20Lookup(ctx sdk.Context, coin sdk.Coin, hyperionId uint64) (common.Address, math.Int) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -149,7 +149,7 @@ func (k *Keeper) ValidateClaimData(ctx sdk.Context, claimData string, ethereumSi
 
 // ERC20ToDenom returns if an ERC20 address represents an asset is native to Cosmos or Ethereum,
 // and get its corresponding hyperion denom.
-func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Address, hyperionId string) (isCosmosOriginated bool, denom string) {
+func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Address, hyperionId uint64) (isCosmosOriginated bool, denom string) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 

@@ -13,7 +13,7 @@ message BridgeValidator {
 // maintains an ETH key to sign messages for each counterparty chain, these are 
 // used to check signatures on counterparty chain because of the significant gas savings
 message Valset {
-  string hyperion_id = 1;
+  uint64 hyperion_id = 1;
   uint64 nonce = 2;
   repeated BridgeValidator members = 3;
   uint64 height = 4;
