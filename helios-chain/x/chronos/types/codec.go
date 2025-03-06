@@ -8,15 +8,17 @@ import (
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgUpdateParams{}, "helios.chronos.MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&MsgScheduleEVMCall{}, "chronos/ScheduleEVMCall", nil)
+	cdc.RegisterConcrete(&MsgModifyScheduledEVMCall{}, "chronos/ModifyScheduledEVMCall", nil)
+	cdc.RegisterConcrete(&MsgCancelScheduledEVMCall{}, "chronos/CancelScheduledEVMCall", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgUpdateParams{},
-		&MsgAddSchedule{},
-		&MsgRemoveSchedule{},
+		&MsgScheduleEVMCall{},
+		&MsgModifyScheduledEVMCall{},
+		&MsgCancelScheduledEVMCall{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

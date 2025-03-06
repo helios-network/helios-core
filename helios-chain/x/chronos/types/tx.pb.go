@@ -6,15 +6,13 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/cosmos/cosmos-proto"
-	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
-	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	_ "google.golang.org/protobuf/types/known/wrapperspb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -31,32 +29,29 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// The MsgAddSchedule request type.
-type MsgAddSchedule struct {
-	// The address of the governance account.
-	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Name of the schedule
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Period in blocks
-	Period uint64 `protobuf:"varint,3,opt,name=period,proto3" json:"period,omitempty"`
-	// Msgs that will be executed every certain number of blocks, specified in the `period` field
-	Msgs []MsgExecuteContract `protobuf:"bytes,4,rep,name=msgs,proto3" json:"msgs"`
-	// Stage when messages will be executed
-	ExecutionStage ExecutionStage `protobuf:"varint,5,opt,name=execution_stage,json=executionStage,proto3,enum=helios.chronos.v1.ExecutionStage" json:"execution_stage,omitempty"`
+type MsgScheduleEVMCall struct {
+	OwnerAddress    string   `protobuf:"bytes,1,opt,name=owner_address,json=ownerAddress,proto3" json:"owner_address,omitempty"`
+	ContractAddress string   `protobuf:"bytes,2,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	AbiJson         string   `protobuf:"bytes,3,opt,name=abi_json,json=abiJson,proto3" json:"abi_json,omitempty"`
+	MethodName      string   `protobuf:"bytes,4,opt,name=method_name,json=methodName,proto3" json:"method_name,omitempty"`
+	Params          []string `protobuf:"bytes,5,rep,name=params,proto3" json:"params,omitempty"`
+	Frequency       uint64   `protobuf:"varint,6,opt,name=frequency,proto3" json:"frequency,omitempty"`
+	ExpirationBlock uint64   `protobuf:"varint,7,opt,name=expiration_block,json=expirationBlock,proto3" json:"expiration_block,omitempty"`
+	GasLimit        uint64   `protobuf:"varint,8,opt,name=gas_limit,json=gasLimit,proto3" json:"gas_limit,omitempty"`
 }
 
-func (m *MsgAddSchedule) Reset()         { *m = MsgAddSchedule{} }
-func (m *MsgAddSchedule) String() string { return proto.CompactTextString(m) }
-func (*MsgAddSchedule) ProtoMessage()    {}
-func (*MsgAddSchedule) Descriptor() ([]byte, []int) {
+func (m *MsgScheduleEVMCall) Reset()         { *m = MsgScheduleEVMCall{} }
+func (m *MsgScheduleEVMCall) String() string { return proto.CompactTextString(m) }
+func (*MsgScheduleEVMCall) ProtoMessage()    {}
+func (*MsgScheduleEVMCall) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0791d34d8d50f9af, []int{0}
 }
-func (m *MsgAddSchedule) XXX_Unmarshal(b []byte) error {
+func (m *MsgScheduleEVMCall) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgAddSchedule) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgScheduleEVMCall) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgAddSchedule.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgScheduleEVMCall.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -66,69 +61,90 @@ func (m *MsgAddSchedule) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-func (m *MsgAddSchedule) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgAddSchedule.Merge(m, src)
+func (m *MsgScheduleEVMCall) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgScheduleEVMCall.Merge(m, src)
 }
-func (m *MsgAddSchedule) XXX_Size() int {
+func (m *MsgScheduleEVMCall) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgAddSchedule) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgAddSchedule.DiscardUnknown(m)
+func (m *MsgScheduleEVMCall) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgScheduleEVMCall.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgAddSchedule proto.InternalMessageInfo
+var xxx_messageInfo_MsgScheduleEVMCall proto.InternalMessageInfo
 
-func (m *MsgAddSchedule) GetAuthority() string {
+func (m *MsgScheduleEVMCall) GetOwnerAddress() string {
 	if m != nil {
-		return m.Authority
+		return m.OwnerAddress
 	}
 	return ""
 }
 
-func (m *MsgAddSchedule) GetName() string {
+func (m *MsgScheduleEVMCall) GetContractAddress() string {
 	if m != nil {
-		return m.Name
+		return m.ContractAddress
 	}
 	return ""
 }
 
-func (m *MsgAddSchedule) GetPeriod() uint64 {
+func (m *MsgScheduleEVMCall) GetAbiJson() string {
 	if m != nil {
-		return m.Period
+		return m.AbiJson
 	}
-	return 0
+	return ""
 }
 
-func (m *MsgAddSchedule) GetMsgs() []MsgExecuteContract {
+func (m *MsgScheduleEVMCall) GetMethodName() string {
 	if m != nil {
-		return m.Msgs
+		return m.MethodName
+	}
+	return ""
+}
+
+func (m *MsgScheduleEVMCall) GetParams() []string {
+	if m != nil {
+		return m.Params
 	}
 	return nil
 }
 
-func (m *MsgAddSchedule) GetExecutionStage() ExecutionStage {
+func (m *MsgScheduleEVMCall) GetFrequency() uint64 {
 	if m != nil {
-		return m.ExecutionStage
+		return m.Frequency
 	}
-	return ExecutionStage_EXECUTION_STAGE_END_BLOCKER
+	return 0
 }
 
-// Defines the response structure for executing a MsgAddSchedule message.
-type MsgAddScheduleResponse struct {
+func (m *MsgScheduleEVMCall) GetExpirationBlock() uint64 {
+	if m != nil {
+		return m.ExpirationBlock
+	}
+	return 0
 }
 
-func (m *MsgAddScheduleResponse) Reset()         { *m = MsgAddScheduleResponse{} }
-func (m *MsgAddScheduleResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgAddScheduleResponse) ProtoMessage()    {}
-func (*MsgAddScheduleResponse) Descriptor() ([]byte, []int) {
+func (m *MsgScheduleEVMCall) GetGasLimit() uint64 {
+	if m != nil {
+		return m.GasLimit
+	}
+	return 0
+}
+
+type MsgScheduleEVMCallResponse struct {
+	ScheduleId uint64 `protobuf:"varint,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+}
+
+func (m *MsgScheduleEVMCallResponse) Reset()         { *m = MsgScheduleEVMCallResponse{} }
+func (m *MsgScheduleEVMCallResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgScheduleEVMCallResponse) ProtoMessage()    {}
+func (*MsgScheduleEVMCallResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0791d34d8d50f9af, []int{1}
 }
-func (m *MsgAddScheduleResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgScheduleEVMCallResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgAddScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgScheduleEVMCallResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgAddScheduleResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgScheduleEVMCallResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -138,38 +154,46 @@ func (m *MsgAddScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *MsgAddScheduleResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgAddScheduleResponse.Merge(m, src)
+func (m *MsgScheduleEVMCallResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgScheduleEVMCallResponse.Merge(m, src)
 }
-func (m *MsgAddScheduleResponse) XXX_Size() int {
+func (m *MsgScheduleEVMCallResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgAddScheduleResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgAddScheduleResponse.DiscardUnknown(m)
+func (m *MsgScheduleEVMCallResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgScheduleEVMCallResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgAddScheduleResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgScheduleEVMCallResponse proto.InternalMessageInfo
 
-// The MsgRemoveSchedule request type.
-type MsgRemoveSchedule struct {
-	// The address of the governance account.
-	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Name of the schedule
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+func (m *MsgScheduleEVMCallResponse) GetScheduleId() uint64 {
+	if m != nil {
+		return m.ScheduleId
+	}
+	return 0
 }
 
-func (m *MsgRemoveSchedule) Reset()         { *m = MsgRemoveSchedule{} }
-func (m *MsgRemoveSchedule) String() string { return proto.CompactTextString(m) }
-func (*MsgRemoveSchedule) ProtoMessage()    {}
-func (*MsgRemoveSchedule) Descriptor() ([]byte, []int) {
+type MsgModifyScheduledEVMCall struct {
+	ScheduleId         uint64   `protobuf:"varint,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	OwnerAddress       string   `protobuf:"bytes,2,opt,name=owner_address,json=ownerAddress,proto3" json:"owner_address,omitempty"`
+	NewFrequency       uint64   `protobuf:"varint,3,opt,name=new_frequency,json=newFrequency,proto3" json:"new_frequency,omitempty"`
+	NewParams          []string `protobuf:"bytes,4,rep,name=new_params,json=newParams,proto3" json:"new_params,omitempty"`
+	NewExpirationBlock uint64   `protobuf:"varint,5,opt,name=new_expiration_block,json=newExpirationBlock,proto3" json:"new_expiration_block,omitempty"`
+	NewGasLimit        uint64   `protobuf:"varint,6,opt,name=new_gas_limit,json=newGasLimit,proto3" json:"new_gas_limit,omitempty"`
+}
+
+func (m *MsgModifyScheduledEVMCall) Reset()         { *m = MsgModifyScheduledEVMCall{} }
+func (m *MsgModifyScheduledEVMCall) String() string { return proto.CompactTextString(m) }
+func (*MsgModifyScheduledEVMCall) ProtoMessage()    {}
+func (*MsgModifyScheduledEVMCall) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0791d34d8d50f9af, []int{2}
 }
-func (m *MsgRemoveSchedule) XXX_Unmarshal(b []byte) error {
+func (m *MsgModifyScheduledEVMCall) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgRemoveSchedule) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgModifyScheduledEVMCall) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgRemoveSchedule.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgModifyScheduledEVMCall.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -179,48 +203,76 @@ func (m *MsgRemoveSchedule) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
-func (m *MsgRemoveSchedule) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRemoveSchedule.Merge(m, src)
+func (m *MsgModifyScheduledEVMCall) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgModifyScheduledEVMCall.Merge(m, src)
 }
-func (m *MsgRemoveSchedule) XXX_Size() int {
+func (m *MsgModifyScheduledEVMCall) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgRemoveSchedule) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRemoveSchedule.DiscardUnknown(m)
+func (m *MsgModifyScheduledEVMCall) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgModifyScheduledEVMCall.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgRemoveSchedule proto.InternalMessageInfo
+var xxx_messageInfo_MsgModifyScheduledEVMCall proto.InternalMessageInfo
 
-func (m *MsgRemoveSchedule) GetAuthority() string {
+func (m *MsgModifyScheduledEVMCall) GetScheduleId() uint64 {
 	if m != nil {
-		return m.Authority
+		return m.ScheduleId
+	}
+	return 0
+}
+
+func (m *MsgModifyScheduledEVMCall) GetOwnerAddress() string {
+	if m != nil {
+		return m.OwnerAddress
 	}
 	return ""
 }
 
-func (m *MsgRemoveSchedule) GetName() string {
+func (m *MsgModifyScheduledEVMCall) GetNewFrequency() uint64 {
 	if m != nil {
-		return m.Name
+		return m.NewFrequency
 	}
-	return ""
+	return 0
 }
 
-// Defines the response structure for executing a MsgRemoveSchedule message.
-type MsgRemoveScheduleResponse struct {
+func (m *MsgModifyScheduledEVMCall) GetNewParams() []string {
+	if m != nil {
+		return m.NewParams
+	}
+	return nil
 }
 
-func (m *MsgRemoveScheduleResponse) Reset()         { *m = MsgRemoveScheduleResponse{} }
-func (m *MsgRemoveScheduleResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgRemoveScheduleResponse) ProtoMessage()    {}
-func (*MsgRemoveScheduleResponse) Descriptor() ([]byte, []int) {
+func (m *MsgModifyScheduledEVMCall) GetNewExpirationBlock() uint64 {
+	if m != nil {
+		return m.NewExpirationBlock
+	}
+	return 0
+}
+
+func (m *MsgModifyScheduledEVMCall) GetNewGasLimit() uint64 {
+	if m != nil {
+		return m.NewGasLimit
+	}
+	return 0
+}
+
+type MsgModifyScheduledEVMCallResponse struct {
+	Success bool `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+}
+
+func (m *MsgModifyScheduledEVMCallResponse) Reset()         { *m = MsgModifyScheduledEVMCallResponse{} }
+func (m *MsgModifyScheduledEVMCallResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgModifyScheduledEVMCallResponse) ProtoMessage()    {}
+func (*MsgModifyScheduledEVMCallResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0791d34d8d50f9af, []int{3}
 }
-func (m *MsgRemoveScheduleResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgModifyScheduledEVMCallResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgRemoveScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgModifyScheduledEVMCallResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgRemoveScheduleResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgModifyScheduledEVMCallResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -230,42 +282,42 @@ func (m *MsgRemoveScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *MsgRemoveScheduleResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRemoveScheduleResponse.Merge(m, src)
+func (m *MsgModifyScheduledEVMCallResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgModifyScheduledEVMCallResponse.Merge(m, src)
 }
-func (m *MsgRemoveScheduleResponse) XXX_Size() int {
+func (m *MsgModifyScheduledEVMCallResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgRemoveScheduleResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRemoveScheduleResponse.DiscardUnknown(m)
+func (m *MsgModifyScheduledEVMCallResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgModifyScheduledEVMCallResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgRemoveScheduleResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgModifyScheduledEVMCallResponse proto.InternalMessageInfo
 
-// The MsgUpdateParams request type.
-//
-// Since: 0.47
-type MsgUpdateParams struct {
-	// The address of the governance account.
-	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Defines the x/cron parameters to update.
-	//
-	// NOTE: All parameters must be supplied.
-	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
+func (m *MsgModifyScheduledEVMCallResponse) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
 }
 
-func (m *MsgUpdateParams) Reset()         { *m = MsgUpdateParams{} }
-func (m *MsgUpdateParams) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateParams) ProtoMessage()    {}
-func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
+type MsgCancelScheduledEVMCall struct {
+	OwnerAddress string `protobuf:"bytes,1,opt,name=owner_address,json=ownerAddress,proto3" json:"owner_address,omitempty"`
+	ScheduleId   uint64 `protobuf:"varint,2,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+}
+
+func (m *MsgCancelScheduledEVMCall) Reset()         { *m = MsgCancelScheduledEVMCall{} }
+func (m *MsgCancelScheduledEVMCall) String() string { return proto.CompactTextString(m) }
+func (*MsgCancelScheduledEVMCall) ProtoMessage()    {}
+func (*MsgCancelScheduledEVMCall) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0791d34d8d50f9af, []int{4}
 }
-func (m *MsgUpdateParams) XXX_Unmarshal(b []byte) error {
+func (m *MsgCancelScheduledEVMCall) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgCancelScheduledEVMCall) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateParams.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgCancelScheduledEVMCall.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -275,50 +327,48 @@ func (m *MsgUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateParams) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateParams.Merge(m, src)
+func (m *MsgCancelScheduledEVMCall) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCancelScheduledEVMCall.Merge(m, src)
 }
-func (m *MsgUpdateParams) XXX_Size() int {
+func (m *MsgCancelScheduledEVMCall) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateParams) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateParams.DiscardUnknown(m)
+func (m *MsgCancelScheduledEVMCall) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCancelScheduledEVMCall.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateParams proto.InternalMessageInfo
+var xxx_messageInfo_MsgCancelScheduledEVMCall proto.InternalMessageInfo
 
-func (m *MsgUpdateParams) GetAuthority() string {
+func (m *MsgCancelScheduledEVMCall) GetOwnerAddress() string {
 	if m != nil {
-		return m.Authority
+		return m.OwnerAddress
 	}
 	return ""
 }
 
-func (m *MsgUpdateParams) GetParams() Params {
+func (m *MsgCancelScheduledEVMCall) GetScheduleId() uint64 {
 	if m != nil {
-		return m.Params
+		return m.ScheduleId
 	}
-	return Params{}
+	return 0
 }
 
-// Defines the response structure for executing a MsgUpdateParams message.
-//
-// Since: 0.47
-type MsgUpdateParamsResponse struct {
+type MsgCancelScheduledEVMCallResponse struct {
+	Success bool `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
 }
 
-func (m *MsgUpdateParamsResponse) Reset()         { *m = MsgUpdateParamsResponse{} }
-func (m *MsgUpdateParamsResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateParamsResponse) ProtoMessage()    {}
-func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
+func (m *MsgCancelScheduledEVMCallResponse) Reset()         { *m = MsgCancelScheduledEVMCallResponse{} }
+func (m *MsgCancelScheduledEVMCallResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCancelScheduledEVMCallResponse) ProtoMessage()    {}
+func (*MsgCancelScheduledEVMCallResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0791d34d8d50f9af, []int{5}
 }
-func (m *MsgUpdateParamsResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgCancelScheduledEVMCallResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgCancelScheduledEVMCallResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateParamsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgCancelScheduledEVMCallResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -328,66 +378,75 @@ func (m *MsgUpdateParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateParamsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateParamsResponse.Merge(m, src)
+func (m *MsgCancelScheduledEVMCallResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCancelScheduledEVMCallResponse.Merge(m, src)
 }
-func (m *MsgUpdateParamsResponse) XXX_Size() int {
+func (m *MsgCancelScheduledEVMCallResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateParamsResponse.DiscardUnknown(m)
+func (m *MsgCancelScheduledEVMCallResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCancelScheduledEVMCallResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgCancelScheduledEVMCallResponse proto.InternalMessageInfo
+
+func (m *MsgCancelScheduledEVMCallResponse) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
+}
 
 func init() {
-	proto.RegisterType((*MsgAddSchedule)(nil), "helios.chronos.v1.MsgAddSchedule")
-	proto.RegisterType((*MsgAddScheduleResponse)(nil), "helios.chronos.v1.MsgAddScheduleResponse")
-	proto.RegisterType((*MsgRemoveSchedule)(nil), "helios.chronos.v1.MsgRemoveSchedule")
-	proto.RegisterType((*MsgRemoveScheduleResponse)(nil), "helios.chronos.v1.MsgRemoveScheduleResponse")
-	proto.RegisterType((*MsgUpdateParams)(nil), "helios.chronos.v1.MsgUpdateParams")
-	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "helios.chronos.v1.MsgUpdateParamsResponse")
+	proto.RegisterType((*MsgScheduleEVMCall)(nil), "helios.chronos.v1.MsgScheduleEVMCall")
+	proto.RegisterType((*MsgScheduleEVMCallResponse)(nil), "helios.chronos.v1.MsgScheduleEVMCallResponse")
+	proto.RegisterType((*MsgModifyScheduledEVMCall)(nil), "helios.chronos.v1.MsgModifyScheduledEVMCall")
+	proto.RegisterType((*MsgModifyScheduledEVMCallResponse)(nil), "helios.chronos.v1.MsgModifyScheduledEVMCallResponse")
+	proto.RegisterType((*MsgCancelScheduledEVMCall)(nil), "helios.chronos.v1.MsgCancelScheduledEVMCall")
+	proto.RegisterType((*MsgCancelScheduledEVMCallResponse)(nil), "helios.chronos.v1.MsgCancelScheduledEVMCallResponse")
 }
 
 func init() { proto.RegisterFile("helios/chronos/v1/tx.proto", fileDescriptor_0791d34d8d50f9af) }
 
 var fileDescriptor_0791d34d8d50f9af = []byte{
-	// 557 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x8b, 0xd3, 0x40,
-	0x18, 0xee, 0xb4, 0xdd, 0x42, 0xa7, 0xd2, 0xa5, 0x61, 0x69, 0xd3, 0x08, 0xb1, 0x1b, 0x14, 0xba,
-	0x65, 0xb7, 0x61, 0x2b, 0x78, 0x28, 0x82, 0x6c, 0x65, 0x2f, 0x42, 0x41, 0x52, 0xbc, 0x28, 0xb8,
-	0xc4, 0x64, 0x98, 0x06, 0x36, 0x99, 0x90, 0x77, 0x5a, 0xba, 0x37, 0xf1, 0x28, 0x08, 0xfe, 0x0c,
-	0x0f, 0x82, 0x05, 0xfd, 0x11, 0x7b, 0x5c, 0x3c, 0x79, 0x12, 0x69, 0x0f, 0xfd, 0x1b, 0x92, 0xaf,
-	0x6e, 0xb2, 0x09, 0xac, 0x08, 0x7b, 0x09, 0x33, 0xef, 0xf3, 0x3c, 0xf3, 0x3e, 0xef, 0x07, 0xc1,
-	0xd2, 0x94, 0x9c, 0x5b, 0x0c, 0x54, 0x63, 0xea, 0x31, 0x87, 0x81, 0x3a, 0x3f, 0x56, 0xf9, 0xa2,
-	0xef, 0x7a, 0x8c, 0x33, 0xa1, 0x11, 0x62, 0xfd, 0x08, 0xeb, 0xcf, 0x8f, 0xa5, 0x86, 0x6e, 0x5b,
-	0x0e, 0x53, 0x83, 0x6f, 0xc8, 0x92, 0x5a, 0x06, 0x03, 0x9b, 0x81, 0x6a, 0x03, 0xf5, 0xd5, 0x36,
-	0xd0, 0x08, 0x68, 0x87, 0xc0, 0x59, 0x70, 0x53, 0xc3, 0x4b, 0x04, 0xed, 0x51, 0x46, 0x59, 0x18,
-	0xf7, 0x4f, 0x51, 0x54, 0xce, 0x7a, 0x71, 0x75, 0x4f, 0xb7, 0x63, 0x55, 0x27, 0x8b, 0x83, 0x31,
-	0x25, 0xe6, 0xec, 0x9c, 0x84, 0x0c, 0xe5, 0x6b, 0x11, 0xd7, 0xc7, 0x40, 0x4f, 0x4c, 0x73, 0x12,
-	0x01, 0xc2, 0x13, 0x5c, 0xd5, 0x67, 0x7c, 0xca, 0x3c, 0x8b, 0x5f, 0x88, 0xa8, 0x83, 0xba, 0xd5,
-	0x91, 0xf8, 0xf3, 0xc7, 0xd1, 0x5e, 0xe4, 0xe7, 0xc4, 0x34, 0x3d, 0x02, 0x30, 0xe1, 0x9e, 0xe5,
-	0x50, 0xed, 0x9a, 0x2a, 0x08, 0xb8, 0xec, 0xe8, 0x36, 0x11, 0x8b, 0xbe, 0x44, 0x0b, 0xce, 0x42,
-	0x13, 0x57, 0x5c, 0xe2, 0x59, 0xcc, 0x14, 0x4b, 0x1d, 0xd4, 0x2d, 0x6b, 0xd1, 0x4d, 0x78, 0x86,
-	0xcb, 0x36, 0x50, 0x10, 0xcb, 0x9d, 0x52, 0xb7, 0x36, 0x78, 0xd4, 0xcf, 0xf4, 0xad, 0x3f, 0x06,
-	0x7a, 0xba, 0x20, 0xc6, 0x8c, 0x93, 0xe7, 0xcc, 0xe1, 0x9e, 0x6e, 0xf0, 0x51, 0xf9, 0xf2, 0xf7,
-	0x83, 0x82, 0x16, 0x08, 0x85, 0x17, 0x78, 0x97, 0x04, 0xb0, 0xc5, 0x9c, 0x33, 0xe0, 0x3a, 0x25,
-	0xe2, 0x4e, 0x07, 0x75, 0xeb, 0x83, 0xfd, 0x9c, 0xb7, 0x4e, 0x63, 0xe6, 0xc4, 0x27, 0x6a, 0x75,
-	0x92, 0xba, 0x0f, 0x0f, 0x3e, 0x6c, 0x96, 0xbd, 0xeb, 0x42, 0x3e, 0x6e, 0x96, 0xbd, 0x66, 0xdc,
-	0xb1, 0x74, 0x6f, 0x14, 0x11, 0x37, 0xd3, 0x11, 0x8d, 0x80, 0xcb, 0x1c, 0x20, 0xca, 0x27, 0x84,
-	0x1b, 0x63, 0xa0, 0x1a, 0xb1, 0xd9, 0x9c, 0xdc, 0x45, 0x2f, 0x87, 0x87, 0x59, 0x9b, 0xed, 0x84,
-	0xcd, 0x74, 0x66, 0xe5, 0x3e, 0x6e, 0x67, 0x82, 0x5b, 0xb3, 0xdf, 0x11, 0xde, 0x1d, 0x03, 0x7d,
-	0xe5, 0x9a, 0x3a, 0x27, 0x2f, 0x83, 0x8d, 0xf9, 0x6f, 0xab, 0x4f, 0x71, 0x25, 0xdc, 0xb9, 0xc0,
-	0x6c, 0x6d, 0xd0, 0xce, 0x19, 0x40, 0x98, 0x62, 0x54, 0xf5, 0x07, 0xf8, 0x65, 0xb3, 0xec, 0x21,
-	0x2d, 0xd2, 0x0c, 0x7b, 0xd9, 0xa2, 0x5a, 0x89, 0xa2, 0x92, 0x0e, 0x95, 0x36, 0x6e, 0xdd, 0x08,
-	0xc5, 0x05, 0x0d, 0xbe, 0x15, 0x71, 0x69, 0x0c, 0x54, 0x78, 0x83, 0x6b, 0xc9, 0x55, 0xde, 0xcf,
-	0x5f, 0xac, 0x04, 0x45, 0x3a, 0xb8, 0x95, 0x12, 0x27, 0x11, 0x4c, 0x5c, 0xbf, 0x31, 0xde, 0x87,
-	0xf9, 0xe2, 0x34, 0x4b, 0x3a, 0xfc, 0x17, 0xd6, 0x36, 0xcb, 0x5b, 0x7c, 0x2f, 0x35, 0x17, 0x25,
-	0x5f, 0x9d, 0xe4, 0x48, 0xbd, 0xdb, 0x39, 0xf1, 0xfb, 0xd2, 0xce, 0x7b, 0x7f, 0x00, 0xa3, 0xd1,
-	0xe5, 0x4a, 0x46, 0x57, 0x2b, 0x19, 0xfd, 0x59, 0xc9, 0xe8, 0xf3, 0x5a, 0x2e, 0x5c, 0xad, 0xe5,
-	0xc2, 0xaf, 0xb5, 0x5c, 0x78, 0xdd, 0x0d, 0xdf, 0x3a, 0x32, 0x98, 0x47, 0xd4, 0xf8, 0x3c, 0xd5,
-	0x2d, 0x47, 0x5d, 0x6c, 0x7f, 0x24, 0xfc, 0xc2, 0x25, 0xf0, 0xae, 0x12, 0xfc, 0x43, 0x1e, 0xff,
-	0x0d, 0x00, 0x00, 0xff, 0xff, 0xf2, 0x32, 0x25, 0x90, 0x13, 0x05, 0x00, 0x00,
+	// 579 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0xcf, 0x6e, 0xd3, 0x4e,
+	0x10, 0xc7, 0xe3, 0x24, 0xcd, 0x9f, 0x69, 0xab, 0xfc, 0x7e, 0x56, 0x55, 0xb9, 0x06, 0x4c, 0x48,
+	0x85, 0x14, 0x24, 0x1a, 0x53, 0xe0, 0xca, 0x81, 0x54, 0x05, 0x81, 0x08, 0x42, 0x46, 0xe2, 0xc0,
+	0xc5, 0xda, 0xd8, 0x13, 0xc7, 0xe0, 0xec, 0x9a, 0x5d, 0xa7, 0x4e, 0x24, 0x1e, 0x82, 0x27, 0xe0,
+	0x79, 0x38, 0xf6, 0xc8, 0x11, 0x25, 0x37, 0x5e, 0x81, 0x0b, 0xf2, 0x3a, 0x4e, 0x50, 0x9c, 0xd0,
+	0x72, 0xf3, 0x7c, 0xe7, 0x9b, 0x99, 0xc9, 0x67, 0xc6, 0x06, 0x7d, 0x88, 0x81, 0xcf, 0x84, 0xe9,
+	0x0c, 0x39, 0xa3, 0x4c, 0x98, 0x17, 0xa7, 0x66, 0x34, 0xe9, 0x84, 0x9c, 0x45, 0x4c, 0xfd, 0x3f,
+	0xcd, 0x75, 0x16, 0xb9, 0xce, 0xc5, 0xa9, 0x7e, 0xe0, 0x31, 0x8f, 0xc9, 0xac, 0x99, 0x3c, 0xa5,
+	0x46, 0xdd, 0xf0, 0x18, 0xf3, 0x02, 0x34, 0x65, 0xd4, 0x1f, 0x0f, 0xcc, 0x98, 0x93, 0x30, 0x44,
+	0x2e, 0xd2, 0x7c, 0xeb, 0x6b, 0x11, 0xd4, 0x9e, 0xf0, 0xde, 0x3a, 0x43, 0x74, 0xc7, 0x01, 0x9e,
+	0xbf, 0xeb, 0x9d, 0x91, 0x20, 0x50, 0x8f, 0x61, 0x9f, 0xc5, 0x14, 0xb9, 0x4d, 0x5c, 0x97, 0xa3,
+	0x10, 0x9a, 0xd2, 0x54, 0xda, 0x75, 0x6b, 0x4f, 0x8a, 0x4f, 0x53, 0x4d, 0xbd, 0x07, 0xff, 0x39,
+	0x8c, 0x46, 0x9c, 0x38, 0xd1, 0xd2, 0x57, 0x94, 0xbe, 0x46, 0xa6, 0x67, 0xd6, 0x23, 0xa8, 0x91,
+	0xbe, 0x6f, 0x7f, 0x10, 0x8c, 0x6a, 0x25, 0x69, 0xa9, 0x92, 0xbe, 0xff, 0x52, 0x30, 0xaa, 0xde,
+	0x86, 0xdd, 0x11, 0x46, 0x43, 0xe6, 0xda, 0x94, 0x8c, 0x50, 0x2b, 0xcb, 0x2c, 0xa4, 0xd2, 0x6b,
+	0x32, 0x42, 0xf5, 0x10, 0x2a, 0x21, 0xe1, 0x64, 0x24, 0xb4, 0x9d, 0x66, 0xa9, 0x5d, 0xb7, 0x16,
+	0x91, 0x7a, 0x13, 0xea, 0x03, 0x8e, 0x9f, 0xc6, 0x48, 0x9d, 0xa9, 0x56, 0x69, 0x2a, 0xed, 0xb2,
+	0xb5, 0x12, 0x92, 0xe1, 0x70, 0x12, 0xfa, 0x9c, 0x44, 0x3e, 0xa3, 0x76, 0x3f, 0x60, 0xce, 0x47,
+	0xad, 0x2a, 0x4d, 0x8d, 0x95, 0xde, 0x4d, 0x64, 0xf5, 0x06, 0xd4, 0x3d, 0x22, 0xec, 0xc0, 0x1f,
+	0xf9, 0x91, 0x56, 0x93, 0x9e, 0x9a, 0x47, 0xc4, 0xab, 0x24, 0x6e, 0x3d, 0x01, 0x3d, 0xcf, 0xc7,
+	0x42, 0x11, 0x32, 0x2a, 0x30, 0x19, 0x5e, 0x2c, 0x52, 0xb6, 0xef, 0x4a, 0x4a, 0x65, 0x0b, 0x32,
+	0xe9, 0x85, 0xdb, 0xfa, 0xa5, 0xc0, 0x51, 0x4f, 0x78, 0x3d, 0xe6, 0xfa, 0x83, 0x69, 0x56, 0xc5,
+	0xcd, 0x30, 0x5f, 0xf5, 0xf3, 0xfc, 0x1e, 0x8a, 0x1b, 0xf6, 0x70, 0x0c, 0xfb, 0x14, 0x63, 0x7b,
+	0x05, 0xa3, 0x24, 0xeb, 0xec, 0x51, 0x8c, 0x9f, 0x2d, 0x79, 0xdc, 0x02, 0x48, 0x4c, 0x0b, 0x92,
+	0x65, 0x49, 0xb2, 0x4e, 0x31, 0x7e, 0x93, 0xc2, 0x7c, 0x00, 0x07, 0x49, 0x3a, 0x87, 0x6c, 0x47,
+	0x96, 0x52, 0x29, 0xc6, 0xe7, 0x6b, 0xd4, 0x5a, 0x69, 0xd7, 0x15, 0xb9, 0x74, 0x05, 0xbb, 0x14,
+	0xe3, 0xe7, 0x2b, 0x78, 0x77, 0xb6, 0xfe, 0xf9, 0x25, 0x43, 0x0d, 0xaa, 0x62, 0xec, 0x38, 0xd9,
+	0x95, 0xd5, 0xac, 0x2c, 0x6c, 0x11, 0xc9, 0xee, 0x8c, 0x50, 0x07, 0x83, 0x1c, 0xbb, 0x6b, 0x9d,
+	0xe8, 0x1a, 0xe0, 0x62, 0x6e, 0x3f, 0xe9, 0x84, 0x9b, 0x5b, 0x5c, 0x3d, 0xe1, 0xc3, 0x9f, 0x45,
+	0x28, 0xf5, 0x84, 0xa7, 0x7a, 0xd0, 0x58, 0x7f, 0x85, 0xee, 0x76, 0x72, 0xef, 0x68, 0x27, 0x7f,
+	0x49, 0xfa, 0xc9, 0xb5, 0x6c, 0xcb, 0x51, 0x3e, 0xc3, 0xe1, 0x96, 0x5b, 0xba, 0xbf, 0xb9, 0xd0,
+	0x66, 0xb7, 0xfe, 0xf8, 0x5f, 0xdc, 0x7f, 0x76, 0xdf, 0xb2, 0x8d, 0x2d, 0xdd, 0x37, 0xbb, 0xb7,
+	0x75, 0xff, 0xfb, 0x1a, 0xba, 0xdd, 0x6f, 0x33, 0x43, 0xb9, 0x9c, 0x19, 0xca, 0x8f, 0x99, 0xa1,
+	0x7c, 0x99, 0x1b, 0x85, 0xcb, 0xb9, 0x51, 0xf8, 0x3e, 0x37, 0x0a, 0xef, 0xdb, 0x69, 0xb9, 0x13,
+	0x87, 0x71, 0x34, 0xb3, 0xe7, 0x21, 0xf1, 0xa9, 0x39, 0x59, 0x7e, 0x3e, 0xa3, 0x69, 0x88, 0xa2,
+	0x5f, 0x91, 0x9f, 0xbd, 0x47, 0xbf, 0x03, 0x00, 0x00, 0xff, 0xff, 0x97, 0x6a, 0xd7, 0x41, 0x5d,
+	0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -402,12 +461,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// Adds new schedule.
-	AddSchedule(ctx context.Context, in *MsgAddSchedule, opts ...grpc.CallOption) (*MsgAddScheduleResponse, error)
-	// Removes schedule.
-	RemoveSchedule(ctx context.Context, in *MsgRemoveSchedule, opts ...grpc.CallOption) (*MsgRemoveScheduleResponse, error)
-	// Updates the module parameters.
-	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
+	ScheduleEVMCall(ctx context.Context, in *MsgScheduleEVMCall, opts ...grpc.CallOption) (*MsgScheduleEVMCallResponse, error)
+	ModifyScheduledEVMCall(ctx context.Context, in *MsgModifyScheduledEVMCall, opts ...grpc.CallOption) (*MsgModifyScheduledEVMCallResponse, error)
+	CancelScheduledEVMCall(ctx context.Context, in *MsgCancelScheduledEVMCall, opts ...grpc.CallOption) (*MsgCancelScheduledEVMCallResponse, error)
 }
 
 type msgClient struct {
@@ -418,27 +474,27 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) AddSchedule(ctx context.Context, in *MsgAddSchedule, opts ...grpc.CallOption) (*MsgAddScheduleResponse, error) {
-	out := new(MsgAddScheduleResponse)
-	err := c.cc.Invoke(ctx, "/helios.chronos.v1.Msg/AddSchedule", in, out, opts...)
+func (c *msgClient) ScheduleEVMCall(ctx context.Context, in *MsgScheduleEVMCall, opts ...grpc.CallOption) (*MsgScheduleEVMCallResponse, error) {
+	out := new(MsgScheduleEVMCallResponse)
+	err := c.cc.Invoke(ctx, "/helios.chronos.v1.Msg/ScheduleEVMCall", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) RemoveSchedule(ctx context.Context, in *MsgRemoveSchedule, opts ...grpc.CallOption) (*MsgRemoveScheduleResponse, error) {
-	out := new(MsgRemoveScheduleResponse)
-	err := c.cc.Invoke(ctx, "/helios.chronos.v1.Msg/RemoveSchedule", in, out, opts...)
+func (c *msgClient) ModifyScheduledEVMCall(ctx context.Context, in *MsgModifyScheduledEVMCall, opts ...grpc.CallOption) (*MsgModifyScheduledEVMCallResponse, error) {
+	out := new(MsgModifyScheduledEVMCallResponse)
+	err := c.cc.Invoke(ctx, "/helios.chronos.v1.Msg/ModifyScheduledEVMCall", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error) {
-	out := new(MsgUpdateParamsResponse)
-	err := c.cc.Invoke(ctx, "/helios.chronos.v1.Msg/UpdateParams", in, out, opts...)
+func (c *msgClient) CancelScheduledEVMCall(ctx context.Context, in *MsgCancelScheduledEVMCall, opts ...grpc.CallOption) (*MsgCancelScheduledEVMCallResponse, error) {
+	out := new(MsgCancelScheduledEVMCallResponse)
+	err := c.cc.Invoke(ctx, "/helios.chronos.v1.Msg/CancelScheduledEVMCall", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -447,82 +503,79 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// Adds new schedule.
-	AddSchedule(context.Context, *MsgAddSchedule) (*MsgAddScheduleResponse, error)
-	// Removes schedule.
-	RemoveSchedule(context.Context, *MsgRemoveSchedule) (*MsgRemoveScheduleResponse, error)
-	// Updates the module parameters.
-	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
+	ScheduleEVMCall(context.Context, *MsgScheduleEVMCall) (*MsgScheduleEVMCallResponse, error)
+	ModifyScheduledEVMCall(context.Context, *MsgModifyScheduledEVMCall) (*MsgModifyScheduledEVMCallResponse, error)
+	CancelScheduledEVMCall(context.Context, *MsgCancelScheduledEVMCall) (*MsgCancelScheduledEVMCallResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) AddSchedule(ctx context.Context, req *MsgAddSchedule) (*MsgAddScheduleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddSchedule not implemented")
+func (*UnimplementedMsgServer) ScheduleEVMCall(ctx context.Context, req *MsgScheduleEVMCall) (*MsgScheduleEVMCallResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ScheduleEVMCall not implemented")
 }
-func (*UnimplementedMsgServer) RemoveSchedule(ctx context.Context, req *MsgRemoveSchedule) (*MsgRemoveScheduleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveSchedule not implemented")
+func (*UnimplementedMsgServer) ModifyScheduledEVMCall(ctx context.Context, req *MsgModifyScheduledEVMCall) (*MsgModifyScheduledEVMCallResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyScheduledEVMCall not implemented")
 }
-func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
+func (*UnimplementedMsgServer) CancelScheduledEVMCall(ctx context.Context, req *MsgCancelScheduledEVMCall) (*MsgCancelScheduledEVMCallResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelScheduledEVMCall not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
-func _Msg_AddSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgAddSchedule)
+func _Msg_ScheduleEVMCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgScheduleEVMCall)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).AddSchedule(ctx, in)
+		return srv.(MsgServer).ScheduleEVMCall(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/helios.chronos.v1.Msg/AddSchedule",
+		FullMethod: "/helios.chronos.v1.Msg/ScheduleEVMCall",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).AddSchedule(ctx, req.(*MsgAddSchedule))
+		return srv.(MsgServer).ScheduleEVMCall(ctx, req.(*MsgScheduleEVMCall))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_RemoveSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgRemoveSchedule)
+func _Msg_ModifyScheduledEVMCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgModifyScheduledEVMCall)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).RemoveSchedule(ctx, in)
+		return srv.(MsgServer).ModifyScheduledEVMCall(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/helios.chronos.v1.Msg/RemoveSchedule",
+		FullMethod: "/helios.chronos.v1.Msg/ModifyScheduledEVMCall",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).RemoveSchedule(ctx, req.(*MsgRemoveSchedule))
+		return srv.(MsgServer).ModifyScheduledEVMCall(ctx, req.(*MsgModifyScheduledEVMCall))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUpdateParams)
+func _Msg_CancelScheduledEVMCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgCancelScheduledEVMCall)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).UpdateParams(ctx, in)
+		return srv.(MsgServer).CancelScheduledEVMCall(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/helios.chronos.v1.Msg/UpdateParams",
+		FullMethod: "/helios.chronos.v1.Msg/CancelScheduledEVMCall",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UpdateParams(ctx, req.(*MsgUpdateParams))
+		return srv.(MsgServer).CancelScheduledEVMCall(ctx, req.(*MsgCancelScheduledEVMCall))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -532,23 +585,23 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddSchedule",
-			Handler:    _Msg_AddSchedule_Handler,
+			MethodName: "ScheduleEVMCall",
+			Handler:    _Msg_ScheduleEVMCall_Handler,
 		},
 		{
-			MethodName: "RemoveSchedule",
-			Handler:    _Msg_RemoveSchedule_Handler,
+			MethodName: "ModifyScheduledEVMCall",
+			Handler:    _Msg_ModifyScheduledEVMCall_Handler,
 		},
 		{
-			MethodName: "UpdateParams",
-			Handler:    _Msg_UpdateParams_Handler,
+			MethodName: "CancelScheduledEVMCall",
+			Handler:    _Msg_CancelScheduledEVMCall_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "helios/chronos/v1/tx.proto",
 }
 
-func (m *MsgAddSchedule) Marshal() (dAtA []byte, err error) {
+func (m *MsgScheduleEVMCall) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -558,58 +611,159 @@ func (m *MsgAddSchedule) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgAddSchedule) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgScheduleEVMCall) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgAddSchedule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgScheduleEVMCall) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.ExecutionStage != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.ExecutionStage))
+	if m.GasLimit != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.GasLimit))
+		i--
+		dAtA[i] = 0x40
+	}
+	if m.ExpirationBlock != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.ExpirationBlock))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.Frequency != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Frequency))
+		i--
+		dAtA[i] = 0x30
+	}
+	if len(m.Params) > 0 {
+		for iNdEx := len(m.Params) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Params[iNdEx])
+			copy(dAtA[i:], m.Params[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Params[iNdEx])))
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.MethodName) > 0 {
+		i -= len(m.MethodName)
+		copy(dAtA[i:], m.MethodName)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.MethodName)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.AbiJson) > 0 {
+		i -= len(m.AbiJson)
+		copy(dAtA[i:], m.AbiJson)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.AbiJson)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.OwnerAddress) > 0 {
+		i -= len(m.OwnerAddress)
+		copy(dAtA[i:], m.OwnerAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.OwnerAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgScheduleEVMCallResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgScheduleEVMCallResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgScheduleEVMCallResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.ScheduleId != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.ScheduleId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgModifyScheduledEVMCall) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgModifyScheduledEVMCall) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgModifyScheduledEVMCall) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.NewGasLimit != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.NewGasLimit))
+		i--
+		dAtA[i] = 0x30
+	}
+	if m.NewExpirationBlock != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.NewExpirationBlock))
 		i--
 		dAtA[i] = 0x28
 	}
-	if len(m.Msgs) > 0 {
-		for iNdEx := len(m.Msgs) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Msgs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTx(dAtA, i, uint64(size))
-			}
+	if len(m.NewParams) > 0 {
+		for iNdEx := len(m.NewParams) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.NewParams[iNdEx])
+			copy(dAtA[i:], m.NewParams[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.NewParams[iNdEx])))
 			i--
 			dAtA[i] = 0x22
 		}
 	}
-	if m.Period != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.Period))
+	if m.NewFrequency != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.NewFrequency))
 		i--
 		dAtA[i] = 0x18
 	}
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Name)))
+	if len(m.OwnerAddress) > 0 {
+		i -= len(m.OwnerAddress)
+		copy(dAtA[i:], m.OwnerAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.OwnerAddress)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Authority) > 0 {
-		i -= len(m.Authority)
-		copy(dAtA[i:], m.Authority)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
+	if m.ScheduleId != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.ScheduleId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgAddScheduleResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgModifyScheduledEVMCallResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -619,120 +773,30 @@ func (m *MsgAddScheduleResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgAddScheduleResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgModifyScheduledEVMCallResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgAddScheduleResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgModifyScheduledEVMCallResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgRemoveSchedule) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgRemoveSchedule) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgRemoveSchedule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Name)))
+	if m.Success {
 		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Authority) > 0 {
-		i -= len(m.Authority)
-		copy(dAtA[i:], m.Authority)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgRemoveScheduleResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgRemoveScheduleResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgRemoveScheduleResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgUpdateParams) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgUpdateParams) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgUpdateParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
+		if m.Success {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
 		}
-		i -= size
-		i = encodeVarintTx(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	if len(m.Authority) > 0 {
-		i -= len(m.Authority)
-		copy(dAtA[i:], m.Authority)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdateParamsResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgCancelScheduledEVMCall) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -742,16 +806,61 @@ func (m *MsgUpdateParamsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdateParamsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgCancelScheduledEVMCall) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdateParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgCancelScheduledEVMCall) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.ScheduleId != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.ScheduleId))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.OwnerAddress) > 0 {
+		i -= len(m.OwnerAddress)
+		copy(dAtA[i:], m.OwnerAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.OwnerAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCancelScheduledEVMCallResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCancelScheduledEVMCallResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCancelScheduledEVMCallResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Success {
+		i--
+		if m.Success {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x8
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -766,91 +875,126 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *MsgAddSchedule) Size() (n int) {
+func (m *MsgScheduleEVMCall) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Authority)
+	l = len(m.OwnerAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.Name)
+	l = len(m.ContractAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.Period != 0 {
-		n += 1 + sovTx(uint64(m.Period))
+	l = len(m.AbiJson)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
 	}
-	if len(m.Msgs) > 0 {
-		for _, e := range m.Msgs {
-			l = e.Size()
+	l = len(m.MethodName)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Params) > 0 {
+		for _, s := range m.Params {
+			l = len(s)
 			n += 1 + l + sovTx(uint64(l))
 		}
 	}
-	if m.ExecutionStage != 0 {
-		n += 1 + sovTx(uint64(m.ExecutionStage))
+	if m.Frequency != 0 {
+		n += 1 + sovTx(uint64(m.Frequency))
+	}
+	if m.ExpirationBlock != 0 {
+		n += 1 + sovTx(uint64(m.ExpirationBlock))
+	}
+	if m.GasLimit != 0 {
+		n += 1 + sovTx(uint64(m.GasLimit))
 	}
 	return n
 }
 
-func (m *MsgAddScheduleResponse) Size() (n int) {
+func (m *MsgScheduleEVMCallResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
+	if m.ScheduleId != 0 {
+		n += 1 + sovTx(uint64(m.ScheduleId))
+	}
 	return n
 }
 
-func (m *MsgRemoveSchedule) Size() (n int) {
+func (m *MsgModifyScheduledEVMCall) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Authority)
+	if m.ScheduleId != 0 {
+		n += 1 + sovTx(uint64(m.ScheduleId))
+	}
+	l = len(m.OwnerAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.Name)
+	if m.NewFrequency != 0 {
+		n += 1 + sovTx(uint64(m.NewFrequency))
+	}
+	if len(m.NewParams) > 0 {
+		for _, s := range m.NewParams {
+			l = len(s)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	if m.NewExpirationBlock != 0 {
+		n += 1 + sovTx(uint64(m.NewExpirationBlock))
+	}
+	if m.NewGasLimit != 0 {
+		n += 1 + sovTx(uint64(m.NewGasLimit))
+	}
+	return n
+}
+
+func (m *MsgModifyScheduledEVMCallResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Success {
+		n += 2
+	}
+	return n
+}
+
+func (m *MsgCancelScheduledEVMCall) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.OwnerAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	if m.ScheduleId != 0 {
+		n += 1 + sovTx(uint64(m.ScheduleId))
+	}
 	return n
 }
 
-func (m *MsgRemoveScheduleResponse) Size() (n int) {
+func (m *MsgCancelScheduledEVMCallResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	return n
-}
-
-func (m *MsgUpdateParams) Size() (n int) {
-	if m == nil {
-		return 0
+	if m.Success {
+		n += 2
 	}
-	var l int
-	_ = l
-	l = len(m.Authority)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = m.Params.Size()
-	n += 1 + l + sovTx(uint64(l))
-	return n
-}
-
-func (m *MsgUpdateParamsResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	return n
 }
 
@@ -860,7 +1004,7 @@ func sovTx(x uint64) (n int) {
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
+func (m *MsgScheduleEVMCall) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -883,15 +1027,15 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgAddSchedule: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgScheduleEVMCall: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgAddSchedule: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgScheduleEVMCall: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnerAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -919,11 +1063,11 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Authority = string(dAtA[iNdEx:postIndex])
+			m.OwnerAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -951,13 +1095,13 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Name = string(dAtA[iNdEx:postIndex])
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Period", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AbiJson", wireType)
 			}
-			m.Period = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -967,16 +1111,339 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Period |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AbiJson = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MethodName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MethodName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Params = append(m.Params, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Frequency", wireType)
+			}
+			m.Frequency = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Frequency |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpirationBlock", wireType)
+			}
+			m.ExpirationBlock = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ExpirationBlock |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GasLimit", wireType)
+			}
+			m.GasLimit = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GasLimit |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgScheduleEVMCallResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgScheduleEVMCallResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgScheduleEVMCallResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ScheduleId", wireType)
+			}
+			m.ScheduleId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ScheduleId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgModifyScheduledEVMCall) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgModifyScheduledEVMCall: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgModifyScheduledEVMCall: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ScheduleId", wireType)
+			}
+			m.ScheduleId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ScheduleId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnerAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OwnerAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewFrequency", wireType)
+			}
+			m.NewFrequency = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NewFrequency |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Msgs", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field NewParams", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -986,31 +1453,29 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Msgs = append(m.Msgs, MsgExecuteContract{})
-			if err := m.Msgs[len(m.Msgs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.NewParams = append(m.NewParams, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 5:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ExecutionStage", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field NewExpirationBlock", wireType)
 			}
-			m.ExecutionStage = 0
+			m.NewExpirationBlock = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -1020,7 +1485,26 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ExecutionStage |= ExecutionStage(b&0x7F) << shift
+				m.NewExpirationBlock |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewGasLimit", wireType)
+			}
+			m.NewGasLimit = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NewGasLimit |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1046,7 +1530,7 @@ func (m *MsgAddSchedule) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgAddScheduleResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgModifyScheduledEVMCallResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1069,12 +1553,32 @@ func (m *MsgAddScheduleResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgAddScheduleResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgModifyScheduledEVMCallResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgAddScheduleResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgModifyScheduledEVMCallResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Success", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Success = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -1096,7 +1600,7 @@ func (m *MsgAddScheduleResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgRemoveSchedule) Unmarshal(dAtA []byte) error {
+func (m *MsgCancelScheduledEVMCall) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1119,15 +1623,15 @@ func (m *MsgRemoveSchedule) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRemoveSchedule: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgCancelScheduledEVMCall: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRemoveSchedule: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgCancelScheduledEVMCall: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnerAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1155,13 +1659,13 @@ func (m *MsgRemoveSchedule) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Authority = string(dAtA[iNdEx:postIndex])
+			m.OwnerAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ScheduleId", wireType)
 			}
-			var stringLen uint64
+			m.ScheduleId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -1171,24 +1675,11 @@ func (m *MsgRemoveSchedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.ScheduleId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Name = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -1210,7 +1701,7 @@ func (m *MsgRemoveSchedule) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgRemoveScheduleResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgCancelScheduledEVMCallResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1233,67 +1724,17 @@ func (m *MsgRemoveScheduleResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRemoveScheduleResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgCancelScheduledEVMCallResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRemoveScheduleResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgUpdateParams) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdateParams: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdateParams: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgCancelScheduledEVMCallResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Success", wireType)
 			}
-			var stringLen uint64
+			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -1303,107 +1744,12 @@ func (m *MsgUpdateParams) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Authority = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgUpdateParamsResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdateParamsResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdateParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
+			m.Success = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])

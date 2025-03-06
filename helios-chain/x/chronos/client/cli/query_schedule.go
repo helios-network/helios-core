@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -13,7 +14,7 @@ import (
 func CmdListSchedule() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list-schedule",
-		Short: "list all schedule",
+		Short: "List all scheduled EVM calls",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -45,18 +46,21 @@ func CmdListSchedule() *cobra.Command {
 
 func CmdShowSchedule() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-schedule [name]",
-		Short: "shows a schedule",
+		Use:   "show-schedule [id]",
+		Short: "Show details of a scheduled EVM call by ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			argName := args[0]
+			scheduleID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
 
 			params := &types.QueryGetScheduleRequest{
-				Name: argName,
+				Id: scheduleID,
 			}
 
 			res, err := queryClient.Schedule(context.Background(), params)

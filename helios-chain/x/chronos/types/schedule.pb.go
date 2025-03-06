@@ -27,9 +27,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type ExecutionStage int32
 
 const (
-	// Execution at the end of the block
-	ExecutionStage_EXECUTION_STAGE_END_BLOCKER ExecutionStage = 0
-	// Execution at the beginning of the block
+	ExecutionStage_EXECUTION_STAGE_END_BLOCKER   ExecutionStage = 0
 	ExecutionStage_EXECUTION_STAGE_BEGIN_BLOCKER ExecutionStage = 1
 )
 
@@ -51,18 +49,18 @@ func (ExecutionStage) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_1206d0259de4e6fb, []int{0}
 }
 
-// Defines the schedule for execution
+// Schedule for autonomous EVM smart-contract execution
 type Schedule struct {
-	// Name of schedule
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Period in blocks
-	Period uint64 `protobuf:"varint,2,opt,name=period,proto3" json:"period,omitempty"`
-	// Msgs that will be executed every certain number of blocks, specified in the `period` field
-	Msgs []MsgExecuteContract `protobuf:"bytes,3,rep,name=msgs,proto3" json:"msgs"`
-	// Last execution's block height
-	LastExecuteHeight uint64 `protobuf:"varint,4,opt,name=last_execute_height,json=lastExecuteHeight,proto3" json:"last_execute_height,omitempty"`
-	// Stage when messages will be executed
-	ExecutionStage ExecutionStage `protobuf:"varint,5,opt,name=execution_stage,json=executionStage,proto3,enum=helios.chronos.v1.ExecutionStage" json:"execution_stage,omitempty"`
+	Id                 uint64         `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	OwnerAddress       string         `protobuf:"bytes,2,opt,name=owner_address,json=ownerAddress,proto3" json:"owner_address,omitempty"`
+	ContractAddress    string         `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	AbiJson            string         `protobuf:"bytes,4,opt,name=abi_json,json=abiJson,proto3" json:"abi_json,omitempty"`
+	MethodName         string         `protobuf:"bytes,5,opt,name=method_name,json=methodName,proto3" json:"method_name,omitempty"`
+	Params             []string       `protobuf:"bytes,6,rep,name=params,proto3" json:"params,omitempty"`
+	Frequency          uint64         `protobuf:"varint,7,opt,name=frequency,proto3" json:"frequency,omitempty"`
+	NextExecutionBlock uint64         `protobuf:"varint,8,opt,name=next_execution_block,json=nextExecutionBlock,proto3" json:"next_execution_block,omitempty"`
+	ExpirationBlock    uint64         `protobuf:"varint,9,opt,name=expiration_block,json=expirationBlock,proto3" json:"expiration_block,omitempty"`
+	ExecutionStage     ExecutionStage `protobuf:"varint,10,opt,name=execution_stage,json=executionStage,proto3,enum=helios.chronos.v1.ExecutionStage" json:"execution_stage,omitempty"`
 }
 
 func (m *Schedule) Reset()         { *m = Schedule{} }
@@ -98,30 +96,65 @@ func (m *Schedule) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Schedule proto.InternalMessageInfo
 
-func (m *Schedule) GetName() string {
+func (m *Schedule) GetId() uint64 {
 	if m != nil {
-		return m.Name
-	}
-	return ""
-}
-
-func (m *Schedule) GetPeriod() uint64 {
-	if m != nil {
-		return m.Period
+		return m.Id
 	}
 	return 0
 }
 
-func (m *Schedule) GetMsgs() []MsgExecuteContract {
+func (m *Schedule) GetOwnerAddress() string {
 	if m != nil {
-		return m.Msgs
+		return m.OwnerAddress
+	}
+	return ""
+}
+
+func (m *Schedule) GetContractAddress() string {
+	if m != nil {
+		return m.ContractAddress
+	}
+	return ""
+}
+
+func (m *Schedule) GetAbiJson() string {
+	if m != nil {
+		return m.AbiJson
+	}
+	return ""
+}
+
+func (m *Schedule) GetMethodName() string {
+	if m != nil {
+		return m.MethodName
+	}
+	return ""
+}
+
+func (m *Schedule) GetParams() []string {
+	if m != nil {
+		return m.Params
 	}
 	return nil
 }
 
-func (m *Schedule) GetLastExecuteHeight() uint64 {
+func (m *Schedule) GetFrequency() uint64 {
 	if m != nil {
-		return m.LastExecuteHeight
+		return m.Frequency
+	}
+	return 0
+}
+
+func (m *Schedule) GetNextExecutionBlock() uint64 {
+	if m != nil {
+		return m.NextExecutionBlock
+	}
+	return 0
+}
+
+func (m *Schedule) GetExpirationBlock() uint64 {
+	if m != nil {
+		return m.ExpirationBlock
 	}
 	return 0
 }
@@ -133,143 +166,42 @@ func (m *Schedule) GetExecutionStage() ExecutionStage {
 	return ExecutionStage_EXECUTION_STAGE_END_BLOCKER
 }
 
-// Defines the contract and the message to pass
-type MsgExecuteContract struct {
-	// The address of the smart contract
-	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
-	// JSON encoded message to be passed to the contract
-	Msg string `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
-}
-
-func (m *MsgExecuteContract) Reset()         { *m = MsgExecuteContract{} }
-func (m *MsgExecuteContract) String() string { return proto.CompactTextString(m) }
-func (*MsgExecuteContract) ProtoMessage()    {}
-func (*MsgExecuteContract) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1206d0259de4e6fb, []int{1}
-}
-func (m *MsgExecuteContract) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgExecuteContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgExecuteContract.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgExecuteContract) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgExecuteContract.Merge(m, src)
-}
-func (m *MsgExecuteContract) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgExecuteContract) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgExecuteContract.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgExecuteContract proto.InternalMessageInfo
-
-func (m *MsgExecuteContract) GetContract() string {
-	if m != nil {
-		return m.Contract
-	}
-	return ""
-}
-
-func (m *MsgExecuteContract) GetMsg() string {
-	if m != nil {
-		return m.Msg
-	}
-	return ""
-}
-
-// Defines the number of current schedules
-type ScheduleCount struct {
-	// The number of current schedules
-	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
-}
-
-func (m *ScheduleCount) Reset()         { *m = ScheduleCount{} }
-func (m *ScheduleCount) String() string { return proto.CompactTextString(m) }
-func (*ScheduleCount) ProtoMessage()    {}
-func (*ScheduleCount) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1206d0259de4e6fb, []int{2}
-}
-func (m *ScheduleCount) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *ScheduleCount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_ScheduleCount.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *ScheduleCount) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ScheduleCount.Merge(m, src)
-}
-func (m *ScheduleCount) XXX_Size() int {
-	return m.Size()
-}
-func (m *ScheduleCount) XXX_DiscardUnknown() {
-	xxx_messageInfo_ScheduleCount.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ScheduleCount proto.InternalMessageInfo
-
-func (m *ScheduleCount) GetCount() int32 {
-	if m != nil {
-		return m.Count
-	}
-	return 0
-}
-
 func init() {
 	proto.RegisterEnum("helios.chronos.v1.ExecutionStage", ExecutionStage_name, ExecutionStage_value)
 	proto.RegisterType((*Schedule)(nil), "helios.chronos.v1.Schedule")
-	proto.RegisterType((*MsgExecuteContract)(nil), "helios.chronos.v1.MsgExecuteContract")
-	proto.RegisterType((*ScheduleCount)(nil), "helios.chronos.v1.ScheduleCount")
 }
 
 func init() { proto.RegisterFile("helios/chronos/v1/schedule.proto", fileDescriptor_1206d0259de4e6fb) }
 
 var fileDescriptor_1206d0259de4e6fb = []byte{
-	// 394 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x92, 0xdf, 0x8a, 0xda, 0x40,
-	0x14, 0xc6, 0x33, 0x35, 0x8a, 0x4e, 0xa9, 0xd5, 0xa9, 0x94, 0x60, 0x69, 0x8c, 0x82, 0x10, 0x0a,
-	0x4d, 0xd0, 0x3e, 0x40, 0x69, 0xd2, 0xc1, 0xda, 0x3f, 0x0a, 0xd1, 0xc2, 0xb2, 0x37, 0x21, 0x1b,
-	0x87, 0x24, 0xa0, 0x19, 0xc9, 0x8c, 0xe2, 0xbe, 0xc5, 0x3e, 0x96, 0x97, 0x5e, 0xee, 0xd5, 0xb2,
-	0xe8, 0x23, 0xec, 0x0b, 0x2c, 0x99, 0x44, 0xc1, 0x75, 0xef, 0xbe, 0x8f, 0xf3, 0xfb, 0x38, 0x87,
-	0x8f, 0x03, 0xb5, 0x90, 0xcc, 0x23, 0xca, 0x4c, 0x3f, 0x4c, 0x68, 0x4c, 0x99, 0xb9, 0xee, 0x99,
-	0xcc, 0x0f, 0xc9, 0x6c, 0x35, 0x27, 0xc6, 0x32, 0xa1, 0x9c, 0xa2, 0x7a, 0x46, 0x18, 0x39, 0x61,
-	0xac, 0x7b, 0xcd, 0x46, 0x40, 0x03, 0x2a, 0xa6, 0x66, 0xaa, 0x32, 0xb0, 0xf3, 0x04, 0x60, 0x79,
-	0x92, 0x67, 0x11, 0x82, 0x72, 0xec, 0x2d, 0x88, 0x02, 0x34, 0xa0, 0x57, 0x1c, 0xa1, 0xd1, 0x47,
-	0x58, 0x5a, 0x92, 0x24, 0xa2, 0x33, 0xe5, 0x8d, 0x06, 0x74, 0xd9, 0xc9, 0x1d, 0xfa, 0x0e, 0xe5,
-	0x05, 0x0b, 0x98, 0x52, 0xd0, 0x0a, 0xfa, 0xdb, 0x7e, 0xd7, 0xb8, 0x58, 0x68, 0xfc, 0x63, 0x01,
-	0xde, 0x10, 0x7f, 0xc5, 0x89, 0x4d, 0x63, 0x9e, 0x78, 0x3e, 0xb7, 0xe4, 0xed, 0x43, 0x4b, 0x72,
-	0x44, 0x10, 0x19, 0xf0, 0xc3, 0xdc, 0x63, 0xdc, 0x25, 0x19, 0xe3, 0x86, 0x24, 0x0a, 0x42, 0xae,
-	0xc8, 0x62, 0x4b, 0x3d, 0x1d, 0xe5, 0xe9, 0x5f, 0x62, 0x80, 0x7e, 0xc3, 0xf7, 0x19, 0x1a, 0xd1,
-	0xd8, 0x65, 0xdc, 0x0b, 0x88, 0x52, 0xd4, 0x80, 0x5e, 0xed, 0xb7, 0x5f, 0xd9, 0x8d, 0x8f, 0xe4,
-	0x24, 0x05, 0x9d, 0x2a, 0x39, 0xf3, 0x1d, 0x0b, 0xa2, 0xcb, 0xeb, 0x50, 0x13, 0x96, 0xfd, 0x5c,
-	0xe7, 0x15, 0x9c, 0x3c, 0xaa, 0xc1, 0xc2, 0x82, 0x05, 0xa2, 0x83, 0x8a, 0x93, 0xca, 0x4e, 0x17,
-	0xbe, 0x3b, 0x16, 0x67, 0xd3, 0x55, 0xcc, 0x51, 0x03, 0x16, 0xfd, 0x54, 0x88, 0x6c, 0xd1, 0xc9,
-	0xcc, 0x97, 0x29, 0xac, 0x9e, 0x1f, 0x83, 0x5a, 0xf0, 0x13, 0xbe, 0xc2, 0xf6, 0xff, 0xe9, 0x70,
-	0x3c, 0x72, 0x27, 0xd3, 0x1f, 0x03, 0xec, 0xe2, 0xd1, 0x4f, 0xd7, 0xfa, 0x3b, 0xb6, 0xff, 0x60,
-	0xa7, 0x26, 0xa1, 0x36, 0xfc, 0xfc, 0x12, 0xb0, 0xf0, 0x60, 0x38, 0x3a, 0x21, 0xc0, 0xb2, 0xb6,
-	0x7b, 0x15, 0xec, 0xf6, 0x2a, 0x78, 0xdc, 0xab, 0xe0, 0xee, 0xa0, 0x4a, 0xbb, 0x83, 0x2a, 0xdd,
-	0x1f, 0x54, 0xe9, 0x5a, 0xcf, 0xca, 0xf8, 0xea, 0xd3, 0x84, 0x98, 0x47, 0x1d, 0x7a, 0x51, 0x6c,
-	0x6e, 0x4e, 0xff, 0xc2, 0x6f, 0x97, 0x84, 0xdd, 0x94, 0xc4, 0x07, 0x7c, 0x7b, 0x0e, 0x00, 0x00,
-	0xff, 0xff, 0x30, 0xf5, 0xb3, 0xcf, 0x4e, 0x02, 0x00, 0x00,
+	// 424 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0xd2, 0x4f, 0x6f, 0xd3, 0x30,
+	0x18, 0x06, 0xf0, 0xa6, 0x1d, 0x5d, 0xfb, 0x02, 0xed, 0xb0, 0x26, 0x14, 0xfe, 0x65, 0x19, 0x5c,
+	0x02, 0x12, 0x09, 0x83, 0x4f, 0xb0, 0x8c, 0x68, 0xda, 0x40, 0x9d, 0x94, 0x16, 0x09, 0x71, 0x89,
+	0xdc, 0xe4, 0xa5, 0x31, 0xb4, 0x76, 0xb1, 0xdd, 0xd1, 0x7d, 0x00, 0xee, 0x7c, 0x2c, 0x8e, 0x3b,
+	0x72, 0x44, 0xed, 0x17, 0x41, 0x71, 0xda, 0x94, 0xb2, 0x9b, 0xfd, 0x3c, 0xbf, 0x24, 0x8e, 0xf5,
+	0x82, 0x9b, 0xe3, 0x98, 0x09, 0x15, 0xa4, 0xb9, 0x14, 0x5c, 0xa8, 0xe0, 0xf2, 0x28, 0x50, 0x69,
+	0x8e, 0xd9, 0x6c, 0x8c, 0xfe, 0x54, 0x0a, 0x2d, 0xc8, 0xbd, 0x52, 0xf8, 0x2b, 0xe1, 0x5f, 0x1e,
+	0x3d, 0xdc, 0x1f, 0x89, 0x91, 0x30, 0x6d, 0x50, 0xac, 0x4a, 0xf8, 0xf4, 0x47, 0x03, 0x5a, 0xfd,
+	0xd5, 0xb3, 0xa4, 0x03, 0x75, 0x96, 0xd9, 0x96, 0x6b, 0x79, 0x3b, 0x71, 0x9d, 0x65, 0xe4, 0x19,
+	0xdc, 0x15, 0xdf, 0x39, 0xca, 0x84, 0x66, 0x99, 0x44, 0xa5, 0xec, 0xba, 0x6b, 0x79, 0xed, 0xf8,
+	0x8e, 0x09, 0x8f, 0xcb, 0x8c, 0x3c, 0x87, 0xbd, 0x54, 0x70, 0x2d, 0x69, 0xaa, 0x2b, 0xd7, 0x30,
+	0xae, 0xbb, 0xce, 0xd7, 0xf4, 0x01, 0xb4, 0xe8, 0x90, 0x25, 0x5f, 0x94, 0xe0, 0xf6, 0x8e, 0x21,
+	0xbb, 0x74, 0xc8, 0xce, 0x95, 0xe0, 0xe4, 0x00, 0x6e, 0x4f, 0x50, 0xe7, 0x22, 0x4b, 0x38, 0x9d,
+	0xa0, 0x7d, 0xcb, 0xb4, 0x50, 0x46, 0x3d, 0x3a, 0x41, 0x72, 0x1f, 0x9a, 0x53, 0x2a, 0xe9, 0x44,
+	0xd9, 0x4d, 0xb7, 0xe1, 0xb5, 0xe3, 0xd5, 0x8e, 0x3c, 0x86, 0xf6, 0x67, 0x89, 0xdf, 0x66, 0xc8,
+	0xd3, 0x2b, 0x7b, 0xd7, 0x1c, 0x7d, 0x13, 0x90, 0x57, 0xb0, 0xcf, 0x71, 0xae, 0x13, 0x9c, 0x63,
+	0x3a, 0xd3, 0x4c, 0xf0, 0x64, 0x38, 0x16, 0xe9, 0x57, 0xbb, 0x65, 0x20, 0x29, 0xba, 0x68, 0x5d,
+	0x85, 0x45, 0x53, 0xfc, 0x0e, 0xce, 0xa7, 0x4c, 0xd2, 0x7f, 0x74, 0xdb, 0xe8, 0xee, 0x26, 0x2f,
+	0xe9, 0x39, 0x74, 0x37, 0xef, 0x55, 0x9a, 0x8e, 0xd0, 0x06, 0xd7, 0xf2, 0x3a, 0xaf, 0x0f, 0xfd,
+	0x1b, 0xd7, 0xef, 0x57, 0x9f, 0xe9, 0x17, 0x30, 0xee, 0xe0, 0xd6, 0xfe, 0xc5, 0x00, 0x3a, 0xdb,
+	0x82, 0x1c, 0xc0, 0xa3, 0xe8, 0x63, 0x74, 0xf2, 0x61, 0x70, 0x76, 0xd1, 0x4b, 0xfa, 0x83, 0xe3,
+	0xd3, 0x28, 0x89, 0x7a, 0x6f, 0x93, 0xf0, 0xfd, 0xc5, 0xc9, 0xbb, 0x28, 0xde, 0xab, 0x91, 0x43,
+	0x78, 0xf2, 0x3f, 0x08, 0xa3, 0xd3, 0xb3, 0x5e, 0x45, 0xac, 0x30, 0xfc, 0xb5, 0x70, 0xac, 0xeb,
+	0x85, 0x63, 0xfd, 0x59, 0x38, 0xd6, 0xcf, 0xa5, 0x53, 0xbb, 0x5e, 0x3a, 0xb5, 0xdf, 0x4b, 0xa7,
+	0xf6, 0xc9, 0x2b, 0x4f, 0xf8, 0x32, 0x15, 0x12, 0x83, 0xf5, 0x3a, 0xa7, 0x8c, 0x07, 0xf3, 0x6a,
+	0xac, 0xf4, 0xd5, 0x14, 0xd5, 0xb0, 0x69, 0x06, 0xe5, 0xcd, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x15, 0x31, 0x01, 0x2b, 0x75, 0x02, 0x00, 0x00,
 }
 
 func (m *Schedule) Marshal() (dAtA []byte, err error) {
@@ -295,101 +227,62 @@ func (m *Schedule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.ExecutionStage != 0 {
 		i = encodeVarintSchedule(dAtA, i, uint64(m.ExecutionStage))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x50
 	}
-	if m.LastExecuteHeight != 0 {
-		i = encodeVarintSchedule(dAtA, i, uint64(m.LastExecuteHeight))
+	if m.ExpirationBlock != 0 {
+		i = encodeVarintSchedule(dAtA, i, uint64(m.ExpirationBlock))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x48
 	}
-	if len(m.Msgs) > 0 {
-		for iNdEx := len(m.Msgs) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Msgs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintSchedule(dAtA, i, uint64(size))
-			}
+	if m.NextExecutionBlock != 0 {
+		i = encodeVarintSchedule(dAtA, i, uint64(m.NextExecutionBlock))
+		i--
+		dAtA[i] = 0x40
+	}
+	if m.Frequency != 0 {
+		i = encodeVarintSchedule(dAtA, i, uint64(m.Frequency))
+		i--
+		dAtA[i] = 0x38
+	}
+	if len(m.Params) > 0 {
+		for iNdEx := len(m.Params) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Params[iNdEx])
+			copy(dAtA[i:], m.Params[iNdEx])
+			i = encodeVarintSchedule(dAtA, i, uint64(len(m.Params[iNdEx])))
 			i--
-			dAtA[i] = 0x1a
+			dAtA[i] = 0x32
 		}
 	}
-	if m.Period != 0 {
-		i = encodeVarintSchedule(dAtA, i, uint64(m.Period))
+	if len(m.MethodName) > 0 {
+		i -= len(m.MethodName)
+		copy(dAtA[i:], m.MethodName)
+		i = encodeVarintSchedule(dAtA, i, uint64(len(m.MethodName)))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x2a
 	}
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = encodeVarintSchedule(dAtA, i, uint64(len(m.Name)))
+	if len(m.AbiJson) > 0 {
+		i -= len(m.AbiJson)
+		copy(dAtA[i:], m.AbiJson)
+		i = encodeVarintSchedule(dAtA, i, uint64(len(m.AbiJson)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x22
 	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgExecuteContract) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintSchedule(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x1a
 	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgExecuteContract) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgExecuteContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Msg) > 0 {
-		i -= len(m.Msg)
-		copy(dAtA[i:], m.Msg)
-		i = encodeVarintSchedule(dAtA, i, uint64(len(m.Msg)))
+	if len(m.OwnerAddress) > 0 {
+		i -= len(m.OwnerAddress)
+		copy(dAtA[i:], m.OwnerAddress)
+		i = encodeVarintSchedule(dAtA, i, uint64(len(m.OwnerAddress)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Contract) > 0 {
-		i -= len(m.Contract)
-		copy(dAtA[i:], m.Contract)
-		i = encodeVarintSchedule(dAtA, i, uint64(len(m.Contract)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *ScheduleCount) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *ScheduleCount) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *ScheduleCount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Count != 0 {
-		i = encodeVarintSchedule(dAtA, i, uint64(m.Count))
+	if m.Id != 0 {
+		i = encodeVarintSchedule(dAtA, i, uint64(m.Id))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -413,53 +306,42 @@ func (m *Schedule) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Name)
+	if m.Id != 0 {
+		n += 1 + sovSchedule(uint64(m.Id))
+	}
+	l = len(m.OwnerAddress)
 	if l > 0 {
 		n += 1 + l + sovSchedule(uint64(l))
 	}
-	if m.Period != 0 {
-		n += 1 + sovSchedule(uint64(m.Period))
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovSchedule(uint64(l))
 	}
-	if len(m.Msgs) > 0 {
-		for _, e := range m.Msgs {
-			l = e.Size()
+	l = len(m.AbiJson)
+	if l > 0 {
+		n += 1 + l + sovSchedule(uint64(l))
+	}
+	l = len(m.MethodName)
+	if l > 0 {
+		n += 1 + l + sovSchedule(uint64(l))
+	}
+	if len(m.Params) > 0 {
+		for _, s := range m.Params {
+			l = len(s)
 			n += 1 + l + sovSchedule(uint64(l))
 		}
 	}
-	if m.LastExecuteHeight != 0 {
-		n += 1 + sovSchedule(uint64(m.LastExecuteHeight))
+	if m.Frequency != 0 {
+		n += 1 + sovSchedule(uint64(m.Frequency))
+	}
+	if m.NextExecutionBlock != 0 {
+		n += 1 + sovSchedule(uint64(m.NextExecutionBlock))
+	}
+	if m.ExpirationBlock != 0 {
+		n += 1 + sovSchedule(uint64(m.ExpirationBlock))
 	}
 	if m.ExecutionStage != 0 {
 		n += 1 + sovSchedule(uint64(m.ExecutionStage))
-	}
-	return n
-}
-
-func (m *MsgExecuteContract) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Contract)
-	if l > 0 {
-		n += 1 + l + sovSchedule(uint64(l))
-	}
-	l = len(m.Msg)
-	if l > 0 {
-		n += 1 + l + sovSchedule(uint64(l))
-	}
-	return n
-}
-
-func (m *ScheduleCount) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Count != 0 {
-		n += 1 + sovSchedule(uint64(m.Count))
 	}
 	return n
 }
@@ -500,8 +382,27 @@ func (m *Schedule) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSchedule
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnerAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -529,32 +430,13 @@ func (m *Schedule) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Name = string(dAtA[iNdEx:postIndex])
+			m.OwnerAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Period", wireType)
-			}
-			m.Period = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowSchedule
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Period |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Msgs", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowSchedule
@@ -564,31 +446,29 @@ func (m *Schedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthSchedule
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthSchedule
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Msgs = append(m.Msgs, MsgExecuteContract{})
-			if err := m.Msgs[len(m.Msgs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LastExecuteHeight", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AbiJson", wireType)
 			}
-			m.LastExecuteHeight = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowSchedule
@@ -598,12 +478,146 @@ func (m *Schedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.LastExecuteHeight |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSchedule
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSchedule
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AbiJson = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MethodName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSchedule
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSchedule
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSchedule
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MethodName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSchedule
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSchedule
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSchedule
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Params = append(m.Params, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Frequency", wireType)
+			}
+			m.Frequency = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSchedule
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Frequency |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NextExecutionBlock", wireType)
+			}
+			m.NextExecutionBlock = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSchedule
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NextExecutionBlock |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpirationBlock", wireType)
+			}
+			m.ExpirationBlock = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSchedule
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ExpirationBlock |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 10:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ExecutionStage", wireType)
 			}
@@ -618,189 +632,6 @@ func (m *Schedule) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.ExecutionStage |= ExecutionStage(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipSchedule(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthSchedule
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgExecuteContract) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowSchedule
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgExecuteContract: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgExecuteContract: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowSchedule
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthSchedule
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthSchedule
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Contract = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Msg", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowSchedule
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthSchedule
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthSchedule
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Msg = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipSchedule(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthSchedule
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *ScheduleCount) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowSchedule
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: ScheduleCount: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ScheduleCount: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Count", wireType)
-			}
-			m.Count = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowSchedule
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Count |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

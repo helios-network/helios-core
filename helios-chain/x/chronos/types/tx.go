@@ -1,52 +1,60 @@
 package types
 
 import (
+	"strings"
+
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgAddSchedule{}
+var _ sdk.Msg = &MsgScheduleEVMCall{}
 
-func (msg *MsgAddSchedule) Route() string {
+func (msg *MsgScheduleEVMCall) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgAddSchedule) Type() string {
-	return "add-schedule"
+func (msg *MsgScheduleEVMCall) Type() string {
+	return "schedule-evm-call"
 }
 
-func (msg *MsgAddSchedule) GetSigners() []sdk.AccAddress {
-	authority, err := sdk.AccAddressFromBech32(msg.Authority)
-	if err != nil { // should never happen as valid basic rejects invalid addresses
+func (msg *MsgScheduleEVMCall) GetSigners() []sdk.AccAddress {
+	owner, err := sdk.AccAddressFromBech32(msg.OwnerAddress)
+	if err != nil {
 		panic(err.Error())
 	}
-	return []sdk.AccAddress{authority}
+	return []sdk.AccAddress{owner}
 }
 
-func (msg *MsgAddSchedule) GetSignBytes() []byte {
+func (msg *MsgScheduleEVMCall) GetSignBytes() []byte {
 	return ModuleCdc.MustMarshalJSON(msg)
 }
 
-func (msg *MsgAddSchedule) Validate() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
-		return errors.Wrap(err, "authority is invalid")
+// Validate checks MsgScheduleEVMCall validity
+func (msg *MsgScheduleEVMCall) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
+		return errors.Wrap(err, "owner_address is invalid")
 	}
 
-	if msg.Name == "" {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "name is invalid")
+	if !strings.HasPrefix(msg.ContractAddress, "0x") || len(msg.ContractAddress) != 42 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "contract_address is invalid")
 	}
 
-	if msg.Period == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "period is invalid")
+	if msg.AbiJson == "" {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "abi_json cannot be empty")
 	}
 
-	if len(msg.Msgs) == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "msgs should not be empty")
+	if msg.MethodName == "" {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "method_name cannot be empty")
 	}
 
-	if _, ok := ExecutionStage_name[int32(msg.ExecutionStage)]; !ok {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "execution stage is invalid")
+	if msg.Frequency == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "frequency must be greater than zero")
+	}
+
+	// Optional expiration_block, 0 means no expiration
+	if msg.ExpirationBlock != 0 && msg.ExpirationBlock <= msg.Frequency {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "expiration_block must be greater than frequency")
 	}
 
 	return nil
@@ -54,35 +62,39 @@ func (msg *MsgAddSchedule) Validate() error {
 
 //----------------------------------------------------------------
 
-var _ sdk.Msg = &MsgRemoveSchedule{}
+var _ sdk.Msg = &MsgModifyScheduledEVMCall{}
 
-func (msg *MsgRemoveSchedule) Route() string {
+func (msg *MsgModifyScheduledEVMCall) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgRemoveSchedule) Type() string {
-	return "remove-schedule"
+func (msg *MsgModifyScheduledEVMCall) Type() string {
+	return "modify-scheduled-evm-call"
 }
 
-func (msg *MsgRemoveSchedule) GetSigners() []sdk.AccAddress {
-	authority, err := sdk.AccAddressFromBech32(msg.Authority)
-	if err != nil { // should never happen as valid basic rejects invalid addresses
+func (msg *MsgModifyScheduledEVMCall) GetSigners() []sdk.AccAddress {
+	owner, err := sdk.AccAddressFromBech32(msg.OwnerAddress)
+	if err != nil {
 		panic(err.Error())
 	}
-	return []sdk.AccAddress{authority}
+	return []sdk.AccAddress{owner}
 }
 
-func (msg *MsgRemoveSchedule) GetSignBytes() []byte {
+func (msg *MsgModifyScheduledEVMCall) GetSignBytes() []byte {
 	return ModuleCdc.MustMarshalJSON(msg)
 }
 
-func (msg *MsgRemoveSchedule) Validate() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
-		return errors.Wrap(err, "authority is invalid")
+func (msg *MsgModifyScheduledEVMCall) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
+		return errors.Wrap(err, "owner_address is invalid")
 	}
 
-	if msg.Name == "" {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "name is invalid")
+	if msg.ScheduleId == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "schedule_id must be valid")
+	}
+
+	if msg.NewFrequency == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "new_frequency must be greater than zero")
 	}
 
 	return nil
@@ -90,35 +102,35 @@ func (msg *MsgRemoveSchedule) Validate() error {
 
 //----------------------------------------------------------------
 
-var _ sdk.Msg = &MsgUpdateParams{}
+var _ sdk.Msg = &MsgCancelScheduledEVMCall{}
 
-func (msg *MsgUpdateParams) Route() string {
+func (msg *MsgCancelScheduledEVMCall) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgUpdateParams) Type() string {
-	return "update-params"
+func (msg *MsgCancelScheduledEVMCall) Type() string {
+	return "cancel-scheduled-evm-call"
 }
 
-func (msg *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	authority, err := sdk.AccAddressFromBech32(msg.Authority)
-	if err != nil { // should never happen as valid basic rejects invalid addresses
+func (msg *MsgCancelScheduledEVMCall) GetSigners() []sdk.AccAddress {
+	owner, err := sdk.AccAddressFromBech32(msg.OwnerAddress)
+	if err != nil {
 		panic(err.Error())
 	}
-	return []sdk.AccAddress{authority}
+	return []sdk.AccAddress{owner}
 }
 
-func (msg *MsgUpdateParams) GetSignBytes() []byte {
+func (msg *MsgCancelScheduledEVMCall) GetSignBytes() []byte {
 	return ModuleCdc.MustMarshalJSON(msg)
 }
 
-func (msg *MsgUpdateParams) Validate() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
-		return errors.Wrap(err, "authority is invalid")
+func (msg *MsgCancelScheduledEVMCall) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
+		return errors.Wrap(err, "owner_address is invalid")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.Params.SecurityAddress); err != nil {
-		return errors.Wrap(err, "security_address is invalid")
+	if msg.ScheduleId == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "schedule_id must be valid")
 	}
 
 	return nil

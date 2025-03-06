@@ -147,6 +147,9 @@ import (
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
+	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
+	chronostypes "helios-core/helios-chain/x/chronos/types"
+
 	"helios-core/helios-chain/x/evm"
 	evmkeeper "helios-core/helios-chain/x/evm/keeper"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -158,6 +161,7 @@ import (
 
 	srvflags "helios-core/helios-chain/server/flags"
 
+	chronos "helios-core/helios-chain/x/chronos"
 	epochs "helios-core/helios-chain/x/epochs"
 	erc20 "helios-core/helios-chain/x/erc20"
 
@@ -242,6 +246,7 @@ var (
 		ocr.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
+		chronos.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -337,8 +342,9 @@ type HeliosApp struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Helios keepers
-	Erc20Keeper  erc20keeper.Keeper
-	EpochsKeeper epochskeeper.Keeper
+	Erc20Keeper   erc20keeper.Keeper
+	EpochsKeeper  epochskeeper.Keeper
+	ChronosKeeper chronoskeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
 }
@@ -477,6 +483,7 @@ func initHeliosApp(
 			feemarkettypes.StoreKey,
 			erc20types.StoreKey,
 			ratelimittypes.StoreKey,
+			chronostypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
@@ -997,6 +1004,14 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
+	app.ChronosKeeper = *chronoskeeper.NewKeeper(
+		app.codec,
+		app.keys[chronostypes.StoreKey],
+		app.keys[chronostypes.MemStoreKey],
+		app.AccountKeeper,
+		app.EvmKeeper,
+	)
+
 	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
 
 	// Create Transfer Stack
@@ -1157,6 +1172,7 @@ func (app *HeliosApp) initManagers() {
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
+		chronos.NewAppModule(app.codec, app.ChronosKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1232,6 +1248,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
+	paramsKeeper.Subspace(chronostypes.ModuleName)
 
 	return paramsKeeper
 }
@@ -1278,6 +1295,8 @@ func initGenesisOrder() []string {
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,
+		chronostypes.ModuleName,
+
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	}
@@ -1295,6 +1314,7 @@ func beginBlockerOrder() []string {
 		epochstypes.ModuleName,
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
+		chronostypes.ModuleName,
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
@@ -1346,6 +1366,7 @@ func endBlockerOrder() []string {
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
+		chronostypes.ModuleName,
 		feemarkettypes.ModuleName,
 		peggytypes.ModuleName,
 		ocrtypes.ModuleName,

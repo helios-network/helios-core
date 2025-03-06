@@ -10,11 +10,14 @@ import (
 	"helios-core/helios-chain/x/chronos/types"
 )
 
+// Params queries the current module parameters.
 func (k Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, status.Error(codes.InvalidArgument, "request cannot be nil")
 	}
-	ctx := sdk.UnwrapSDKContext(c)
 
-	return &types.QueryParamsResponse{Params: k.GetParams(ctx)}, nil
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetParams(ctx)
+
+	return &types.QueryParamsResponse{Params: params}, nil
 }

@@ -1,86 +1,50 @@
 syntax = "proto3";
 package helios.chronos.v1;
 
-import "amino/amino.proto";
-import "cosmos/msg/v1/msg.proto";
-import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "helios/chronos/v1/params.proto";
-import "helios/chronos/v1/schedule.proto";
-
-// this line is used by starport scaffolding # proto/tx/import
+import "google/protobuf/wrappers.proto";
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
-// Defines the Msg service.
 service Msg {
-  option (cosmos.msg.v1.service) = true;
-
-  // Adds new schedule.
-  rpc AddSchedule(MsgAddSchedule) returns (MsgAddScheduleResponse);
-  // Removes schedule.
-  rpc RemoveSchedule(MsgRemoveSchedule) returns (MsgRemoveScheduleResponse);
-  // Updates the module parameters.
-  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-  // this line is used by starport scaffolding # proto/tx/rpc
+  rpc ScheduleEVMCall(MsgScheduleEVMCall) returns (MsgScheduleEVMCallResponse);
+  rpc ModifyScheduledEVMCall(MsgModifyScheduledEVMCall) returns (MsgModifyScheduledEVMCallResponse);
+  rpc CancelScheduledEVMCall(MsgCancelScheduledEVMCall) returns (MsgCancelScheduledEVMCallResponse);
 }
 
-// The MsgAddSchedule request type.
-message MsgAddSchedule {
-  option (amino.name) = "chronos/MsgAddSchedule";
-  option (cosmos.msg.v1.signer) = "authority";
-
-  // The address of the governance account.
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // Name of the schedule
-  string name = 2;
-  // Period in blocks
-  uint64 period = 3;
-  // Msgs that will be executed every certain number of blocks, specified in the `period` field
-  repeated MsgExecuteContract msgs = 4 [(gogoproto.nullable) = false];
-  // Stage when messages will be executed
-  ExecutionStage execution_stage = 5;
+message MsgScheduleEVMCall {
+  string owner_address = 1; // User wallet scheduling the call
+  string contract_address = 2; // Target EVM smart contract address
+  string abi_json = 3; // Contract ABI (JSON)
+  string method_name = 4; // Method to call
+  repeated string params = 5; // Method parameters serialized as strings
+  uint64 frequency = 6; // Execution frequency in blocks
+  uint64 expiration_block = 7; // Optional expiration block height
+  uint64 gas_limit = 8; // Maximum gas allowed for execution
 }
 
-// Defines the response structure for executing a MsgAddSchedule message.
-message MsgAddScheduleResponse {}
-
-// The MsgRemoveSchedule request type.
-message MsgRemoveSchedule {
-  option (amino.name) = "chronos/MsgRemoveSchedule";
-  option (cosmos.msg.v1.signer) = "authority";
-
-  // The address of the governance account.
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // Name of the schedule
-  string name = 2;
+message MsgScheduleEVMCallResponse {
+  uint64 schedule_id = 1;
 }
 
-// Defines the response structure for executing a MsgRemoveSchedule message.
-message MsgRemoveScheduleResponse {}
-
-// this line is used by starport scaffolding # proto/tx/message
-
-// The MsgUpdateParams request type.
-//
-// Since: 0.47
-message MsgUpdateParams {
-  option (amino.name) = "chronos/MsgUpdateParams";
-  option (cosmos.msg.v1.signer) = "authority";
-
-  // The address of the governance account.
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // Defines the x/cron parameters to update.
-  //
-  // NOTE: All parameters must be supplied.
-  Params params = 2 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true
-  ];
+message MsgModifyScheduledEVMCall {
+  uint64 schedule_id = 1;
+  string owner_address = 2;
+  uint64 new_frequency = 3;
+  repeated string new_params = 4;
+  uint64 new_expiration_block = 5;
+  uint64 new_gas_limit = 6; // New maximum gas allowed
 }
 
-// Defines the response structure for executing a MsgUpdateParams message.
-//
-// Since: 0.47
-message MsgUpdateParamsResponse {}
+message MsgModifyScheduledEVMCallResponse {
+  bool success = 1;
+}
+
+message MsgCancelScheduledEVMCall {
+  string owner_address = 1;
+  uint64 schedule_id = 2;
+}
+
+message MsgCancelScheduledEVMCallResponse {
+  bool success = 1;
+}

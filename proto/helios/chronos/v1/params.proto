@@ -5,11 +5,19 @@ import "gogoproto/gogo.proto";
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
-// Defines the parameters for the module.
+// Defines the parameters for the cron module.
 message Params {
   option (gogoproto.goproto_stringer) = false;
-  // Security address that can remove schedules
-  string security_address = 1;
+
   // Limit of schedules executed in one block
-  uint64 limit = 2;
+  uint64 limit = 1;
+
+  // Maximum number of scheduled calls allowed per wallet
+  uint64 max_scheduled_calls_per_wallet = 2;
+
+  // Minimum gas fee multiplier to safely estimate gas (e.g., "1.2")
+  string minimum_gas_fee_multiplier = 3;
+
+  // Global maximum allowed gas price for cron executions (optional default value)
+  string global_max_gas_price = 4;
 }

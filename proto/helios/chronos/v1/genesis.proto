@@ -10,7 +10,7 @@ option go_package = "helios-core/helios-chain/x/chronos/types";
 
 // Defines the cron module's genesis state.
 message GenesisState {
-  repeated Schedule scheduleList = 2 [(gogoproto.nullable) = false];
-  Params params = 1 [(gogoproto.nullable) = false];
+  repeated Schedule schedule_list = 1 [(gogoproto.nullable) = false];
+  Params params = 2 [(gogoproto.nullable) = false];
   // this line is used by starport scaffolding # genesis/proto/state
 }

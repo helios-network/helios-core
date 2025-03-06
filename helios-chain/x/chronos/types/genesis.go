@@ -1,8 +1,12 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
 
-// DefaultGenesis returns the default genesis state
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// DefaultGenesis returns the default genesis state for the cron module.
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		ScheduleList: []Schedule{},
@@ -10,18 +14,23 @@ func DefaultGenesis() *GenesisState {
 	}
 }
 
-// Validate performs basic genesis state validation returning an error upon any
-// failure.
+// Validate performs basic genesis state validation.
 func (gs GenesisState) Validate() error {
-	// Check for duplicated index in schedule
-	scheduleIndexMap := make(map[string]struct{})
+	scheduleIDMap := make(map[uint64]struct{})
 
 	for _, elem := range gs.ScheduleList {
-		index := string(GetScheduleKey(elem.Name))
-		if _, ok := scheduleIndexMap[index]; ok {
-			return fmt.Errorf("duplicated index for schedule")
+		if _, exists := scheduleIDMap[elem.Id]; exists {
+			return fmt.Errorf("duplicate schedule ID found: %d", elem.Id)
 		}
-		scheduleIndexMap[index] = struct{}{}
+		scheduleIDMap[elem.Id] = struct{}{}
+
+		if _, err := sdk.AccAddressFromBech32(elem.OwnerAddress); err != nil {
+			return fmt.Errorf("invalid owner address (%s): %w", elem.OwnerAddress, err)
+		}
+
+		if elem.ContractAddress == "" || elem.MethodName == "" || elem.Frequency == 0 {
+			return fmt.Errorf("schedule fields cannot be empty or zero")
+		}
 	}
 
 	return gs.Params.Validate()
