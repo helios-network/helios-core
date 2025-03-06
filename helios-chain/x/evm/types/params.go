@@ -29,6 +29,7 @@ var (
 		BankPrecompileAddress,         // Bank precompile
 		GovPrecompileAddress,          // Gov precompile
 		Erc20CreatorPrecompileAddress, // Erc20Creator precompile
+		ChronosPrecompileAddress,      // Chronos precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled

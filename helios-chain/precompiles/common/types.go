@@ -122,6 +122,22 @@ func ValAddressFromHexAddress(evmAddr common.Address) (res sdk.ValAddress) {
 	return sdk.ValAddress(AccAddressFromHexAddress(evmAddr))
 }
 
+func AnyToHexAddress(addr string) (res common.Address) {
+	if strings.Contains(addr, sdk.PrefixValidator) {
+		valAddr, err := sdk.ValAddressFromBech32(addr)
+		if err != nil {
+			return common.HexToAddress(addr)
+		}
+		return common.BytesToAddress(valAddr.Bytes())
+	}
+
+	addrResult, err := HexAddressFromBech32String(addr)
+	if err == nil {
+		return addrResult
+	}
+	return common.HexToAddress(addr)
+}
+
 // SafeAdd adds two integers and returns a boolean if an overflow occurs to avoid panic.
 // TODO: Upstream this to the SDK math package.
 func SafeAdd(a, b math.Int) (res *big.Int, overflow bool) {

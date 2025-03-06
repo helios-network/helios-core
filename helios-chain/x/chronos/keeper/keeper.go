@@ -10,6 +10,8 @@ import (
 	"cosmossdk.io/log"
 	"github.com/hashicorp/go-metrics"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -50,9 +52,19 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
+func (k *Keeper) ExecuteAllReadySchedules(ctx sdk.Context) {
+	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadySchedules)
+	schedules := k.getSchedulesReadyForExecution(ctx)
+
+	for _, schedule := range schedules {
+		err := k.executeSchedule(ctx, schedule)
+		recordExecutedSchedule(err, schedule)
+	}
+}
+
 func (k *Keeper) ExecuteReadySchedules(ctx sdk.Context, executionStage types.ExecutionStage) {
 	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadySchedules)
-	schedules := k.getSchedulesReadyForExecution(ctx, executionStage)
+	schedules := k.getSchedulesReadyForExecutionWithFilter(ctx, executionStage)
 
 	for _, schedule := range schedules {
 		err := k.executeSchedule(ctx, schedule)
@@ -98,7 +110,35 @@ func (k *Keeper) GetSchedule(ctx sdk.Context, id uint64) (types.Schedule, bool) 
 	return schedule, true
 }
 
-func (k *Keeper) getSchedulesReadyForExecution(ctx sdk.Context, executionStage types.ExecutionStage) []types.Schedule {
+func (k *Keeper) getSchedulesReadyForExecution(ctx sdk.Context) []types.Schedule {
+	params := k.GetParams(ctx)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
+	var schedules []types.Schedule
+	count := uint64(0)
+
+	iterator := store.Iterator(nil, nil)
+	defer iterator.Close()
+
+	currentBlock := uint64(ctx.BlockHeight())
+	for ; iterator.Valid(); iterator.Next() {
+		var schedule types.Schedule
+		k.cdc.MustUnmarshal(iterator.Value(), &schedule)
+
+		if currentBlock >= schedule.NextExecutionBlock &&
+			(schedule.ExpirationBlock == 0 || currentBlock <= schedule.ExpirationBlock) {
+			schedules = append(schedules, schedule)
+			count++
+			if count >= params.Limit {
+				k.Logger(ctx).Info("Reached execution limit for the block")
+				break
+			}
+		}
+	}
+
+	return schedules
+}
+
+func (k *Keeper) getSchedulesReadyForExecutionWithFilter(ctx sdk.Context, executionStage types.ExecutionStage) []types.Schedule {
 	params := k.GetParams(ctx)
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
 	var schedules []types.Schedule
@@ -171,8 +211,8 @@ func ParseABIParam(typ abi.Type, param string) (interface{}, error) {
 }
 
 func (k *Keeper) executeSchedule(ctx sdk.Context, schedule types.Schedule) error {
-	ownerAddress := common.HexToAddress(schedule.OwnerAddress)
-	contractAddress := common.HexToAddress(schedule.ContractAddress)
+	ownerAddress := cmn.AnyToHexAddress(schedule.OwnerAddress)
+	contractAddress := cmn.AnyToHexAddress(schedule.ContractAddress)
 
 	// Load ABI
 	contractABI, err := abi.JSON(strings.NewReader(schedule.AbiJson))

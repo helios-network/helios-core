@@ -177,6 +177,38 @@ const withdrawDelegatorRewardsAbi = [
   }
 ]
 
+const scheduleEVMCallABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "abi",
+        "type": "string"
+      }
+    ],
+    "name": "scheduleEVMCall",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
+
 
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
@@ -427,8 +459,49 @@ async function getRewards() {
   }
 }
 
+async function getRewards() {
+
+  const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse Cosmos du validateur
+  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+    // Extraire et afficher la clé publique
+    console.log("wallet : ", wallet.address)
+  try {
+    console.log('WithdrawRewards en cours...');
+
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000801', withdrawDelegatorRewardsAbi, wallet);
+    const tx = await contract.withdrawDelegatorRewards(wallet.address, validatorAddress);
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log('WithdrawRewards réussie !');
+  } catch (error) {
+    console.error('Erreur lors de la WithdrawRewards :', error);
+  }
+}
+
+async function scheduleEVMCall() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('scheduleEVMCall en cours...');
+
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', scheduleEVMCallABI, wallet);
+    const tx = await contract.scheduleEVMCall(wallet.address, "0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A", `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`);
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la scheduleEVMCall :', error);
+  }
+}
+
 async function main() {
-  await create();
+  await scheduleEVMCall();
+  // await create();
   //await fetch();
   //await delegate();
   //await addNewConsensusProposal();
