@@ -50,9 +50,9 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the amino codec for the module, which is used to marshal and unmarshal structs to/from []byte in order to persist them in the module's KVStore
+// RegisterLegacyAminoCodec performs a no-op as the erc20 doesn't support Amino encoding
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterCodec(cdc)
+	types.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message
@@ -159,6 +159,8 @@ func (AppModule) ConsensusVersion() uint64 { return types.ConsensusVersion }
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	am.keeper.ExecuteReadySchedules(sdk.UnwrapSDKContext(ctx), types.ExecutionStage_EXECUTION_STAGE_BEGIN_BLOCKER)
+	// TODO: loop on responses tx
+
 	return nil
 }
 

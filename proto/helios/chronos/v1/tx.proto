@@ -1,18 +1,25 @@
 syntax = "proto3";
 package helios.chronos.v1;
 
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/wrappers.proto";
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc ScheduleEVMCall(MsgScheduleEVMCall) returns (MsgScheduleEVMCallResponse);
   rpc ModifyScheduledEVMCall(MsgModifyScheduledEVMCall) returns (MsgModifyScheduledEVMCallResponse);
   rpc CancelScheduledEVMCall(MsgCancelScheduledEVMCall) returns (MsgCancelScheduledEVMCallResponse);
 }
 
 message MsgScheduleEVMCall {
+  option (cosmos.msg.v1.signer) = "sender";
+
   string owner_address = 1; // User wallet scheduling the call
   string contract_address = 2; // Target EVM smart contract address
   string abi_json = 3; // Contract ABI (JSON)
@@ -21,6 +28,7 @@ message MsgScheduleEVMCall {
   uint64 frequency = 6; // Execution frequency in blocks
   uint64 expiration_block = 7; // Optional expiration block height
   uint64 gas_limit = 8; // Maximum gas allowed for execution
+  string sender = 9; // Add this field for the Cosmos SDK signer
 }
 
 message MsgScheduleEVMCallResponse {
