@@ -21,17 +21,42 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		CounterpartyChainParams: []*CounterpartyChainParams{DefaultCounterpartyChainParams()},
+		CounterpartyChainParams: []*CounterpartyChainParams{DefaultEthereumChainParams(), DefaultPolygonAmoyTestnetChainParams()},
 		Admins:                  []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
 }
 
-// DefaultCounterpartyChainParams returns a copy of the default counterparty chain params
-func DefaultCounterpartyChainParams() *CounterpartyChainParams {
+// DefaultEthereumChainParams returns a copy of the default counterparty chain params for Ethereum
+func DefaultEthereumChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    "hyperion-ethereum-mainnet",
 		BridgeCounterpartyAddress:     common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
 		BridgeChainId:                 1,
+		SignedValsetsWindow:           25000,
+		SignedBatchesWindow:           25000,
+		SignedClaimsWindow:            25000,
+		TargetBatchTimeout:            43200000,
+		AverageBlockTime:              2000,
+		AverageCounterpartyBlockTime:  15000,
+		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		CosmosCoinDenom:               "helios",
+		CosmosCoinErc20Contract:       "",
+		UnbondSlashingValsetsWindow:   25000,
+		ClaimSlashingEnabled:          false,
+		ValsetReward:                  sdktypes.Coin{Denom: "helios", Amount: math.NewInt(0)},
+	}
+}
+
+// DefaultEthereumChainParams returns a copy of the default counterparty chain params for Polygon Amoy
+func DefaultPolygonAmoyTestnetChainParams() *CounterpartyChainParams {
+	return &CounterpartyChainParams{
+		HyperionId:                    "hyperion-polygon-amoy",
+		BridgeCounterpartyAddress:     common.HexToAddress("0x75B83dDeb27dbEF2702bdC462B4F1fEFF0dB0E68").Hex(),
+		BridgeChainId:                 80002,
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,

@@ -538,30 +538,33 @@
     "params": null,
     "hyperion": {
       "params": {
-        "hyperion_id": "helios-hyperionid",
-        "contract_source_hash": "",
-        "bridge_ethereum_address": "",
-        "bridge_chain_id": "0",
-        "signed_valsets_window": "10000",
-        "signed_batches_window": "10000",
-        "signed_claims_window": "10000",
-        "target_batch_timeout": "43200000",
-        "average_block_time": "5000",
-        "average_ethereum_block_time": "15000",
-        "slash_fraction_valset": "0.001000000000000000",
-        "slash_fraction_batch": "0.001000000000000000",
-        "slash_fraction_claim": "0.001000000000000000",
-        "slash_fraction_conflicting_claim": "0.001000000000000000",
-        "unbond_slashing_valsets_window": "10000",
-        "slash_fraction_bad_eth_signature": "0.001000000000000000",
-        "cosmos_coin_denom": "helios",
-        "cosmos_coin_erc20_contract": "",
-        "claim_slashing_enabled": false,
-        "bridge_contract_start_height": "0",
-        "valset_reward": {
-          "denom": "",
-          "amount": "0"
-        },
+        "counterparty_chain_params": [
+          {
+            "hyperion_id": "helios-polygon-amoy",
+            "contract_source_hash": "",
+            "bridge_counterparty_address": "",
+            "bridge_chain_id": "80002",
+            "signed_valsets_window": "10000",
+            "signed_batches_window": "10000",
+            "signed_claims_window": "10000",
+            "target_batch_timeout": "43200000",
+            "average_block_time": "5000",
+            "average_counterparty_block_time": "15000",
+            "slash_fraction_valset": "0.001000000000000000",
+            "slash_fraction_batch": "0.001000000000000000",
+            "slash_fraction_claim": "0.001000000000000000",
+            "slash_fraction_conflicting_claim": "0.001000000000000000",
+            "unbond_slashing_valsets_window": "10000",
+            "slash_fraction_bad_eth_signature": "0.001000000000000000",
+            "cosmos_coin_denom": "helios",
+            "cosmos_coin_erc20_contract": "",
+            "claim_slashing_enabled": false,
+            "bridge_contract_start_height": "0",
+            "valset_reward": {
+              "denom": "",
+              "amount": "0"
+            }}
+        ],
         "admins": []
       },
       "last_observed_nonce": "0",
