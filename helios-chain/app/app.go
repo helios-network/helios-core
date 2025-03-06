@@ -1004,14 +1004,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
-	app.ChronosKeeper = *chronoskeeper.NewKeeper(
-		app.codec,
-		app.keys[chronostypes.StoreKey],
-		app.keys[chronostypes.MemStoreKey],
-		app.AccountKeeper,
-		app.EvmKeeper,
-	)
-
 	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
 
 	// Create Transfer Stack
@@ -1069,6 +1061,14 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 	app.EvmKeeper = evmKeeper
+
+	app.ChronosKeeper = *chronoskeeper.NewKeeper(
+		app.codec,
+		app.keys[chronostypes.StoreKey],
+		app.keys[chronostypes.MemStoreKey],
+		app.AccountKeeper,
+		app.EvmKeeper,
+	)
 
 	erc20Keeper := erc20keeper.NewKeeper(
 		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
