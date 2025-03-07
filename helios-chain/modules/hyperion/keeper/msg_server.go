@@ -55,8 +55,11 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 		orchestratorAddr = validatorAccountAddr
 	}
 
-	_, foundExistingOrchestratorKey := k.GetOrchestratorValidator(ctx, orchestratorAddr)
-	_, foundExistingEthAddress := k.GetEthAddressByValidator(ctx, validatorAddr)
+	valAddr, foundExistingOrchestratorKey := k.GetOrchestratorValidator(ctx, orchestratorAddr)
+	ethAddress, foundExistingEthAddress := k.GetEthAddressByValidator(ctx, validatorAddr)
+	fmt.Println("valAddr: ", valAddr)
+	fmt.Println("orchestratorAddr: ", orchestratorAddr)
+	fmt.Println("ethAddress: ", ethAddress)
 
 	// ensure that the validator exists
 	if val, err := k.Keeper.StakingKeeper.Validator(ctx, validatorAddr); err != nil || val == nil {
@@ -73,7 +76,10 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	// set the orchestrator address
 	k.SetOrchestratorValidator(ctx, validatorAddr, orchestratorAddr)
 	// set the ethereum address
-	k.SetEthAddressForValidator(ctx, validatorAddr, common.HexToAddress(msg.EthAddress))
+	fmt.Println("msg.EthAddress: ", msg.EthAddress)
+	ethAddr := common.HexToAddress(msg.EthAddress)
+	fmt.Println("ethAddr: ", ethAddr)
+	k.SetEthAddressForValidator(ctx, validatorAddr, ethAddr)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSetOrchestratorAddresses{
@@ -81,6 +87,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 		OrchestratorAddress: orchestratorAddr.String(),
 		OperatorEthAddress:  msg.EthAddress,
 	})
+	fmt.Println("SetOrchestratorAddresses success")
 
 	return &types.MsgSetOrchestratorAddressesResponse{}, nil
 

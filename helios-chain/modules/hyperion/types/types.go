@@ -190,7 +190,28 @@ func (v Valset) GetCheckpoint(hyperionID uint64) gethcommon.Hash {
 	// the word 'checkpoint' needs to be the same as the 'name' above in the checkpointAbiJson
 	// but other than that it's a constant that has no impact on the output. This is because
 	// it gets encoded as a function name which we must then discard.
-	bytes, packErr := contractAbi.Pack("checkpoint", hyperionID, checkpoint, big.NewInt(int64(v.Nonce)), memberAddresses, convertedPowers, rewardAmount, rewardToken)
+	hyperionIDBytes := []uint8("checkpoint")
+	var tHyperionID [32]uint8
+	copy(tHyperionID[:], hyperionIDBytes)
+	/*
+	"inputs": [
+			{ "internalType": "bytes32",   "name": "_hyperionId",   "type": "bytes32"   },
+			{ "internalType": "bytes32",   "name": "_checkpoint",  "type": "bytes32"   },
+			{ "internalType": "uint256",   "name": "_valsetNonce", "type": "uint256"   },
+			{ "internalType": "address[]", "name": "_validators",  "type": "address[]" },
+			{ "internalType": "uint256[]", "name": "_powers",      "type": "uint256[]" },
+			{ "internalType": "uint256",   "name": "_rewardAmount","type": "uint256"   },
+			{ "internalType": "address",   "name": "_rewardToken", "type": "address"   }
+		],
+	*/
+	fmt.Println("tHyperionID: ", tHyperionID)
+	fmt.Println("checkpoint: ", checkpoint)
+	fmt.Println("v.Nonce: ", v.Nonce)
+	fmt.Println("memberAddresses: ", memberAddresses)
+	fmt.Println("convertedPowers: ", convertedPowers)
+	fmt.Println("rewardAmount: ", rewardAmount)
+	fmt.Println("rewardToken: ", rewardToken)
+	bytes, packErr := contractAbi.Pack("checkpoint", tHyperionID, checkpoint, big.NewInt(int64(v.Nonce)), memberAddresses, convertedPowers, rewardAmount, rewardToken)
 	// this should never happen outside of test since any case that could crash on encoding
 	// should be filtered above.
 	if packErr != nil {

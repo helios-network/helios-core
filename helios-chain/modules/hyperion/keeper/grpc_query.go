@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strings"
 
@@ -337,6 +338,7 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 	ctx := sdk.UnwrapSDKContext(c)
 
 	keys := k.GetOrchestratorAddresses(ctx)
+	fmt.Println("keys: ", keys)
 	if err := types.ValidateEthAddress(req.EthAddress); err != nil {
 		return nil, errors.Wrap(err, "invalid eth address")
 	}

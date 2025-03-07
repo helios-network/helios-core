@@ -103,7 +103,7 @@ func CmdSendToChain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send-to-chain [dest-hyperion-id] [eth-dest] [amount] [bridge-fee]",
 		Short: "Adds a new entry to the transaction pool to withdraw an amount from the Ethereum bridge contract",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -114,6 +114,7 @@ func CmdSendToChain() *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "dest hypperionId")
 			}
+			
 			amount, err := sdk.ParseCoinsNormalized(args[2])
 			if err != nil {
 				return errors.Wrap(err, "amount")
