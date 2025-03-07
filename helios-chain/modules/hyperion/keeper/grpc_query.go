@@ -386,6 +386,26 @@ func (k *Keeper) GetPendingSendToChain(c context.Context, req *types.QueryPendin
 	return res, nil
 }
 
+func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAllPendingSendToChainRequest) (*types.QueryAllPendingSendToChainResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+	batches := k.GetOutgoingTxBatches(ctx)
+	unbatchedTx := k.GetPoolTransactions(ctx)
+
+	res := &types.QueryAllPendingSendToChainResponse{}
+	res.TransfersInBatches = make([]*types.OutgoingTransferTx, 0)
+	res.UnbatchedTransfers = make([]*types.OutgoingTransferTx, 0)
+
+	for _, batch := range batches {
+		res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...) 
+	}
+	res.UnbatchedTransfers = append(res.UnbatchedTransfers, unbatchedTx...) 
+
+	return res, nil
+}
+
 func (k *Keeper) HyperionModuleState(c context.Context, req *types.QueryModuleStateRequest) (*types.QueryModuleStateResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()

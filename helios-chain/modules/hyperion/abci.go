@@ -1,6 +1,7 @@
 package hyperion
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -130,6 +131,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 	attmap := h.k.GetAttestationMapping(ctx)
 	// We make a slice with all the event nonces that are in the attestation mapping
 	keys := make([]uint64, 0, len(attmap))
+	fmt.Println("attmap", attmap)
 	for k := range attmap {
 		keys = append(keys, k)
 	}
@@ -140,6 +142,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 	// a slice with one or more attestations at that event nonce. There can be multiple attestations
 	// at one event nonce when validators disagree about what event happened at that nonce.
 	for _, nonce := range keys {
+		fmt.Println("nonce", nonce)
 		// This iterates over all attestations at a particular event nonce.
 		// They are ordered by when the first attestation at the event nonce was received.
 		// This order is not important.

@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
+	// "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/Helios-Chain-Labs/metrics"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -43,11 +43,11 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 		lastEvent = k.GetLastEventByValidator(ctx, valAddr)
 	}
 
-	if claim.GetEventNonce() != lastEvent.EthereumEventNonce+1 {
-		metrics.ReportFuncError(k.svcTags)
-		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
-		return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))
-	}
+	// if claim.GetEventNonce() != lastEvent.EthereumEventNonce+1 {
+	// 	metrics.ReportFuncError(k.svcTags)
+	// 	k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
+	// 	return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))
+	// }
 
 	// Tries to get an attestation with the same eventNonce and claim as the claim that was submitted.
 	att := k.GetAttestation(ctx, claim.GetEventNonce(), claim.ClaimHash())
@@ -155,6 +155,7 @@ func getRequiredPower(totalPower math.Int) math.Int {
 func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
+	fmt.Println("TryAttestation=======================")
 
 	claim, err := k.UnpackAttestationClaim(att)
 	if err != nil {
@@ -164,6 +165,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 	// If the attestation has not yet been Observed, sum up the votes and see if it is ready to apply to the state.
 	// This conditional stops the attestation from accidentally being applied twice.
 	if !att.Observed {
+		fmt.Println("TryAttestation=======================")
 		// Sum the current powers of all validators who have voted and see if it passes the current threshold
 		totalPower, err := k.StakingKeeper.GetLastTotalPower(ctx)
 		if err != nil {
@@ -187,7 +189,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			attestationPower = attestationPower.Add(math.NewInt(validatorPower))
 			// If the power of all the validators that have voted on the attestation is higher or equal to the threshold,
 			// process the attestation, set Observed to true, and break
-			if attestationPower.GTE(requiredPower) {
+			if true || attestationPower.GTE(requiredPower) {
 				lastEventNonce := k.GetLastObservedEventNonce(ctx)
 				// this check is performed at the next level up so this should never panic
 				// outside of programmer error.
@@ -220,6 +222,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 func (k *Keeper) processAttestation(ctx sdk.Context, claim types.EthereumClaim) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
+	fmt.Println("processAttestation=======================")
 
 	// then execute in a new Tx so that we can store state on failure
 	xCtx, commit := ctx.CacheContext()

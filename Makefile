@@ -162,6 +162,9 @@ proto: proto-format proto-gen proto-swagger-gen
 proto-gen:
 	@$(protoImage) sh ./scripts/protocgen.sh
 
+proto-gen-hyperion:
+	@$(protoImage) sh ./scripts/protocgen-hyperion.sh
+
 proto-gen-pulsar:
 	@$(protoImage) sh ./scripts/protocgen-pulsar.sh
 
