@@ -55,7 +55,7 @@ func DefaultEthereumChainParams() *CounterpartyChainParams {
 func DefaultPolygonAmoyTestnetChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    1,
-		BridgeCounterpartyAddress:     common.HexToAddress("0x75B83dDeb27dbEF2702bdC462B4F1fEFF0dB0E68").Hex(),
+		BridgeCounterpartyAddress:     common.HexToAddress("0x187547175959a1A59142f5D1B39fb39630DA8C8B").Hex(),
 		BridgeChainId:                 80002,
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
