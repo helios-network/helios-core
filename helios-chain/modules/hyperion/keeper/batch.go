@@ -24,6 +24,7 @@ const OutgoingTxBatchSize = 100
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
 func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
+	fmt.Println("BuildOutgoingTXBatch for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -52,7 +53,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		}
 	}
 
-	selectedTx, err := k.pickUnbatchedTX(ctx, contractAddress, maxElements)
+	selectedTx, err := k.pickUnbatchedTX(ctx, contractAddress, maxElements, hyperionId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
@@ -64,7 +65,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
 		Transactions:  selectedTx,
 		TokenContract: contractAddress.Hex(),
-		HyperionId:   hyperionId,
+		HyperionId:    hyperionId,
 	}
 	k.StoreBatch(ctx, batch)
 
@@ -182,7 +183,8 @@ func (k *Keeper) DeleteBatch(ctx sdk.Context, batch types.OutgoingTxBatch) {
 }
 
 // pickUnbatchedTX find TX in pool and remove from "available" second index
-func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address, maxElements int) ([]*types.OutgoingTransferTx, error) {
+func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
+	fmt.Println("pickUnbatchedTX for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -190,9 +192,12 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 	var err error
 
 	k.IterateOutgoingPoolByFee(ctx, contractAddress, func(txID uint64, tx *types.OutgoingTransferTx) bool {
+		fmt.Println("pickUnbatchedTX - tx: ", tx)
 		if tx != nil && tx.Erc20Fee != nil {
-			selectedTx = append(selectedTx, tx)
-			err = k.removeFromUnbatchedTXIndex(ctx, contractAddress, tx.Erc20Fee, txID)
+			if tx.HyperionId == hyperionId {
+				selectedTx = append(selectedTx, tx)
+				err = k.removeFromUnbatchedTXIndex(ctx, contractAddress, tx.Erc20Fee, txID)
+			}
 			return err != nil || len(selectedTx) == maxElements
 		} else {
 			// we found a nil, exit
@@ -273,6 +278,7 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, b
 	for ; iter.Valid(); iter.Next() {
 		var batch types.OutgoingTxBatch
 		k.cdc.MustUnmarshal(iter.Value(), &batch)
+		fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
 		// cb returns true to stop early
 		if cb(iter.Key(), &batch) {
 			break

@@ -66,6 +66,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	outgoing := &types.OutgoingTransferTx{
 		Id:          nextID,
 		Sender:      sender.String(),
+		HyperionId: hyperionId,
 		DestAddress: counterpartReceiver.Hex(),
 		Erc20Token:  types.NewSDKIntERC20Token(amount.Amount, tokenContract),
 		Erc20Fee:    erc20Fee,

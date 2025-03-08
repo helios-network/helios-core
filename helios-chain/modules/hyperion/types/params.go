@@ -21,7 +21,7 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		CounterpartyChainParams: []*CounterpartyChainParams{DefaultEthereumChainParams(), DefaultPolygonAmoyTestnetChainParams()},
+		CounterpartyChainParams: []*CounterpartyChainParams{DefaultEthereumChainParams(), DefaultPolygonAmoyTestnetChainParams(), DefaultPolygonAmoyTestnet02ChainParams()},
 		Admins:                  []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
 }
