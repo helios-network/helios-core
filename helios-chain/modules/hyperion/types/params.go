@@ -21,7 +21,7 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		CounterpartyChainParams: []*CounterpartyChainParams{DefaultEthereumChainParams(), DefaultPolygonAmoyTestnetChainParams(), DefaultPolygonAmoyTestnet02ChainParams()},
+		CounterpartyChainParams: []*CounterpartyChainParams{DefaultEthereumChainParams(), DefaultPolygonAmoyTestnetChainParams(), DefaultPolygonAmoyTestnet02ChainParams(), DefaultPolygonAmoyTestnet03ChainParams()},
 		Admins:                  []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
 }
@@ -138,6 +138,32 @@ func DefaultPolygonAmoyTestnet02ChainParams() *CounterpartyChainParams {
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 	}
 }
+
+
+func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
+	return &CounterpartyChainParams{
+		HyperionId:                    2,
+		BridgeCounterpartyAddress:     common.HexToAddress("0x14D54db992A639A8A3fB8BC51760e705C1aE7466").Hex(),
+		BridgeChainId:                 80002,
+		SignedValsetsWindow:           25000,
+		SignedBatchesWindow:           25000,
+		SignedClaimsWindow:            25000,
+		TargetBatchTimeout:            43200000,
+		AverageBlockTime:              2000,
+		AverageCounterpartyBlockTime:  15000,
+		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		CosmosCoinDenom:               "ahelios",
+		CosmosCoinErc20Contract:       "",
+		UnbondSlashingValsetsWindow:   25000,
+		ClaimSlashingEnabled:          false,
+		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
+	}
+}
+
 
 // ValidateBasic checks that the parameters have valid values.
 func (p Params) ValidateBasic() error {

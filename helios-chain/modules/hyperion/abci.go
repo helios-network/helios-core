@@ -163,6 +163,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 			// we skip the other attestations and move on to the next nonce again.
 			// If no attestation becomes observed, when we get to the next nonce, every attestation in
 			// it will be skipped. The same will happen for every nonce after that.
+			fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx))
 			if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
 				h.k.TryAttestation(ctx, attestation)
 			}
