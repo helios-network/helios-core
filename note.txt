@@ -1,0 +1,3 @@
+heliades tx hyperion set-orchestrator-address helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf 0x17267eB1FEC301848d4B5140eDDCFC48945427Ab --chain-id=4242 --node="tcp://localhost:26657" --from="helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf" --gas-prices=600000000ahelios --yes
+
+heliades tx hyperion send-to-chain 1 "0xdac17f958d2ee523a2206206994597c13d831ec7" 22222222hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8 10000hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8 --from "signer1" --chain-id 4242 --gas auto --gas-adjustment 1.2 -y

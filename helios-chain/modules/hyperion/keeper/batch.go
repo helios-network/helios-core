@@ -64,6 +64,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
 		Transactions:  selectedTx,
 		TokenContract: contractAddress.Hex(),
+		HyperionId:   hyperionId,
 	}
 	k.StoreBatch(ctx, batch)
 
@@ -143,6 +144,7 @@ func (k *Keeper) StoreBatch(ctx sdk.Context, batch *types.OutgoingTxBatch) {
 	// set the current block height when storing the batch
 	batch.Block = uint64(ctx.BlockHeight())
 	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
+	fmt.Println("StoreBatch - key: ", key)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	blockKey := types.GetOutgoingTxBatchBlockKey(batch.Block)
@@ -207,11 +209,13 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 
 // GetOutgoingTXBatch loads a batch object. Returns nil when not exists.
 func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64) *types.OutgoingTxBatch {
+	fmt.Println("GetOutgoingTXBatch: ", tokenContract, nonce, hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetOutgoingTxBatchKey(tokenContract, nonce, hyperionId)
+	fmt.Println("GetOutgoingTxBatchKey - key: ", key)
 	bz := store.Get(key)
 	if len(bz) == 0 {
 		return nil
@@ -219,6 +223,7 @@ func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addres
 
 	var b types.OutgoingTxBatch
 	k.cdc.MustUnmarshal(bz, &b)
+	fmt.Printf("GetOutgoingTxBatch - b: %+v\n", b)
 	for _, tx := range b.Transactions {
 		tx.Erc20Token.Contract = tokenContract.Hex()
 		tx.Erc20Fee.Contract = tokenContract.Hex()

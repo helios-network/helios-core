@@ -59,11 +59,11 @@ push:
 
 install: export GOPROXY=direct
 install:
-	@if command -v heliades > /dev/null 2>&1; then \
-		heliades keys clear; \
-	else \
-		echo "Command 'heliades' not found, skipping 'heliades keys clear'"; \
-	fi
+	# @if command -v heliades > /dev/null 2>&1; then \
+	# 	heliades keys clear; \
+	# else \
+	# 	echo "Command 'heliades' not found, skipping 'heliades keys clear'"; \
+	# fi
 	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
 compile:
@@ -87,7 +87,7 @@ mock: tests/mocks.go
 	go install github.com/golang/mock/mockgen
 	go generate ./tests/...
 
-PKGS_TO_COVER := $(shell go list ./helios-chain/modules/exchange | paste -sd "," -)
+# PKGS_TO_COVER := $(shell go list ./helios-chain/modules/exchange | paste -sd "," -)
 
 deploy:
 	./deploy_contracts.sh
