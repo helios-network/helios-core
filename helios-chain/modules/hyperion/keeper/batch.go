@@ -82,10 +82,13 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint6
 	defer doneFn()
 
 	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	fmt.Println("counterpartyChainParams: ", counterpartyChainParams)
 	currentCosmosHeight := ctx.BlockHeight()
+	fmt.Println("currentCosmosHeight: ", currentCosmosHeight)
 	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
 	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
 	heights := k.GetLastObservedEthereumBlockHeight(ctx)
+	fmt.Println("heights: ", heights)
 	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
 		return 0
 	}
@@ -110,7 +113,8 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	b := k.GetOutgoingTXBatch(ctx, tokenContract, nonce, hyperionId)
 	if b == nil {
 		metrics.ReportFuncError(k.svcTags)
-		panic(fmt.Sprintf("unknown batch nonce for outgoing tx batch %s %d", tokenContract, nonce))
+		return
+		// panic(fmt.Sprintf("unknown batch nonce for outgoing tx batch %s %d", tokenContract, nonce))
 	}
 
 	// cleanup outgoing TX pool, while these transactions where hidden from GetPoolTransactions
