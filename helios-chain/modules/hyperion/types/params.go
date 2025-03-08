@@ -142,7 +142,7 @@ func DefaultPolygonAmoyTestnet02ChainParams() *CounterpartyChainParams {
 
 func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
-		HyperionId:                    2,
+		HyperionId:                    3,
 		BridgeCounterpartyAddress:     common.HexToAddress("0x14D54db992A639A8A3fB8BC51760e705C1aE7466").Hex(),
 		BridgeChainId:                 80002,
 		SignedValsetsWindow:           25000,
