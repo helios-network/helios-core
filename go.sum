@@ -245,8 +245,8 @@ github.com/Helios-Chain-Labs/bandchain-packet v0.50.10-helios-1 h1:JvuTl/B8ALhei
 github.com/Helios-Chain-Labs/bandchain-packet v0.50.10-helios-1/go.mod h1:hM5+CrH/OweLqWojeJAiHHv94QOOvXUmtW4oSGSuuYg=
 github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-10 h1:gL5qwDeMlmXzVI50UiouS1bjajHX2Q5cs1lBxzilnCk=
 github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-10/go.mod h1:WreBJKC7CtZ9cNsb5p6uNpfCBwNWDu+risVb58GTLfY=
-github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-55 h1:1ChENaItSW6Xu61bak08MS+Rfk/3h07/BK9xDG2dD8k=
-github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-55/go.mod h1:n69Ae44ru4+ODmLIaWlI/7XPFSG5aGAcepq3Zm9VItU=
+github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-54 h1:eRKoe5bD4U+WK4JZRuj2XszsxfWL/N2YrjaiVsj9pMw=
+github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-54/go.mod h1:t9hgVVpTzUeFwl1iYPvcwxR86SSmQff2xFc1gzaCUqc=
 github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-20 h1:IrbfnLW0yY7hM2Vt6YfzsfsVFHD3nFB/v6cplgaQbcw=
 github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-20/go.mod h1:ZW4eIE98wivInyQyhxU2nHqEielc/iZAcr41qNyWSrw=
 github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-20 h1:ctXT7mG7CpCwctgGZLN58keHiq1m4ixPMJ8SvGj20WM=
