@@ -14,6 +14,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 
+	chronostypes "helios-core/helios-chain/x/chronos/types"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
@@ -36,6 +37,7 @@ type QueryClient struct {
 	Staking      stakingtypes.QueryClient
 	Mint         minttypes.QueryClient
 	Distribution distributiontypes.QueryClient
+	Chronos      chronostypes.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -50,6 +52,7 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		Staking:       stakingtypes.NewQueryClient(clientCtx),
 		Mint:          minttypes.NewQueryClient(clientCtx),
 		Distribution:  distributiontypes.NewQueryClient(clientCtx),
+		Chronos:       chronostypes.NewQueryClient(clientCtx),
 	}
 }
 

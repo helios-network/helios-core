@@ -12,12 +12,12 @@ option go_package = "helios-core/helios-chain/x/chronos/types";
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
-  rpc ScheduleEVMCall(MsgScheduleEVMCall) returns (MsgScheduleEVMCallResponse);
-  rpc ModifyScheduledEVMCall(MsgModifyScheduledEVMCall) returns (MsgModifyScheduledEVMCallResponse);
-  rpc CancelScheduledEVMCall(MsgCancelScheduledEVMCall) returns (MsgCancelScheduledEVMCallResponse);
+  rpc CreateCron(MsgCreateCron) returns (MsgCreateCronResponse);
+  rpc UpdateCron(MsgUpdateCron) returns (MsgUpdateCronResponse);
+  rpc CancelCron(MsgCancelCron) returns (MsgCancelCronResponse);
 }
 
-message MsgScheduleEVMCall {
+message MsgCreateCron {
   option (cosmos.msg.v1.signer) = "sender";
 
   string owner_address = 1; // User wallet scheduling the call
@@ -31,28 +31,35 @@ message MsgScheduleEVMCall {
   string sender = 9; // Add this field for the Cosmos SDK signer
 }
 
-message MsgScheduleEVMCallResponse {
-  uint64 schedule_id = 1;
+message MsgCreateCronResponse {
+  uint64 cron_id = 1;
 }
 
-message MsgModifyScheduledEVMCall {
-  uint64 schedule_id = 1;
+message MsgUpdateCron {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  uint64 cron_id = 1;
   string owner_address = 2;
   uint64 new_frequency = 3;
   repeated string new_params = 4;
   uint64 new_expiration_block = 5;
   uint64 new_gas_limit = 6; // New maximum gas allowed
+
+  string sender = 7; // Add this field for the Cosmos SDK signer
 }
 
-message MsgModifyScheduledEVMCallResponse {
+message MsgUpdateCronResponse {
   bool success = 1;
 }
 
-message MsgCancelScheduledEVMCall {
+message MsgCancelCron {
+  option (cosmos.msg.v1.signer) = "sender";
+
   string owner_address = 1;
-  uint64 schedule_id = 2;
+  uint64 cron_id = 2;
+  string sender = 3; // Add this field for the Cosmos SDK signer
 }
 
-message MsgCancelScheduledEVMCallResponse {
+message MsgCancelCronResponse {
   bool success = 1;
 }

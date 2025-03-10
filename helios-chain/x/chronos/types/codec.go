@@ -18,9 +18,9 @@ var AminoCdc = codec.NewAminoCodec(amino) //nolint:staticcheck
 
 // Constants for Amino encoding (used for JSON compatibility)
 const (
-	scheduleEVMCall        = "helios/chronos/MsgScheduleEVMCall"
-	modifyScheduledEVMCall = "helios/chronos/MsgModifyScheduledEVMCall"
-	cancelScheduledEVMCall = "helios/chronos/MsgCancelScheduledEVMCall"
+	createCron = "helios/chronos/MsgCreateCron"
+	updateCron = "helios/chronos/MsgUpdateCron"
+	cancelCron = "helios/chronos/MsgCancelCron"
 )
 
 // Init function to register codecs and seal Amino
@@ -34,9 +34,9 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	// Register Chronos Messages
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgScheduleEVMCall{},
-		&MsgModifyScheduledEVMCall{},
-		&MsgCancelScheduledEVMCall{},
+		&MsgCreateCron{},
+		&MsgUpdateCron{},
+		&MsgCancelCron{},
 	)
 
 	// Register MsgService Descriptor
@@ -45,7 +45,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 
 // RegisterLegacyAminoCodec registers the necessary Chronos messages for JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgScheduleEVMCall{}, scheduleEVMCall, nil)
-	cdc.RegisterConcrete(&MsgModifyScheduledEVMCall{}, modifyScheduledEVMCall, nil)
-	cdc.RegisterConcrete(&MsgCancelScheduledEVMCall{}, cancelScheduledEVMCall, nil)
+	cdc.RegisterConcrete(&MsgCreateCron{}, createCron, nil)
+	cdc.RegisterConcrete(&MsgUpdateCron{}, updateCron, nil)
+	cdc.RegisterConcrete(&MsgCancelCron{}, cancelCron, nil)
 }

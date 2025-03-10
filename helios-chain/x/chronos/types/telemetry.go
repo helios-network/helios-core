@@ -3,10 +3,10 @@ package types
 // Telemetry constants for metrics tracking
 const (
 	// Labels for telemetry measurement
-	LabelExecuteReadySchedules   = "execute_ready_schedules"
-	LabelScheduleExecutionsCount = "schedule_executions_count"
+	LabelExecuteReadyCrons   = "execute_ready_crons"
+	LabelCronExecutionsCount = "cron_executions_count"
 
 	// Labels for metric attributes
-	MetricLabelSuccess      = "success"
-	MetricLabelScheduleName = "schedule_name"
+	MetricLabelSuccess  = "success"
+	MetricLabelCronName = "cron_name"
 )

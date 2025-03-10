@@ -13,8 +13,8 @@ import (
 
 func CmdListSchedule() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-schedule",
-		Short: "List all scheduled EVM calls",
+		Use:   "crons",
+		Short: "List all crons",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -25,11 +25,11 @@ func CmdListSchedule() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QuerySchedulesRequest{
+			params := &types.QueryGetCronsRequest{
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.Schedules(context.Background(), params)
+			res, err := queryClient.QueryGetCrons(context.Background(), params)
 			if err != nil {
 				return err
 			}
@@ -46,24 +46,24 @@ func CmdListSchedule() *cobra.Command {
 
 func CmdShowSchedule() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-schedule [id]",
-		Short: "Show details of a scheduled EVM call by ID",
+		Use:   "show-cron [id]",
+		Short: "Show details of a cron by ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			scheduleID, err := strconv.ParseUint(args[0], 10, 64)
+			cronID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			params := &types.QueryGetScheduleRequest{
-				Id: scheduleID,
+			params := &types.QueryGetCronRequest{
+				Id: cronID,
 			}
 
-			res, err := queryClient.Schedule(context.Background(), params)
+			res, err := queryClient.QueryGetCron(context.Background(), params)
 			if err != nil {
 				return err
 			}

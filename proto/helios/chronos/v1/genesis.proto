@@ -3,14 +3,14 @@ package helios.chronos.v1;
 
 import "gogoproto/gogo.proto";
 import "helios/chronos/v1/params.proto";
-import "helios/chronos/v1/schedule.proto";
+import "helios/chronos/v1/cron.proto";
 // this line is used by starport scaffolding # genesis/proto/import
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
 // Defines the cron module's genesis state.
 message GenesisState {
-  repeated Schedule schedule_list = 1 [(gogoproto.nullable) = false];
+  repeated Cron cron_list = 1 [(gogoproto.nullable) = false];
   Params params = 2 [(gogoproto.nullable) = false];
   // this line is used by starport scaffolding # genesis/proto/state
 }

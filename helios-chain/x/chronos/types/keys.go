@@ -16,24 +16,36 @@ const (
 
 // Key prefixes for different types of data
 const (
-	prefixScheduleKey       = iota + 1 // 1
-	prefixScheduleCountKey             // 2
-	prefixParamsKey                    // 3
-	prefixNextScheduleIDKey            // 4
+	prefixCronKey                       = iota + 1 // 1
+	prefixCronCountKey                             // 2
+	prefixParamsKey                                // 3
+	prefixNextCronIDKey                            // 4
+	prefixCronNonceKey                             // 5
+	prefixCronTransactionResultKey                 // 6
+	prefixCronBlockTransactionHashsKey             // 7
+	prefixCronTransactionHashToNonceKey            // 8
 )
 
 var (
 	// ScheduleKey is the prefix for storing individual schedules
-	ScheduleKey = []byte{prefixScheduleKey}
+	CronKey = []byte{prefixCronKey}
 
 	// ScheduleCountKey is the key for storing the total count of schedules
-	ScheduleCountKey = []byte{prefixScheduleCountKey}
+	CronCountKey = []byte{prefixCronCountKey}
 
 	// ParamsKey is the key for storing module parameters
 	ParamsKey = []byte{prefixParamsKey}
 
 	// NextScheduleIDKey is the key for storing the next schedule ID counter
-	NextScheduleIDKey = []byte{prefixNextScheduleIDKey}
+	NextCronIDKey = []byte{prefixNextCronIDKey}
+
+	CronNonceKey = []byte{prefixCronNonceKey}
+
+	CronTransactionResultKey = []byte{prefixCronTransactionResultKey}
+
+	CronBlockTransactionHashsKey = []byte{prefixCronBlockTransactionHashsKey}
+
+	CronTransactionHashToNonceKey = []byte{prefixCronTransactionHashToNonceKey}
 )
 
 // GetScheduleKey returns the key for a specific schedule by name

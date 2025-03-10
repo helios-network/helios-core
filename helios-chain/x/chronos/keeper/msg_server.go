@@ -2,13 +2,15 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"helios-core/helios-chain/x/chronos/types"
+
 	errors "cosmossdk.io/errors"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"helios-core/helios-chain/x/chronos/types"
 )
 
 type msgServer struct {
@@ -21,17 +23,21 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// ScheduleEVMCall schedules a new EVM call
-func (k msgServer) ScheduleEVMCall(goCtx context.Context, req *types.MsgScheduleEVMCall) (*types.MsgScheduleEVMCallResponse, error) {
+// CreateCron create a new cron
+func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (*types.MsgCreateCronResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, errorsmod.Wrap(err, "invalid request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	newID := k.keeper.GetNextScheduleID(ctx)
+	if req.OwnerAddress != req.Sender {
+		return nil, errorsmod.Wrap(errortypes.ErrUnauthorized, fmt.Sprintf("only the owner can schedule an EVM call %s != %s", req.OwnerAddress, req.Sender))
+	}
 
-	newSchedule := types.Schedule{
+	newID := k.keeper.StoreGetNextCronID(ctx)
+
+	newCron := types.Cron{
 		Id:                 newID,
 		OwnerAddress:       req.OwnerAddress,
 		ContractAddress:    req.ContractAddress,
@@ -43,50 +49,60 @@ func (k msgServer) ScheduleEVMCall(goCtx context.Context, req *types.MsgSchedule
 		ExpirationBlock:    req.ExpirationBlock,
 	}
 
-	if err := k.keeper.AddSchedule(ctx, newSchedule); err != nil {
+	if err := k.keeper.AddCron(ctx, newCron); err != nil {
 		return nil, errorsmod.Wrap(err, "failed to add schedule")
 	}
 
-	return &types.MsgScheduleEVMCallResponse{ScheduleId: newSchedule.Id}, nil
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			"CreateCron",
+			sdk.NewAttribute("cron_id", fmt.Sprintf("%d", newCron.Id)),
+			sdk.NewAttribute("owner_address", req.OwnerAddress),
+			sdk.NewAttribute("contract_address", req.ContractAddress),
+			sdk.NewAttribute("method_name", req.MethodName),
+		),
+	)
+
+	return &types.MsgCreateCronResponse{CronId: newCron.Id}, nil
 }
 
-// ModifyScheduledEVMCall modifies an existing scheduled EVM call
-func (k msgServer) ModifyScheduledEVMCall(goCtx context.Context, req *types.MsgModifyScheduledEVMCall) (*types.MsgModifyScheduledEVMCallResponse, error) {
+// UpdateCron modifies an existing cron
+func (k msgServer) UpdateCron(goCtx context.Context, req *types.MsgUpdateCron) (*types.MsgUpdateCronResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	schedule, found := k.keeper.GetSchedule(ctx, req.ScheduleId)
+	cron, found := k.keeper.GetCron(ctx, req.CronId)
 	if !found {
-		return nil, errors.Wrapf(errortypes.ErrNotFound, "schedule %d not found", req.ScheduleId)
+		return nil, errors.Wrapf(errortypes.ErrNotFound, "cron %d not found", req.CronId)
 	}
 
-	if schedule.OwnerAddress != req.OwnerAddress {
-		return nil, errors.Wrap(errortypes.ErrUnauthorized, "only owner can modify the schedule")
+	if cron.OwnerAddress != req.Sender {
+		return nil, errorsmod.Wrap(errortypes.ErrUnauthorized, "only the owner can edit")
 	}
-	schedule.Frequency = req.NewFrequency
-	schedule.Params = req.NewParams
-	schedule.ExpirationBlock = req.NewExpirationBlock
+	cron.Frequency = req.NewFrequency
+	cron.Params = req.NewParams
+	cron.ExpirationBlock = req.NewExpirationBlock
 
-	k.keeper.StoreSchedule(ctx, schedule)
+	k.keeper.StoreSetCron(ctx, cron)
 
-	return &types.MsgModifyScheduledEVMCallResponse{Success: true}, nil
+	return &types.MsgUpdateCronResponse{Success: true}, nil
 }
 
-// CancelScheduledEVMCall cancels a scheduled EVM call
-func (k msgServer) CancelScheduledEVMCall(goCtx context.Context, req *types.MsgCancelScheduledEVMCall) (*types.MsgCancelScheduledEVMCallResponse, error) {
+// CancelCron cancels a cron
+func (k msgServer) CancelCron(goCtx context.Context, req *types.MsgCancelCron) (*types.MsgCancelCronResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	schedule, found := k.keeper.GetSchedule(ctx, req.ScheduleId)
+	schedule, found := k.keeper.GetCron(ctx, req.CronId)
 	if !found {
-		return nil, errors.Wrapf(errortypes.ErrNotFound, "schedule %d not found", req.ScheduleId)
+		return nil, errors.Wrapf(errortypes.ErrNotFound, "cron %d not found", req.CronId)
 	}
 
-	if schedule.OwnerAddress != req.OwnerAddress {
+	if schedule.OwnerAddress != req.Sender {
 		return nil, errors.Wrap(errortypes.ErrUnauthorized, "only owner can cancel the schedule")
 	}
 
-	if err := k.keeper.RemoveSchedule(ctx, req.ScheduleId, sdk.MustAccAddressFromBech32(req.OwnerAddress)); err != nil {
+	if err := k.keeper.RemoveCron(ctx, req.CronId, sdk.MustAccAddressFromBech32(req.OwnerAddress)); err != nil {
 		return nil, errorsmod.Wrap(err, "failed to remove schedule")
 	}
 
-	return &types.MsgCancelScheduledEVMCallResponse{Success: true}, nil
+	return &types.MsgCancelCronResponse{Success: true}, nil
 }

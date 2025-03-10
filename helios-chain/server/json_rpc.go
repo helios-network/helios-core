@@ -8,6 +8,7 @@ import (
 	"github.com/rs/cors"
 
 	"helios-core/helios-chain/rpc"
+	"helios-core/helios-chain/rpc/backend"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -107,7 +108,8 @@ func StartJSONRPC(ctx *server.Context,
 
 	// allocate separate WS connection to Tendermint
 	tmWsClient = ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
-	wsSrv := rpc.NewWebsocketsServer(clientCtx, ctx.Logger, tmWsClient, config)
+	backend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer)
+	wsSrv := rpc.NewWebsocketsServer(clientCtx, ctx.Logger, tmWsClient, config, backend)
 	wsSrv.Start()
 	return httpSrv, httpSrvDone, nil
 }

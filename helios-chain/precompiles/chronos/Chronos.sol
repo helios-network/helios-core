@@ -13,10 +13,30 @@ ChronosI constant CHRONOS_CONTRACT = ChronosI(Chronos_PRECOMPILE_ADDRESS);
 /// @custom:address 0x0000000000000000000000000000000000000830
 interface ChronosI {
 
-    function scheduleEVMCall(
-        address addr,
+    event EVMCallScheduled(
+        uint64 scheduleId
+    );
+
+    function createCron(
         address contractAddress,
-        string memory abi
+        string memory abi,
+        string memory methodName,
+        string[] memory params,
+        uint64 frequency,
+        uint64 expirationBlock,
+        uint64 gasLimit
+    ) external returns (bool success);
+
+    function updateCron(
+        uint64 cronId,
+        uint64 newFrequency,
+        string[] memory newParams,
+        uint64 newExpirationBlock,
+        uint64 newGasLimit
+    ) external returns (bool success);
+
+    function cancelCron(
+        uint64 cronId
     ) external returns (bool success);
 
 }

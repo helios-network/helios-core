@@ -8,17 +8,17 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgScheduleEVMCall{}
+var _ sdk.Msg = &MsgCreateCron{}
 
-func (msg *MsgScheduleEVMCall) Route() string {
+func (msg *MsgCreateCron) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgScheduleEVMCall) Type() string {
-	return "schedule-evm-call"
+func (msg *MsgCreateCron) Type() string {
+	return "create-cron"
 }
 
-func (msg *MsgScheduleEVMCall) GetSigners() []sdk.AccAddress {
+func (msg *MsgCreateCron) GetSigners() []sdk.AccAddress {
 	owner, err := sdk.AccAddressFromBech32(msg.OwnerAddress)
 	if err != nil {
 		panic(err.Error())
@@ -26,12 +26,12 @@ func (msg *MsgScheduleEVMCall) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{owner}
 }
 
-func (msg *MsgScheduleEVMCall) GetSignBytes() []byte {
+func (msg *MsgCreateCron) GetSignBytes() []byte {
 	return ModuleCdc.MustMarshalJSON(msg)
 }
 
 // Validate checks MsgScheduleEVMCall validity
-func (msg *MsgScheduleEVMCall) Validate() error {
+func (msg *MsgCreateCron) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
 		return errors.Wrap(err, "owner_address is invalid")
 	}
@@ -62,17 +62,17 @@ func (msg *MsgScheduleEVMCall) Validate() error {
 
 //----------------------------------------------------------------
 
-var _ sdk.Msg = &MsgModifyScheduledEVMCall{}
+var _ sdk.Msg = &MsgUpdateCron{}
 
-func (msg *MsgModifyScheduledEVMCall) Route() string {
+func (msg *MsgUpdateCron) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgModifyScheduledEVMCall) Type() string {
-	return "modify-scheduled-evm-call"
+func (msg *MsgUpdateCron) Type() string {
+	return "update-cron"
 }
 
-func (msg *MsgModifyScheduledEVMCall) GetSigners() []sdk.AccAddress {
+func (msg *MsgUpdateCron) GetSigners() []sdk.AccAddress {
 	owner, err := sdk.AccAddressFromBech32(msg.OwnerAddress)
 	if err != nil {
 		panic(err.Error())
@@ -80,17 +80,17 @@ func (msg *MsgModifyScheduledEVMCall) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{owner}
 }
 
-func (msg *MsgModifyScheduledEVMCall) GetSignBytes() []byte {
+func (msg *MsgUpdateCron) GetSignBytes() []byte {
 	return ModuleCdc.MustMarshalJSON(msg)
 }
 
-func (msg *MsgModifyScheduledEVMCall) Validate() error {
+func (msg *MsgUpdateCron) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
 		return errors.Wrap(err, "owner_address is invalid")
 	}
 
-	if msg.ScheduleId == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "schedule_id must be valid")
+	if msg.CronId == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "cron_id must be valid")
 	}
 
 	if msg.NewFrequency == 0 {
@@ -102,17 +102,17 @@ func (msg *MsgModifyScheduledEVMCall) Validate() error {
 
 //----------------------------------------------------------------
 
-var _ sdk.Msg = &MsgCancelScheduledEVMCall{}
+var _ sdk.Msg = &MsgCancelCron{}
 
-func (msg *MsgCancelScheduledEVMCall) Route() string {
+func (msg *MsgCancelCron) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgCancelScheduledEVMCall) Type() string {
-	return "cancel-scheduled-evm-call"
+func (msg *MsgCancelCron) Type() string {
+	return "cancel-cron"
 }
 
-func (msg *MsgCancelScheduledEVMCall) GetSigners() []sdk.AccAddress {
+func (msg *MsgCancelCron) GetSigners() []sdk.AccAddress {
 	owner, err := sdk.AccAddressFromBech32(msg.OwnerAddress)
 	if err != nil {
 		panic(err.Error())
@@ -120,17 +120,17 @@ func (msg *MsgCancelScheduledEVMCall) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{owner}
 }
 
-func (msg *MsgCancelScheduledEVMCall) GetSignBytes() []byte {
+func (msg *MsgCancelCron) GetSignBytes() []byte {
 	return ModuleCdc.MustMarshalJSON(msg)
 }
 
-func (msg *MsgCancelScheduledEVMCall) Validate() error {
+func (msg *MsgCancelCron) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
 		return errors.Wrap(err, "owner_address is invalid")
 	}
 
-	if msg.ScheduleId == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "schedule_id must be valid")
+	if msg.CronId == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "cron_id must be valid")
 	}
 
 	return nil

@@ -11,8 +11,8 @@ enum ExecutionStage {
   EXECUTION_STAGE_BEGIN_BLOCKER = 1;
 }
 
-// Schedule for autonomous EVM smart-contract execution
-message Schedule {
+// Cron for autonomous EVM smart-contract execution
+message Cron {
   uint64 id = 1;
   string owner_address = 2; // Owner wallet address
   string contract_address = 3; // EVM smart contract address

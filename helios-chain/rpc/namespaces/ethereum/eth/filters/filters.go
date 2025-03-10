@@ -171,11 +171,13 @@ func (f *Filter) Logs(_ context.Context, logLimit int, blockLimit int64) ([]*eth
 			return nil, errors.Wrapf(err, "failed to fetch block by number %d", height)
 		}
 
+		cronFiltered, _ := f.cronBlockLogs(blockRes) // non blocking
+
 		// check logs limit
-		if len(logs)+len(filtered) > logLimit {
+		if len(logs)+len(filtered)+len(cronFiltered) > logLimit {
 			return nil, fmt.Errorf("query returned more than %d results", logLimit)
 		}
-		logs = append(logs, filtered...)
+		logs = append(append(logs, filtered...), cronFiltered...)
 	}
 	return logs, nil
 }
@@ -197,6 +199,21 @@ func (f *Filter) blockLogs(blockRes *tmrpctypes.ResultBlockResults, bloom ethtyp
 	}
 
 	logs := FilterLogs(unfiltered, nil, nil, f.criteria.Addresses, f.criteria.Topics)
+	if len(logs) == 0 {
+		return []*ethtypes.Log{}, nil
+	}
+
+	return logs, nil
+}
+
+// cronBlockLogs returns the logs matching the filter criteria within a single block.
+func (f *Filter) cronBlockLogs(blockRes *tmrpctypes.ResultBlockResults) ([]*ethtypes.Log, error) {
+	cronUnFiltered, err := f.backend.BlockCronLogs(uint64(blockRes.Height))
+	if err != nil {
+		return []*ethtypes.Log{}, nil
+	}
+
+	logs := FilterLogs(cronUnFiltered, nil, nil, f.criteria.Addresses, f.criteria.Topics)
 	if len(logs) == 0 {
 		return []*ethtypes.Log{}, nil
 	}

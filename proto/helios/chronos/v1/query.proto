@@ -5,7 +5,10 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "helios/chronos/v1/params.proto";
-import "helios/chronos/v1/schedule.proto";
+import "helios/chronos/v1/cron.proto";
+import "helios/chronos/v1/types.proto";
+import "google/protobuf/struct.proto";  // Ajout de l'import
+import "ethermint/evm/v1/evm.proto";
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
@@ -14,16 +17,40 @@ service Query {
     option (google.api.http).get = "/helios/chronos/params";
   }
 
-  rpc Schedule(QueryGetScheduleRequest) returns (QueryGetScheduleResponse) {
-    option (google.api.http).get = "/helios/chronos/schedule/{id}";
+  rpc QueryGetCron(QueryGetCronRequest) returns (QueryGetCronResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/{id}";
   }
 
-  rpc Schedules(QuerySchedulesRequest) returns (QuerySchedulesResponse) {
-    option (google.api.http).get = "/helios/chronos/schedules";
+  rpc QueryGetCrons(QueryGetCronsRequest) returns (QueryGetCronsResponse) {
+    option (google.api.http).get = "/helios/chronos/crons";
   }
 
-  rpc ScheduledCallsByOwner(QueryScheduledCallsByOwnerRequest) returns (QueryScheduledCallsByOwnerResponse) {
-    option (google.api.http).get = "/helios/chronos/schedules/owner/{owner_address}";
+  rpc QueryGetCronsByOwner(QueryGetCronsByOwnerRequest) returns (QueryGetCronsByOwnerResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/owner/{owner_address}";
+  }
+
+  rpc QueryGetCronTransactionByNonce(QueryGetCronTransactionByNonceRequest) returns (QueryGetCronTransactionByNonceResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/transaction/{nonce}";
+  }
+
+  rpc QueryGetCronTransactionReceiptLogsByBlockNumber(QueryGetCronTransactionReceiptLogsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptLogsByBlockNumberResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/transaction-receipt-logs/{block_number}";
+  }
+
+  rpc QueryGetCronTransactionReceiptsByBlockNumber(QueryGetCronTransactionReceiptsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptsByBlockNumberResponse) {
+    option (google.api.http).get = "/helios/chronos/block/transaction-receipt/{block_number}";
+  }
+
+  rpc QueryGetCronTransactionReceiptByHash(QueryGetCronTransactionReceiptByHashRequest) returns (QueryGetCronTransactionReceiptByHashResponse) {
+    option (google.api.http).get = "/helios/chronos/transaction/receipt/hash/{hash}";
+  }
+
+  rpc QueryGetCronTransactionReceiptByNonce(QueryGetCronTransactionReceiptByNonceRequest) returns (QueryGetCronTransactionReceiptByNonceResponse) {
+    option (google.api.http).get = "/helios/chronos/transaction/receipt/nonce/{nonce}";
+  }
+
+  rpc QueryGetCronTransactionReceiptsByPageAndSize(QueryGetCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetCronTransactionReceiptsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/transaction/receipts";
   }
 }
 
@@ -33,29 +60,78 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
-message QueryGetScheduleRequest {
+message QueryGetCronRequest {
   uint64 id = 1;
 }
 
-message QueryGetScheduleResponse {
-  Schedule schedule = 1 [(gogoproto.nullable) = false];
+message QueryGetCronResponse {
+  Cron cron = 1 [(gogoproto.nullable) = false];
 }
 
-message QuerySchedulesRequest {
+message QueryGetCronsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-message QuerySchedulesResponse {
-  repeated Schedule schedules = 1 [(gogoproto.nullable) = false];
+message QueryGetCronsResponse {
+  repeated Cron crons = 1 [(gogoproto.nullable) = false];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-message QueryScheduledCallsByOwnerRequest {
+message QueryGetCronsByOwnerRequest {
   string owner_address = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-message QueryScheduledCallsByOwnerResponse {
-  repeated Schedule schedules = 1 [(gogoproto.nullable) = false];
+message QueryGetCronsByOwnerResponse {
+  repeated Cron crons = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetCronTransactionByNonceRequest {
+  uint64 nonce = 1;
+}
+
+message QueryGetCronTransactionByNonceResponse {
+  CronTransactionRPC transaction = 1;
+}
+
+message QueryGetCronTransactionReceiptByNonceRequest {
+  uint64 nonce = 1;
+}
+
+message QueryGetCronTransactionReceiptByNonceResponse {
+  CronTransactionReceiptRPC transaction = 1;
+}
+
+message QueryGetCronTransactionReceiptLogsByBlockNumberRequest {
+  uint64 block_number = 1;
+}
+
+message QueryGetCronTransactionReceiptLogsByBlockNumberResponse {
+  repeated ethermint.evm.v1.Log logs = 1;
+}
+
+message QueryGetCronTransactionReceiptsByBlockNumberRequest {
+  uint64 block_number = 1;
+}
+
+message QueryGetCronTransactionReceiptsByBlockNumberResponse {
+  repeated CronTransactionReceiptRPC transactions = 1;
+}
+
+message QueryGetCronTransactionReceiptByHashRequest {
+  string hash = 1;
+}
+
+message QueryGetCronTransactionReceiptByHashResponse {
+  CronTransactionReceiptRPC transaction = 1;
+}
+
+message QueryGetCronTransactionReceiptsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetCronTransactionReceiptsByPageAndSizeResponse {
+  repeated CronTransactionReceiptRPC transactions = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

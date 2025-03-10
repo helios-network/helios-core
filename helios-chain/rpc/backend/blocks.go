@@ -399,6 +399,7 @@ func (b *Backend) BlockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.
 				return ethtypes.BytesToBloom([]byte(attr.Value)), nil
 			}
 		}
+
 	}
 	return ethtypes.Bloom{}, errors.New("block bloom event is not found")
 }

@@ -9,8 +9,8 @@ import (
 // DefaultGenesis returns the default genesis state for the cron module.
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		ScheduleList: []Schedule{},
-		Params:       DefaultParams(),
+		CronList: []Cron{},
+		Params:   DefaultParams(),
 	}
 }
 
@@ -18,9 +18,9 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 	scheduleIDMap := make(map[uint64]struct{})
 
-	for _, elem := range gs.ScheduleList {
+	for _, elem := range gs.CronList {
 		if _, exists := scheduleIDMap[elem.Id]; exists {
-			return fmt.Errorf("duplicate schedule ID found: %d", elem.Id)
+			return fmt.Errorf("duplicate cron ID found: %d", elem.Id)
 		}
 		scheduleIDMap[elem.Id] = struct{}{}
 
@@ -29,7 +29,7 @@ func (gs GenesisState) Validate() error {
 		}
 
 		if elem.ContractAddress == "" || elem.MethodName == "" || elem.Frequency == 0 {
-			return fmt.Errorf("schedule fields cannot be empty or zero")
+			return fmt.Errorf("cron fields cannot be empty or zero")
 		}
 	}
 

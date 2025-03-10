@@ -9,9 +9,9 @@ import (
 
 // InitGenesis initializes the module's state from a provided genesis state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
-	// Set all the schedules
-	for _, schedule := range genState.ScheduleList {
-		err := k.AddSchedule(ctx, schedule)
+	// Set all the crons
+	for _, schedule := range genState.CronList {
+		err := k.AddCron(ctx, schedule)
 		if err != nil {
 			panic(err)
 		}
@@ -29,9 +29,9 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 	genesis.Params = k.GetParams(ctx)
 
-	// Get all schedules from store
-	schedules := k.GetAllSchedules(ctx)
-	genesis.ScheduleList = schedules
+	// Get all crons from store
+	crons := k.GetAllCrons(ctx)
+	genesis.CronList = crons
 
 	return genesis
 }

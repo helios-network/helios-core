@@ -6,8 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"helios-core/helios-chain/rpc/types"
+
+	"github.com/cosmos/cosmos-sdk/client"
 
 	"cosmossdk.io/log"
 
@@ -44,6 +45,7 @@ type Backend interface {
 	GetLogs(blockHash common.Hash) ([][]*ethtypes.Log, error)
 	GetLogsByHeight(*int64) ([][]*ethtypes.Log, error)
 	BlockBloom(blockRes *coretypes.ResultBlockResults) (ethtypes.Bloom, error)
+	BlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
 
 	BloomStatus() (uint64, uint64)
 

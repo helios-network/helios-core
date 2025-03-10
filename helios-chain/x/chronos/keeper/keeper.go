@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/go-metrics"
 
 	cmn "helios-core/helios-chain/precompiles/common"
+	rpctypes "helios-core/helios-chain/rpc/types"
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
@@ -19,9 +21,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	types "helios-core/helios-chain/x/chronos/types"
 	erc20types "helios-core/helios-chain/x/erc20/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type Keeper struct {
@@ -52,68 +60,156 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k *Keeper) ExecuteAllReadySchedules(ctx sdk.Context) {
-	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadySchedules)
-	schedules := k.getSchedulesReadyForExecution(ctx)
+// func (k *Keeper) ExecuteAllReadySchedules(ctx sdk.Context) {
+// 	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadySchedules)
+// 	schedules := k.getSchedulesReadyForExecution(ctx)
+
+// 	for _, schedule := range schedules {
+// 		err := k.executeSchedule(ctx, schedule)
+// 		recordExecutedCron(err, schedule)
+// 	}
+// }
+
+func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.ExecutionStage) {
+	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
+	schedules := k.getCronsReadyForExecutionWithFilter(ctx, executionStage)
 
 	for _, schedule := range schedules {
-		err := k.executeSchedule(ctx, schedule)
-		recordExecutedSchedule(err, schedule)
+		err := k.executeCron(ctx, schedule)
+		recordExecutedCron(err, schedule)
 	}
 }
 
-func (k *Keeper) ExecuteReadySchedules(ctx sdk.Context, executionStage types.ExecutionStage) {
-	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadySchedules)
-	schedules := k.getSchedulesReadyForExecutionWithFilter(ctx, executionStage)
-
-	for _, schedule := range schedules {
-		err := k.executeSchedule(ctx, schedule)
-		recordExecutedSchedule(err, schedule)
-	}
-}
-
-func (k *Keeper) AddSchedule(ctx sdk.Context, schedule types.Schedule) error {
-	if k.scheduleExists(ctx, schedule.Id) {
-		return fmt.Errorf("schedule already exists with id=%d", schedule.Id)
+func (k *Keeper) AddCron(ctx sdk.Context, cron types.Cron) error {
+	if k.StoreCronExists(ctx, cron.Id) {
+		return fmt.Errorf("cron already exists with id=%d", cron.Id)
 	}
 
-	k.StoreSchedule(ctx, schedule)
-	k.changeTotalCount(ctx, 1)
+	k.StoreSetCron(ctx, cron)
+	k.StoreChangeTotalCount(ctx, 1)
 
 	return nil
 }
 
-func (k *Keeper) RemoveSchedule(ctx sdk.Context, id uint64, owner sdk.AccAddress) error {
-	schedule, found := k.GetSchedule(ctx, id)
+func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) error {
+	cron, found := k.GetCron(ctx, id)
 	if !found {
-		return fmt.Errorf("schedule not found")
+		return fmt.Errorf("cron not found")
 	}
-	if schedule.OwnerAddress != owner.String() {
+	if cron.OwnerAddress != owner.String() {
 		return fmt.Errorf("unauthorized removal")
 	}
 
-	k.removeSchedule(ctx, id)
-	k.changeTotalCount(ctx, -1)
+	k.StoreRemoveCron(ctx, id)
+	k.StoreChangeTotalCount(ctx, -1)
 
 	return nil
 }
 
-func (k *Keeper) GetSchedule(ctx sdk.Context, id uint64) (types.Schedule, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
+func (k *Keeper) GetCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	bz := store.Get(GetScheduleIDBytes(id))
 	if bz == nil {
-		return types.Schedule{}, false
+		return types.Cron{}, false
 	}
 
-	var schedule types.Schedule
-	k.cdc.MustUnmarshal(bz, &schedule)
-	return schedule, true
+	var cron types.Cron
+	k.cdc.MustUnmarshal(bz, &cron)
+	return cron, true
 }
 
-func (k *Keeper) getSchedulesReadyForExecution(ctx sdk.Context) []types.Schedule {
+func (k *Keeper) GetCronTransactionResultByNonce(ctx sdk.Context, nonce uint64) (types.CronTransactionResult, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionResultKey)
+	bz := store.Get(GetTxIDBytes(nonce))
+	if bz == nil {
+		return types.CronTransactionResult{}, false
+	}
+
+	var txResult types.CronTransactionResult
+	k.cdc.MustUnmarshal(bz, &txResult)
+	return txResult, true
+}
+
+func (k *Keeper) GetCronTransactionResultByHash(ctx sdk.Context, hash string) (types.CronTransactionResult, bool) {
+	nonce, ok := k.GetTxNonceByHash(ctx, hash)
+	if !ok {
+		return types.CronTransactionResult{}, false
+	}
+	return k.GetCronTransactionResultByNonce(ctx, nonce)
+}
+
+func (k *Keeper) GetCronTransactionResultsByBlockNumber(ctx sdk.Context, blockNumber uint64) ([]types.CronTransactionResult, bool) {
+	txHashs, ok := k.GetBlockTxHashs(ctx, blockNumber)
+	if !ok {
+		return []types.CronTransactionResult{}, false
+	}
+	txs := make([]types.CronTransactionResult, 0)
+	for _, txHash := range txHashs {
+		tx, ok := k.GetCronTransactionResultByHash(ctx, txHash)
+		if !ok {
+			continue
+		}
+		txs = append(txs, tx)
+	}
+	return txs, true
+}
+
+func (k *Keeper) GetCronTransactionReceiptByHash(ctx sdk.Context, hash string) (*types.CronTransactionReceiptRPC, bool) {
+	tx, ok := k.GetCronTransactionResultByHash(ctx, hash)
+	if !ok {
+		return nil, false
+	}
+	receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
+	return receiptTx, true
+}
+
+func (k *Keeper) GetCronTransactionReceiptByNonce(ctx sdk.Context, nonce uint64) (*types.CronTransactionReceiptRPC, bool) {
+	tx, ok := k.GetCronTransactionResultByNonce(ctx, nonce)
+	if !ok {
+		return nil, false
+	}
+	receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
+	return receiptTx, true
+}
+
+func (k *Keeper) GetCronTransactionReceiptsByBlockNumber(ctx sdk.Context, blockNumber uint64) ([]*types.CronTransactionReceiptRPC, bool) {
+	txHashs, ok := k.GetBlockTxHashs(ctx, blockNumber)
+	if !ok {
+		return []*types.CronTransactionReceiptRPC{}, false
+	}
+	txs := make([]*types.CronTransactionReceiptRPC, 0)
+	for _, txHash := range txHashs {
+		tx, ok := k.GetCronTransactionResultByHash(ctx, txHash)
+		if !ok {
+			continue
+		}
+		receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
+		txs = append(txs, receiptTx)
+	}
+	return txs, true
+}
+
+func (k *Keeper) GetCronTransactionLogsByBlockNumber(ctx sdk.Context, blockNumber uint64) ([]*evmtypes.Log, bool) {
+	txHashs, ok := k.GetBlockTxHashs(ctx, blockNumber)
+	if !ok {
+		return []*evmtypes.Log{}, false
+	}
+	txs := make([]*evmtypes.Log, 0)
+	for _, txHash := range txHashs {
+		tx, ok := k.GetCronTransactionResultByHash(ctx, txHash)
+		if !ok {
+			continue
+		}
+		receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
+		txs = append(txs, receiptTx.Logs...)
+	}
+	return txs, true
+}
+
+func (k *Keeper) getCronsReadyForExecution(ctx sdk.Context) []types.Cron {
 	params := k.GetParams(ctx)
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
-	var schedules []types.Schedule
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
+	var crons []types.Cron
 	count := uint64(0)
 
 	iterator := store.Iterator(nil, nil)
@@ -121,12 +217,12 @@ func (k *Keeper) getSchedulesReadyForExecution(ctx sdk.Context) []types.Schedule
 
 	currentBlock := uint64(ctx.BlockHeight())
 	for ; iterator.Valid(); iterator.Next() {
-		var schedule types.Schedule
-		k.cdc.MustUnmarshal(iterator.Value(), &schedule)
+		var cron types.Cron
+		k.cdc.MustUnmarshal(iterator.Value(), &cron)
 
-		if currentBlock >= schedule.NextExecutionBlock &&
-			(schedule.ExpirationBlock == 0 || currentBlock <= schedule.ExpirationBlock) {
-			schedules = append(schedules, schedule)
+		if currentBlock >= cron.NextExecutionBlock &&
+			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
+			crons = append(crons, cron)
 			count++
 			if count >= params.Limit {
 				k.Logger(ctx).Info("Reached execution limit for the block")
@@ -135,13 +231,13 @@ func (k *Keeper) getSchedulesReadyForExecution(ctx sdk.Context) []types.Schedule
 		}
 	}
 
-	return schedules
+	return crons
 }
 
-func (k *Keeper) getSchedulesReadyForExecutionWithFilter(ctx sdk.Context, executionStage types.ExecutionStage) []types.Schedule {
+func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context, executionStage types.ExecutionStage) []types.Cron {
 	params := k.GetParams(ctx)
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
-	var schedules []types.Schedule
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
+	var crons []types.Cron
 	count := uint64(0)
 
 	iterator := store.Iterator(nil, nil)
@@ -149,13 +245,13 @@ func (k *Keeper) getSchedulesReadyForExecutionWithFilter(ctx sdk.Context, execut
 
 	currentBlock := uint64(ctx.BlockHeight())
 	for ; iterator.Valid(); iterator.Next() {
-		var schedule types.Schedule
-		k.cdc.MustUnmarshal(iterator.Value(), &schedule)
+		var cron types.Cron
+		k.cdc.MustUnmarshal(iterator.Value(), &cron)
 
-		if schedule.ExecutionStage == executionStage &&
-			currentBlock >= schedule.NextExecutionBlock &&
-			(schedule.ExpirationBlock == 0 || currentBlock <= schedule.ExpirationBlock) {
-			schedules = append(schedules, schedule)
+		if cron.ExecutionStage == executionStage &&
+			currentBlock >= cron.NextExecutionBlock &&
+			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
+			crons = append(crons, cron)
 			count++
 			if count >= params.Limit {
 				k.Logger(ctx).Info("Reached execution limit for the block")
@@ -164,7 +260,7 @@ func (k *Keeper) getSchedulesReadyForExecutionWithFilter(ctx sdk.Context, execut
 		}
 	}
 
-	return schedules
+	return crons
 }
 
 // ParseParams converts string parameters into proper types based on ABI definitions.
@@ -210,69 +306,380 @@ func ParseABIParam(typ abi.Type, param string) (interface{}, error) {
 	}
 }
 
-func (k *Keeper) executeSchedule(ctx sdk.Context, schedule types.Schedule) error {
-	ownerAddress := cmn.AnyToHexAddress(schedule.OwnerAddress)
-	contractAddress := cmn.AnyToHexAddress(schedule.ContractAddress)
+func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint64) (*ethtypes.Transaction, error) {
+	contractAddress := cmn.AnyToHexAddress(cron.ContractAddress)
 
 	// Load ABI
-	contractABI, err := abi.JSON(strings.NewReader(schedule.AbiJson))
+	contractABI, err := abi.JSON(strings.NewReader(cron.AbiJson))
 	if err != nil {
-		k.Logger(ctx).Error("Invalid ABI JSON", "schedule_id", schedule.Id, "error", err)
+		k.Logger(ctx).Error("Invalid ABI JSON", "schedule_id", cron.Id, "error", err)
+		return nil, err
+	}
+
+	// Parse parameters (you need to implement ParseParams to correctly parse strings to ABI arguments)
+	parsedParams, err := ParseParams(contractABI, cron.MethodName, cron.Params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse params: %w", err)
+	}
+
+	// Pack the call data
+	callData, err := contractABI.Pack(cron.MethodName, parsedParams...)
+	if err != nil {
+		k.Logger(ctx).Error("ABI packing failed", "schedule_id", cron.Id, "error", err)
+		return nil, err
+	}
+
+	// nonce := nonce                  // Nonce de l'expéditeur (unused maybe)
+	gasLimit := uint64(21000)           // Limite de gaz
+	gasPrice := big.NewInt(20000000000) // Prix du gaz (20 Gwei)
+	toAddress := contractAddress        // Adresse du destinataire
+	value := big.NewInt(0)              // Montant à envoyer (1 Ether)
+	data := callData                    // Données de la transaction (vide pour une simple transaction)
+
+	// Créer la transaction
+	tx := ethtypes.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, data)
+
+	return tx, nil
+}
+
+func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
+	ownerAddress := cmn.AnyToHexAddress(cron.OwnerAddress)
+	contractAddress := cmn.AnyToHexAddress(cron.ContractAddress)
+
+	// Load ABI
+	contractABI, err := abi.JSON(strings.NewReader(cron.AbiJson))
+	if err != nil {
+		k.Logger(ctx).Error("Invalid ABI JSON", "schedule_id", cron.Id, "error", err)
 		return err
 	}
 
 	// Parse parameters (you need to implement ParseParams to correctly parse strings to ABI arguments)
-	parsedParams, err := ParseParams(contractABI, schedule.MethodName, schedule.Params)
+	parsedParams, err := ParseParams(contractABI, cron.MethodName, cron.Params)
 	if err != nil {
 		return fmt.Errorf("failed to parse params: %w", err)
 	}
 
 	// Pack the call data
-	callData, err := contractABI.Pack(schedule.MethodName, parsedParams...)
+	callData, err := contractABI.Pack(cron.MethodName, parsedParams...)
 	if err != nil {
-		k.Logger(ctx).Error("ABI packing failed", "schedule_id", schedule.Id, "error", err)
+		k.Logger(ctx).Error("ABI packing failed", "cron_id", cron.Id, "error", err)
 		return err
 	}
 
 	// Execute the call using EVM Keeper
-	_, err = k.evmKeeper.CallEVMWithData(ctx, ownerAddress, &contractAddress, callData, true)
+	res, err := k.evmKeeper.CallEVMWithData(ctx, ownerAddress, &contractAddress, callData, true)
 	if err != nil {
-		k.Logger(ctx).Error("EVM execution failed", "schedule_id", schedule.Id, "error", err)
+		k.Logger(ctx).Error("EVM execution failed", "cron_id", cron.Id, "error", err)
 		return err
 	}
 
-	// Update the next execution block after successful execution
-	schedule.NextExecutionBlock = uint64(ctx.BlockHeight()) + schedule.Frequency
-	k.StoreSchedule(ctx, schedule)
+	nonce := k.StoreGetNonce(ctx)
+	tx, err := k.GetCronTransaction(ctx, cron, nonce)
 
+	for _, log := range res.Logs {
+		log.TxHash = tx.Hash().Hex()
+	}
+
+	bytesTx, _ := tx.MarshalBinary()
+	bytesRes, _ := res.Marshal()
+
+	ethereumTxCasted := &evmtypes.MsgEthereumTx{}
+	if err := ethereumTxCasted.FromEthereumTx(tx); err != nil {
+		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
+		return nil
+	}
+
+	scheduleTxResult := types.CronTransactionResult{
+		BlockHash:   hexutil.Encode(ctx.HeaderHash()),
+		BlockNumber: uint64(ctx.BlockHeight()),
+		TxHash:      tx.Hash().Hex(),
+		Tx:          bytesTx,
+		Result:      bytesRes,
+		Nonce:       nonce,
+		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
+		ScheduleId:  cron.Id,
+	}
+
+	// Update the next execution block after successful execution
+	cron.NextExecutionBlock = uint64(ctx.BlockHeight()) + cron.Frequency
+	k.StoreSetCron(ctx, cron)
+	k.StoreCronTransactionResult(ctx, cron, scheduleTxResult)
+	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
+	k.StoreSetTransactionHashInBlock(ctx, scheduleTxResult.BlockNumber, tx.Hash().Hex())
+	k.StoreSetNonce(ctx, nonce+1)
 	return nil
 }
 
-func (k *Keeper) StoreSchedule(ctx sdk.Context, schedule types.Schedule) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
-	bz := k.cdc.MustMarshal(&schedule)
-	store.Set(GetScheduleIDBytes(schedule.Id), bz)
+func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context, txResult types.CronTransactionResult) (*types.CronTransactionRPC, error) {
+	var castedRes ethtypes.Transaction
+	err := castedRes.UnmarshalBinary(txResult.Tx)
+	if err != nil {
+		k.Logger(ctx).Info("failed to unmarshal result", "err", err)
+		return nil, fmt.Errorf("failed to unmarshal result")
+	}
+	ethereumTxCasted := &evmtypes.MsgEthereumTx{}
+	if err := ethereumTxCasted.FromEthereumTx(&castedRes); err != nil {
+		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
+		return nil, fmt.Errorf("transaction converting failed")
+	}
+
+	height := uint64(txResult.BlockNumber)
+	index := uint64(0)          // ou récupérer l'index de la transaction si disponible
+	baseFee := big.NewInt(0)    // ou récupérer le baseFee du bloc si disponible
+	chainID := big.NewInt(4242) // remplacer par votre chainID
+	from := common.HexToAddress(txResult.From)
+
+	// blockHash := ctx.HeaderHash()
+
+	txToRPC, err := rpctypes.NewUnsignedTransactionFromMsg(
+		ethereumTxCasted,
+		common.BytesToHash([]byte{}),
+		height,
+		index,
+		baseFee,
+		chainID,
+		from,
+	)
+
+	rpcTxMap := &types.CronTransactionRPC{
+		BlockHash:   txResult.BlockHash,
+		BlockNumber: hexutil.EncodeUint64(txResult.BlockNumber),
+		ChainId:     hexutil.EncodeBig(chainID),
+		From:        from.String(),
+		Gas:         hexutil.EncodeUint64(uint64(txToRPC.Gas)),
+		GasPrice:    hexutil.EncodeBig(txToRPC.GasPrice.ToInt()),
+		Hash:        txToRPC.Hash.Hex(),
+		Input:       hexutil.Encode(txToRPC.Input),
+		Nonce:       hexutil.EncodeUint64(uint64(txToRPC.Nonce)),
+		R:           "0x0",
+		S:           "0x0",
+		To:          txToRPC.To.String(),
+		Type:        hexutil.EncodeUint64(uint64(2)),
+		V:           "0x1",
+		Value:       hexutil.EncodeBig(txToRPC.Value.ToInt()),
+	}
+	return rpcTxMap, nil
 }
 
-func (k *Keeper) removeSchedule(ctx sdk.Context, id uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
+func (k *Keeper) GetTransactionByNonce(ctx sdk.Context, nonce uint64) (*types.CronTransactionRPC, error) {
+	res, ok := k.GetCronTransactionResultByNonce(ctx, nonce)
+	if !ok {
+		k.Logger(ctx).Info("failed to load GetScheduleTxByNonce", "nonce", nonce)
+		return nil, fmt.Errorf("GetScheduleTxByNonce not found")
+	}
+
+	return k.FormatCronTransactionResultToCronTransactionRPC(ctx, res)
+}
+
+func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.Context, txResult types.CronTransactionResult) (*types.CronTransactionReceiptRPC, error) {
+	var castedRes ethtypes.Transaction
+	err := castedRes.UnmarshalBinary(txResult.Tx)
+	if err != nil {
+		k.Logger(ctx).Info("failed to unmarshal result", "err", err)
+		return nil, fmt.Errorf("failed to unmarshal result")
+	}
+	ethereumTxCasted := &evmtypes.MsgEthereumTx{}
+	if err := ethereumTxCasted.FromEthereumTx(&castedRes); err != nil {
+		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
+		return nil, fmt.Errorf("transaction converting failed")
+	}
+
+	var castedResponse evmtypes.MsgEthereumTxResponse
+	err = castedResponse.Unmarshal(txResult.Result)
+	if err != nil {
+		k.Logger(ctx).Info("failed to unmarshal result", "err", err)
+		return nil, fmt.Errorf("failed to unmarshal result")
+	}
+
+	var status hexutil.Uint
+	if castedResponse.Failed() {
+		status = hexutil.Uint(ethtypes.ReceiptStatusFailed)
+	} else {
+		status = hexutil.Uint(ethtypes.ReceiptStatusSuccessful)
+	}
+
+	from := common.HexToAddress(txResult.From)
+
+	var ethLogs []*ethtypes.Log
+	for _, log := range castedResponse.Logs {
+		ethLogs = append(ethLogs, log.ToEthereum())
+	}
+
+	txData, err := evmtypes.UnpackTxData(ethereumTxCasted.Data)
+	if err != nil {
+		k.Logger(ctx).Info("failed to unpack tx data", "error", err.Error())
+		return nil, fmt.Errorf("failed to unpack tx data")
+	}
+
+	receipt := types.CronTransactionReceiptRPC{
+		// Consensus fields
+		Status:            hexutil.Uint64(status).String(),
+		CumulativeGasUsed: hexutil.Uint64(castedResponse.GasUsed).String(),
+		LogsBloom:         hexutil.Encode(ethtypes.BytesToBloom(ethtypes.LogsBloom(ethLogs)).Bytes()),
+		Logs:              castedResponse.Logs,
+
+		// Implementation fields
+		TransactionHash: ethereumTxCasted.Hash,
+		GasUsed:         hexutil.Uint64(castedResponse.GasUsed).String(),
+
+		// Inclusion information
+		BlockHash:        txResult.BlockHash,
+		BlockNumber:      hexutil.Uint64(txResult.BlockNumber).String(),
+		TransactionIndex: hexutil.Uint64(0).String(),
+		Result:           hexutil.Encode(txResult.Result),
+
+		// Addresses
+		From: from.String(),
+		To:   txData.GetTo().String(),
+		Type: hexutil.Uint(uint64(2)).String(),
+
+		// returns data
+		Ret:     hexutil.Encode(castedResponse.Ret), // Ret is the bytes of call return
+		VmError: castedResponse.VmError,
+	}
+
+	// If the ContractAddress is 20 0x0 bytes, assume it is not a contract creation
+	if txData.GetTo() == nil {
+		receipt.ContractAddress = crypto.CreateAddress(from, txData.GetNonce()).String()
+	}
+
+	return &receipt, nil
+}
+
+func (k *Keeper) GetTransactionReceipt(ctx sdk.Context, cron types.Cron, ethMsg *evmtypes.MsgEthereumTx, res *evmtypes.MsgEthereumTxResponse) (map[string]interface{}, error) {
+	txData, err := evmtypes.UnpackTxData(ethMsg.Data)
+	if err != nil {
+		k.Logger(ctx).Info("failed to unpack tx data", "error", err.Error())
+		return nil, err
+	}
+
+	cumulativeGasUsed := uint64(0)
+
+	var status hexutil.Uint
+	if res.Failed() {
+		status = hexutil.Uint(ethtypes.ReceiptStatusFailed)
+	} else {
+		status = hexutil.Uint(ethtypes.ReceiptStatusSuccessful)
+	}
+
+	from := cmn.AnyToHexAddress(cron.OwnerAddress)
+
+	var ethLogs []*ethtypes.Log
+	for _, log := range res.Logs {
+		ethLogs = append(ethLogs, log.ToEthereum())
+	}
+
+	logs := ethLogs
+
+	receipt := map[string]interface{}{
+		// Consensus fields: These fields are defined by the Yellow Paper
+		"status":            status,
+		"cumulativeGasUsed": hexutil.Uint64(cumulativeGasUsed),
+		"logsBloom":         ethtypes.BytesToBloom(ethtypes.LogsBloom(logs)),
+		"logs":              logs,
+
+		// Implementation fields: These fields are added by geth when processing a transaction.
+		// They are stored in the chain database.
+		"transactionHash": ethMsg.Hash,
+		"contractAddress": nil,
+		"gasUsed":         res.GasUsed,
+
+		// Inclusion information: These fields provide information about the inclusion of the
+		// transaction corresponding to this receipt.
+		"blockHash":        common.BytesToHash([]byte{}).Hex(),
+		"blockNumber":      hexutil.Uint64(ctx.BlockHeight()), //nolint:gosec // G115
+		"transactionIndex": hexutil.Uint64(0),                 //nolint:gosec // G115
+
+		// sender and receiver (contract or EOA) addreses
+		"from": from,
+		"to":   txData.GetTo(),
+		"type": hexutil.Uint(ethMsg.AsTransaction().Type()),
+	}
+
+	if logs == nil {
+		receipt["logs"] = [][]*ethtypes.Log{}
+	}
+
+	// If the ContractAddress is 20 0x0 bytes, assume it is not a contract creation
+	if txData.GetTo() == nil {
+		receipt["contractAddress"] = crypto.CreateAddress(from, txData.GetNonce())
+	}
+
+	return receipt, nil
+}
+
+func (k *Keeper) StoreSetCron(ctx sdk.Context, cron types.Cron) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
+	bz := k.cdc.MustMarshal(&cron)
+	store.Set(GetScheduleIDBytes(cron.Id), bz)
+}
+
+func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx types.CronTransactionResult) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionResultKey)
+	bz := k.cdc.MustMarshal(&tx)
+	store.Set(GetTxIDBytes(tx.Nonce), bz)
+}
+
+func (k *Keeper) GetBlockTxHashs(ctx sdk.Context, blockNumber uint64) ([]string, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronBlockTransactionHashsKey)
+	bz := store.Get(GetBlockIDBytes(blockNumber))
+	if bz == nil {
+		return []string{}, false
+	}
+
+	var txHashes []string
+	err := json.Unmarshal(bz, &txHashes)
+	if err != nil {
+		return []string{}, false
+	}
+	return txHashes, true
+}
+
+func (k *Keeper) StoreSetTransactionHashInBlock(ctx sdk.Context, blockNumber uint64, txHash string) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronBlockTransactionHashsKey)
+
+	txHashes, _ := k.GetBlockTxHashs(ctx, blockNumber)
+	txHashes = append(txHashes, txHash)
+
+	bz, _ := json.Marshal(&txHashes)
+	store.Set(GetBlockIDBytes(blockNumber), bz)
+}
+
+func (k *Keeper) GetTxNonceByHash(ctx sdk.Context, txHash string) (uint64, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionHashToNonceKey)
+	bz := store.Get([]byte(txHash))
+	if bz == nil {
+		return 0, false
+	}
+
+	nonce := sdk.BigEndianToUint64(bz)
+	return nonce, true
+}
+
+func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, nonce uint64) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionHashToNonceKey)
+	store.Set([]byte(txHash), sdk.Uint64ToBigEndian(nonce))
+}
+
+func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	store.Delete(GetScheduleIDBytes(id))
 }
 
-func (k *Keeper) scheduleExists(ctx sdk.Context, id uint64) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
+func (k *Keeper) StoreCronExists(ctx sdk.Context, id uint64) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	return store.Has(GetScheduleIDBytes(id))
 }
 
-func (k *Keeper) changeTotalCount(ctx sdk.Context, increment int32) {
+func (k *Keeper) StoreChangeTotalCount(ctx sdk.Context, increment int32) {
 	store := ctx.KVStore(k.storeKey)
-	count := k.getScheduleCount(ctx) + increment
-	store.Set(types.ScheduleCountKey, sdk.Uint64ToBigEndian(uint64(count)))
+	count := k.getCronCount(ctx) + increment
+	store.Set(types.CronCountKey, sdk.Uint64ToBigEndian(uint64(count)))
 }
 
-func (k *Keeper) getScheduleCount(ctx sdk.Context) int32 {
+func (k *Keeper) getCronCount(ctx sdk.Context) int32 {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ScheduleCountKey)
+	bz := store.Get(types.CronCountKey)
 	if bz == nil {
 		return 0
 	}
@@ -283,50 +690,76 @@ func GetScheduleIDBytes(id uint64) []byte {
 	return sdk.Uint64ToBigEndian(id)
 }
 
-func recordExecutedSchedule(err error, schedule types.Schedule) {
-	telemetry.IncrCounterWithLabels([]string{types.LabelScheduleExecutionsCount}, 1, []metrics.Label{
+func GetTxIDBytes(id uint64) []byte {
+	return sdk.Uint64ToBigEndian(id)
+}
+
+func GetBlockIDBytes(id uint64) []byte {
+	return sdk.Uint64ToBigEndian(id)
+}
+
+func recordExecutedCron(err error, cron types.Cron) {
+	telemetry.IncrCounterWithLabels([]string{types.LabelCronExecutionsCount}, 1, []metrics.Label{
 		telemetry.NewLabel(telemetry.MetricLabelNameModule, types.ModuleName),
 		telemetry.NewLabel(types.MetricLabelSuccess, strconv.FormatBool(err == nil)),
-		telemetry.NewLabel(types.MetricLabelScheduleName, strconv.FormatUint(schedule.Id, 10)),
+		telemetry.NewLabel(types.MetricLabelCronName, strconv.FormatUint(cron.Id, 10)),
 	})
 }
 
 // GetNextScheduleID returns a new unique schedule ID
-func (k *Keeper) GetNextScheduleID(ctx sdk.Context) uint64 {
+func (k *Keeper) StoreGetNextCronID(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 
 	// Get the current next ID
-	bz := store.Get(types.NextScheduleIDKey)
+	bz := store.Get(types.NextCronIDKey)
 
 	// If no ID exists yet, start from 1
 	var id uint64 = 1
 	if bz != nil {
 		id = sdk.BigEndianToUint64(bz)
 		// Increment for the next call
-		store.Set(types.NextScheduleIDKey, sdk.Uint64ToBigEndian(id+1))
+		store.Set(types.NextCronIDKey, sdk.Uint64ToBigEndian(id+1))
 	} else {
 		// First time, store 2 as the next ID
-		store.Set(types.NextScheduleIDKey, sdk.Uint64ToBigEndian(2))
+		store.Set(types.NextCronIDKey, sdk.Uint64ToBigEndian(2))
 	}
 
 	return id
 }
 
-// Add this to your keeper.go file
+// GetNextScheduleID returns a new unique schedule ID
+func (k *Keeper) StoreGetNonce(ctx sdk.Context) uint64 {
+	store := ctx.KVStore(k.storeKey)
 
-// GetAllSchedules returns all schedules
-func (k Keeper) GetAllSchedules(ctx sdk.Context) []types.Schedule {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.ScheduleKey)
+	// Get the current next ID
+	bz := store.Get(types.CronNonceKey)
 
-	var schedules []types.Schedule
+	// If no ID exists yet, start from 1
+	var id uint64 = 1
+	if bz != nil {
+		id = sdk.BigEndianToUint64(bz)
+	}
+	return id
+}
+
+func (k *Keeper) StoreSetNonce(ctx sdk.Context, nonce uint64) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.CronNonceKey, sdk.Uint64ToBigEndian(nonce))
+}
+
+// GetAllCrons returns all crons
+func (k Keeper) GetAllCrons(ctx sdk.Context) []types.Cron {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
+
+	var crons []types.Cron
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var schedule types.Schedule
-		k.cdc.MustUnmarshal(iterator.Value(), &schedule)
-		schedules = append(schedules, schedule)
+		var cron types.Cron
+		k.cdc.MustUnmarshal(iterator.Value(), &cron)
+		crons = append(crons, cron)
 	}
 
-	return schedules
+	return crons
 }

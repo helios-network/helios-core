@@ -17,6 +17,7 @@ import (
 
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/types"
+	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
@@ -139,6 +140,15 @@ type EthereumAPI interface {
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
 	// eth_getDelegations
+
+	// cron
+	GetCron(id uint64) (*chronostypes.Cron, error)
+	GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
+	GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error)
+	GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	BlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -636,4 +646,39 @@ func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress commo
 func (e *PublicAPI) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
 	e.logger.Debug("eth_getAllWhitelistedAssets")
 	return e.backend.GetAllWhitelistedAssets()
+}
+
+func (e *PublicAPI) GetCron(id uint64) (*chronostypes.Cron, error) {
+	e.logger.Debug("eth_getCron", "id", id)
+	return e.backend.GetCron(id)
+}
+
+func (e *PublicAPI) GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error) {
+	e.logger.Debug("eth_getCronsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetCronsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getCronTransactionByNonce", "nonce", nonce)
+	return e.backend.GetCronTransactionByNonce(nonce)
+}
+
+func (e *PublicAPI) GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptByNonce", "nonce", nonce)
+	return e.backend.GetCronTransactionReceiptByNonce(nonce)
+}
+
+func (e *PublicAPI) GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptByHash", "hash", hash)
+	return e.backend.GetCronTransactionReceiptByHash(hash)
+}
+
+func (e *PublicAPI) GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetCronTransactionReceiptsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) BlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error) {
+	e.logger.Debug("eth_blockCronLogs", "blockNumber", blockNumber)
+	return e.backend.BlockCronLogs(blockNumber)
 }

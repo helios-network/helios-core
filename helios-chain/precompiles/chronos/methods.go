@@ -15,15 +15,12 @@ import (
 )
 
 const (
-	// HexToBech32Method defines the ABI method name to convert a EIP-55
-	// hex formatted address to bech32 address string.
-	ScheduleEVMCallMethod = "scheduleEVMCall"
+	CreateCronMethod = "createCron"
+	UpdateCronMethod = "updateCron"
+	CancelCronMethod = "cancelCron"
 )
 
-// HexToBech32 converts a hex address to its corresponding Bech32 format. The Human Readable Prefix
-// (HRP) must be provided in the arguments. This function fails if the address is invalid or if the
-// bech32 conversion fails.
-func (p Precompile) ScheduleEVMCall(
+func (p Precompile) CreateCron(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,
@@ -32,39 +29,163 @@ func (p Precompile) ScheduleEVMCall(
 	args []interface{},
 ) ([]byte, error) {
 
-	ctx.Logger().Info("HAHHAHAHAHAHHAHAHAHAHAH")
-	if len(args) != 3 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	if len(args) != 7 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
-	address, ok := args[0].(common.Address)
+	contractAddress, ok := args[0].(common.Address)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex address")
 	}
 
-	contractAddress, ok := args[1].(common.Address)
+	abi, ok := args[1].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex address")
 	}
 
-	abi, ok := args[2].(string)
+	methodName, ok := args[2].(string)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex address")
+		return nil, fmt.Errorf("invalid uint64 for newFrequency")
 	}
 
-	msg := &chronostypes.MsgScheduleEVMCall{
-		OwnerAddress:    cmn.AccAddressFromHexAddress(address).String(),
+	params, ok := args[3].([]string)
+	if !ok {
+		return nil, fmt.Errorf("invalid []string for newParams")
+	}
+
+	frequency, ok := args[4].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newFrequency")
+	}
+
+	expirationBlock, ok := args[5].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newExpirationBlock")
+	}
+
+	gasLimit, ok := args[6].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newGasLimit")
+	}
+
+	msg := &chronostypes.MsgCreateCron{
+		OwnerAddress:    cmn.AccAddressFromHexAddress(origin).String(),
 		ContractAddress: contractAddress.String(),
 		AbiJson:         abi,
-		MethodName:      "increment",
-		Params:          []string{},
-		Frequency:       uint64(1),
-		ExpirationBlock: uint64(0),
-		GasLimit:        uint64(300000),
+		MethodName:      methodName,
+		Params:          params,
+		Frequency:       frequency,
+		ExpirationBlock: expirationBlock,
+		GasLimit:        gasLimit,
+		Sender:          cmn.AccAddressFromHexAddress(origin).String(),
 	}
 
 	msgSrv := chronoskeeper.NewMsgServerImpl(p.chronosKeeper)
-	if _, err := msgSrv.ScheduleEVMCall(ctx, msg); err != nil {
+	resp, err := msgSrv.CreateCron(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.EmitCronCreatedEvent(ctx, stateDB, origin, p.Address(), resp.CronId); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) UpdateCron(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+
+	if len(args) != 5 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+	}
+
+	// Récupérer les valeurs des arguments dans le bon ordre
+	cronId, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for cronId")
+	}
+
+	newFrequency, ok := args[1].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newFrequency")
+	}
+
+	newParams, ok := args[2].([]string)
+	if !ok {
+		return nil, fmt.Errorf("invalid []string for newParams")
+	}
+
+	newExpirationBlock, ok := args[3].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newExpirationBlock")
+	}
+
+	newGasLimit, ok := args[4].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newGasLimit")
+	}
+
+	msg := &chronostypes.MsgUpdateCron{
+		OwnerAddress:       cmn.AccAddressFromHexAddress(origin).String(),
+		CronId:             cronId,
+		NewFrequency:       newFrequency,
+		NewParams:          newParams,
+		NewExpirationBlock: newExpirationBlock,
+		NewGasLimit:        newGasLimit,
+		Sender:             cmn.AccAddressFromHexAddress(origin).String(),
+	}
+
+	msgSrv := chronoskeeper.NewMsgServerImpl(p.chronosKeeper)
+	resp, err := msgSrv.UpdateCron(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.EmitCronUpdatedEvent(ctx, stateDB, origin, p.Address(), cronId, resp.Success); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) CancelCron(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+
+	if len(args) != 1 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
+	}
+
+	cronId, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64")
+	}
+
+	msg := &chronostypes.MsgCancelCron{
+		OwnerAddress: cmn.AccAddressFromHexAddress(origin).String(),
+		CronId:       cronId,
+		Sender:       cmn.AccAddressFromHexAddress(origin).String(),
+	}
+
+	msgSrv := chronoskeeper.NewMsgServerImpl(p.chronosKeeper)
+	resp, err := msgSrv.CancelCron(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.EmitCronCanceledEvent(ctx, stateDB, origin, p.Address(), cronId, resp.Success); err != nil {
 		return nil, err
 	}
 

@@ -83,8 +83,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	if err != nil {
 		return nil, err
 	}
-
-	ctx.Logger().Info("SJJSJSJSJSJJSJSJSJSJSJJSJSJSJ")
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
@@ -95,8 +93,12 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch method.Name {
 	// gov transactions
-	case ScheduleEVMCallMethod:
-		bz, err = p.ScheduleEVMCall(ctx, evm.Origin, contract, stateDB, method, args)
+	case CreateCronMethod:
+		bz, err = p.CreateCron(ctx, evm.Origin, contract, stateDB, method, args)
+	case UpdateCronMethod:
+		bz, err = p.UpdateCron(ctx, evm.Origin, contract, stateDB, method, args)
+	case CancelCronMethod:
+		bz, err = p.CancelCron(ctx, evm.Origin, contract, stateDB, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
@@ -120,7 +122,11 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 func (Precompile) IsTransaction(method *abi.Method) bool {
 	switch method.Name {
-	case ScheduleEVMCallMethod:
+	case CreateCronMethod:
+		return true
+	case UpdateCronMethod:
+		return true
+	case CancelCronMethod:
 		return true
 	default:
 		return false
