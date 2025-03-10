@@ -177,7 +177,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 // NewMsgEditValidator creates a new MsgEditValidator instance and does sanity checks
 // on the given arguments before populating the message.
 func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, common.Address, error) {
-	if len(args) != 5 {
+	if len(args) != 6 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
 
@@ -226,6 +226,11 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		minDelegation = &msd
 	}
 
+	delegateAuthorization, ok := args[5].(bool)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "delegateAuthorization", true, args[5])
+	}
+
 	msg := &stakingtypes.MsgEditValidator{
 		Description: stakingtypes.Description{
 			Moniker:         description.Moniker,
@@ -234,10 +239,11 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 			SecurityContact: description.SecurityContact,
 			Details:         description.Details,
 		},
-		ValidatorAddress:  cmn.ValAddressFromHexAddress(validatorHexAddr).String(),
-		CommissionRate:    commissionRate,
-		MinSelfDelegation: minSelfDelegation,
-		MinDelegation:     minDelegation,
+		ValidatorAddress:      cmn.ValAddressFromHexAddress(validatorHexAddr).String(),
+		CommissionRate:        commissionRate,
+		MinSelfDelegation:     minSelfDelegation,
+		MinDelegation:         minDelegation,
+		DelegateAuthorization: delegateAuthorization,
 	}
 
 	return msg, validatorHexAddr, nil
@@ -599,6 +605,7 @@ type ValidatorInfo struct {
 	UnbondingTime     int64    `abi:"unbondingTime"`
 	Commission        *big.Int `abi:"commission"`
 	MinSelfDelegation *big.Int `abi:"minSelfDelegation"`
+	MinDelegation     *big.Int `abi:"minDelegation"`
 }
 
 type ValidatorOutput struct {
@@ -620,6 +627,7 @@ func DefaultValidatorOutput() ValidatorOutput {
 			UnbondingTime:     int64(0),
 			Commission:        big.NewInt(0),
 			MinSelfDelegation: big.NewInt(0),
+			MinDelegation:     big.NewInt(0),
 		},
 	}
 }

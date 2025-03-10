@@ -163,6 +163,7 @@ interface StakingI is authorization.AuthorizationI {
         int256 commissionRate,
         int256 minSelfDelegation
         uint256 minDelegation,
+        bool delegateAuthorization,
     ) external returns (bool success);
 
     /// @dev Defines a method for performing a delegation of coins from a delegator to a validator.

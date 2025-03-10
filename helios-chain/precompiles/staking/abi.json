@@ -607,6 +607,11 @@
           "internalType": "int256",
           "name": "minSelfDelegation",
           "type": "int256"
+        },
+        {
+          "internalType": "bool",
+          "name": "delegateAuthorization",
+          "type": "bool"
         }
       ],
       "name": "editValidator",

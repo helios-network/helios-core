@@ -127,6 +127,7 @@ func (p Precompile) EditValidator(
 		"commission_rate", msg.CommissionRate,
 		"min_self_delegation", msg.MinSelfDelegation,
 		"min_delegation", msg.MinDelegation,
+		"delegate_authorization", msg.DelegateAuthorization,
 	)
 
 	// ATM there's no authorization type for the MsgCreateValidator
