@@ -128,13 +128,18 @@ func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Addr
 	if err != nil {
 		return nil, err
 	}
-	delegation := map[string]interface{}{}
-	if d, err := b.GetDelegation(address, address); err == nil {
-		delegation = d
+	delegation, err := b.GetDelegation(address, address)
+	if err != nil {
+		return map[string]interface{}{
+			"validator": validator,
+		}, nil
 	}
-	commission := map[string]interface{}{}
-	if com, err := b.GetValidatorCommission(address); err == nil {
-		commission = com
+	commission, err := b.GetValidatorCommission(address)
+	if err != nil {
+		return map[string]interface{}{
+			"validator":  validator,
+			"delegation": delegation,
+		}, nil
 	}
 	return map[string]interface{}{
 		"validator":  validator,
