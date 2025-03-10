@@ -20,6 +20,17 @@ jq '.app_state["feemarket"]["params"]["base_fee"]="1000000000"' $GENESIS_CONFIG 
 # Set min_gas_price it's the minmum base fee possible (1Gwei = 1000000000) 
 jq '.app_state["feemarket"]["params"]["min_gas_price"]="1000000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
+############ EPOCH CYCLE CONFIG #################
+# Set epoch_length to 100
+jq '.app_state["staking"]["params"]["epoch_length"]="100"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
+# Set validators_per_epoch to 100
+jq '.app_state["staking"]["params"]["validators_per_epoch"]="100"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
+# Enable epoch-based validator rotation
+jq '.app_state["staking"]["params"]["epoch_enabled"]=true' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+############ EPOCH CYCLE CONFIG #################
+
 # HELIOS DEFAULT COMMUNITY TAX
 jq '.app_state["distribution"]["params"]["community_tax"]="0.02"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
@@ -29,13 +40,13 @@ jq '.app_state["distribution"]["params"]["community_tax"]="0.02"' $GENESIS_CONFI
 #- `max_reduction`: Maximum possible reduction percentage
 #- `enabled`: Whether the mechanism is active
 
-# jq '.app_state["staking"]["params"]["delegator_stake_reduction"] |= 
-#     { 
-#       "enabled": true, 
-#       "dominance_threshold": "0.05",
-#       "max_reduction": "0.90",
-#       "curve_steepness": "10.0"
-#     }' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["staking"]["params"]["delegator_stake_reduction"] |= 
+    { 
+      "enabled": true, 
+      "dominance_threshold": "0.05",
+      "max_reduction": "0.90",
+      "curve_steepness": "10.0"
+    }' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
 
 # Zero address account (burn)
