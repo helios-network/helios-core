@@ -133,7 +133,7 @@ func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Addr
 		delegation = d
 	}
 	commission := map[string]interface{}{}
-	if com, err := b.GetValidatorCommission(address); err != nil {
+	if com, err := b.GetValidatorCommission(address); err == nil {
 		commission = com
 	}
 	return map[string]interface{}{
