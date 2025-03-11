@@ -30,7 +30,7 @@ type Precompile struct {
 }
 
 // LoadABI loads the gov ABI from the embedded abi.json file
-// for the gov precompile.
+// for the precompile.
 func LoadABI() (abi.ABI, error) {
 	return cmn.LoadABI(f, "abi.json")
 }
