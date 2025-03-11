@@ -254,9 +254,10 @@ func (b *Backend) GetTokensBalance(address common.Address, blockNrOrHash rpctype
 		}
 
 		balances = append(balances, rpctypes.TokenBalance{
-			Address: common.HexToAddress(token.Erc20Address),
-			Symbol:  token.Denom,
-			Balance: (*hexutil.Big)(val.BigInt()),
+			Address:   common.HexToAddress(token.Erc20Address),
+			Symbol:    token.Denom,
+			Balance:   (*hexutil.Big)(val.BigInt()),
+			BalanceUI: val.String(),
 		})
 	}
 
