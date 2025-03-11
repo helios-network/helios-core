@@ -511,16 +511,16 @@ func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil
 	}
 
 	// Calculate how many more transactions we need
-	txCount := 0
+	txCount := uint64(0)
 
 	// use BlockchainInfo to estimate the target block based on num_txs using batches of 100
-	const batchSize = 100
-	maxHeight := uint64(latestBlockNumber)
+	const batchSize = int64(100)
+	maxHeight := int64(latestBlockNumber)
 	for maxHeight > 0 && uint64(len(transactions)) < pageSize {
 		// Calculate minHeight safely
-		minHeight := uint64(1)
-		if maxHeight > batchSize {
-			minHeight = maxHeight - batchSize + 1
+		minHeight := int64(1)
+		if maxHeight > int64(batchSize) {
+			minHeight = maxHeight - int64(batchSize) + 1
 		}
 
 		b.logger.Debug("Querying BlockchainInfo",
@@ -536,7 +536,7 @@ func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil
 		var targetBlock int64
 		// inspect the number of txs in each block and find the block within the page range
 		for i := 0; i < len(info.BlockMetas); i++ {
-			txCount += info.BlockMetas[i].NumTxs
+			txCount += uint64(info.BlockMetas[i].NumTxs)
 			if uint64(txCount) >= offSet { // this block contains txs we need
 				targetBlock = info.BlockMetas[i].Header.Height
 				break
@@ -546,7 +546,7 @@ func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil
 			return nil, fmt.Errorf("txs not found for page %d and size %d", pageNum, pageSize)
 		}
 
-		for blockHeight := targetBlock; uint64(len(transactions)) < pageSize; blockHeight-- {
+		for blockHeight := targetBlock; blockHeight > 0 && uint64(len(transactions)) < pageSize; blockHeight-- {
 
 			block, err := b.rpcClient.Block(b.ctx, &blockHeight)
 			if err != nil {
