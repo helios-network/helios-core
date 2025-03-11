@@ -45,7 +45,7 @@ type Backend interface {
 	GetLogs(blockHash common.Hash) ([][]*ethtypes.Log, error)
 	GetLogsByHeight(*int64) ([][]*ethtypes.Log, error)
 	BlockBloom(blockRes *coretypes.ResultBlockResults) (ethtypes.Bloom, error)
-	BlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
+	GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
 
 	BloomStatus() (uint64, uint64)
 

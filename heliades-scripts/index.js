@@ -1,5 +1,6 @@
 const ethers = require('ethers');
 const WebSocket = require('ws');
+const fs = require('fs');
 
 const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
@@ -170,58 +171,6 @@ const withdrawDelegatorRewardsAbi = [
         "internalType": "struct Coin[]",
         "name": "amount",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-]
-
-const chronosAbi = [
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "contractAddress",
-        "type": "address"
-      },
-      {
-          "internalType": "string",
-          "name": "abi",
-          "type": "string"
-      },
-      {
-          "internalType": "string",
-          "name": "methodName",
-          "type": "string"
-      },
-      {
-          "internalType": "string[]",
-          "name": "params",
-          "type": "string[]"
-      },
-      {
-          "internalType": "uint64",
-          "name": "frequency",
-          "type": "uint64"
-      },
-      {
-          "internalType": "uint64",
-          "name": "expirationBlock",
-          "type": "uint64"
-      },
-      {
-          "internalType": "uint64",
-          "name": "gasLimit",
-          "type": "uint64"
-      }
-    ],
-    "name": "createCron",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
       }
     ],
     "stateMutability": "nonpayable",
@@ -506,9 +455,16 @@ async function createCron() {
   try {
     console.log('createCron en cours...');
 
-    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
+    // let x = await wallet.sendTransaction({
+    //   value: ethers.parseEther("500"),
+    //   to: wallet2.address
+    // });
+    // await x.wait();
+
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet2);
     const tx = await contract.createCron(
-      "0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A",
+      "0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F",
       `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
       "increment", // methodName
       [], // params
@@ -527,37 +483,31 @@ async function createCron() {
   }
 }
 
-async function getEventsCronCreated() {
-  const abiContract = [
-    {
-      "anonymous": false,
-      "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "fromAddress",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "toAddress",
-            "type": "address"
-          },
-          {
-              "indexed": false,
-              "internalType": "uint64",
-              "name": "cronId",
-              "type": "uint64"
-          }
-      ],
-      "name": "CronCreated",
-      "type": "event"
-    }
-  ];
+async function cancelCron() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('createCron en cours...');
 
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
+    const tx = await contract.cancelCron(
+      1
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la cancelCron :', error);
+  }
+}
+
+async function getEventsCronCreated() {
+  const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
   const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
-  const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', abiContract, wsProvider);
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wsProvider);
 
   contract.on('CronCreated', (from, to, cronId, event) => {
     console.log('New event received!');
@@ -584,7 +534,7 @@ async function getEvents() {
   ];
 
   const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
-  const contract = new ethers.Contract('0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A', abiContract, wsProvider);
+  const contract = new ethers.Contract('0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F', abiContract, wsProvider);
   // const contract = new ethers.Contract('0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A', abiContract, wallet);
   // test events
   // Obtenir le bloc actuel
@@ -616,6 +566,7 @@ async function getEvents() {
 async function main() {
   await createCron();
   // await getEvents();
+  // await cancelCron();
   // await getEventsEVMCallScheduled();
   // await create();
   //await fetch();

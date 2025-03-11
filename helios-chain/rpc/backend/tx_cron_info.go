@@ -15,6 +15,9 @@ func (b *Backend) GetCron(id uint64) (*chronostypes.Cron, error) {
 		Id: id,
 	}
 	res, err := b.queryClient.Chronos.QueryGetCron(b.ctx, req)
+	if err != nil {
+		return nil, err
+	}
 	return &res.Cron, err
 }
 
@@ -27,7 +30,26 @@ func (b *Backend) GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64
 		},
 	}
 	res, err := b.queryClient.Chronos.QueryGetCrons(b.ctx, req)
-	return res.Crons, err
+	if err != nil || res.Crons == nil {
+		return []chronostypes.Cron{}, err
+	}
+	return res.Crons, nil
+}
+
+func (b *Backend) GetAccountCronsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error) {
+
+	req := &chronostypes.QueryGetCronsByOwnerRequest{
+		OwnerAddress: address.String(),
+		Pagination: &query.PageRequest{
+			Offset: (uint64(page) - 1) * uint64(size),
+			Limit:  uint64(size),
+		},
+	}
+	res, err := b.queryClient.Chronos.QueryGetCronsByOwner(b.ctx, req)
+	if err != nil || res.Crons == nil {
+		return []chronostypes.Cron{}, err
+	}
+	return res.Crons, nil
 }
 
 func (b *Backend) GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error) {
@@ -36,7 +58,22 @@ func (b *Backend) GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes
 		Nonce: uint64(nonce),
 	}
 	res, err := b.queryClient.Chronos.QueryGetCronTransactionByNonce(b.ctx, req)
-	return res.Transaction, err
+	if err != nil {
+		return nil, err
+	}
+	return res.Transaction, nil
+}
+
+func (b *Backend) GetCronTransactionByHash(hash string) (*chronostypes.CronTransactionRPC, error) {
+
+	req := &chronostypes.QueryGetCronTransactionByHashRequest{
+		Hash: hash,
+	}
+	res, err := b.queryClient.Chronos.QueryGetCronTransactionByHash(b.ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return res.Transaction, nil
 }
 
 func (b *Backend) GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error) {
@@ -45,7 +82,10 @@ func (b *Backend) GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chron
 		Nonce: uint64(nonce),
 	}
 	res, err := b.queryClient.Chronos.QueryGetCronTransactionReceiptByNonce(b.ctx, req)
-	return res.Transaction, err
+	if err != nil {
+		return nil, err
+	}
+	return res.Transaction, nil
 }
 
 func (b *Backend) GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error) {
@@ -54,7 +94,10 @@ func (b *Backend) GetCronTransactionReceiptByHash(hash string) (*chronostypes.Cr
 		Hash: hash,
 	}
 	res, err := b.queryClient.Chronos.QueryGetCronTransactionReceiptByHash(b.ctx, req)
-	return res.Transaction, err
+	if err != nil {
+		return nil, err
+	}
+	return res.Transaction, nil
 }
 
 func (b *Backend) GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
@@ -66,10 +109,28 @@ func (b *Backend) GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, s
 		},
 	}
 	res, err := b.queryClient.Chronos.QueryGetCronTransactionReceiptsByPageAndSize(b.ctx, req)
-	return res.Transactions, err
+	if err != nil || res.Transactions == nil {
+		return []*chronostypes.CronTransactionReceiptRPC{}, err
+	}
+	return res.Transactions, nil
 }
 
-func (b *Backend) BlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error) {
+func (b *Backend) GetCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+	req := &chronostypes.QueryGetCronTransactionsByPageAndSizeRequest{
+		Pagination: &query.PageRequest{
+			Offset:  (uint64(page) - 1) * uint64(size),
+			Limit:   uint64(size),
+			Reverse: true,
+		},
+	}
+	res, err := b.queryClient.Chronos.QueryGetCronTransactionsByPageAndSize(b.ctx, req)
+	if err != nil || res.Transactions == nil {
+		return []*chronostypes.CronTransactionRPC{}, err
+	}
+	return res.Transactions, nil
+}
+
+func (b *Backend) GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error) {
 
 	req := &chronostypes.QueryGetCronTransactionReceiptLogsByBlockNumberRequest{
 		BlockNumber: blockNumber,

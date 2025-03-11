@@ -60,15 +60,15 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// func (k *Keeper) ExecuteAllReadySchedules(ctx sdk.Context) {
-// 	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadySchedules)
-// 	schedules := k.getSchedulesReadyForExecution(ctx)
+func (k *Keeper) ExecuteAllReadyCrons(ctx sdk.Context) {
+	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
+	schedules := k.getCronsReadyForExecution(ctx)
 
-// 	for _, schedule := range schedules {
-// 		err := k.executeSchedule(ctx, schedule)
-// 		recordExecutedCron(err, schedule)
-// 	}
-// }
+	for _, schedule := range schedules {
+		err := k.executeCron(ctx, schedule)
+		recordExecutedCron(err, schedule)
+	}
+}
 
 func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.ExecutionStage) {
 	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
@@ -108,7 +108,7 @@ func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) er
 
 func (k *Keeper) GetCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
-	bz := store.Get(GetScheduleIDBytes(id))
+	bz := store.Get(GetCronIDBytes(id))
 	if bz == nil {
 		return types.Cron{}, false
 	}
@@ -374,7 +374,7 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 	}
 
 	nonce := k.StoreGetNonce(ctx)
-	tx, err := k.GetCronTransaction(ctx, cron, nonce)
+	tx, _ := k.GetCronTransaction(ctx, cron, nonce)
 
 	for _, log := range res.Logs {
 		log.TxHash = tx.Hash().Hex()
@@ -431,7 +431,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 
 	// blockHash := ctx.HeaderHash()
 
-	txToRPC, err := rpctypes.NewUnsignedTransactionFromMsg(
+	txToRPC, _ := rpctypes.NewUnsignedTransactionFromMsg(
 		ethereumTxCasted,
 		common.BytesToHash([]byte{}),
 		height,
@@ -461,11 +461,21 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 	return rpcTxMap, nil
 }
 
-func (k *Keeper) GetTransactionByNonce(ctx sdk.Context, nonce uint64) (*types.CronTransactionRPC, error) {
+func (k *Keeper) GetCronTransactionByNonce(ctx sdk.Context, nonce uint64) (*types.CronTransactionRPC, error) {
 	res, ok := k.GetCronTransactionResultByNonce(ctx, nonce)
 	if !ok {
-		k.Logger(ctx).Info("failed to load GetScheduleTxByNonce", "nonce", nonce)
-		return nil, fmt.Errorf("GetScheduleTxByNonce not found")
+		k.Logger(ctx).Info("failed to load GetCronTransactionByNonce", "nonce", nonce)
+		return nil, fmt.Errorf("nonce %d not found", nonce)
+	}
+
+	return k.FormatCronTransactionResultToCronTransactionRPC(ctx, res)
+}
+
+func (k *Keeper) GetCronTransactionByHash(ctx sdk.Context, hash string) (*types.CronTransactionRPC, error) {
+	res, ok := k.GetCronTransactionResultByHash(ctx, hash)
+	if !ok {
+		k.Logger(ctx).Info("failed to load GetCronTransactionByHash", "hash", hash)
+		return nil, fmt.Errorf("hash %s not found", hash)
 	}
 
 	return k.FormatCronTransactionResultToCronTransactionRPC(ctx, res)
@@ -611,7 +621,7 @@ func (k *Keeper) GetTransactionReceipt(ctx sdk.Context, cron types.Cron, ethMsg 
 func (k *Keeper) StoreSetCron(ctx sdk.Context, cron types.Cron) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	bz := k.cdc.MustMarshal(&cron)
-	store.Set(GetScheduleIDBytes(cron.Id), bz)
+	store.Set(GetCronIDBytes(cron.Id), bz)
 }
 
 func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx types.CronTransactionResult) {
@@ -663,12 +673,12 @@ func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, 
 
 func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
-	store.Delete(GetScheduleIDBytes(id))
+	store.Delete(GetCronIDBytes(id))
 }
 
 func (k *Keeper) StoreCronExists(ctx sdk.Context, id uint64) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
-	return store.Has(GetScheduleIDBytes(id))
+	return store.Has(GetCronIDBytes(id))
 }
 
 func (k *Keeper) StoreChangeTotalCount(ctx sdk.Context, increment int32) {
@@ -686,7 +696,7 @@ func (k *Keeper) getCronCount(ctx sdk.Context) int32 {
 	return int32(sdk.BigEndianToUint64(bz))
 }
 
-func GetScheduleIDBytes(id uint64) []byte {
+func GetCronIDBytes(id uint64) []byte {
 	return sdk.Uint64ToBigEndian(id)
 }
 

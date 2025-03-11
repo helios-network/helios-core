@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"helios-core/helios-chain/x/chronos/types"
@@ -26,13 +25,13 @@ var _ types.MsgServer = msgServer{}
 // CreateCron create a new cron
 func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (*types.MsgCreateCronResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid request")
+		return nil, errors.Wrap(err, "invalid request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.OwnerAddress != req.Sender {
-		return nil, errorsmod.Wrap(errortypes.ErrUnauthorized, fmt.Sprintf("only the owner can schedule an EVM call %s != %s", req.OwnerAddress, req.Sender))
+		return nil, errors.Wrap(errortypes.ErrUnauthorized, fmt.Sprintf("only the owner can schedule an EVM call %s != %s", req.OwnerAddress, req.Sender))
 	}
 
 	newID := k.keeper.StoreGetNextCronID(ctx)
@@ -50,7 +49,7 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 	}
 
 	if err := k.keeper.AddCron(ctx, newCron); err != nil {
-		return nil, errorsmod.Wrap(err, "failed to add schedule")
+		return nil, errors.Wrap(err, "failed to add schedule")
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -76,7 +75,7 @@ func (k msgServer) UpdateCron(goCtx context.Context, req *types.MsgUpdateCron) (
 	}
 
 	if cron.OwnerAddress != req.Sender {
-		return nil, errorsmod.Wrap(errortypes.ErrUnauthorized, "only the owner can edit")
+		return nil, errors.Wrap(errortypes.ErrUnauthorized, "only the owner can edit")
 	}
 	cron.Frequency = req.NewFrequency
 	cron.Params = req.NewParams
@@ -101,7 +100,7 @@ func (k msgServer) CancelCron(goCtx context.Context, req *types.MsgCancelCron) (
 	}
 
 	if err := k.keeper.RemoveCron(ctx, req.CronId, sdk.MustAccAddressFromBech32(req.OwnerAddress)); err != nil {
-		return nil, errorsmod.Wrap(err, "failed to remove schedule")
+		return nil, errors.Wrap(err, "failed to remove schedule")
 	}
 
 	return &types.MsgCancelCronResponse{Success: true}, nil

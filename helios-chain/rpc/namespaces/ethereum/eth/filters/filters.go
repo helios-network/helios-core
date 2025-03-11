@@ -208,7 +208,7 @@ func (f *Filter) blockLogs(blockRes *tmrpctypes.ResultBlockResults, bloom ethtyp
 
 // cronBlockLogs returns the logs matching the filter criteria within a single block.
 func (f *Filter) cronBlockLogs(blockRes *tmrpctypes.ResultBlockResults) ([]*ethtypes.Log, error) {
-	cronUnFiltered, err := f.backend.BlockCronLogs(uint64(blockRes.Height))
+	cronUnFiltered, err := f.backend.GetBlockCronLogs(uint64(blockRes.Height))
 	if err != nil {
 		return []*ethtypes.Log{}, nil
 	}

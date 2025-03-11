@@ -588,7 +588,7 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 					height := uint64(blockHeader.Header.Height)
 
 					// Fetch cron logs for this block
-					cronLogs, err := api.backend.BlockCronLogs(height)
+					cronLogs, err := api.backend.GetBlockCronLogs(height)
 					if err != nil {
 						api.logger.Error("failed to get cron logs", "height", height, "error", err.Error())
 						continue

@@ -30,15 +30,19 @@ service Query {
   }
 
   rpc QueryGetCronTransactionByNonce(QueryGetCronTransactionByNonceRequest) returns (QueryGetCronTransactionByNonceResponse) {
-    option (google.api.http).get = "/helios/chronos/crons/transaction/{nonce}";
+    option (google.api.http).get = "/helios/chronos/crons/transaction/nonce/{nonce}";
+  }
+
+  rpc QueryGetCronTransactionByHash(QueryGetCronTransactionByHashRequest) returns (QueryGetCronTransactionByHashResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/transaction/hash/{hash}";
   }
 
   rpc QueryGetCronTransactionReceiptLogsByBlockNumber(QueryGetCronTransactionReceiptLogsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptLogsByBlockNumberResponse) {
-    option (google.api.http).get = "/helios/chronos/crons/transaction-receipt-logs/{block_number}";
+    option (google.api.http).get = "/helios/chronos/block/transaction/logs/{block_number}";
   }
 
   rpc QueryGetCronTransactionReceiptsByBlockNumber(QueryGetCronTransactionReceiptsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptsByBlockNumberResponse) {
-    option (google.api.http).get = "/helios/chronos/block/transaction-receipt/{block_number}";
+    option (google.api.http).get = "/helios/chronos/block/transaction/receipts/{block_number}";
   }
 
   rpc QueryGetCronTransactionReceiptByHash(QueryGetCronTransactionReceiptByHashRequest) returns (QueryGetCronTransactionReceiptByHashResponse) {
@@ -51,6 +55,9 @@ service Query {
 
   rpc QueryGetCronTransactionReceiptsByPageAndSize(QueryGetCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetCronTransactionReceiptsByPageAndSizeResponse) {
     option (google.api.http).get = "/helios/chronos/transaction/receipts";
+  }
+  rpc QueryGetCronTransactionsByPageAndSize(QueryGetCronTransactionsByPageAndSizeRequest) returns (QueryGetCronTransactionsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/transactions";
   }
 }
 
@@ -95,6 +102,14 @@ message QueryGetCronTransactionByNonceResponse {
   CronTransactionRPC transaction = 1;
 }
 
+message QueryGetCronTransactionByHashRequest {
+  string hash = 1;
+}
+
+message QueryGetCronTransactionByHashResponse {
+  CronTransactionRPC transaction = 1;
+}
+
 message QueryGetCronTransactionReceiptByNonceRequest {
   uint64 nonce = 1;
 }
@@ -133,5 +148,14 @@ message QueryGetCronTransactionReceiptsByPageAndSizeRequest {
 
 message QueryGetCronTransactionReceiptsByPageAndSizeResponse {
   repeated CronTransactionReceiptRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetCronTransactionsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetCronTransactionsByPageAndSizeResponse {
+  repeated CronTransactionRPC transactions = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
