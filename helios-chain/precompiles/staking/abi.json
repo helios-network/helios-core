@@ -97,92 +97,23 @@
       "type": "event"
     },
     {
+      "anonymous": false,
       "inputs": [
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "moniker",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "identity",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "website",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "securityContact",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Description",
-          "name": "description",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "rate",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxRate",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxChangeRate",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct CommissionRates",
-          "name": "commissionRates",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minSelfDelegation",
-          "type": "uint256"
-        },
-        {
+          "indexed": true,
           "internalType": "address",
           "name": "validatorAddress",
           "type": "address"
         },
         {
-          "internalType": "string",
-          "name": "pubkey",
-          "type": "string"
-        },
-        {
+          "indexed": false,
           "internalType": "uint256",
           "name": "value",
           "type": "uint256"
         }
       ],
-      "name": "createValidator",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "success",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
+      "name": "CreateValidator",
+      "type": "event"
     },
     {
       "anonymous": false,
