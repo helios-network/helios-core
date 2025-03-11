@@ -436,7 +436,7 @@ func initTendermintConfig() *cmtcfg.Config {
 }
 
 func tempDir(defaultHome string) string {
-	dir, err := os.MkdirTemp("", "evmos")
+	dir, err := os.MkdirTemp("", "helios")
 	if err != nil {
 		dir = defaultHome
 	}
