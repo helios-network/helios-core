@@ -330,6 +330,10 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		return nil, err
 	}
 
+	if len(delegationRewardsResponse.Rewards) == 0 {
+		delegationRewardsResponse.Rewards = append(delegationRewardsResponse.Rewards, sdk.DecCoin{Denom: "ahelios", Amount: math.NewInt(0).ToLegacyDec()})
+	}
+
 	return map[string]interface{}{
 		"validator_address": validatorAddress,
 		"shares":            delegation.Shares.TruncateInt(),
