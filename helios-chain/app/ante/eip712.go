@@ -85,13 +85,13 @@ func (svd Eip712SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 			return ctx, errors.Wrap(sdkerrors.ErrInvalidPubKey, "pubkey on account is not set")
 		}
 
-		// Check account sequence number.
-		if sig.Sequence != acc.GetSequence() {
-			return ctx, errors.Wrapf(
-				sdkerrors.ErrWrongSequence,
-				"account sequence mismatch, expected %d, got %d", acc.GetSequence(), sig.Sequence,
-			)
-		}
+		// // Check account sequence number.
+		// if sig.Sequence != acc.GetSequence() {
+		// 	return ctx, errors.Wrapf(
+		// 		sdkerrors.ErrWrongSequence,
+		// 		"account sequence mismatch, expected %d, got %d", acc.GetSequence(), sig.Sequence,
+		// 	)
+		// }
 
 		// retrieve signer data
 		genesis := ctx.BlockHeight() == 0

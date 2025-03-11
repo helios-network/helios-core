@@ -576,7 +576,8 @@
             "valset_reward": {
               "denom": "",
               "amount": "0"
-            }}
+            }
+          }
         ],
         "admins": []
       },
@@ -587,10 +588,12 @@
       "batch_confirms": [],
       "attestations": [],
       "orchestrator_addresses": [],
-      "erc20_to_denoms": [{
-        "denom": "hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-        "erc20": "0xE41d2489571d322189246DaFA5ebDe1F4699F498"
-      }],
+      "erc20_to_denoms": [
+        {
+          "denom": "hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498",
+          "erc20": "0xE41d2489571d322189246DaFA5ebDe1F4699F498"
+        }
+      ],
       "unbatched_transfers": [],
       "last_observed_ethereum_height": "0",
       "last_outgoing_batch_id": "0",

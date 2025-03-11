@@ -1,6 +1,7 @@
 package hyperion
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -89,7 +90,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 	// Then we sort it
 	sort.SliceStable(keys, func(i, j int) bool { return keys[i] < keys[j] })
 
-	lastObservedEventNonce := h.k.GetLastObservedEventNonce(ctx)
+	// lastObservedEventNonce := h.k.GetLastObservedEventNonce(ctx)
 	// This iterates over all keys (event nonces) in the attestation mapping. Each value contains
 	// a slice with one or more attestations at that event nonce. There can be multiple attestations
 	// at one event nonce when validators disagree about what event happened at that nonce.
@@ -99,9 +100,11 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 		// This order is not important.
 		for _, att := range attmap[nonce] {
 			// we delete all attestations earlier than the current event nonce
-			if nonce < lastObservedEventNonce {
+			// if nonce < lastObservedEventNonce {
+			if att.Observed {
 				h.k.DeleteAttestation(ctx, att)
 			}
+			// }
 		}
 	}
 }
@@ -130,6 +133,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 	attmap := h.k.GetAttestationMapping(ctx)
 	// We make a slice with all the event nonces that are in the attestation mapping
 	keys := make([]uint64, 0, len(attmap))
+	fmt.Println("attmap", attmap)
 	for k := range attmap {
 		keys = append(keys, k)
 	}
@@ -140,6 +144,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 	// a slice with one or more attestations at that event nonce. There can be multiple attestations
 	// at one event nonce when validators disagree about what event happened at that nonce.
 	for _, nonce := range keys {
+		fmt.Println("nonce", nonce)
 		// This iterates over all attestations at a particular event nonce.
 		// They are ordered by when the first attestation at the event nonce was received.
 		// This order is not important.
@@ -160,9 +165,10 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 			// we skip the other attestations and move on to the next nonce again.
 			// If no attestation becomes observed, when we get to the next nonce, every attestation in
 			// it will be skipped. The same will happen for every nonce after that.
-			if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
+			fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx))
+			// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
 				h.k.TryAttestation(ctx, attestation)
-			}
+			// }
 		}
 	}
 }

@@ -557,7 +557,7 @@
           {
             "hyperion_id": "1",
             "contract_source_hash": "",
-            "bridge_counterparty_address": "0x75B83dDeb27dbEF2702bdC462B4F1fEFF0dB0E68",
+            "bridge_counterparty_address": "0xfF70908Dc187fdce068CA9FCe6Cc625951023986",
             "bridge_chain_id": "80002",
             "signed_valsets_window": "25000",
             "signed_batches_window": "25000",
@@ -600,6 +600,14 @@
         {
           "denom": "hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8",
           "erc20": "0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8"
+        },
+        {
+          "denom": "ahelios",
+          "erc20": "0x77d1b28912dbd3a21474d2dd24475c751bf2f045"
+        },
+        {
+          "denom": "hyperion0xa2512e1f33020d34915124218edbec20901755b2",
+          "erc20": "0xa2512e1f33020d34915124218edbec20901755b2"
         }
       ],
       "unbatched_transfers": [],

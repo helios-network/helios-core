@@ -38,6 +38,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 	doneFn := metrics.ReportFuncTiming(a.svcTags)
 	defer doneFn()
 
+	fmt.Println("Handle======================= claim type", claim.GetType())
 	switch claim := claim.(type) {
 	// deposit in this context means a deposit into the Ethereum side of the bridge
 	case *types.MsgDepositClaim:
@@ -69,11 +70,14 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			metrics.ReportFuncError(a.svcTags)
 			invalidAddress = true
 		}
+		fmt.Println("isCosmosOriginated", isCosmosOriginated)
 
 		if !isCosmosOriginated {
 			// Check if supply overflows with claim amount
 			currentSupply := a.bankKeeper.GetSupply(ctx, denom)
+			fmt.Println("currentSupply", currentSupply)
 			newSupply := new(big.Int).Add(currentSupply.Amount.BigInt(), claim.Amount.BigInt())
+			fmt.Println("newSupply", newSupply)
 			if newSupply.BitLen() > 256 {
 				metrics.ReportFuncError(a.svcTags)
 				return errors.Wrap(types.ErrSupplyOverflow, "invalid supply")

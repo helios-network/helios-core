@@ -154,6 +154,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 
 // SendToChain handles MsgSendToChain
 func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*types.MsgSendToChainResponse, error) {
+	fmt.Println("SendToChain for hyperionId: ", msg.DestHyperionId)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -188,6 +189,7 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 
 // RequestBatch handles MsgRequestBatch
 func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (*types.MsgRequestBatchResponse, error) {
+	fmt.Println("RequestBatch, got msg request batch from hyperion - msg: ", msg)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -197,6 +199,7 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 	// If not, error out
 	_, tokenContract, err := k.DenomToERC20Lookup(ctx, msg.Denom, msg.HyperionId)
 	if err != nil {
+		fmt.Println("RequestBatch - err: ", err)
 		return nil, err
 	}
 

@@ -127,7 +127,7 @@ GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused
 # Add GENESIS VALIDATOR key
 heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
 # Integrate GENESIS VALIDATOR into the genesis block with specifical large balance
-heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000ahelios,1000000000000000000000000hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498
+heliades add-genesis-account --chain-id $CHAINID $(heliades keys show genesis -a) 1000000000000000000000000ahelios,1000000000000000000000000hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498,1000000000000000000000000hyperion0xa2512e1f33020d34915124218edbec20901755b2
 
 # Define the keys array
 KEYS=(
@@ -169,7 +169,7 @@ done
 
 # Integrate accounts into the genesis block with specifical balance
 for key in "${KEYS[@]}"; do
-    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios,1000000000000000000000hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498,1000000000000000000000hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a) 1000000000000000000000ahelios,1000000000000000000000hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498,1000000000000000000000hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8,1000000000000000000000000hyperion0xa2512e1f33020d34915124218edbec20901755b2
 done
 
 echo "Signing genesis transaction"

@@ -87,7 +87,7 @@ mock: tests/mocks.go
 	go install github.com/golang/mock/mockgen
 	go generate ./tests/...
 
-PKGS_TO_COVER := $(shell go list ./helios-chain/modules/exchange | paste -sd "," -)
+# PKGS_TO_COVER := $(shell go list ./helios-chain/modules/exchange | paste -sd "," -)
 
 deploy:
 	./deploy_contracts.sh
@@ -161,6 +161,9 @@ proto: proto-format proto-gen proto-swagger-gen
 
 proto-gen:
 	@$(protoImage) sh ./scripts/protocgen.sh
+
+proto-gen-hyperion:
+	@$(protoImage) sh ./scripts/protocgen-hyperion.sh
 
 proto-gen-pulsar:
 	@$(protoImage) sh ./scripts/protocgen-pulsar.sh
