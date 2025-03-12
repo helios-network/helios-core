@@ -242,7 +242,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 				found := false
 				for _, conf := range confirms {
 					valAddr, _ := sdk.ValAddressFromBech32(currentBondedSet[i].GetOperator())
-					ethAddress, exists := h.k.GetEthAddressByValidator(ctx, valAddr)
+					ethAddress, exists := h.k.GetEthAddressByValidatorByHyperionID(ctx, valAddr, params.HyperionId)
 					// This may have an issue if the validator changes their eth address
 					// TODO this presents problems for delegate key rotation see issue #344
 					if exists && common.HexToAddress(conf.EthAddress) == ethAddress {
@@ -307,7 +307,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 					// Check if validator has confirmed valset or not
 					found := false
 					for _, conf := range confirms {
-						ethAddress, exists := h.k.GetEthAddressByValidator(ctx, addr)
+						ethAddress, exists := h.k.GetEthAddressByValidatorByHyperionID(ctx, addr, params.HyperionId)
 						if exists && common.HexToAddress(conf.EthAddress) == ethAddress {
 							found = true
 							break

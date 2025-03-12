@@ -12,13 +12,13 @@ import (
 	"helios-core/helios-chain/modules/hyperion/types"
 )
 
-func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.Address) (string, bool) {
+func (k *Keeper) GetCosmosOriginatedDenomByHyperionID(ctx sdk.Context, tokenContract common.Address, hyperionId uint64) (string, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetERC20ToCosmosDenomKey(tokenContract))
+	bz := store.Get(types.GetERC20ToCosmosDenomByHyperionIDKey(tokenContract, hyperionId))
 	if bz == nil {
 		return "", false
 	}
@@ -26,27 +26,19 @@ func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.
 	return string(bz), true
 }
 
-func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, denom string) (common.Address, bool) {
+
+func (k *Keeper) GetCosmosOriginatedERC20ByHyperionID(ctx sdk.Context, denom string, hyperionId uint64) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetCosmosDenomToERC20Key(denom))
+	bz := store.Get(types.GetCosmosDenomToERC20ByHyperionIDKey(denom, hyperionId))
 	if bz == nil {
 		return common.Address{}, false
 	}
 
 	return common.BytesToAddress(bz), true
-}
-
-func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, denom string, tokenContract common.Address) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetCosmosDenomToERC20Key(denom), tokenContract.Bytes())
-	store.Set(types.GetERC20ToCosmosDenomKey(tokenContract), []byte(denom))
 }
 
 func (k *Keeper) SetCosmosOriginatedDenomToERC20ByHyperionID(ctx sdk.Context, denom string, tokenContract common.Address, hyperionId uint64) {
@@ -82,7 +74,7 @@ func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId
 	}
 
 	// Look up ERC20 contract in index and error if it's not in there
-	tokenContract, exists := k.GetCosmosOriginatedERC20(ctx, denomStr)
+	tokenContract, exists := k.GetCosmosOriginatedERC20ByHyperionID(ctx, denomStr, hyperionId)
 	if !exists {
 		err = errors.Errorf(
 			"denom (%s) not a hyperion voucher coin (parse error: %s), and also not in cosmos-originated ERC20 index",
@@ -163,7 +155,7 @@ func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Addres
 	defer doneFn()
 
 	// First try looking up tokenContract in index
-	denomStr, exists := k.GetCosmosOriginatedDenom(ctx, tokenContract)
+	denomStr, exists := k.GetCosmosOriginatedDenomByHyperionID(ctx, tokenContract, hyperionId)
 	if exists {
 		isCosmosOriginated = true
 		return isCosmosOriginated, denomStr

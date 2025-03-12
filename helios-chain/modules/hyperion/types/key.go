@@ -145,15 +145,24 @@ func GetOrchestratorAddressKeyByHyperionID(orc sdk.AccAddress, hyperionID uint64
 // GetEthAddressByValidatorKey returns the following key format
 // prefix              cosmos-validator
 // [0x0][cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn]
-func GetEthAddressByValidatorKey(validator sdk.ValAddress) []byte {
-	return append(EthAddressByValidatorKey, validator.Bytes()...)
+func GetEthAddressByValidatorKeyByHyperionID(validator sdk.ValAddress, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(EthAddressByValidatorKey)+len(validator.Bytes())+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, EthAddressByValidatorKey...)
+	buf = append(buf, validator.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	return buf
 }
 
 // GetValidatorByEthAddressKey returns the following key format
 // prefix              cosmos-validator
 // [0xf9][0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B]
-func GetValidatorByEthAddressKey(ethAddress common.Address) []byte {
-	return append(ValidatorByEthAddressKey, ethAddress.Bytes()...)
+func GetValidatorByEthAddressKeyByHyperionID(ethAddress common.Address, hyperionID uint64) []byte {
+	// return append(ValidatorByEthAddressKey, ethAddress.Bytes()...)
+	buf := make([]byte, 0, len(ValidatorByEthAddressKey)+len(ethAddress.Bytes())+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, ValidatorByEthAddressKey...)
+	buf = append(buf, ethAddress.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	return buf
 }
 
 // GetValsetKey returns the following key format

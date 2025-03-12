@@ -56,7 +56,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	}
 
 	valAddr, foundExistingOrchestratorKey := k.GetOrchestratorValidatorByHyperionID(ctx, orchestratorAddr, msg.HyperionId)
-	ethAddress, foundExistingEthAddress := k.GetEthAddressByValidator(ctx, validatorAddr)
+	ethAddress, foundExistingEthAddress := k.GetEthAddressByValidatorByHyperionID(ctx, validatorAddr, msg.HyperionId)
 	fmt.Println("valAddr: ", valAddr)
 	fmt.Println("orchestratorAddr: ", orchestratorAddr)
 	fmt.Println("ethAddress: ", ethAddress)
@@ -79,7 +79,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	fmt.Println("msg.EthAddress: ", msg.EthAddress)
 	ethAddr := common.HexToAddress(msg.EthAddress)
 	fmt.Println("ethAddr: ", ethAddr)
-	k.SetEthAddressForValidator(ctx, validatorAddr, ethAddr)
+	k.SetEthAddressForValidator(ctx, validatorAddr, ethAddr, msg.HyperionId)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSetOrchestratorAddresses{
@@ -119,7 +119,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
-	ethAddress, found := k.GetEthAddressByValidator(ctx, validator)
+	ethAddress, found := k.GetEthAddressByValidatorByHyperionID(ctx, validator, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrEmpty, "no eth address found")
@@ -127,7 +127,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 
 	if err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress); err != nil {
 		description := fmt.Sprintf(
-			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
+			"signature verification failed expected sig by %s with hyperion-id %d with checkpoint %s found %s",
 			ethAddress, msg.HyperionId, checkpoint.Hex(), msg.Signature,
 		)
 
@@ -258,7 +258,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
-	ethAddress, found := k.GetEthAddressByValidator(ctx, validator)
+	ethAddress, found := k.GetEthAddressByValidatorByHyperionID(ctx, validator, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrEmpty, "eth address not found")

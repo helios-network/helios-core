@@ -210,16 +210,21 @@ func CmdSetOrchestratorAddress() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-orchestrator-address [validator-acc-address] [orchestrator-acc-address] [ethereum-address]",
 		Short: "Allows validators to delegate their voting responsibilities to a given key.",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+			hyperionId, err := strconv.ParseUint(args[3], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "hyperionId")
+			}
 			msg := types.MsgSetOrchestratorAddresses{
 				Sender:       args[0],
 				Orchestrator: args[1],
 				EthAddress:   args[2],
+				HyperionId:   hyperionId,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

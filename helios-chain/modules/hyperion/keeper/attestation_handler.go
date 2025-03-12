@@ -161,7 +161,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		return nil
 	case *types.MsgERC20DeployedClaim:
 		// Check if it already exists
-		existingERC20, exists := a.keeper.GetCosmosOriginatedERC20(ctx, claim.CosmosDenom)
+		existingERC20, exists := a.keeper.GetCosmosOriginatedERC20ByHyperionID(ctx, claim.CosmosDenom, claim.HyperionId)
 		if exists {
 			metrics.ReportFuncError(a.svcTags)
 
@@ -221,7 +221,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		}
 
 		// Add to denom-erc20 mapping
-		a.keeper.SetCosmosOriginatedDenomToERC20(ctx, claim.CosmosDenom, common.HexToAddress(claim.TokenContract))
+		a.keeper.SetCosmosOriginatedDenomToERC20ByHyperionID(ctx, claim.CosmosDenom, common.HexToAddress(claim.TokenContract), claim.HyperionId)
 	case *types.MsgValsetUpdatedClaim:
 		// TODO here we should check the contents of the validator set against
 		// the store, if they differ we should take some action to indicate to the

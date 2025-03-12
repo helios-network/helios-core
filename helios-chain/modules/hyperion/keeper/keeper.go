@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	gomath "math"
 	"sort"
 
@@ -547,23 +548,23 @@ func (k *Keeper) GetOrchestratorValidator(ctx sdk.Context, orch sdk.AccAddress) 
 /////////////////////////////
 
 // SetEthAddressForValidator sets the ethereum address for a given validator
-func (k *Keeper) SetEthAddressForValidator(ctx sdk.Context, validator sdk.ValAddress, ethAddr common.Address) {
+func (k *Keeper) SetEthAddressForValidator(ctx sdk.Context, validator sdk.ValAddress, ethAddr common.Address, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetEthAddressByValidatorKey(validator), ethAddr.Bytes())
-	store.Set(types.GetValidatorByEthAddressKey(ethAddr), validator.Bytes())
+	store.Set(types.GetEthAddressByValidatorKeyByHyperionID(validator, hyperionID), ethAddr.Bytes())
+	store.Set(types.GetValidatorByEthAddressKeyByHyperionID(ethAddr, hyperionID), validator.Bytes())
 }
 
 // GetEthAddressByValidator returns the eth address for a given hyperion validator
-func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, validator sdk.ValAddress) (common.Address, bool) {
+func (k *Keeper) GetEthAddressByValidatorByHyperionID(ctx sdk.Context, validator sdk.ValAddress, hyperionId uint64) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetEthAddressByValidatorKey(validator))
+	bz := store.Get(types.GetEthAddressByValidatorKeyByHyperionID(validator, hyperionId))
 	if bz == nil {
 		return common.Address{}, false
 	}
@@ -572,12 +573,12 @@ func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, validator sdk.ValAddr
 }
 
 // GetValidatorByEthAddress returns the validator for a given eth address
-func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, ethAddr common.Address) (validator stakingtypes.Validator, found bool) {
+func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, ethAddr common.Address, hyperionId uint64) (validator stakingtypes.Validator, found bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	valAddr := store.Get(types.GetValidatorByEthAddressKey(ethAddr))
+	valAddr := store.Get(types.GetValidatorByEthAddressKeyByHyperionID(ethAddr, hyperionId))
 	if valAddr == nil {
 		return stakingtypes.Validator{}, false
 	}
@@ -625,7 +626,7 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Val
 		vp, _ := k.StakingKeeper.GetLastValidatorPower(ctx, val)
 		p := uint64(vp)
 
-		if ethAddress, found := k.GetEthAddressByValidator(ctx, val); found {
+		if ethAddress, found := k.GetEthAddressByValidatorByHyperionID(ctx, val, hyperionId); found {
 			bv := &types.BridgeValidator{Power: p, EthereumAddress: ethAddress.Hex()}
 			bridgeValidators = append(bridgeValidators, bv)
 			totalPower += p
@@ -859,7 +860,7 @@ func (k *Keeper) UnpackAttestationClaim(attestation *types.Attestation) (types.E
 // address mapping will mean having to keep two of the same data around just to provide lookups.
 //
 // For the time being this will serve
-func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context) []*types.MsgSetOrchestratorAddresses {
+func (k *Keeper) GetOrchestratorAddressesByHyperionID(ctx sdk.Context, hyperionID uint64) []*types.MsgSetOrchestratorAddresses {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -875,10 +876,13 @@ func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context) []*types.MsgSetOrches
 		// to cut off the starting bytes, if you don't do this a valid
 		// cosmos key will be made out of EthAddressByValidatorKey + the startin bytes
 		// of the actual key
-		key := iter.Key()[len(types.EthAddressByValidatorKey):]
+		arrLen := len(iter.Key())
+		key := iter.Key()[len(types.EthAddressByValidatorKey):arrLen-len(types.UInt64Bytes(hyperionID))]
 		value := iter.Value()
 		ethAddress := common.BytesToAddress(value)
+		fmt.Println("value: ", ethAddress.Hex())
 		validatorAccount := sdk.AccAddress(key)
+		fmt.Println("validatorAccount: ", validatorAccount.String())
 		ethAddresses[validatorAccount.String()] = ethAddress
 	}
 
@@ -890,16 +894,20 @@ func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context) []*types.MsgSetOrches
 	orchestratorAddresses := make(map[string]sdk.AccAddress)
 
 	for ; iter.Valid(); iter.Next() {
-		key := iter.Key()[len(types.KeyOrchestratorAddress):]
+		arrLen := len(iter.Key())
+		key := iter.Key()[len(types.KeyOrchestratorAddress):arrLen-len(types.UInt64Bytes(hyperionID))]
 		value := iter.Value()
 		orchestratorAccount := sdk.AccAddress(key)
 		validatorAccount := sdk.AccAddress(value)
+		fmt.Println("validatorAccount ===: ", validatorAccount.String())
+		fmt.Println("orchestratorAccount ===: ", orchestratorAccount.String())
 		orchestratorAddresses[validatorAccount.String()] = orchestratorAccount
 	}
 
 	result := make([]*types.MsgSetOrchestratorAddresses, 0)
 
 	for validatorAccount, ethAddress := range ethAddresses {
+		fmt.Println("validatorAccount: ", validatorAccount)
 		orchestratorAccount, ok := orchestratorAddresses[validatorAccount]
 		if !ok {
 			metrics.ReportFuncError(k.svcTags)

@@ -59,11 +59,6 @@ push:
 
 install: export GOPROXY=direct
 install:
-	@if command -v heliades > /dev/null 2>&1; then \
-		heliades keys clear; \
-	else \
-		echo "Command 'heliades' not found, skipping 'heliades keys clear'"; \
-	fi
 	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
 
 compile:

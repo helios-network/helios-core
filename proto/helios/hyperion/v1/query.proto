@@ -210,13 +210,13 @@ message QueryDenomToERC20Response {
   bool cosmos_originated = 2;
 }
 
-message QueryDelegateKeysByValidatorAddress { string validator_address = 1; }
+message QueryDelegateKeysByValidatorAddress { string validator_address = 1; uint64 hyperion_id = 2; }
 message QueryDelegateKeysByValidatorAddressResponse {
   string eth_address = 1;
   string orchestrator_address = 2;
 }
 
-message QueryDelegateKeysByEthAddress { string eth_address = 1; }
+message QueryDelegateKeysByEthAddress { string eth_address = 1; uint64 hyperion_id = 2; }
 message QueryDelegateKeysByEthAddressResponse {
   string validator_address = 1;
   string orchestrator_address = 2;
@@ -224,6 +224,7 @@ message QueryDelegateKeysByEthAddressResponse {
 
 message QueryDelegateKeysByOrchestratorAddress {
   string orchestrator_address = 1;
+  uint64 hyperion_id = 2;
 }
 message QueryDelegateKeysByOrchestratorAddressResponse {
   string validator_address = 1;

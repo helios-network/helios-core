@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -290,7 +290,7 @@ func (k *Keeper) GetDelegateKeyByValidator(c context.Context, req *types.QueryDe
 	}
 
 	valAccountAddr := sdk.AccAddress(valAddress.Bytes())
-	keys := k.GetOrchestratorAddresses(ctx)
+	keys := k.GetOrchestratorAddressesByHyperionID(ctx, req.HyperionId)
 
 	for _, key := range keys {
 		senderAddr, err := sdk.AccAddressFromBech32(key.Sender)
@@ -312,7 +312,7 @@ func (k *Keeper) GetDelegateKeyByOrchestrator(c context.Context, req *types.Quer
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	keys := k.GetOrchestratorAddresses(ctx)
+	keys := k.GetOrchestratorAddressesByHyperionID(ctx, req.HyperionId)
 
 	_, err := sdk.AccAddressFromBech32(req.OrchestratorAddress)
 	if err != nil {
@@ -331,18 +331,22 @@ func (k *Keeper) GetDelegateKeyByOrchestrator(c context.Context, req *types.Quer
 }
 
 func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegateKeysByEthAddress) (*types.QueryDelegateKeysByEthAddressResponse, error) {
+	log.Println("GetDelegateKeyByEth==============")
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	keys := k.GetOrchestratorAddresses(ctx)
-	fmt.Println("keys: ", keys)
+	keys := k.GetOrchestratorAddressesByHyperionID(ctx, req.HyperionId)
+	log.Println("after GetOrchestratorAddresses")
+	log.Println("keys: ", keys)
 	if err := types.ValidateEthAddress(req.EthAddress); err != nil {
 		return nil, errors.Wrap(err, "invalid eth address")
 	}
+	log.Println("after ValidateEthAddress")
 
 	for _, key := range keys {
+		log.Println("key: ", key)
 		if req.EthAddress == key.EthAddress {
 			return &types.QueryDelegateKeysByEthAddressResponse{
 				ValidatorAddress:    key.Sender,

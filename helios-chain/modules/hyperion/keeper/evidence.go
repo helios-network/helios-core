@@ -69,7 +69,7 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 	}
 
 	// Find the offending validator by eth address
-	val, found := k.GetValidatorByEthAddress(ctx, ethAddress)
+	val, found := k.GetValidatorByEthAddress(ctx, ethAddress, hyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrap(types.ErrInvalid, fmt.Sprintf("Did not find validator for eth address %s", ethAddress))
