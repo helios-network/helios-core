@@ -146,47 +146,101 @@ func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Addr
 }
 
 func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
-	validatorsResult := make([]map[string]interface{}, 0)
+	if page <= 0 {
+		return nil, fmt.Errorf("page must be greater than 0")
+	}
+	if size <= 0 || size > 100 { // prevent excessive page sizes
+		return nil, fmt.Errorf("size must be between 1 and 100")
+	}
+
+	inflationRes, err := b.queryClient.Mint.Inflation(b.ctx, &minttypes.QueryInflationRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get inflation: %w", err)
+	}
+
+	distributionParams, err := b.queryClient.Distribution.Params(b.ctx, &distributiontypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get distribution params: %w", err)
+	}
+
+	stakingPool, err := b.queryClient.Staking.Pool(b.ctx, &stakingtypes.QueryPoolRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get staking pool: %w", err)
+	}
+
+	supply, err := b.queryClient.Bank.SupplyOf(b.ctx, &banktypes.QuerySupplyOfRequest{
+		Denom: "ahelios",
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get supply: %w", err)
+	}
+
+	// Calculate common values once
+	inflation := inflationRes.Inflation.MustFloat64()
+	communityTax := distributionParams.Params.CommunityTax.MustFloat64()
+	bondedRatio, err := stakingPool.Pool.BondedTokens.ToLegacyDec().Quo(supply.Amount.Amount.ToLegacyDec()).Float64()
+	if err != nil {
+		return nil, fmt.Errorf("failed to calculate bonded ratio: %w", err)
+	}
+
+	// Get validators with pagination
 	queryMsg := &stakingtypes.QueryValidatorsRequest{
 		Pagination: &query.PageRequest{
 			Offset: (uint64(page) - 1) * uint64(size),
 			Limit:  uint64(size),
 		},
 	}
-	res, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
+	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get validators: %w", err)
 	}
 
-	for _, validator := range res.Validators {
+	validatorsResult := make([]map[string]interface{}, 0, len(validatorsResp.Validators))
+
+	for _, validator := range validatorsResp.Validators {
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
 		if err != nil {
-			b.logger.Error("GetDelegations", "err", err)
-			return validatorsResult, nil
+			b.logger.Error("failed to parse validator address",
+				"validator", validator.OperatorAddress,
+				"error", err)
+			continue // Skip invalid validators instead of failing entirely
 		}
-		cosmosAddressOfTheValidator := sdk.AccAddress(valAddr.Bytes())
-		evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
 
-		apr, err := b.GetValidatorAPR(validator.OperatorAddress)
+		// calculate APR inline using the pre calculated common factors
+		commisionRate := validator.Commission.CommissionRates.Rate.MustFloat64()
+		apr := calculateAPR(inflation, communityTax, commisionRate, bondedRatio)
 
-		validatorsResult = append(validatorsResult, map[string]interface{}{
-			"validatorAddress":        evmAddressOfTheValidator,
-			"shares":                  validator.DelegatorShares.String(),
-			"moniker":                 validator.GetMoniker(),
-			"commission":              validator.Commission,
-			"description":             validator.Description,
-			"status":                  validator.Status,
-			"unbondingHeight":         validator.UnbondingHeight,
-			"unbondingIds":            validator.UnbondingIds,
-			"jailed":                  validator.Jailed,
-			"unbondingOnHoldRefCount": validator.UnbondingOnHoldRefCount,
-			"unbondingTime":           validator.UnbondingTime,
-			"minSelfDelegation":       validator.MinSelfDelegation,
-			"apr":                     apr,
-			// todo details of the staking
-		})
+		validatorCosmosAddress := sdk.AccAddress(valAddr.Bytes())
+		validatorEVMAddress := common.BytesToAddress(validatorCosmosAddress.Bytes()).String()
+
+		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr))
 	}
 	return validatorsResult, nil
+}
+
+// Helper function to calculate APR
+func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) string {
+	apr := (1 - communityTax) * (1 - commissionRate) * inflation / bondedRatio
+	return fmt.Sprintf("%f%%", apr*100.0)
+}
+
+// Helper function to format validator response
+func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string) map[string]interface{} {
+	return map[string]interface{}{
+		"validatorAddress":        evmAddress,
+		"shares":                  validator.DelegatorShares.String(),
+		"moniker":                 validator.GetMoniker(),
+		"commission":              validator.Commission,
+		"description":             validator.Description,
+		"status":                  validator.Status,
+		"unbondingHeight":         validator.UnbondingHeight,
+		"unbondingIds":            validator.UnbondingIds,
+		"jailed":                  validator.Jailed,
+		"unbondingOnHoldRefCount": validator.UnbondingOnHoldRefCount,
+		"unbondingTime":           validator.UnbondingTime,
+		"minSelfDelegation":       validator.MinSelfDelegation,
+		"apr":                     apr,
+	}
 }
 
 func (b *Backend) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
