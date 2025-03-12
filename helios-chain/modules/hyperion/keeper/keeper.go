@@ -504,6 +504,29 @@ func (k *Keeper) SetOrchestratorValidator(ctx sdk.Context, val sdk.ValAddress, o
 	store.Set(types.GetOrchestratorAddressKey(orch), val.Bytes())
 }
 
+func (k *Keeper) SetOrchestratorValidatorByHyperionID(ctx sdk.Context, val sdk.ValAddress, orch sdk.AccAddress, hyperionID uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	// store.Set(types.GetOrchestratorAddressKey(orch), val.Bytes())
+	store.Set(types.GetOrchestratorAddressKeyByHyperionID(orch, hyperionID), val.Bytes())
+}
+
+func (k *Keeper) GetOrchestratorValidatorByHyperionID(ctx sdk.Context, orch sdk.AccAddress, hyperionID uint64) (sdk.ValAddress, bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+
+	bz := store.Get(types.GetOrchestratorAddressKeyByHyperionID(orch, hyperionID))
+	if bz == nil {
+		return nil, false
+	}
+
+	return sdk.ValAddress(bz), true
+}
+
 // GetOrchestratorValidator returns the validator key associated with an orchestrator key
 func (k *Keeper) GetOrchestratorValidator(ctx sdk.Context, orch sdk.AccAddress) (sdk.ValAddress, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)

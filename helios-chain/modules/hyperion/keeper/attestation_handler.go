@@ -10,15 +10,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"helios-core/helios-chain/modules/hyperion/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	erc20types "helios-core/helios-chain/x/erc20/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
 )
 
 // AttestationHandler processes `observed` Attestations
 type AttestationHandler struct {
-	keeper     Keeper
-	bankKeeper types.BankKeeper
-	svcTags    metrics.Tags
+	keeper      Keeper
+	bankKeeper  types.BankKeeper
+	erc20Keeper types.ERC20Keeper
+	svcTags     metrics.Tags
 }
 
 func NewAttestationHandler(bankKeeper types.BankKeeper, keeper Keeper) AttestationHandler {
@@ -93,6 +96,51 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			if err = a.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, coins); err != nil {
 				metrics.ReportFuncError(a.svcTags)
 				invalidAddress = true
+			}
+			pairID := a.erc20Keeper.GetTokenPairID(ctx, denom)
+			pair, found := a.erc20Keeper.GetTokenPair(ctx, pairID)
+			if !found {
+				// Check if metadata already exists for this base denom
+				denomMetadata, _ := a.bankKeeper.GetDenomMetaData(ctx, denom)
+				symbol := denomMetadata.Symbol
+				decimals := denomMetadata.Decimals
+
+				coinMetadata := banktypes.Metadata{
+					Description: fmt.Sprintf("Token %s created with Hyperion", denom),
+					Base:        denom,
+					Symbol:      symbol,
+					Decimals:    uint32(decimals),
+					DenomUnits: []*banktypes.DenomUnit{
+						{
+							Denom:    denom,
+							Exponent: 0,
+						},
+						{
+							Denom:    denom,
+							Exponent: uint32(decimals),
+						},
+					},
+				}
+				erc20Contract, err := a.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
+				if err != nil {
+					metrics.ReportFuncError(a.svcTags)
+					return errors.Wrap(err, "failed to deploy ERC20 contract")
+				}
+				tokenPair := erc20types.NewTokenPair(erc20Contract, denom, erc20types.OWNER_MODULE)
+				pair = tokenPair
+				a.erc20Keeper.SetToken(ctx, tokenPair)
+			
+				// Enable dynamic precompiles for the deployed ERC20 contract
+				a.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+			}
+			if err := a.bankKeeper.SendCoinsFromAccountToModule(ctx, addr, types.ModuleName, coins); err != nil {
+				metrics.ReportFuncError(a.svcTags)
+				return errors.Wrap(err, "failed to send coins from account to module")
+			}
+			// mint ERC20 tokens
+			if err := a.erc20Keeper.MintERC20Tokens(ctx, pair.GetERC20Contract(), common.BytesToAddress(addr), claim.Amount.BigInt()); err != nil {
+				metrics.ReportFuncError(a.svcTags)
+				return errors.Wrap(err, "failed to mint ERC20 tokens")
 			}
 		}
 

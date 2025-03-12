@@ -22,7 +22,8 @@ service Query {
 
   // attestation
   rpc Attestation(QueryAttestationRequest) returns (QueryAttestationResponse) {
-    option (google.api.http).get = "/hyperion/v1/attestation/{nonce}/{claim_hash}";
+    option (google.api.http).get =
+        "/hyperion/v1/attestation/{nonce}/{claim_hash}";
   }
   // valset
   rpc CurrentValset(QueryCurrentValsetRequest)
@@ -87,16 +88,19 @@ service Query {
 
   rpc ERC20ToDenom(QueryERC20ToDenomRequest)
       returns (QueryERC20ToDenomResponse) {
-    option (google.api.http).get = "/hyperion/v1/cosmos_originated/erc20_to_denom";
+    option (google.api.http).get =
+        "/hyperion/v1/cosmos_originated/erc20_to_denom";
   }
   rpc DenomToERC20(QueryDenomToERC20Request)
       returns (QueryDenomToERC20Response) {
-    option (google.api.http).get = "/hyperion/v1/cosmos_originated/denom_to_erc20";
+    option (google.api.http).get =
+        "/hyperion/v1/cosmos_originated/denom_to_erc20";
   }
 
   rpc GetDelegateKeyByValidator(QueryDelegateKeysByValidatorAddress)
       returns (QueryDelegateKeysByValidatorAddressResponse) {
-    option (google.api.http).get = "/hyperion/v1/query_delegate_keys_by_validator";
+    option (google.api.http).get =
+        "/hyperion/v1/query_delegate_keys_by_validator";
   }
   rpc GetDelegateKeyByEth(QueryDelegateKeysByEthAddress)
       returns (QueryDelegateKeysByEthAddressResponse) {
@@ -114,7 +118,8 @@ service Query {
     option (google.api.http).get = "/hyperion/v1/module_state";
   }
 
-  rpc MissingHyperionNonces(MissingNoncesRequest) returns (MissingNoncesResponse) {
+  rpc MissingHyperionNonces(MissingNoncesRequest)
+      returns (MissingNoncesResponse) {
     option (google.api.http).get = "/hyperion/v1/missing_nonces";
   }
 }
@@ -131,7 +136,7 @@ message QueryAttestationRequest {
 
 message QueryAttestationResponse { Attestation attestation = 1; }
 
-message QueryCurrentValsetRequest {uint64 hyperion_id = 1; }
+message QueryCurrentValsetRequest { uint64 hyperion_id = 1; }
 message QueryCurrentValsetResponse { Valset valset = 1; }
 
 message QueryValsetRequestRequest { uint64 nonce = 1; }
@@ -181,21 +186,24 @@ message QueryBatchConfirmsRequest {
 }
 message QueryBatchConfirmsResponse { repeated MsgConfirmBatch confirms = 1; }
 
-message QueryLastEventByAddrRequest { string address = 1; }
+message QueryLastEventByAddrRequest {
+  uint64 hyperion_id = 1;
+  string address = 2;
+}
 message QueryLastEventByAddrResponse { LastClaimEvent last_claim_event = 1; }
 
-message QueryERC20ToDenomRequest { 
+message QueryERC20ToDenomRequest {
   uint64 hyperion_id = 1;
-  string erc20 = 2; 
+  string erc20 = 2;
 }
 message QueryERC20ToDenomResponse {
   string denom = 1;
   bool cosmos_originated = 2;
 }
 
-message QueryDenomToERC20Request { 
+message QueryDenomToERC20Request {
   uint64 hyperion_id = 1;
-  string denom = 2; 
+  string denom = 2;
 }
 message QueryDenomToERC20Response {
   string erc20 = 1;
@@ -239,8 +247,8 @@ message QueryAllPendingSendToChainResponse {
 // RPC method.
 message QueryModuleStateRequest {}
 
-// QueryModuleStateResponse is the response type for the Query/HyperionModuleState
-// RPC method.
+// QueryModuleStateResponse is the response type for the
+// Query/HyperionModuleState RPC method.
 message QueryModuleStateResponse { GenesisState state = 1; }
 
 message MissingNoncesRequest {}

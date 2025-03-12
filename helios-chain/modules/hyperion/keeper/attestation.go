@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
 
 	// "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -17,7 +18,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	valAddr, found := k.GetOrchestratorValidator(ctx, claim.GetClaimer())
+	valAddr, found := k.GetOrchestratorValidatorByHyperionID(ctx, claim.GetClaimer(), claim.GetHyperionId())
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		panic("Could not find ValAddr for delegate key, should be checked by now")
@@ -27,20 +28,31 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	// We check the event nonce in processAttestation as well,
 	// but checking it here gives individual eth signers a chance to retry,
 	// and prevents validators from submitting two claims with the same nonce
-	lastEvent := k.GetLastEventByValidator(ctx, valAddr)
+	// lastEvent := k.GetLastEventByValidator(ctx, valAddr)
+	lastEvent := k.GetLastEventByValidatorByHyperionID(ctx, valAddr, claim.GetHyperionId())
 
 	if lastEvent.EthereumEventNonce == 0 && lastEvent.EthereumEventHeight == 0 {
 		// if hyperion happens to query too early without a bonded validator even existing setup the base event
-		lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
-		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
+		// lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
+		lowestObservedNonce := k.GetLastObservedEventNonceForHyperionID(ctx, claim.GetHyperionId())
+		// blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
+		blockHeight := k.GetLastObservedEthereumBlockHeightForHyperionID(ctx, claim.GetHyperionId()).EthereumBlockHeight
 
-		k.setLastEventByValidator(
+		// k.setLastEventByValidator(
+		// 	ctx,
+		// 	valAddr,
+		// 	lowestObservedNonce,
+		// 	blockHeight,
+		// )
+		k.setLastEventByValidatorByHyperionID(
 			ctx,
 			valAddr,
 			lowestObservedNonce,
 			blockHeight,
+			claim.GetHyperionId(),
 		)
-		lastEvent = k.GetLastEventByValidator(ctx, valAddr)
+		// lastEvent = k.GetLastEventByValidator(ctx, valAddr)
+		lastEvent = k.GetLastEventByValidatorByHyperionID(ctx, valAddr, claim.GetHyperionId())
 	}
 
 	// if claim.GetEventNonce() != lastEvent.EthereumEventNonce+1 {
@@ -189,16 +201,19 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			attestationPower = attestationPower.Add(math.NewInt(validatorPower))
 			// If the power of all the validators that have voted on the attestation is higher or equal to the threshold,
 			// process the attestation, set Observed to true, and break
-			if true || attestationPower.GTE(requiredPower) {
+			if attestationPower.GTE(requiredPower) {
 				// lastEventNonce := k.GetLastObservedEventNonce(ctx)
+				lastEventNonce := k.GetLastObservedEventNonceForHyperionID(ctx, claim.GetHyperionId())
 				// this check is performed at the next level up so this should never panic
 				// outside of programmer error.
-				// if claim.GetEventNonce() != lastEventNonce+1 {
-				// 	metrics.ReportFuncError(k.svcTags)
-				// 	panic("attempting to apply events to state out of order")
-				// }
-				k.setLastObservedEventNonce(ctx, claim.GetEventNonce())
-				k.SetLastObservedEthereumBlockHeight(ctx, claim.GetBlockHeight())
+				if claim.GetEventNonce() != lastEventNonce+1 {
+					metrics.ReportFuncError(k.svcTags)
+					panic("attempting to apply events to state out of order")
+				}
+				// k.setLastObservedEventNonce(ctx, claim.GetEventNonce())
+				// k.SetLastObservedEthereumBlockHeight(ctx, claim.GetBlockHeight())
+				k.setLastObservedEventNonceForHyperionID(ctx, claim.GetEventNonce(), claim.GetHyperionId())
+				k.SetLastObservedEthereumBlockHeightForHyperionID(ctx, claim.GetBlockHeight(), claim.GetHyperionId())
 
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetEventNonce(), claim.ClaimHash(), att)
@@ -423,6 +438,21 @@ func (k *Keeper) GetLastObservedEventNonce(ctx sdk.Context) uint64 {
 	return types.UInt64FromBytes(bytes)
 }
 
+// GetLastObservedEventNonceForHyperionID returns the latest observed event nonce
+func (k *Keeper) GetLastObservedEventNonceForHyperionID(ctx sdk.Context, hyperionID uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	bytes := store.Get(types.GetLastObservedEventNonceForHyperionIDKey(hyperionID))
+
+	if len(bytes) == 0 {
+		return 0
+	}
+
+	return types.UInt64FromBytes(bytes)
+}
+
 // GetLastObservedEthereumBlockHeight height gets the block height to of the last observed attestation from
 // the store
 func (k *Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastObservedEthereumBlockHeight {
@@ -459,6 +489,44 @@ func (k *Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, ethereumHei
 	store.Set(types.LastObservedEthereumBlockHeightKey, k.cdc.MustMarshal(&height))
 }
 
+// SetLastObservedEthereumBlockHeightForHyperionID sets the block height in the store.
+func (k *Keeper) SetLastObservedEthereumBlockHeightForHyperionID(ctx sdk.Context, ethereumHeight uint64, hyperionID uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	height := types.LastObservedEthereumBlockHeight{
+		ChainId:             strconv.FormatUint(hyperionID, 10),
+		EthereumBlockHeight: ethereumHeight,
+		CosmosBlockHeight:   uint64(ctx.BlockHeight()),
+	}
+
+	store.Set(types.GetLastObservedEthereumBlockHeightForHyperionIDKey(hyperionID), k.cdc.MustMarshal(&height))
+}
+
+// GetLastObservedEthereumBlockHeightForHyperionID height gets the block height to of the last observed attestation from
+// the store
+func (k *Keeper) GetLastObservedEthereumBlockHeightForHyperionID(ctx sdk.Context, hyperionID uint64) types.LastObservedEthereumBlockHeight {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	bytes := store.Get(types.GetLastObservedEthereumBlockHeightForHyperionIDKey(hyperionID))
+
+	if len(bytes) == 0 {
+		return types.LastObservedEthereumBlockHeight{
+			CosmosBlockHeight:   0,
+			EthereumBlockHeight: 0,
+		}
+	}
+
+	height := types.LastObservedEthereumBlockHeight{}
+	k.cdc.MustUnmarshal(bytes, &height)
+
+	return height
+}
+
+
 // setLastObservedEventNonce sets the latest observed event nonce
 func (k *Keeper) setLastObservedEventNonce(ctx sdk.Context, nonce uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
@@ -466,6 +534,16 @@ func (k *Keeper) setLastObservedEventNonce(ctx sdk.Context, nonce uint64) {
 
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.LastObservedEventNonceKey, types.UInt64Bytes(nonce))
+}
+
+func (k *Keeper) setLastObservedEventNonceForHyperionID(ctx sdk.Context, nonce uint64, hyperionID uint64) {
+
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetLastObservedEventNonceForHyperionIDKey(hyperionID)
+	store.Set(key, types.UInt64Bytes(nonce))
 }
 
 func (k *Keeper) setLastEventByValidator(ctx sdk.Context, validator sdk.ValAddress, nonce, blockHeight uint64) {
@@ -482,12 +560,44 @@ func (k *Keeper) setLastEventByValidator(ctx sdk.Context, validator sdk.ValAddre
 
 }
 
+func (k *Keeper) setLastEventByValidatorByHyperionID(ctx sdk.Context, validator sdk.ValAddress, nonce, blockHeight uint64, hyperionID uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	lastClaimEvent := types.LastClaimEvent{
+		EthereumEventNonce:  nonce,
+		EthereumEventHeight: blockHeight,
+	}
+
+	store.Set(types.GetLastEventByValidatorKeyByHyperionID(validator, hyperionID), k.cdc.MustMarshal(&lastClaimEvent))
+
+}
+
 // GetLastEventByValidator returns the latest event for a given validator
 func (k *Keeper) GetLastEventByValidator(ctx sdk.Context, validator sdk.ValAddress) types.LastClaimEvent {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	rawEvent := ctx.KVStore(k.storeKey).Get(types.GetLastEventByValidatorKey(validator))
+	if len(rawEvent) == 0 {
+		return types.LastClaimEvent{}
+	}
+
+	// Unmarshall last observed event by validator
+	var lastEvent types.LastClaimEvent
+	k.cdc.MustUnmarshal(rawEvent, &lastEvent)
+
+	return lastEvent
+}
+
+// GetLastEventByValidator returns the latest event for a given validator
+func (k *Keeper) GetLastEventByValidatorByHyperionID(ctx sdk.Context, validator sdk.ValAddress, hyperionID uint64) types.LastClaimEvent {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	// rawEvent := ctx.KVStore(k.storeKey).Get(types.GetLastEventByValidatorKey(validator))
+	rawEvent := ctx.KVStore(k.storeKey).Get(types.GetLastEventByValidatorKeyByHyperionID(validator, hyperionID))
 	if len(rawEvent) == 0 {
 		return types.LastClaimEvent{}
 	}

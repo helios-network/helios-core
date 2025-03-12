@@ -165,10 +165,16 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 			// we skip the other attestations and move on to the next nonce again.
 			// If no attestation becomes observed, when we get to the next nonce, every attestation in
 			// it will be skipped. The same will happen for every nonce after that.
+			claim, err := h.k.UnpackAttestationClaim(attestation)
+			if err != nil {
+				metrics.ReportFuncError(h.svcTags)
+				continue
+			}
 			fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx))
-			// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
+			fmt.Println("h.k.GetLastObservedEventNonceForHyperionID(ctx, attestation.HyperionId)", h.k.GetLastObservedEventNonceForHyperionID(ctx, claim.GetHyperionId()))
+			if nonce == h.k.GetLastObservedEventNonceForHyperionID(ctx, claim.GetHyperionId())+1 {
 				h.k.TryAttestation(ctx, attestation)
-			// }
+			}
 		}
 	}
 }
@@ -373,7 +379,7 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 			for _, batchConfirmation := range confirms {
 				// TODO this presents problems for delegate key rotation see issue #344
 				orchestratorAcc, _ := sdk.AccAddressFromBech32(batchConfirmation.Orchestrator)
-				delegatedOperator, delegatedFound := h.k.GetOrchestratorValidator(ctx, orchestratorAcc)
+				delegatedOperator, delegatedFound := h.k.GetOrchestratorValidatorByHyperionID(ctx, orchestratorAcc, params.HyperionId)
 				operatorAddr, _ := sdk.ValAddressFromBech32(currentBondedSet[i].GetOperator())
 				if delegatedFound && delegatedOperator.Equals(operatorAddr) {
 					found = true

@@ -4,7 +4,9 @@ package helios.hyperion.v1;
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "amino/amino.proto";
-
+import "helios/hyperion/v1/types.proto";
+import "helios/hyperion/v1/batch.proto";
+import "helios/hyperion/v1/attestation.proto";
 option go_package = "helios-core/helios-chain/modules/hyperion/types";
 
 // Params represent the hyperion genesis and store parameters
@@ -143,4 +145,18 @@ message CounterpartyChainParams {
   uint64 bridge_contract_start_height = 20;
 
   cosmos.base.v1beta1.Coin valset_reward = 21 [ (gogoproto.nullable) = false ];
+  uint64 last_observed_nonce = 22;
+  // repeated Valset valsets = 23;
+  // repeated MsgValsetConfirm valset_confirms = 24;
+  // repeated OutgoingTxBatch batches = 25;
+  // repeated MsgConfirmBatch batch_confirms = 26;
+  // repeated Attestation attestations = 27;
+  // repeated MsgSetOrchestratorAddresses orchestrator_addresses = 23;
+  repeated ERC20ToDenom erc20_to_denoms = 23;
+  // repeated OutgoingTransferTx unbatched_transfers = 30;
+  uint64 last_observed_ethereum_height = 24;
+  uint64 last_outgoing_batch_id = 25;
+  uint64 last_outgoing_pool_id = 26;
+  Valset last_observed_valset = 27 [ (gogoproto.nullable) = false ];
+  repeated string ethereum_blacklist = 28;
 }

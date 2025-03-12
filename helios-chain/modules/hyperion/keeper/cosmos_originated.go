@@ -49,6 +49,15 @@ func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, denom string, 
 	store.Set(types.GetERC20ToCosmosDenomKey(tokenContract), []byte(denom))
 }
 
+func (k *Keeper) SetCosmosOriginatedDenomToERC20ByHyperionID(ctx sdk.Context, denom string, tokenContract common.Address, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetCosmosDenomToERC20ByHyperionIDKey(denom, hyperionId), tokenContract.Bytes())
+	store.Set(types.GetERC20ToCosmosDenomByHyperionIDKey(tokenContract, hyperionId), []byte(denom))
+}
+
 // DenomToERC20 returns if an asset is native to Cosmos or Ethereum, and get its corresponding ERC20 address
 // This will return an error if it cant parse the denom as a hyperion denom, and then also can't find the denom
 // in an index of ERC20 contracts deployed on Ethereum to serve as synthetic Cosmos assets.

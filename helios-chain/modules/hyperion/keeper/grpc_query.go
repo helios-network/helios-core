@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -222,7 +221,7 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 		return nil, errors.Wrap(sdkerrors.ErrInvalidAddress, req.Address)
 	}
 
-	validator, found := k.GetOrchestratorValidator(ctx, addr)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, addr, req.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "address")
@@ -399,9 +398,9 @@ func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAll
 	res.UnbatchedTransfers = make([]*types.OutgoingTransferTx, 0)
 
 	for _, batch := range batches {
-		res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...) 
+		res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...)
 	}
-	res.UnbatchedTransfers = append(res.UnbatchedTransfers, unbatchedTx...) 
+	res.UnbatchedTransfers = append(res.UnbatchedTransfers, unbatchedTx...)
 
 	return res, nil
 }
@@ -413,70 +412,10 @@ func (k *Keeper) HyperionModuleState(c context.Context, req *types.QueryModuleSt
 	ctx := sdk.UnwrapSDKContext(c)
 
 	var (
-		p                               = k.GetParams(ctx)
-		batches                         = k.GetOutgoingTxBatches(ctx)
-		valsets                         = k.GetValsets(ctx)
-		attmap                          = k.GetAttestationMapping(ctx)
-		vsconfs                         = []*types.MsgValsetConfirm{}
-		batchconfs                      = []*types.MsgConfirmBatch{}
-		attestations                    = []*types.Attestation{}
-		orchestratorAddresses           = k.GetOrchestratorAddresses(ctx)
-		lastObservedEventNonce          = k.GetLastObservedEventNonce(ctx)
-		lastObservedEthereumBlockHeight = k.GetLastObservedEthereumBlockHeight(ctx)
-		erc20ToDenoms                   = []*types.ERC20ToDenom{}
-		unbatchedTransfers              = k.GetPoolTransactions(ctx)
-		ethereumBlacklistAddresses      = k.GetAllEthereumBlacklistAddresses(ctx)
+		p = k.GetParams(ctx)
 	)
-
-	// export valset confirmations from state
-	for _, vs := range valsets {
-		vsconfs = append(vsconfs, k.GetValsetConfirms(ctx, vs.Nonce)...)
-	}
-
-	// export batch confirmations from state
-	for _, batch := range batches {
-		batchconfs = append(batchconfs, k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.BatchNonce, common.HexToAddress(batch.TokenContract))...)
-	}
-
-	// sort attestation map keys since map iteration is non-deterministic
-	attestationHeights := make([]uint64, 0, len(attmap))
-	for k := range attmap {
-		attestationHeights = append(attestationHeights, k)
-	}
-	sort.SliceStable(attestationHeights, func(i, j int) bool {
-		return attestationHeights[i] < attestationHeights[j]
-	})
-
-	for _, height := range attestationHeights {
-		attestations = append(attestations, attmap[height]...)
-	}
-
-	// export erc20 to denom relations
-	k.IterateERC20ToDenom(ctx, func(_ []byte, erc20ToDenom *types.ERC20ToDenom) bool {
-		erc20ToDenoms = append(erc20ToDenoms, erc20ToDenom)
-		return false
-	})
-
-	lastOutgoingBatchID := k.GetLastOutgoingBatchID(ctx)
-	lastOutgoingPoolID := k.GetLastOutgoingPoolID(ctx)
-	lastObservedValset := k.GetLastObservedValset(ctx)
-
 	state := types.GenesisState{
-		Params:                     p,
-		LastObservedNonce:          lastObservedEventNonce,
-		LastObservedEthereumHeight: lastObservedEthereumBlockHeight.EthereumBlockHeight,
-		Valsets:                    valsets,
-		ValsetConfirms:             vsconfs,
-		Batches:                    batches,
-		BatchConfirms:              batchconfs,
-		Attestations:               attestations,
-		OrchestratorAddresses:      orchestratorAddresses,
-		Erc20ToDenoms:              erc20ToDenoms,
-		UnbatchedTransfers:         unbatchedTransfers,
-		LastOutgoingBatchId:        lastOutgoingBatchID,
-		LastOutgoingPoolId:         lastOutgoingPoolID,
-		LastObservedValset:         *lastObservedValset,
-		EthereumBlacklist:          ethereumBlacklistAddresses,
+		Params: p,
 	}
 
 	res := &types.QueryModuleStateResponse{

@@ -2,7 +2,10 @@ package types
 
 import (
 	"context"
+	"math/big"
 	"time"
+
+	erc20types "helios-core/helios-chain/x/erc20/types"
 
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
@@ -11,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // StakingKeeper defines the expected staking keeper methods
@@ -41,6 +45,31 @@ type BankKeeper interface {
 	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 	GetDenomMetaData(ctx context.Context, denom string) (bank.Metadata, bool)
 	GetSupply(ctx context.Context, denom string) sdk.Coin
+}
+
+type ERC20Keeper interface {
+	GetERC20Contract(ctx context.Context, denom string) (common.Address, error)
+	GetTokenPairID(ctx context.Context, token string) []byte
+	GetTokenPair(ctx context.Context, id []byte) (erc20types.TokenPair, bool)
+	ConvertCoinNativeERC20(
+		ctx sdk.Context,
+		pair erc20types.TokenPair,
+		amount math.Int,
+		receiver common.Address,
+		sender sdk.AccAddress,
+	) error
+	DeployERC20Contract(
+		ctx sdk.Context,
+		coinMetadata bank.Metadata,
+	) (common.Address, error) 
+	SetToken(ctx sdk.Context, pair erc20types.TokenPair)
+	EnableDynamicPrecompiles(ctx sdk.Context, contract common.Address)
+	MintERC20Tokens(
+		ctx sdk.Context,
+		contractAddr common.Address,
+		recipient common.Address,
+		amount *big.Int,
+	) error
 }
 
 type SlashingKeeper interface {

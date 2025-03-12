@@ -55,7 +55,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 		orchestratorAddr = validatorAccountAddr
 	}
 
-	valAddr, foundExistingOrchestratorKey := k.GetOrchestratorValidator(ctx, orchestratorAddr)
+	valAddr, foundExistingOrchestratorKey := k.GetOrchestratorValidatorByHyperionID(ctx, orchestratorAddr, msg.HyperionId)
 	ethAddress, foundExistingEthAddress := k.GetEthAddressByValidator(ctx, validatorAddr)
 	fmt.Println("valAddr: ", valAddr)
 	fmt.Println("orchestratorAddr: ", orchestratorAddr)
@@ -74,7 +74,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	}
 
 	// set the orchestrator address
-	k.SetOrchestratorValidator(ctx, validatorAddr, orchestratorAddr)
+	k.SetOrchestratorValidatorByHyperionID(ctx, validatorAddr, orchestratorAddr, msg.HyperionId)
 	// set the ethereum address
 	fmt.Println("msg.EthAddress: ", msg.EthAddress)
 	ethAddr := common.HexToAddress(msg.EthAddress)
@@ -113,7 +113,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, errors.Wrap(types.ErrInvalid, "signature decoding")
 	}
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchaddr)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orchaddr, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
@@ -252,7 +252,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	}
 
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchaddr)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orchaddr, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
@@ -303,7 +303,7 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orchestrator, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchestrator)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orchestrator, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
@@ -356,7 +356,7 @@ func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim)
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orchestrator, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchestrator)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orchestrator, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
@@ -397,7 +397,7 @@ func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20Depl
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orch, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orch)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orch, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
@@ -438,7 +438,7 @@ func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpda
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchaddr)
+	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orchaddr, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")

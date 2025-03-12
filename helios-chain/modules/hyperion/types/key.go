@@ -115,6 +115,14 @@ var (
 	EthereumBlacklistKey = []byte{0x1c}
 )
 
+func GetLastObservedEventNonceForHyperionIDKey(hyperionID uint64) []byte {
+	return append(LastObservedEventNonceKey, UInt64Bytes(hyperionID)...)
+}
+
+func GetLastObservedEthereumBlockHeightForHyperionIDKey(hyperionID uint64) []byte {
+	return append(LastObservedEthereumBlockHeightKey, UInt64Bytes(hyperionID)...)
+}
+
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
 	return append(EthereumBlacklistKey, addr.Bytes()...)
 }
@@ -124,6 +132,14 @@ func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
 // [0xe8][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 func GetOrchestratorAddressKey(orc sdk.AccAddress) []byte {
 	return append(KeyOrchestratorAddress, orc.Bytes()...)
+}
+
+func GetOrchestratorAddressKeyByHyperionID(orc sdk.AccAddress, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(KeyOrchestratorAddress)+len(orc.Bytes())+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, KeyOrchestratorAddress...)
+	buf = append(buf, orc.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	return buf
 }
 
 // GetEthAddressByValidatorKey returns the following key format
@@ -270,6 +286,14 @@ func GetLastEventByValidatorKey(validator sdk.ValAddress) []byte {
 	return buf
 }
 
+func GetLastEventByValidatorKeyByHyperionID(validator sdk.ValAddress, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator)+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, LastEventByValidatorKey...)
+	buf = append(buf, validator.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	return buf
+}
+
 func GetCosmosDenomToERC20Key(denom string) []byte {
 	buf := make([]byte, 0, len(DenomToERC20Key)+len(denom))
 	buf = append(buf, DenomToERC20Key...)
@@ -278,11 +302,27 @@ func GetCosmosDenomToERC20Key(denom string) []byte {
 	return buf
 }
 
+func GetCosmosDenomToERC20ByHyperionIDKey(denom string, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(DenomToERC20Key)+len(denom)+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, DenomToERC20Key...)
+	buf = append(buf, denom...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	return buf
+}
+
 func GetERC20ToCosmosDenomKey(tokenContract common.Address) []byte {
 	buf := make([]byte, 0, len(ERC20ToDenomKey)+ETHContractAddressLen)
 	buf = append(buf, ERC20ToDenomKey...)
 	buf = append(buf, tokenContract.Bytes()...)
 
+	return buf
+}
+
+func GetERC20ToCosmosDenomByHyperionIDKey(tokenContract common.Address, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(ERC20ToDenomKey)+ETHContractAddressLen+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, ERC20ToDenomKey...)
+	buf = append(buf, tokenContract.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
 	return buf
 }
 

@@ -15,6 +15,5 @@ func (s GenesisState) ValidateBasic() error {
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params: DefaultParams(),
-		Erc20ToDenoms: MockErc20ToDenoms(),
 	}
 }
