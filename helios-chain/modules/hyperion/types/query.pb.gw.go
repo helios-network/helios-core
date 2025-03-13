@@ -235,6 +235,10 @@ func local_request_Query_ValsetConfirm_0(ctx context.Context, marshaler runtime.
 
 }
 
+var (
+	filter_Query_ValsetConfirmsByNonce_0 = &utilities.DoubleArray{Encoding: map[string]int{"nonce": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
+
 func request_Query_ValsetConfirmsByNonce_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq QueryValsetConfirmsByNonceRequest
 	var metadata runtime.ServerMetadata
@@ -255,6 +259,13 @@ func request_Query_ValsetConfirmsByNonce_0(ctx context.Context, marshaler runtim
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nonce", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_ValsetConfirmsByNonce_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := client.ValsetConfirmsByNonce(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -284,14 +295,32 @@ func local_request_Query_ValsetConfirmsByNonce_0(ctx context.Context, marshaler 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nonce", err)
 	}
 
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_ValsetConfirmsByNonce_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	msg, err := server.ValsetConfirmsByNonce(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
+var (
+	filter_Query_LastValsetRequests_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
 func request_Query_LastValsetRequests_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq QueryLastValsetRequestsRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_LastValsetRequests_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := client.LastValsetRequests(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -301,6 +330,13 @@ func request_Query_LastValsetRequests_0(ctx context.Context, marshaler runtime.M
 func local_request_Query_LastValsetRequests_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq QueryLastValsetRequestsRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_LastValsetRequests_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := server.LastValsetRequests(ctx, &protoReq)
 	return msg, metadata, err
@@ -469,9 +505,20 @@ func local_request_Query_GetAllPendingSendToChain_0(ctx context.Context, marshal
 
 }
 
+var (
+	filter_Query_BatchFees_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
 func request_Query_BatchFees_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq QueryBatchFeeRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_BatchFees_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := client.BatchFees(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -482,14 +529,32 @@ func local_request_Query_BatchFees_0(ctx context.Context, marshaler runtime.Mars
 	var protoReq QueryBatchFeeRequest
 	var metadata runtime.ServerMetadata
 
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_BatchFees_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	msg, err := server.BatchFees(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
+var (
+	filter_Query_OutgoingTxBatches_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
 func request_Query_OutgoingTxBatches_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq QueryOutgoingTxBatchesRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_OutgoingTxBatches_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := client.OutgoingTxBatches(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -499,6 +564,13 @@ func request_Query_OutgoingTxBatches_0(ctx context.Context, marshaler runtime.Ma
 func local_request_Query_OutgoingTxBatches_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq QueryOutgoingTxBatchesRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_OutgoingTxBatches_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := server.OutgoingTxBatches(ctx, &protoReq)
 	return msg, metadata, err

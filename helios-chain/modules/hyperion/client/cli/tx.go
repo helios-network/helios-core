@@ -178,9 +178,9 @@ func NewCancelSendToChain() *cobra.Command {
 
 func CmdRequestBatch() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "build-batch [denom]",
+		Use:   "build-batch [dest-hyperion-id] [denom]",
 		Short: "Build a new batch on the cosmos side for pooled withdrawal transactions",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -188,9 +188,14 @@ func CmdRequestBatch() *cobra.Command {
 			}
 			cosmosAddr := cliCtx.GetFromAddress()
 
-			denom := args[0]
+			destHypperionId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "dest hypperionId")
+			}
+			denom := args[1]
 
 			msg := types.MsgRequestBatch{
+				HyperionId:   destHypperionId,
 				Orchestrator: cosmosAddr.String(),
 				Denom:        denom,
 			}

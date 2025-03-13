@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"log"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -190,6 +191,8 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 // RequestBatch handles MsgRequestBatch
 func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (*types.MsgRequestBatchResponse, error) {
 	fmt.Println("RequestBatch, got msg request batch from hyperion - msg: ", msg)
+	log.Println("RequestBatch, got msg request batch from hyperion - msg: ")
+	log.Println(msg)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 

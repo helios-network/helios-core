@@ -129,7 +129,7 @@ func (k *Keeper) BatchFees(c context.Context, req *types.QueryBatchFeeRequest) (
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c))}, nil
+	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), req.HyperionId)}, nil
 }
 
 // LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the hyperion module
@@ -144,7 +144,7 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 	}
 
 	var pendingBatchReq *types.OutgoingTxBatch
-	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), func(_ []byte, batch *types.OutgoingTxBatch) (stop bool) {
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) (stop bool) {
 		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr) != nil
 		if !foundConfirm {
 			pendingBatchReq = batch
@@ -163,7 +163,7 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	defer doneFn()
 
 	batches := make([]*types.OutgoingTxBatch, 0)
-	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), func(_ []byte, batch *types.OutgoingTxBatch) bool {
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) bool {
 		batches = append(batches, batch)
 		return len(batches) == MaxResults
 	})
@@ -364,7 +364,7 @@ func (k *Keeper) GetPendingSendToChain(c context.Context, req *types.QueryPendin
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	batches := k.GetOutgoingTxBatches(ctx)
+	batches := k.GetOutgoingTxBatches(ctx, req.HyperionId)
 	unbatchedTx := k.GetPoolTransactions(ctx)
 	senderAddress := req.SenderAddress
 
@@ -395,7 +395,7 @@ func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAll
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	batches := k.GetOutgoingTxBatches(ctx)
+	batches := k.GetOutgoingTxBatches(ctx, req.HyperionId)
 	unbatchedTx := k.GetPoolTransactions(ctx)
 
 	res := &types.QueryAllPendingSendToChainResponse{}

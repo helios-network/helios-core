@@ -261,13 +261,13 @@ func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validat
 func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token, hyperionID uint64) []byte {
 	buf := make([]byte, 0, len(SecondIndexOutgoingTXFeeKey)+ETHContractAddressLen+32+len(UInt64Bytes(hyperionID)))
 	buf = append(buf, SecondIndexOutgoingTXFeeKey...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
 	buf = append(buf, tokenContract.Bytes()...)
 
 	// sdk.BigInt represented as a zero-extended big-endian byte slice (32 bytes)
 	amount := make([]byte, 32)
 	amount = fee.Amount.BigInt().FillBytes(amount)
 	buf = append(buf, amount...)
-	buf = append(buf, UInt64Bytes(hyperionID)...)
 
 	return buf
 }

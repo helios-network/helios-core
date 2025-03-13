@@ -33,14 +33,14 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		return nil, errors.Wrap(types.ErrInvalid, "max elements value")
 	}
 
-	lastBatch := k.GetLastOutgoingBatchByTokenType(ctx, contractAddress)
+	lastBatch := k.GetLastOutgoingBatchByTokenType(ctx, contractAddress, hyperionId)
 
 	// lastBatch may be nil if there are no existing batches, we only need
 	// to perform this check if a previous batch exists
 	if lastBatch != nil {
 		// this traverses the current tx pool for this token type and determines what
 		// fees a hypothetical batch would have if created
-		currentFees := k.GetBatchFeesByTokenType(ctx, contractAddress)
+		currentFees := k.GetBatchFeesByTokenType(ctx, contractAddress, hyperionId)
 		if currentFees == nil {
 			metrics.ReportFuncError(k.svcTags)
 			return nil, errors.Wrap(types.ErrInvalid, "error getting fees from tx pool")
@@ -124,7 +124,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	}
 
 	// Iterate through remaining batches
-	k.IterateOutgoingTXBatches(ctx, func(key []byte, iter_batch *types.OutgoingTxBatch) bool {
+	k.IterateOutgoingTXBatches(ctx, hyperionId, func(key []byte, iter_batch *types.OutgoingTxBatch) bool {
 		// If the iterated batches nonce is lower than the one that was just executed, cancel it
 		if iter_batch.BatchNonce < b.BatchNonce && common.HexToAddress(iter_batch.TokenContract) == tokenContract {
 			err := k.CancelOutgoingTXBatch(ctx, tokenContract, iter_batch.BatchNonce, iter_batch.HyperionId)
@@ -195,7 +195,7 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 	selectedTx := make([]*types.OutgoingTransferTx, 0)
 	var err error
 
-	k.IterateOutgoingPoolByFee(ctx, contractAddress, func(txID uint64, tx *types.OutgoingTransferTx) bool {
+	k.IterateOutgoingPoolByFee(ctx, contractAddress, hyperionId, func(txID uint64, tx *types.OutgoingTransferTx) bool {
 		fmt.Println("pickUnbatchedTX - tx: ", tx)
 		if tx != nil && tx.Erc20Fee != nil {
 			if tx.HyperionId == hyperionId {
@@ -272,11 +272,12 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 }
 
 // IterateOutgoingTXBatches iterates through all outgoing batches in DESC order.
-func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, batch *types.OutgoingTxBatch) bool) {
+func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, hyperionId uint64, cb func(key []byte, batch *types.OutgoingTxBatch) bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.OutgoingTXBatchKey)
+	prefixKey := append(types.OutgoingTXBatchKey, types.UInt64Bytes(hyperionId)...)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixKey)
 	iter := prefixStore.ReverseIterator(nil, nil)
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -291,11 +292,11 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, b
 }
 
 // GetOutgoingTxBatches returns the outgoing tx batches
-func (k *Keeper) GetOutgoingTxBatches(ctx sdk.Context) (out []*types.OutgoingTxBatch) {
+func (k *Keeper) GetOutgoingTxBatches(ctx sdk.Context, hyperionId uint64) (out []*types.OutgoingTxBatch) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	k.IterateOutgoingTXBatches(ctx, func(_ []byte, batch *types.OutgoingTxBatch) bool {
+	k.IterateOutgoingTXBatches(ctx, hyperionId, func(_ []byte, batch *types.OutgoingTxBatch) bool {
 		out = append(out, batch)
 		return false
 	})
@@ -304,11 +305,11 @@ func (k *Keeper) GetOutgoingTxBatches(ctx sdk.Context) (out []*types.OutgoingTxB
 }
 
 // GetLastOutgoingBatchByTokenType gets the latest outgoing tx batch by token type
-func (k *Keeper) GetLastOutgoingBatchByTokenType(ctx sdk.Context, token common.Address) *types.OutgoingTxBatch {
+func (k *Keeper) GetLastOutgoingBatchByTokenType(ctx sdk.Context, token common.Address, hyperionId uint64) *types.OutgoingTxBatch {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	batches := k.GetOutgoingTxBatches(ctx)
+	batches := k.GetOutgoingTxBatches(ctx, hyperionId)
 	var lastBatch *types.OutgoingTxBatch = nil
 	lastNonce := uint64(0)
 
