@@ -79,9 +79,9 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	att.Votes = append(att.Votes, valAddr.String())
 
 	k.SetAttestation(ctx, claim.GetEventNonce(), claim.ClaimHash(), att)
-	k.setLastEventByValidator(ctx, valAddr, claim.GetEventNonce(), claim.GetBlockHeight())
+	k.setLastEventByValidator(ctx, valAddr, claim.GetEventNonce(), claim.GetBlockHeight(), claim.GetHyperionId())
 
-	lastEvent = k.GetLastEventByValidator(ctx, valAddr)
+	lastEvent = k.GetLastEventByValidator(ctx, valAddr, claim.GetHyperionId())
 	k.Logger(ctx).Info(fmt.Sprintf("Attest Update Nonce of Hyperion Orchestrator %s newNonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
 
 	attestationId := types.GetAttestationKey(claim.GetEventNonce(), claim.ClaimHash())
@@ -423,21 +423,6 @@ func (k *Keeper) SetLastObservedValset(ctx sdk.Context, valset types.Valset) {
 	store.Set(types.LastObservedValsetKey, k.cdc.MustMarshal(&valset))
 }
 
-// GetLastObservedEventNonce returns the latest observed event nonce
-func (k *Keeper) GetLastObservedEventNonce(ctx sdk.Context) uint64 {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastObservedEventNonceKey)
-
-	if len(bytes) == 0 {
-		return 0
-	}
-
-	return types.UInt64FromBytes(bytes)
-}
-
 // GetLastObservedEventNonceForHyperionID returns the latest observed event nonce
 func (k *Keeper) GetLastObservedEventNonceForHyperionID(ctx sdk.Context, hyperionID uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
@@ -546,7 +531,7 @@ func (k *Keeper) setLastObservedEventNonceForHyperionID(ctx sdk.Context, nonce u
 	store.Set(key, types.UInt64Bytes(nonce))
 }
 
-func (k *Keeper) setLastEventByValidator(ctx sdk.Context, validator sdk.ValAddress, nonce, blockHeight uint64) {
+func (k *Keeper) setLastEventByValidator(ctx sdk.Context, validator sdk.ValAddress, nonce, blockHeight uint64, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -556,7 +541,7 @@ func (k *Keeper) setLastEventByValidator(ctx sdk.Context, validator sdk.ValAddre
 		EthereumEventHeight: blockHeight,
 	}
 
-	store.Set(types.GetLastEventByValidatorKey(validator), k.cdc.MustMarshal(&lastClaimEvent))
+	store.Set(types.GetLastEventByValidatorKey(validator, hyperionID), k.cdc.MustMarshal(&lastClaimEvent))
 
 }
 
@@ -575,11 +560,11 @@ func (k *Keeper) setLastEventByValidatorByHyperionID(ctx sdk.Context, validator 
 }
 
 // GetLastEventByValidator returns the latest event for a given validator
-func (k *Keeper) GetLastEventByValidator(ctx sdk.Context, validator sdk.ValAddress) types.LastClaimEvent {
+func (k *Keeper) GetLastEventByValidator(ctx sdk.Context, validator sdk.ValAddress, hyperionID uint64) types.LastClaimEvent {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	rawEvent := ctx.KVStore(k.storeKey).Get(types.GetLastEventByValidatorKey(validator))
+	rawEvent := ctx.KVStore(k.storeKey).Get(types.GetLastEventByValidatorKey(validator, hyperionID))
 	if len(rawEvent) == 0 {
 		return types.LastClaimEvent{}
 	}

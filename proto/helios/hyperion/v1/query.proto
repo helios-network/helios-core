@@ -252,6 +252,6 @@ message QueryModuleStateRequest {}
 // Query/HyperionModuleState RPC method.
 message QueryModuleStateResponse { GenesisState state = 1; }
 
-message MissingNoncesRequest {}
+message MissingNoncesRequest { uint64 hyperion_id = 1; }
 
 message MissingNoncesResponse { repeated string operator_addresses = 1; }

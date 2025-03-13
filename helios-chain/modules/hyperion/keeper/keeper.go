@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
 	gomath "math"
 	"sort"
@@ -104,7 +105,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64) *types.Val
 	k.StoreValset(ctx, valset)
 	// Store the checkpoint as a legit past valset
 	checkpoint := valset.GetCheckpoint(hyperionId)
-	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
+	k.SetPastEthSignatureCheckpoint(ctx, checkpoint, hyperionId)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetUpdateRequest{
@@ -877,7 +878,14 @@ func (k *Keeper) GetOrchestratorAddressesByHyperionID(ctx sdk.Context, hyperionI
 		// cosmos key will be made out of EthAddressByValidatorKey + the startin bytes
 		// of the actual key
 		arrLen := len(iter.Key())
-		key := iter.Key()[len(types.EthAddressByValidatorKey):arrLen-len(types.UInt64Bytes(hyperionID))]
+		hyperionIDBytes := types.UInt64Bytes(hyperionID)
+		lastIndex := arrLen - len(hyperionIDBytes)
+		hyperionIDKey := iter.Key()[lastIndex:]
+		// require hyperionIDKey to be equal to hyperionIDBytes
+		if !bytes.Equal(hyperionIDKey, hyperionIDBytes) {
+			continue
+		}
+		key := iter.Key()[len(types.EthAddressByValidatorKey):arrLen-len(hyperionIDBytes)]
 		value := iter.Value()
 		ethAddress := common.BytesToAddress(value)
 		fmt.Println("value: ", ethAddress.Hex())
@@ -895,7 +903,14 @@ func (k *Keeper) GetOrchestratorAddressesByHyperionID(ctx sdk.Context, hyperionI
 
 	for ; iter.Valid(); iter.Next() {
 		arrLen := len(iter.Key())
-		key := iter.Key()[len(types.KeyOrchestratorAddress):arrLen-len(types.UInt64Bytes(hyperionID))]
+		hyperionIDBytes := types.UInt64Bytes(hyperionID)
+		lastIndex := arrLen - len(hyperionIDBytes)
+		hyperionIDKey := iter.Key()[lastIndex:]
+		// require hyperionIDKey to be equal to hyperionIDBytes
+		if !bytes.Equal(hyperionIDKey, hyperionIDBytes) {
+			continue
+		}
+		key := iter.Key()[len(types.KeyOrchestratorAddress):arrLen-len(hyperionIDBytes)]
 		value := iter.Value()
 		orchestratorAccount := sdk.AccAddress(key)
 		validatorAccount := sdk.AccAddress(value)

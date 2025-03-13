@@ -78,7 +78,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	}
 
 	// add a second index with the fee
-	k.appendToUnbatchedTXIndex(ctx, tokenContract, erc20Fee, nextID)
+	k.appendToUnbatchedTXIndex(ctx, tokenContract, erc20Fee, nextID, hyperionId)
 
 	// todo: add second index for sender so that we can easily query: give pending Tx by sender
 	// todo: what about a second index for receiver?
@@ -132,7 +132,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 	}
 
 	// delete this tx from both indexes
-	err = k.removeFromUnbatchedTXIndex(ctx, common.HexToAddress(tx.Erc20Token.Contract), tx.Erc20Fee, txId)
+	err = k.removeFromUnbatchedTXIndex(ctx, common.HexToAddress(tx.Erc20Token.Contract), tx.Erc20Fee, txId, tx.HyperionId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
@@ -184,12 +184,12 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 }
 
 // appendToUnbatchedTXIndex add at the end when tx with same fee exists
-func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
+func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee)
+	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee, hyperionID)
 	var idSet types.IDSet
 	if store.Has(idxKey) {
 		bz := store.Get(idxKey)
@@ -200,12 +200,12 @@ func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.
 }
 
 // appendToUnbatchedTXIndex add at the top when tx with same fee exists
-func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
+func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee)
+	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee, hyperionID)
 	var idSet types.IDSet
 	if store.Has(idxKey) {
 		bz := store.Get(idxKey)
@@ -220,12 +220,12 @@ func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, tokenContract common
 // GetPoolTransactions, making this tx implicitly invisible without a direct request. We remove a tx
 // from the pool for good in OutgoingTxBatchExecuted, but if a batch is canceled or timed out we 'reactivate'
 // an entry by adding it back to the second index.
-func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64) error {
+func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64, hyperionID uint64) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee)
+	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee, hyperionID)
 
 	var idSet types.IDSet
 	bz := store.Get(idxKey)

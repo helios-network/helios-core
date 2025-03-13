@@ -1,3 +1,15 @@
 [grpc]
 enable = true
 address = "0.0.0.0:9090" 
+
+[telemetry]
+enabled = false
+prometheus-retention-time = 0
+
+[api]
+enable = true
+swagger = true
+address = "tcp://0.0.0.0:1317"
+
+# Output level for logging, including package level options
+log_level = "error"  # Change this from info to error

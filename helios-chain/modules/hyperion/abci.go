@@ -170,7 +170,6 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 				metrics.ReportFuncError(h.svcTags)
 				continue
 			}
-			fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx))
 			fmt.Println("h.k.GetLastObservedEventNonceForHyperionID(ctx, attestation.HyperionId)", h.k.GetLastObservedEventNonceForHyperionID(ctx, claim.GetHyperionId()))
 			if nonce == h.k.GetLastObservedEventNonceForHyperionID(ctx, claim.GetHyperionId())+1 {
 				h.k.TryAttestation(ctx, attestation)

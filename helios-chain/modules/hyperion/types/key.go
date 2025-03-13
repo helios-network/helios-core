@@ -258,8 +258,8 @@ func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validat
 // GetFeeSecondIndexKey returns the following key format
 // prefix            eth-contract-address            					fee_amount
 // [0x9][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte {
-	buf := make([]byte, 0, len(SecondIndexOutgoingTXFeeKey)+ETHContractAddressLen+32)
+func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(SecondIndexOutgoingTXFeeKey)+ETHContractAddressLen+32+len(UInt64Bytes(hyperionID)))
 	buf = append(buf, SecondIndexOutgoingTXFeeKey...)
 	buf = append(buf, tokenContract.Bytes()...)
 
@@ -267,6 +267,7 @@ func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte 
 	amount := make([]byte, 32)
 	amount = fee.Amount.BigInt().FillBytes(amount)
 	buf = append(buf, amount...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
 
 	return buf
 }
@@ -275,11 +276,11 @@ func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte 
 // GetLastEventNonceByValidatorKey returns the following key format
 // prefix              cosmos-validator
 // [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
-func GetLastEventNonceByValidatorKey(validator sdk.ValAddress) []byte {
-	buf := make([]byte, 0, len(LastEventNonceByValidatorKey)+len(validator))
+func GetLastEventNonceByValidatorKey(validator sdk.ValAddress, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(LastEventNonceByValidatorKey)+len(validator)+len(UInt64Bytes(hyperionID)))
 	buf = append(buf, LastEventNonceByValidatorKey...)
 	buf = append(buf, validator.Bytes()...)
-
+	buf = append(buf, UInt64Bytes(hyperionID)...)
 	return buf
 }
 
@@ -287,11 +288,11 @@ func GetLastEventNonceByValidatorKey(validator sdk.ValAddress) []byte {
 // GetLastEventByValidatorKey returns the following key format
 // prefix              cosmos-validator
 // [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
-func GetLastEventByValidatorKey(validator sdk.ValAddress) []byte {
-	buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator))
+func GetLastEventByValidatorKey(validator sdk.ValAddress, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator)+len(UInt64Bytes(hyperionID)))
 	buf = append(buf, LastEventByValidatorKey...)
 	buf = append(buf, validator.Bytes()...)
-
+	buf = append(buf, UInt64Bytes(hyperionID)...)
 	return buf
 }
 
@@ -300,14 +301,6 @@ func GetLastEventByValidatorKeyByHyperionID(validator sdk.ValAddress, hyperionID
 	buf = append(buf, LastEventByValidatorKey...)
 	buf = append(buf, validator.Bytes()...)
 	buf = append(buf, UInt64Bytes(hyperionID)...)
-	return buf
-}
-
-func GetCosmosDenomToERC20Key(denom string) []byte {
-	buf := make([]byte, 0, len(DenomToERC20Key)+len(denom))
-	buf = append(buf, DenomToERC20Key...)
-	buf = append(buf, denom...)
-
 	return buf
 }
 
@@ -338,6 +331,10 @@ func GetERC20ToCosmosDenomByHyperionIDKey(tokenContract common.Address, hyperion
 // GetPastEthSignatureCheckpointKey returns the following key format
 // prefix    checkpoint
 // [0x0][ checkpoint bytes ]
-func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
-	return append(PastEthSignatureCheckpointKey, checkpoint[:]...)
+func GetPastEthSignatureCheckpointKey(checkpoint common.Hash, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(PastEthSignatureCheckpointKey)+len(checkpoint)+len(UInt64Bytes(hyperionID)))
+	buf = append(buf, PastEthSignatureCheckpointKey...)
+	buf = append(buf, checkpoint[:]...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	return buf
 }

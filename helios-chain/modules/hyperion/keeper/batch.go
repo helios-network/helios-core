@@ -71,7 +71,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 
 	// Get the checkpoint and store it as a legit past batch
 	checkpoint := batch.GetCheckpoint(hyperionId)
-	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
+	k.SetPastEthSignatureCheckpoint(ctx, checkpoint, hyperionId)
 
 	return batch, nil
 }
@@ -200,7 +200,7 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 		if tx != nil && tx.Erc20Fee != nil {
 			if tx.HyperionId == hyperionId {
 				selectedTx = append(selectedTx, tx)
-				err = k.removeFromUnbatchedTXIndex(ctx, contractAddress, tx.Erc20Fee, txID)
+				err = k.removeFromUnbatchedTXIndex(ctx, contractAddress, tx.Erc20Fee, txID, hyperionId)
 			}
 			return err != nil || len(selectedTx) == maxElements
 		} else {
@@ -253,7 +253,7 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 
 	for _, tx := range batch.Transactions {
 		tx.Erc20Fee.Contract = tokenContract.Hex()
-		k.prependToUnbatchedTXIndex(ctx, tokenContract, tx.Erc20Fee, tx.Id)
+		k.prependToUnbatchedTXIndex(ctx, tokenContract, tx.Erc20Fee, tx.Id, hyperionId)
 	}
 
 	// Delete batch since it is finished

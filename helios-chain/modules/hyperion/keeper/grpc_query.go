@@ -227,10 +227,10 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 		return nil, errors.Wrap(types.ErrUnknown, "address")
 	}
 
-	lastClaimEvent := k.GetLastEventByValidator(ctx, validator)
+	lastClaimEvent := k.GetLastEventByValidator(ctx, validator, req.HyperionId)
 	if lastClaimEvent.EthereumEventNonce == 0 && lastClaimEvent.EthereumEventHeight == 0 {
 		// if hyperion happens to query too early without a bonded validator even existing setup the base event
-		lowestObservedNonce := k.GetLastObservedEventNonce(ctx)
+		lowestObservedNonce := k.GetLastObservedEventNonceForHyperionID(ctx, req.HyperionId)
 		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
 
 		k.setLastEventByValidator(
@@ -238,8 +238,9 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 			validator,
 			lowestObservedNonce,
 			blockHeight,
+			req.HyperionId,
 		)
-		lastClaimEvent = k.GetLastEventByValidator(ctx, validator)
+		lastClaimEvent = k.GetLastEventByValidator(ctx, validator, req.HyperionId)
 	}
 
 	ret.LastClaimEvent = &lastClaimEvent
@@ -431,7 +432,7 @@ func (k *Keeper) HyperionModuleState(c context.Context, req *types.QueryModuleSt
 
 func (k *Keeper) MissingHyperionNonces(
 	c context.Context,
-	_ *types.MissingNoncesRequest,
+	req *types.MissingNoncesRequest,
 ) (*types.MissingNoncesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	var res []string
@@ -442,7 +443,7 @@ func (k *Keeper) MissingHyperionNonces(
 	}
 	for i := range bondedValidators {
 		val, _ := sdk.ValAddressFromBech32(bondedValidators[i].GetOperator())
-		ev := k.GetLastEventByValidator(ctx, val)
+		ev := k.GetLastEventByValidator(ctx, val, req.HyperionId)
 		if ev.EthereumEventNonce == 0 && ev.EthereumEventHeight == 0 {
 			res = append(res, bondedValidators[i].GetOperator())
 		}

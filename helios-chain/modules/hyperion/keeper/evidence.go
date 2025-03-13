@@ -49,7 +49,7 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 
 	// Try to find the checkpoint in the archives. If it exists, we don't slash because
 	// this is not a bad signature
-	if k.GetPastEthSignatureCheckpoint(ctx, checkpoint) {
+	if k.GetPastEthSignatureCheckpoint(ctx, checkpoint, hyperionId) {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrap(types.ErrInvalid, "Checkpoint exists, cannot slash")
 	}
@@ -102,21 +102,21 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 
 // SetPastEthSignatureCheckpoint puts the checkpoint of a valset, batch, or logic call into a set
 // in order to prove later that it existed at one point.
-func (k *Keeper) SetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint common.Hash) {
+func (k *Keeper) SetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint common.Hash, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetPastEthSignatureCheckpointKey(checkpoint), []byte{0x1})
+	store.Set(types.GetPastEthSignatureCheckpointKey(checkpoint, hyperionID), []byte{0x1})
 }
 
 // GetPastEthSignatureCheckpoint tells you whether a given checkpoint has ever existed
-func (k *Keeper) GetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint common.Hash) (found bool) {
+func (k *Keeper) GetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint common.Hash, hyperionID uint64) (found bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	if bytes.Equal(store.Get(types.GetPastEthSignatureCheckpointKey(checkpoint)), []byte{0x1}) {
+	if bytes.Equal(store.Get(types.GetPastEthSignatureCheckpointKey(checkpoint, hyperionID)), []byte{0x1}) {
 		return true
 	} else {
 		return false
