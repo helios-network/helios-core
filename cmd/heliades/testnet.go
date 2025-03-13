@@ -242,7 +242,7 @@ func initTestnetFiles(
 	args initArgs,
 ) error {
 	if args.chainID == "" {
-		args.chainID = fmt.Sprintf("evmos_%d-1", cmtrand.Int63n(9999999999999)+1)
+		args.chainID = fmt.Sprintf("helios_%d-1", cmtrand.Int63n(9999999999999)+1)
 	}
 
 	nodeIDs := make([]string, args.numValidators)
@@ -349,14 +349,23 @@ func initTestnetFiles(
 			return err
 		}
 
-		minGasPrice := args.minGasPrice
-		if args.baseFee.GT(args.minGasPrice) {
-			minGasPrice = args.baseFee
-		}
+		// minGasPrice := args.minGasPrice
+		// if args.baseFee.GT(args.minGasPrice) {
+		// 	minGasPrice = args.baseFee
+		// }
 
 		txBuilder.SetMemo(memo)
 		txBuilder.SetGasLimit(createValidatorMsgGasLimit)
-		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, minGasPrice.MulInt64(createValidatorMsgGasLimit).Ceil().TruncateInt())))
+		//txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, minGasPrice.MulInt64(createValidatorMsgGasLimit).Ceil().TruncateInt())))
+
+		minFeeAmount := math.LegacyNewDec(10000000000000000) // 10x the minimum fee from the error message
+		feeAmount := sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, minFeeAmount.TruncateInt()))
+
+		// Set the fee amount, ensuring it's higher than the minimum required
+		txBuilder.SetFeeAmount(feeAmount)
+
+		// Debug: Print the transaction details before it's signed
+		fmt.Printf("DEBUG: Transaction fee before signing: %v\n", txBuilder.GetTx().GetFee())
 
 		txFactory := tx.Factory{}
 		txFactory = txFactory.
