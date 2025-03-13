@@ -438,28 +438,6 @@ func (k *Keeper) GetLastObservedEventNonceForHyperionID(ctx sdk.Context, hyperio
 	return types.UInt64FromBytes(bytes)
 }
 
-// GetLastObservedEthereumBlockHeight height gets the block height to of the last observed attestation from
-// the store
-func (k *Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastObservedEthereumBlockHeight {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastObservedEthereumBlockHeightKey)
-
-	if len(bytes) == 0 {
-		return types.LastObservedEthereumBlockHeight{
-			CosmosBlockHeight:   0,
-			EthereumBlockHeight: 0,
-		}
-	}
-
-	height := types.LastObservedEthereumBlockHeight{}
-	k.cdc.MustUnmarshal(bytes, &height)
-
-	return height
-}
-
 // SetLastObservedEthereumBlockHeight sets the block height in the store.
 func (k *Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, ethereumHeight uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)

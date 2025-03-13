@@ -40,7 +40,9 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 		h.slashing(ctx, counterpartyChainParams)
 	}
 	h.attestationTally(ctx)
-	h.cleanupTimedOutBatches(ctx)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		h.cleanupTimedOutBatches(ctx, counterpartyChainParams.HyperionId)
+	}
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		h.createValsets(ctx, counterpartyChainParams)
 		h.pruneValsets(ctx, counterpartyChainParams)
@@ -190,12 +192,12 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 //	here is the Ethereum block height at the time of the last Deposit or Withdraw to be observed. It's very important we do not
 //	project, if we do a slowdown on ethereum could cause a double spend. Instead timeouts will *only* occur after the timeout period
 //	AND any deposit or withdraw has occurred to update the Ethereum block height.
-func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
+func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context, hyperionId uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 
-	ethereumHeight := h.k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
-	batches := h.k.GetOutgoingTxBatches(ctx)
+	ethereumHeight := h.k.GetLastObservedEthereumBlockHeightForHyperionID(ctx, hyperionId).EthereumBlockHeight
+	batches := h.k.GetOutgoingTxBatches(ctx, hyperionId)
 
 	for _, batch := range batches {
 		if batch.BatchTimeout < ethereumHeight {

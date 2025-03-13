@@ -14,7 +14,7 @@ done
 
 cd ..
 
-DIRECTORY_TO_OVERLOAD="."
+DIRECTORY_TO_OVERLOAD="helios-core"
 
 echo "Replacing strings in all files within $DIRECTORY_TO_OVERLOAD"
 
@@ -41,7 +41,7 @@ done
 echo "Replacement completed for all files in $DIRECTORY_TO_OVERLOAD."
 
 # move proto files to the right places
-cp -r helios/* ./
-rm -rf helios
+cp -r helios-core/* ./
+rm -rf helios-core
 
 # ./scripts/protocgen-pulsar.sh
