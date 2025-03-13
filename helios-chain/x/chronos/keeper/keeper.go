@@ -99,6 +99,7 @@ func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.Executi
 }
 
 func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
+	params := k.GetParams(ctx)
 	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
 	if err != nil {
 		return err
@@ -107,8 +108,8 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 	crons := k.GetAllCrons(ctx)
 
 	// cost of keep active one cron = 100 gas at 1Gwei (it's equals to 0.0000001 ahelios)
-	gasLimit := uint64(100)      // 100 Gas
-	gasPrice := decUtils.BaseFee // (example: big.NewInt(1000000000) == 1 Gwei
+	gasLimit := params.CronActiveGasCostPerBlock // 100 Gas by Default
+	gasPrice := decUtils.BaseFee                 // (example: big.NewInt(1000000000) == 1 Gwei
 
 	// one active day for one cron at 1Gwei GasPrice = 0.001728 ahelios
 	tx := ethtypes.NewTransaction(0, common.Address{}, big.NewInt(0), gasLimit, gasPrice, []byte{})
@@ -124,7 +125,7 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
 		}
-		err := k.ConsumeFeesAndEmitEvent(ctx, fees, sdk.MustAccAddressFromBech32(cron.OwnerAddress)) // deduct 100 Gas mult BaseFee
+		err := k.ConsumeFeesAndEmitEvent(ctx, fees, sdk.MustAccAddressFromBech32(cron.OwnerAddress), cron) // deduct 100 Gas mult BaseFee
 		if err != nil {
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
@@ -279,7 +280,7 @@ func (k *Keeper) getCronsReadyForExecution(ctx sdk.Context) []types.Cron {
 			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
 			crons = append(crons, cron)
 			count++
-			if count >= params.Limit {
+			if count >= params.ExecutionsLimitPerBlock {
 				k.Logger(ctx).Info("Reached execution limit for the block")
 				break
 			}
@@ -308,7 +309,7 @@ func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context, executionS
 			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
 			crons = append(crons, cron)
 			count++
-			if count >= params.Limit {
+			if count >= params.ExecutionsLimitPerBlock {
 				k.Logger(ctx).Info("Reached execution limit for the block")
 				break
 			}
@@ -417,7 +418,7 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 	// Load ABI
 	contractABI, err := abi.JSON(strings.NewReader(cron.AbiJson))
 	if err != nil {
-		k.Logger(ctx).Error("Invalid ABI JSON", "schedule_id", cron.Id, "error", err)
+		k.Logger(ctx).Error("Invalid ABI JSON", "cron_id", cron.Id, "error", err)
 		return nil, err
 	}
 
@@ -430,16 +431,26 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 	// Pack the call data
 	callData, err := contractABI.Pack(cron.MethodName, parsedParams...)
 	if err != nil {
-		k.Logger(ctx).Error("ABI packing failed", "schedule_id", cron.Id, "error", err)
+		k.Logger(ctx).Error("ABI packing failed", "cron_id", cron.Id, "error", err)
 		return nil, err
 	}
 
-	// nonce := nonce                  // Nonce de l'expéditeur (unused maybe)
-	gasLimit := uint64(400000)          // Limite de gaz (si gas inferieur au montant consommé potentiel "intrinsic gas too low" ErrIntrinsicGas)
-	gasPrice := big.NewInt(20000000000) // Prix du gaz (20 Gwei)
-	toAddress := contractAddress        // Adresse du destinataire
-	value := big.NewInt(0)              // Montant à envoyer (1 Ether)
-	data := callData                    // Données de la transaction (vide pour une simple transaction)
+	// get BaseFee
+	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
+	if err != nil {
+		return nil, err
+	}
+
+	// check acceptence in terms of fees
+	if big.NewInt(int64(cron.MaxGasPrice)).Cmp(decUtils.BaseFee) < 0 {
+		return nil, fmt.Errorf("max gas price too low: %d (max gas price) < %d (base fee)", cron.MaxGasPrice, decUtils.BaseFee)
+	}
+
+	gasLimit := cron.GasLimit    // Limite de gaz (si gas inferieur au montant consommé potentiel "intrinsic gas too low" ErrIntrinsicGas)
+	gasPrice := decUtils.BaseFee // Prix du gaz (20 Gwei)
+	toAddress := contractAddress // Adresse du destinataire
+	value := big.NewInt(0)       // Montant à envoyer (0 ahelios)
+	data := callData             // Données de la transaction (vide pour une simple transaction)
 
 	// Créer la transaction
 	tx := ethtypes.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, data)
@@ -499,11 +510,13 @@ func (k *Keeper) ConsumeFeesAndEmitEvent(
 	ctx sdk.Context,
 	fees sdk.Coins,
 	from sdk.AccAddress,
+	cron types.Cron,
 ) error {
 	if err := k.deductFees(
 		ctx,
 		fees,
 		from,
+		cron,
 	); err != nil {
 		return err
 	}
@@ -521,12 +534,13 @@ func (k *Keeper) deductFees(
 	ctx sdk.Context,
 	fees sdk.Coins,
 	feePayer sdk.AccAddress,
+	cron types.Cron,
 ) error {
 	if fees.IsZero() {
 		return nil
 	}
 
-	k.Logger(ctx).Info("DeductFees", "fees", fees, "feePayer", cmn.AnyToHexAddress(feePayer.String()))
+	k.Logger(ctx).Debug("DeductFees", "fees", fees, "feePayer", cmn.AnyToHexAddress(feePayer.String()), "cronId", cron.Id)
 
 	if err := k.evmKeeper.DeductTxCostsFromUserBalance(
 		ctx,
@@ -606,6 +620,7 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 		ctx,
 		msgFees,
 		cmn.AccAddressFromHexAddress(ownerAddress),
+		cron,
 	)
 	if err != nil {
 		return nil, err
@@ -671,7 +686,7 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 		log.TxHash = tx.Hash().Hex()
 	}
 	bytesRes, _ := res.Marshal()
-	scheduleTxResult := types.CronTransactionResult{
+	cronTxResult := types.CronTransactionResult{
 		BlockHash:   hexutil.Encode(ctx.HeaderHash()),
 		BlockNumber: uint64(ctx.BlockHeight()),
 		TxHash:      tx.Hash().Hex(),
@@ -679,16 +694,16 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 		Result:      bytesRes,
 		Nonce:       nonce,
 		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
-		ScheduleId:  cron.Id,
+		CronId:      cron.Id,
 	}
 
 	// Update the next execution block after successful execution
 	cron.NextExecutionBlock = uint64(ctx.BlockHeight()) + cron.Frequency
 	// cron.totalGasUsed =
 	k.StoreSetCron(ctx, cron)
-	k.StoreCronTransactionResult(ctx, cron, scheduleTxResult)
+	k.StoreCronTransactionResult(ctx, cron, cronTxResult)
 	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
-	k.StoreSetTransactionHashInBlock(ctx, scheduleTxResult.BlockNumber, tx.Hash().Hex())
+	k.StoreSetTransactionHashInBlock(ctx, cronTxResult.BlockNumber, tx.Hash().Hex())
 	k.StoreSetNonce(ctx, nonce+1)
 	return nil
 }
@@ -783,7 +798,7 @@ func (k *Keeper) emitCronCancelledEvent(ctx sdk.Context, cron types.Cron) error 
 	}
 	bytesRes, _ := res.Marshal()
 
-	scheduleTxResult := types.CronTransactionResult{
+	cronTxResult := types.CronTransactionResult{
 		BlockHash:   hexutil.Encode(ctx.HeaderHash()),
 		BlockNumber: uint64(ctx.BlockHeight()),
 		TxHash:      tx.Hash().Hex(),
@@ -791,12 +806,12 @@ func (k *Keeper) emitCronCancelledEvent(ctx sdk.Context, cron types.Cron) error 
 		Result:      bytesRes,
 		Nonce:       nonce,
 		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
-		ScheduleId:  cron.Id,
+		CronId:      cron.Id,
 	}
 
-	k.StoreCronTransactionResult(ctx, cron, scheduleTxResult)
+	k.StoreCronTransactionResult(ctx, cron, cronTxResult)
 	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
-	k.StoreSetTransactionHashInBlock(ctx, scheduleTxResult.BlockNumber, tx.Hash().Hex())
+	k.StoreSetTransactionHashInBlock(ctx, cronTxResult.BlockNumber, tx.Hash().Hex())
 	k.StoreSetNonce(ctx, nonce+1)
 
 	return nil
@@ -850,6 +865,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 		Type:             hexutil.EncodeUint64(uint64(2)),
 		V:                "0x1",
 		Value:            hexutil.EncodeBig(txToRPC.Value.ToInt()),
+		CronId:           txResult.CronId,
 	}
 	return rpcTxMap, nil
 }
@@ -939,6 +955,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 		// returns data
 		Ret:     hexutil.Encode(castedResponse.Ret), // Ret is the bytes of call return
 		VmError: castedResponse.VmError,
+		CronId:  txResult.CronId,
 	}
 
 	// If the ContractAddress is 20 0x0 bytes, assume it is not a contract creation

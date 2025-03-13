@@ -9,15 +9,10 @@ option go_package = "helios-core/helios-chain/x/chronos/types";
 message Params {
   option (gogoproto.goproto_stringer) = false;
 
-  // Limit of schedules executed in one block
-  uint64 limit = 1;
+  // Gas cost per block for actives crons
+  uint64 cron_active_gas_cost_per_block = 1;
 
-  // Maximum number of scheduled calls allowed per wallet
-  uint64 max_scheduled_calls_per_wallet = 2;
+  // maximum executions per block
+  uint64 executions_limit_per_block = 2;
 
-  // Minimum gas fee multiplier to safely estimate gas (e.g., "1.2")
-  string minimum_gas_fee_multiplier = 3;
-
-  // Global maximum allowed gas price for cron executions (optional default value)
-  string global_max_gas_price = 4;
 }

@@ -2,6 +2,7 @@ package chronos
 
 import (
 	"fmt"
+	"strings"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
@@ -29,8 +30,8 @@ func (p Precompile) CreateCron(
 	args []interface{},
 ) ([]byte, error) {
 
-	if len(args) != 7 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+	if len(args) != 8 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 8, len(args))
 	}
 
 	contractAddress, ok := args[0].(common.Address)
@@ -38,45 +39,71 @@ func (p Precompile) CreateCron(
 		return nil, fmt.Errorf("invalid hex address")
 	}
 
-	abi, ok := args[1].(string)
+	abiStr, ok := args[1].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex address")
+	}
+	abiContract, err := abi.JSON(strings.NewReader(abiStr))
+	if err != nil {
+		return nil, fmt.Errorf("invalid ABI JSON")
 	}
 
 	methodName, ok := args[2].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 for newFrequency")
 	}
+	methodABI, exists := abiContract.Methods[methodName]
+	if !exists {
+		return nil, fmt.Errorf("method %s does not exist in ABI", methodName)
+	}
 
 	params, ok := args[3].([]string)
 	if !ok {
 		return nil, fmt.Errorf("invalid []string for newParams")
 	}
+	if len(params) != len(methodABI.Inputs) {
+		return nil, fmt.Errorf("invalid number of params: expected %d, got %d", len(methodABI.Inputs), len(params))
+	}
 
 	frequency, ok := args[4].(uint64)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint64 for newFrequency")
+		return nil, fmt.Errorf("invalid uint64 for Frequency")
+	}
+	if frequency == 0 {
+		return nil, fmt.Errorf("invalid min Frequency should be 1")
 	}
 
 	expirationBlock, ok := args[5].(uint64)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint64 for newExpirationBlock")
+		return nil, fmt.Errorf("invalid uint64 for ExpirationBlock")
 	}
 
 	gasLimit, ok := args[6].(uint64)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint64 for newGasLimit")
+		return nil, fmt.Errorf("invalid uint64 for GasLimit")
+	}
+	if gasLimit == 0 {
+		return nil, fmt.Errorf("invalid zero GasLimit")
+	}
+
+	maxGasPrice, ok := args[7].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for MaxGasPrice")
+	}
+	if maxGasPrice == 0 {
+		return nil, fmt.Errorf("invalid zero MaxGasPrice")
 	}
 
 	msg := &chronostypes.MsgCreateCron{
 		OwnerAddress:    cmn.AccAddressFromHexAddress(origin).String(),
 		ContractAddress: contractAddress.String(),
-		AbiJson:         abi,
+		AbiJson:         abiStr,
 		MethodName:      methodName,
 		Params:          params,
 		Frequency:       frequency,
 		ExpirationBlock: expirationBlock,
 		GasLimit:        gasLimit,
+		MaxGasPrice:     maxGasPrice,
 		Sender:          cmn.AccAddressFromHexAddress(origin).String(),
 	}
 
@@ -102,7 +129,7 @@ func (p Precompile) UpdateCron(
 	args []interface{},
 ) ([]byte, error) {
 
-	if len(args) != 5 {
+	if len(args) != 6 {
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
@@ -111,15 +138,33 @@ func (p Precompile) UpdateCron(
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 for cronId")
 	}
+	if !p.chronosKeeper.StoreCronExists(ctx, cronId) {
+		return nil, fmt.Errorf("invalid cron doesn't exists")
+	}
+	cron, _ := p.chronosKeeper.GetCron(ctx, cronId)
 
 	newFrequency, ok := args[1].(uint64)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 for newFrequency")
 	}
+	if newFrequency == 0 {
+		return nil, fmt.Errorf("invalid min Frequency should be 1")
+	}
 
+	abiContract, err := abi.JSON(strings.NewReader(cron.AbiJson))
+	if err != nil {
+		return nil, fmt.Errorf("invalid ABI JSON")
+	}
+	methodABI, exists := abiContract.Methods[cron.MethodName]
+	if !exists {
+		return nil, fmt.Errorf("method %s does not exist in ABI", cron.MethodName)
+	}
 	newParams, ok := args[2].([]string)
 	if !ok {
 		return nil, fmt.Errorf("invalid []string for newParams")
+	}
+	if len(newParams) != len(methodABI.Inputs) {
+		return nil, fmt.Errorf("invalid number of params: expected %d, got %d", len(methodABI.Inputs), len(newParams))
 	}
 
 	newExpirationBlock, ok := args[3].(uint64)
@@ -131,6 +176,17 @@ func (p Precompile) UpdateCron(
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 for newGasLimit")
 	}
+	if newGasLimit == 0 {
+		return nil, fmt.Errorf("invalid zero GasLimit")
+	}
+
+	newMaxGasPrice, ok := args[5].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for MaxGasPrice")
+	}
+	if newMaxGasPrice == 0 {
+		return nil, fmt.Errorf("invalid zero MaxGasPrice")
+	}
 
 	msg := &chronostypes.MsgUpdateCron{
 		OwnerAddress:       cmn.AccAddressFromHexAddress(origin).String(),
@@ -139,6 +195,7 @@ func (p Precompile) UpdateCron(
 		NewParams:          newParams,
 		NewExpirationBlock: newExpirationBlock,
 		NewGasLimit:        newGasLimit,
+		NewMaxGasPrice:     newMaxGasPrice,
 		Sender:             cmn.AccAddressFromHexAddress(origin).String(),
 	}
 
@@ -171,6 +228,9 @@ func (p Precompile) CancelCron(
 	cronId, ok := args[0].(uint64)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64")
+	}
+	if !p.chronosKeeper.StoreCronExists(ctx, cronId) {
+		return nil, fmt.Errorf("invalid cron doesn't exists")
 	}
 
 	msg := &chronostypes.MsgCancelCron{

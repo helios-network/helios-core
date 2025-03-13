@@ -46,6 +46,8 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 		Frequency:          req.Frequency,
 		NextExecutionBlock: uint64(ctx.BlockHeight()) + req.Frequency,
 		ExpirationBlock:    req.ExpirationBlock,
+		GasLimit:           req.GasLimit,
+		MaxGasPrice:        req.MaxGasPrice,
 	}
 
 	if err := k.keeper.AddCron(ctx, newCron); err != nil {
@@ -80,6 +82,8 @@ func (k msgServer) UpdateCron(goCtx context.Context, req *types.MsgUpdateCron) (
 	cron.Frequency = req.NewFrequency
 	cron.Params = req.NewParams
 	cron.ExpirationBlock = req.NewExpirationBlock
+	cron.GasLimit = req.NewGasLimit
+	cron.MaxGasPrice = req.NewMaxGasPrice
 
 	k.keeper.StoreSetCron(ctx, cron)
 

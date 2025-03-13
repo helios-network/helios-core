@@ -24,7 +24,8 @@ interface ChronosI {
         string[] memory params,
         uint64 frequency,
         uint64 expirationBlock,
-        uint64 gasLimit
+        uint64 gasLimit,
+        uint64 maxGasPrice
     ) external returns (bool success);
 
     function updateCron(
@@ -32,7 +33,8 @@ interface ChronosI {
         uint64 newFrequency,
         string[] memory newParams,
         uint64 newExpirationBlock,
-        uint64 newGasLimit
+        uint64 newGasLimit,
+        uint64 newMaxGasPrice
     ) external returns (bool success);
 
     function cancelCron(

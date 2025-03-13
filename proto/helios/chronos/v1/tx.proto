@@ -28,7 +28,8 @@ message MsgCreateCron {
   uint64 frequency = 6; // Execution frequency in blocks
   uint64 expiration_block = 7; // Optional expiration block height
   uint64 gas_limit = 8; // Maximum gas allowed for execution
-  string sender = 9; // Add this field for the Cosmos SDK signer
+  uint64 max_gas_price = 9; // Maximum gas price accepted
+  string sender = 10; // Add this field for the Cosmos SDK signer
 }
 
 message MsgCreateCronResponse {
@@ -43,9 +44,10 @@ message MsgUpdateCron {
   uint64 new_frequency = 3;
   repeated string new_params = 4;
   uint64 new_expiration_block = 5;
-  uint64 new_gas_limit = 6; // New maximum gas allowed
+  uint64 new_gas_limit = 6; // Maximum gas allowed for execution
+  uint64 new_max_gas_price = 7; // Maximum gas price accepted
 
-  string sender = 7; // Add this field for the Cosmos SDK signer
+  string sender = 8; // Add this field for the Cosmos SDK signer
 }
 
 message MsgUpdateCronResponse {

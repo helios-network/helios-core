@@ -23,4 +23,6 @@ message Cron {
   uint64 next_execution_block = 8; // Next execution block height
   uint64 expiration_block = 9; // Expiration block height (0 if never expires)
   ExecutionStage execution_stage = 10;
+  uint64 gas_limit = 11; // maximum gas limit accepted
+  uint64 max_gas_price = 12; // maximum gas price accepted
 }

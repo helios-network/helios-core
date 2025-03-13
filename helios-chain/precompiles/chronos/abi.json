@@ -126,6 +126,11 @@
           "internalType": "uint64",
           "name": "gasLimit",
           "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "maxGasPrice",
+          "type": "uint64"
         }
       ],
       "name": "createCron",
@@ -165,6 +170,11 @@
           "internalType": "uint256",
           "name": "newGasLimit",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "newMaxGasPrice",
+          "type": "uint64"
         }
       ],
       "name": "updateCron",

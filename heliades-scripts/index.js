@@ -470,7 +470,8 @@ async function createCron() {
       [], // params
       1, // frequency
       0, // expirationBlock
-      300000 // gasLimit
+      400000, // gasLimit
+      20000000000 // maxGasPrice
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -576,9 +577,9 @@ async function getEvents() {
 }
 
 async function main() {
-  // await createCron();
+  await createCron();
   // await getEvents();
-  await getEventsCronCancelled();
+  // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
   // await create();

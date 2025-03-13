@@ -13,7 +13,7 @@ message CronTransactionResult {
   string from = 4;
   uint64 block_number = 5 [(gogoproto.jsontag) = "blockNumber"];
   string block_hash = 6 [(gogoproto.jsontag) = "blockHash"];
-  uint64 schedule_id = 7 [(gogoproto.jsontag) = "scheduleId"];
+  uint64 cron_id = 7 [(gogoproto.jsontag) = "cronId"];
   string tx_hash = 8 [(gogoproto.jsontag) = "transactionHash"];
 }
 
@@ -42,6 +42,7 @@ message CronTransactionReceiptRPC {
   string result = 14;
   string ret = 15;
   string vm_error = 16 [(gogoproto.jsontag) = "vmError"];
+  uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
 }
 
 message CronTransactionRPC {
@@ -61,4 +62,5 @@ message CronTransactionRPC {
   string type = 14;
   string v = 15;
   string value = 16;
+  uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
 }

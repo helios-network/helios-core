@@ -10,13 +10,11 @@ import (
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 var (
-	KeyLimit                      = []byte("Limit")
-	KeyMaxScheduledCallsPerWallet = []byte("MaxScheduledCallsPerWallet")
-	KeyMinimumGasFeeMultiplier    = []byte("MinimumGasFeeMultiplier")
+	KeyCronActiveGasCostPerBlock = []byte("CronActiveGasCostPerBlock")
+	KeyExecutionsLimitPerBlock   = []byte("ExecutionsLimitPerBlock")
 
-	DefaultLimit                      = uint64(5)
-	DefaultMaxScheduledCallsPerWallet = uint64(10)
-	DefaultMinimumGasFeeMultiplier    = "1.2"
+	DefaultCronActiveGasCostPerBlock = uint64(100)   // 100 Gas
+	DefaultExecutionsLimitPerBlock   = uint64(10000) // 10000
 )
 
 // ParamKeyTable returns the param key table for the cron module
@@ -25,37 +23,32 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(limit uint64, maxScheduledCallsPerWallet uint64, minimumGasFeeMultiplier string) Params {
+func NewParams(cronActiveGasCostPerBlock uint64, executionsLimitPerBlock uint64) Params {
 	return Params{
-		Limit:                      limit,
-		MaxScheduledCallsPerWallet: maxScheduledCallsPerWallet,
-		MinimumGasFeeMultiplier:    minimumGasFeeMultiplier,
+		CronActiveGasCostPerBlock: cronActiveGasCostPerBlock,
+		ExecutionsLimitPerBlock:   executionsLimitPerBlock,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams(DefaultLimit, DefaultMaxScheduledCallsPerWallet, DefaultMinimumGasFeeMultiplier)
+	return NewParams(DefaultCronActiveGasCostPerBlock, DefaultExecutionsLimitPerBlock)
 }
 
 // ParamSetPairs returns the param set pairs for the cron module
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyLimit, &p.Limit, validateLimit),
-		paramtypes.NewParamSetPair(KeyMaxScheduledCallsPerWallet, &p.MaxScheduledCallsPerWallet, validateMaxScheduledCallsPerWallet),
-		paramtypes.NewParamSetPair(KeyMinimumGasFeeMultiplier, &p.MinimumGasFeeMultiplier, validateMinimumGasFeeMultiplier),
+		paramtypes.NewParamSetPair(KeyCronActiveGasCostPerBlock, &p.CronActiveGasCostPerBlock, validateCronActiveGasCostPerBlock),
+		paramtypes.NewParamSetPair(KeyExecutionsLimitPerBlock, &p.ExecutionsLimitPerBlock, validateExecutionsLimitPerBlock),
 	}
 }
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateLimit(p.Limit); err != nil {
+	if err := validateCronActiveGasCostPerBlock(p.CronActiveGasCostPerBlock); err != nil {
 		return err
 	}
-	if err := validateMaxScheduledCallsPerWallet(p.MaxScheduledCallsPerWallet); err != nil {
-		return err
-	}
-	if err := validateMinimumGasFeeMultiplier(p.MinimumGasFeeMultiplier); err != nil {
+	if err := validateExecutionsLimitPerBlock(p.ExecutionsLimitPerBlock); err != nil {
 		return err
 	}
 	return nil
@@ -67,7 +60,7 @@ func (p Params) String() string {
 	return string(out)
 }
 
-func validateLimit(i interface{}) error {
+func validateCronActiveGasCostPerBlock(i interface{}) error {
 	l, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -78,24 +71,13 @@ func validateLimit(i interface{}) error {
 	return nil
 }
 
-func validateMaxScheduledCallsPerWallet(i interface{}) error {
+func validateExecutionsLimitPerBlock(i interface{}) error {
 	l, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if l == 0 {
-		return fmt.Errorf("max scheduled calls per wallet cannot be zero")
-	}
-	return nil
-}
-
-func validateMinimumGasFeeMultiplier(i interface{}) error {
-	v, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	if v == "" {
-		return fmt.Errorf("minimum gas fee multiplier cannot be empty")
+		return fmt.Errorf("limit cannot be zero")
 	}
 	return nil
 }
