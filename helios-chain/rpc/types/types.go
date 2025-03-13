@@ -19,6 +19,13 @@ type TokenBalance struct {
 	BalanceUI string         `json:"balanceUI"`
 }
 
+type ChainSize struct {
+	Bytes     int64 `json:"bytes"`
+	MegaBytes int64 `json:"megaBytes"`
+	GigaBytes int64 `json:"gigaBytes"`
+	Terabytes int64 `json:"terabytes"`
+}
+
 // AccountResult struct for account proof
 type AccountResult struct {
 	Address      common.Address  `json:"address"`

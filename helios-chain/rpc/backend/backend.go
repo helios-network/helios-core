@@ -101,6 +101,7 @@ type EVMBackend interface {
 	GetCoinbase() (sdk.AccAddress, error)
 	FeeHistory(blockCount rpc.DecimalOrHex, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
 	SuggestGasTipCap(baseFee *big.Int) (*big.Int, error)
+	ChainSize() (*rpctypes.ChainSize, error)
 
 	// Tokens Info
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)

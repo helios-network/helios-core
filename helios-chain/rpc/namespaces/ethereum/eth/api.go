@@ -94,6 +94,7 @@ type EthereumAPI interface {
 	FeeHistory(blockCount rpc.DecimalOrHex, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
 	MaxPriorityFeePerGas() (*hexutil.Big, error)
 	ChainId() (*hexutil.Big, error)
+	ChainSize() (*rpctypes.ChainSize, error)
 
 	// Tokens Information
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
@@ -423,6 +424,11 @@ func (e *PublicAPI) MaxPriorityFeePerGas() (*hexutil.Big, error) {
 func (e *PublicAPI) ChainId() (*hexutil.Big, error) { //nolint
 	e.logger.Debug("eth_chainId")
 	return e.backend.ChainID()
+}
+
+func (e *PublicAPI) ChainSize() (*rpctypes.ChainSize, error) {
+	e.logger.Debug("eth_chainSize")
+	return e.backend.ChainSize()
 }
 
 ///////////////////////////////////////////////////////////////////////////////

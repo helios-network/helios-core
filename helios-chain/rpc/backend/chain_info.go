@@ -3,6 +3,13 @@ package backend
 import (
 	"fmt"
 	"math/big"
+	"os"
+	"path/filepath"
+
+	rpctypes "helios-core/helios-chain/rpc/types"
+	"helios-core/helios-chain/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 
 	"cosmossdk.io/math"
 	cmtrpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -13,10 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/pkg/errors"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	"helios-core/helios-chain/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
-	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 )
 
 // ChainID is the EIP-155 replay-protection chain id for the current ethereum chain config.
@@ -85,6 +88,40 @@ func (b *Backend) BaseFee(blockRes *cmtrpctypes.ResultBlockResults) (*big.Int, e
 	}
 
 	return res.BaseFee.BigInt(), nil
+}
+
+func (b *Backend) ChainSize() (*rpctypes.ChainSize, error) {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	customHomeDir := os.Getenv("HELIADES_HOME")
+	defaultNodeHome := filepath.Join(userHomeDir, ".heliades")
+	if customHomeDir != "" {
+		defaultNodeHome = filepath.Join(userHomeDir, customHomeDir)
+	}
+	dataDir := filepath.Join(defaultNodeHome, "data")
+	var totalSize int64
+
+	err = filepath.Walk(dataDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() { // On ne compte que les fichiers
+			totalSize += info.Size()
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &rpctypes.ChainSize{
+		Bytes:     totalSize,
+		MegaBytes: totalSize / (1024 * 1024),
+		GigaBytes: totalSize / (1024 * 1024 * 1024),
+		Terabytes: totalSize / (1024 * 1024 * 1024 * 1024),
+	}, nil
 }
 
 // CurrentHeader returns the latest block header
