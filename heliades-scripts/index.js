@@ -462,7 +462,7 @@ async function createCron() {
     // await x.wait();
 
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
-    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet2);
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
     const tx = await contract.createCron(
       "0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F",
       `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
@@ -510,6 +510,18 @@ async function getEventsCronCreated() {
   const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wsProvider);
 
   contract.on('CronCreated', (from, to, cronId, event) => {
+    console.log('New event received!');
+    console.log('even:', event);
+    console.log('cronId:', cronId.toString());
+  });
+}
+
+async function getEventsCronCancelled() {
+  const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+  const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wsProvider);
+
+  contract.on('CronCancelled', (from, to, cronId, event) => {
     console.log('New event received!');
     console.log('even:', event);
     console.log('cronId:', cronId.toString());
@@ -564,8 +576,9 @@ async function getEvents() {
 }
 
 async function main() {
-  await createCron();
+  // await createCron();
   // await getEvents();
+  await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
   // await create();

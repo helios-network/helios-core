@@ -164,6 +164,7 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
+	am.keeper.DeductFeesActivesCrons(sdk.UnwrapSDKContext(ctx))
 	am.keeper.ExecuteReadyCrons(sdk.UnwrapSDKContext(ctx), types.ExecutionStage_EXECUTION_STAGE_END_BLOCKER)
 	return nil
 }

@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 	rpctypes "helios-core/helios-chain/rpc/types"
 
+	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -22,10 +24,14 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	ethmath "github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/core"
 
 	types "helios-core/helios-chain/x/chronos/types"
-	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	errors "cosmossdk.io/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
@@ -37,7 +43,7 @@ type Keeper struct {
 	storeKey      storetypes.StoreKey
 	memKey        storetypes.StoreKey
 	accountKeeper types.AccountKeeper
-	evmKeeper     erc20types.EVMKeeper
+	evmKeeper     types.EVMKeeper
 }
 
 func NewKeeper(
@@ -45,7 +51,7 @@ func NewKeeper(
 	storeKey,
 	memKey storetypes.StoreKey,
 	accountKeeper types.AccountKeeper,
-	evmKeeper erc20types.EVMKeeper,
+	evmKeeper types.EVMKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
@@ -62,22 +68,71 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 func (k *Keeper) ExecuteAllReadyCrons(ctx sdk.Context) {
 	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
-	schedules := k.getCronsReadyForExecution(ctx)
+	crons := k.getCronsReadyForExecution(ctx)
 
-	for _, schedule := range schedules {
-		err := k.executeCron(ctx, schedule)
-		recordExecutedCron(err, schedule)
+	for _, cron := range crons {
+		err := k.executeCron(ctx, cron)
+		if err != nil {
+			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+		recordExecutedCron(err, cron)
 	}
 }
 
 func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.ExecutionStage) {
 	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
-	schedules := k.getCronsReadyForExecutionWithFilter(ctx, executionStage)
+	crons := k.getCronsReadyForExecutionWithFilter(ctx, executionStage)
 
-	for _, schedule := range schedules {
-		err := k.executeCron(ctx, schedule)
-		recordExecutedCron(err, schedule)
+	for _, cron := range crons {
+		err := k.executeCron(ctx, cron)
+		if err != nil {
+			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+		recordExecutedCron(err, cron)
 	}
+}
+
+func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
+	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
+	if err != nil {
+		return err
+	}
+	baseDenom := evmtypes.GetEVMCoinDenom()
+	crons := k.GetAllCrons(ctx)
+
+	// cost of keep active one cron = 100 gas at 1Gwei (it's equals to 0.0000001 ahelios)
+	gasLimit := uint64(100)      // 100 Gas
+	gasPrice := decUtils.BaseFee // (example: big.NewInt(1000000000) == 1 Gwei
+
+	// one active day for one cron at 1Gwei GasPrice = 0.001728 ahelios
+	tx := ethtypes.NewTransaction(0, common.Address{}, big.NewInt(0), gasLimit, gasPrice, []byte{})
+	fees := sdk.Coins{{Denom: baseDenom, Amount: sdkmath.NewIntFromBigInt(tx.Cost())}}
+
+	for _, cron := range crons {
+		account := k.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.OwnerAddress))
+		balance := sdkmath.NewIntFromBigInt(account.Balance)
+		cost := tx.Cost()
+
+		if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+		err := k.ConsumeFeesAndEmitEvent(ctx, fees, sdk.MustAccAddressFromBech32(cron.OwnerAddress)) // deduct 100 Gas mult BaseFee
+		if err != nil {
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+	}
+
+	return nil
 }
 
 func (k *Keeper) AddCron(ctx sdk.Context, cron types.Cron) error {
@@ -306,6 +361,56 @@ func ParseABIParam(typ abi.Type, param string) (interface{}, error) {
 	}
 }
 
+// NewMonoDecoratorUtils returns a new DecoratorUtils instance.
+//
+// These utilities are extracted once at the beginning of the ante handle process,
+// and are used throughout the entire decorator chain.
+// This avoids redundant calls to the keeper and thus improves speed of transaction processing.
+// All prices, fees and balances are converted into 18 decimals here to be
+// correctly used in the EVM.
+func NewMonoDecoratorUtils(
+	ctx sdk.Context,
+	ek types.EVMKeeper,
+) (*types.DecoratorUtils, error) {
+	evmParams := ek.GetParams(ctx)
+	ethCfg := evmtypes.GetEthChainConfig()
+	blockHeight := big.NewInt(ctx.BlockHeight())
+
+	rules := ethCfg.Rules(blockHeight, true)
+	baseFee := ek.GetBaseFee(ctx)
+	baseDenom := evmtypes.GetEVMCoinDenom()
+
+	if rules.IsLondon && baseFee == nil {
+		return nil, errors.Wrap(
+			evmtypes.ErrInvalidBaseFee,
+			"base fee is supported but evm block context value is nil",
+		)
+	}
+
+	// get the gas prices adapted accordingly
+	// to the evm denom decimals
+	globalMinGasPrice := ek.GetMinGasPrice(ctx)
+
+	// Mempool gas price should be scaled to the 18 decimals representation. If
+	// it is already a 18 decimal token, this is a no-op.
+	mempoolMinGasPrice := evmtypes.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
+	return &types.DecoratorUtils{
+		EvmParams:          evmParams,
+		Rules:              rules,
+		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
+		BaseFee:            baseFee,
+		MempoolMinGasPrice: mempoolMinGasPrice,
+		GlobalMinGasPrice:  globalMinGasPrice,
+		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
+		GasWanted:          0,
+		MinPriority:        int64(math.MaxInt64),
+		// TxGasLimit and TxFee are set to zero because they are updated
+		// summing up the values of all messages contained in a tx.
+		TxGasLimit: 0,
+		TxFee:      new(big.Int),
+	}, nil
+}
+
 func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint64) (*ethtypes.Transaction, error) {
 	contractAddress := cmn.AnyToHexAddress(cron.ContractAddress)
 
@@ -330,7 +435,7 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 	}
 
 	// nonce := nonce                  // Nonce de l'expéditeur (unused maybe)
-	gasLimit := uint64(21000)           // Limite de gaz
+	gasLimit := uint64(400000)          // Limite de gaz (si gas inferieur au montant consommé potentiel "intrinsic gas too low" ErrIntrinsicGas)
 	gasPrice := big.NewInt(20000000000) // Prix du gaz (20 Gwei)
 	toAddress := contractAddress        // Adresse du destinataire
 	value := big.NewInt(0)              // Montant à envoyer (1 Ether)
@@ -342,53 +447,230 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 	return tx, nil
 }
 
-func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
+func VerifyFee(
+	txData evmtypes.TxData,
+	denom string,
+	baseFee *big.Int,
+	homestead, istanbul, isCheckTx bool,
+) (sdk.Coins, error) {
+	isContractCreation := txData.GetTo() == nil
+
+	gasLimit := txData.GetGas()
+
+	var accessList ethtypes.AccessList
+	if txData.GetAccessList() != nil {
+		accessList = txData.GetAccessList()
+	}
+
+	intrinsicGas, err := core.IntrinsicGas(txData.GetData(), accessList, isContractCreation, homestead, istanbul)
+	if err != nil {
+		return nil, errors.Wrapf(
+			err,
+			"failed to retrieve intrinsic gas, contract creation = %t; homestead = %t, istanbul = %t",
+			isContractCreation, homestead, istanbul,
+		)
+	}
+
+	// intrinsic gas verification during CheckTx
+	if isCheckTx && gasLimit < intrinsicGas {
+		return nil, errors.Wrapf(
+			errortypes.ErrOutOfGas,
+			"gas limit too low: %d (gas limit) < %d (intrinsic gas)", gasLimit, intrinsicGas,
+		)
+	}
+
+	if baseFee != nil && txData.GetGasFeeCap().Cmp(baseFee) < 0 {
+		return nil, errors.Wrapf(errortypes.ErrInsufficientFee,
+			"the tx gasfeecap is lower than the tx baseFee: %s (gasfeecap), %s (basefee) ",
+			txData.GetGasFeeCap(),
+			baseFee)
+	}
+
+	feeAmt := txData.EffectiveFee(baseFee)
+	if feeAmt.Sign() == 0 {
+		// zero fee, no need to deduct
+		return sdk.Coins{}, nil
+	}
+
+	return sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(feeAmt)}}, nil
+}
+
+func (k *Keeper) ConsumeFeesAndEmitEvent(
+	ctx sdk.Context,
+	fees sdk.Coins,
+	from sdk.AccAddress,
+) error {
+	if err := k.deductFees(
+		ctx,
+		fees,
+		from,
+	); err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeTx,
+			sdk.NewAttribute(sdk.AttributeKeyFee, fees.String()),
+		),
+	)
+	return nil
+}
+
+func (k *Keeper) deductFees(
+	ctx sdk.Context,
+	fees sdk.Coins,
+	feePayer sdk.AccAddress,
+) error {
+	if fees.IsZero() {
+		return nil
+	}
+
+	k.Logger(ctx).Info("DeductFees", "fees", fees, "feePayer", cmn.AnyToHexAddress(feePayer.String()))
+
+	if err := k.evmKeeper.DeductTxCostsFromUserBalance(
+		ctx,
+		fees,
+		common.BytesToAddress(feePayer),
+	); err != nil {
+		return errors.Wrapf(err, "failed to deduct transaction costs from user balance")
+	}
+
+	return nil
+}
+
+func (k *Keeper) TxAsMessage(tx *ethtypes.Transaction, baseFee *big.Int, from common.Address) ethtypes.Message {
+
+	gasFeeCap := new(big.Int).Set(tx.GasFeeCap())
+	gasTipCap := new(big.Int).Set(tx.GasTipCap())
+	gasPrice := new(big.Int).Set(tx.GasPrice())
+	if baseFee != nil {
+		gasPrice = ethmath.BigMin(gasPrice.Add(gasTipCap, baseFee), gasFeeCap)
+	}
+
+	msg := ethtypes.NewMessage(
+		from,
+		tx.To(),
+		tx.Nonce(),
+		tx.Value(),
+		tx.Gas(),
+		gasPrice,
+		gasFeeCap,
+		gasTipCap,
+		tx.Data(),
+		tx.AccessList(),
+		false,
+	)
+	return msg
+}
+
+func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.Transaction) (*evmtypes.MsgEthereumTxResponse, error) {
 	ownerAddress := cmn.AnyToHexAddress(cron.OwnerAddress)
-	contractAddress := cmn.AnyToHexAddress(cron.ContractAddress)
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
-	// Load ABI
-	contractABI, err := abi.JSON(strings.NewReader(cron.AbiJson))
-	if err != nil {
-		k.Logger(ctx).Error("Invalid ABI JSON", "schedule_id", cron.Id, "error", err)
-		return err
+	account := k.evmKeeper.GetAccount(ctx, ownerAddress)
+	balance := sdkmath.NewIntFromBigInt(account.Balance)
+	cost := tx.Cost()
+
+	if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
+		return nil, errors.Wrapf(
+			errortypes.ErrInsufficientFunds,
+			"sender balance < tx cost (%s < %s)", balance, cost,
+		)
 	}
 
-	// Parse parameters (you need to implement ParseParams to correctly parse strings to ABI arguments)
-	parsedParams, err := ParseParams(contractABI, cron.MethodName, cron.Params)
+	// 1. get BaseFee
+	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
 	if err != nil {
-		return fmt.Errorf("failed to parse params: %w", err)
+		return nil, err
 	}
-
-	// Pack the call data
-	callData, err := contractABI.Pack(cron.MethodName, parsedParams...)
+	// 2. format DataTx for calculating gasConsumption
+	txData, err := evmtypes.NewTxDataFromTx(tx)
 	if err != nil {
-		k.Logger(ctx).Error("ABI packing failed", "cron_id", cron.Id, "error", err)
-		return err
+		return nil, err
 	}
-
-	// Execute the call using EVM Keeper
-	res, err := k.evmKeeper.CallEVMWithData(ctx, ownerAddress, &contractAddress, callData, true)
+	// 3. calculating gasConsumption
+	msgFees, err := VerifyFee(
+		txData,
+		baseDenom,
+		decUtils.BaseFee,
+		decUtils.Rules.IsHomestead,
+		decUtils.Rules.IsIstanbul,
+		true,
+	)
+	if err != nil {
+		return nil, err
+	}
+	// 4. Consume Fees
+	err = k.ConsumeFeesAndEmitEvent(
+		ctx,
+		msgFees,
+		cmn.AccAddressFromHexAddress(ownerAddress),
+	)
+	if err != nil {
+		return nil, err
+	}
+	// 5. prepare tx for evm
+	msg := k.TxAsMessage(tx, decUtils.BaseFee, ownerAddress)
+	// 6. execute tx
+	res, err := k.evmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), true)
 	if err != nil {
 		k.Logger(ctx).Error("EVM execution failed", "cron_id", cron.Id, "error", err)
+		return nil, err
+	}
+	// 7. refund gas in order to match the Ethereum gas consumption
+	remaining := new(big.Int).Mul(new(big.Int).SetUint64(msg.Gas()-res.GasUsed), msg.GasPrice())
+	refundCoins := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remaining))}
+	k.Logger(ctx).Debug("RefundFees", "fees", refundCoins, "receiver", msg.From().String())
+	if err = k.evmKeeper.RefundGas(ctx, msg, msg.Gas()-res.GasUsed, baseDenom); err != nil {
+		return nil, errors.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
+	}
+	return res, nil
+}
+
+func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
+	nonce := k.StoreGetNonce(ctx)
+
+	tx, err := k.GetCronTransaction(ctx, cron, nonce)
+	if err != nil {
 		return err
 	}
 
-	nonce := k.StoreGetNonce(ctx)
-	tx, _ := k.GetCronTransaction(ctx, cron, nonce)
-
-	for _, log := range res.Logs {
-		log.TxHash = tx.Hash().Hex()
+	bytesTx, err := tx.MarshalBinary()
+	if err != nil {
+		return err
 	}
-
-	bytesTx, _ := tx.MarshalBinary()
-	bytesRes, _ := res.Marshal()
 
 	ethereumTxCasted := &evmtypes.MsgEthereumTx{}
 	if err := ethereumTxCasted.FromEthereumTx(tx); err != nil {
 		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
-		return nil
+		return err
 	}
 
+	// default res for accepted errors
+	res := &evmtypes.MsgEthereumTxResponse{
+		Hash:    tx.Hash().Hex(),
+		Logs:    []*evmtypes.Log{},
+		Ret:     []byte{},
+		VmError: "",
+		GasUsed: 0,
+	}
+
+	///////////////////////////////////////////////////
+	// Execution can be processed
+	///////////////////////////////////////////////////
+	resFromExecution, err := k.executeCronEvm(ctx, cron, tx)
+	if err != nil {
+		res.VmError = err.Error()
+	} else {
+		res = resFromExecution
+	}
+
+	// add txHash on logs
+	for _, log := range res.Logs {
+		log.TxHash = tx.Hash().Hex()
+	}
+	bytesRes, _ := res.Marshal()
 	scheduleTxResult := types.CronTransactionResult{
 		BlockHash:   hexutil.Encode(ctx.HeaderHash()),
 		BlockNumber: uint64(ctx.BlockHeight()),
@@ -402,11 +684,121 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 
 	// Update the next execution block after successful execution
 	cron.NextExecutionBlock = uint64(ctx.BlockHeight()) + cron.Frequency
+	// cron.totalGasUsed =
 	k.StoreSetCron(ctx, cron)
 	k.StoreCronTransactionResult(ctx, cron, scheduleTxResult)
 	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
 	k.StoreSetTransactionHashInBlock(ctx, scheduleTxResult.BlockNumber, tx.Hash().Hex())
 	k.StoreSetNonce(ctx, nonce+1)
+	return nil
+}
+
+func (k *Keeper) BuildCronCanceledEvent(ctx sdk.Context, a abi.ABI, tx *ethtypes.Transaction, from, to common.Address, cronId uint64, success bool) (*evmtypes.Log, error) {
+	// Prepare the event topics
+	event := a.Events["CronCancelled"]
+	topics := make([]string, 3)
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID.String()
+
+	var err error
+	tp1, err := cmn.MakeTopic(from) // index 1
+	if err != nil {
+		return nil, err
+	}
+	topics[1] = tp1.String()
+
+	tp2, err := cmn.MakeTopic(to) // index 2
+	if err != nil {
+		return nil, err
+	}
+	topics[2] = tp2.String()
+
+	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]} // cronId, success
+	packed, err := arguments.Pack(cronId, success)
+	if err != nil {
+		return nil, err
+	}
+
+	return &evmtypes.Log{
+		Address:     to.String(),
+		Topics:      topics,
+		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+		TxHash:      tx.Hash().String(),
+		TxIndex:     tx.Nonce(),
+		Index:       tx.Nonce(),
+	}, nil
+}
+
+func (k *Keeper) emitCronCancelledEvent(ctx sdk.Context, cron types.Cron) error {
+	nonce := k.StoreGetNonce(ctx)
+
+	abiStr := `[{ "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "fromAddress", "type": "address" }, { "indexed": true, "internalType": "address", "name": "toAddress", "type": "address" }, { "indexed": false, "internalType": "uint64", "name": "cronId", "type": "uint64" }, { "indexed": false, "internalType": "bool", "name": "success", "type": "bool" } ], "name": "CronCancelled", "type": "event" },{ "inputs": [ { "internalType": "uint64", "name": "cronId", "type": "uint64" } ], "name": "cancelCron", "outputs": [ { "internalType": "bool", "name": "success", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }]`
+	// Load ABI
+	contractABI, err := abi.JSON(strings.NewReader(abiStr))
+	if err != nil {
+		k.Logger(ctx).Error("Invalid ABI JSON", "cron_id", cron.Id, "error", err)
+		return err
+	}
+
+	// Pack the call data
+	callData, err := contractABI.Pack("cancelCron", cron.Id)
+	if err != nil {
+		k.Logger(ctx).Error("ABI packing failed", "cron_id", cron.Id, "error", err)
+		return err
+	}
+
+	tx := ethtypes.NewTransaction(
+		nonce,
+		common.HexToAddress("0x0000000000000000000000000000000000000830"),
+		big.NewInt(0),
+		0,
+		&big.Int{},
+		callData,
+	)
+
+	bytesTx, err := tx.MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	log, err := k.BuildCronCanceledEvent(ctx, contractABI, tx, cmn.AnyToHexAddress(cron.OwnerAddress), common.HexToAddress("0x0000000000000000000000000000000000000830"), cron.Id, true)
+	if err != nil {
+		return err
+	}
+
+	log.BlockNumber = uint64(ctx.BlockHeight())
+	log.Removed = false
+	log.BlockHash = hexutil.Encode(ctx.HeaderHash())
+	res := &evmtypes.MsgEthereumTxResponse{
+		Hash:    tx.Hash().Hex(),
+		Logs:    []*evmtypes.Log{log},
+		Ret:     []byte{},
+		VmError: "",
+		GasUsed: 0,
+	}
+	for _, log := range res.Logs {
+		log.TxHash = tx.Hash().Hex()
+	}
+	bytesRes, _ := res.Marshal()
+
+	scheduleTxResult := types.CronTransactionResult{
+		BlockHash:   hexutil.Encode(ctx.HeaderHash()),
+		BlockNumber: uint64(ctx.BlockHeight()),
+		TxHash:      tx.Hash().Hex(),
+		Tx:          bytesTx,
+		Result:      bytesRes,
+		Nonce:       nonce,
+		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
+		ScheduleId:  cron.Id,
+	}
+
+	k.StoreCronTransactionResult(ctx, cron, scheduleTxResult)
+	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
+	k.StoreSetTransactionHashInBlock(ctx, scheduleTxResult.BlockNumber, tx.Hash().Hex())
+	k.StoreSetNonce(ctx, nonce+1)
+
 	return nil
 }
 
@@ -442,21 +834,22 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 	)
 
 	rpcTxMap := &types.CronTransactionRPC{
-		BlockHash:   txResult.BlockHash,
-		BlockNumber: hexutil.EncodeUint64(txResult.BlockNumber),
-		ChainId:     hexutil.EncodeBig(chainID),
-		From:        from.String(),
-		Gas:         hexutil.EncodeUint64(uint64(txToRPC.Gas)),
-		GasPrice:    hexutil.EncodeBig(txToRPC.GasPrice.ToInt()),
-		Hash:        txToRPC.Hash.Hex(),
-		Input:       hexutil.Encode(txToRPC.Input),
-		Nonce:       hexutil.EncodeUint64(uint64(txToRPC.Nonce)),
-		R:           "0x0",
-		S:           "0x0",
-		To:          txToRPC.To.String(),
-		Type:        hexutil.EncodeUint64(uint64(2)),
-		V:           "0x1",
-		Value:       hexutil.EncodeBig(txToRPC.Value.ToInt()),
+		BlockHash:        txResult.BlockHash,
+		BlockNumber:      hexutil.EncodeUint64(txResult.BlockNumber),
+		ChainId:          hexutil.EncodeBig(chainID),
+		From:             from.String(),
+		Gas:              hexutil.EncodeUint64(uint64(txToRPC.Gas)),
+		GasPrice:         hexutil.EncodeBig(txToRPC.GasPrice.ToInt()),
+		Hash:             txToRPC.Hash.Hex(),
+		Input:            hexutil.Encode(txToRPC.Input),
+		Nonce:            hexutil.EncodeUint64(uint64(txToRPC.Nonce)),
+		R:                "0x0",
+		S:                "0x0",
+		To:               txToRPC.To.String(),
+		TransactionIndex: hexutil.Uint64(txResult.Nonce).String(),
+		Type:             hexutil.EncodeUint64(uint64(2)),
+		V:                "0x1",
+		Value:            hexutil.EncodeBig(txToRPC.Value.ToInt()),
 	}
 	return rpcTxMap, nil
 }
@@ -535,7 +928,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 		// Inclusion information
 		BlockHash:        txResult.BlockHash,
 		BlockNumber:      hexutil.Uint64(txResult.BlockNumber).String(),
-		TransactionIndex: hexutil.Uint64(0).String(),
+		TransactionIndex: hexutil.Uint64(txResult.Nonce).String(),
 		Result:           hexutil.Encode(txResult.Result),
 
 		// Addresses
