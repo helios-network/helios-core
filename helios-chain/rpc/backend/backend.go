@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package backend
 
 import (
@@ -11,6 +9,7 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/server/config"
 	evmostypes "helios-core/helios-chain/types"
+	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	"cosmossdk.io/log"
@@ -81,6 +80,7 @@ type EVMBackend interface {
 	EthBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults) (*ethtypes.Block, error)
 
 	// Account Info
+	GetAccountType(address common.Address) (string, error)
 	GetHeliosAddress(address common.Address) (string, error)
 	GetHeliosValoperAddress(address common.Address) (string, error)
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
@@ -102,6 +102,7 @@ type EVMBackend interface {
 	GetCoinbase() (sdk.AccAddress, error)
 	FeeHistory(blockCount rpc.DecimalOrHex, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
 	SuggestGasTipCap(baseFee *big.Int) (*big.Int, error)
+	ChainSize() (*rpctypes.ChainSize, error)
 
 	// Tokens Info
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
@@ -145,6 +146,21 @@ type EVMBackend interface {
 	GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
+
+	//cron
+	GetCron(id uint64) (*chronostypes.Cron, error)
+	GetCronByAddress(address common.Address) (*chronostypes.Cron, error)
+	GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
+	GetAccountCronsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
+	GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error)
+	GetCronTransactionByHash(hash string) (*chronostypes.CronTransactionRPC, error)
+	GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionReceiptsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
+	GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
+	GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
 }
 
 var _ BackendI = (*Backend)(nil)

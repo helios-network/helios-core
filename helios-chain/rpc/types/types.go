@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
 import (
@@ -15,9 +13,17 @@ import (
 
 // TokenBalance représente la balance d'un token spécifique
 type TokenBalance struct {
-	Address common.Address `json:"address"`
-	Symbol  string         `json:"symbol"`
-	Balance *hexutil.Big   `json:"balance"`
+	Address   common.Address `json:"address"`
+	Symbol    string         `json:"symbol"`
+	Balance   *hexutil.Big   `json:"balance"`
+	BalanceUI string         `json:"balanceUI"`
+}
+
+type ChainSize struct {
+	Bytes     int64 `json:"bytes"`
+	MegaBytes int64 `json:"megaBytes"`
+	GigaBytes int64 `json:"gigaBytes"`
+	Terabytes int64 `json:"terabytes"`
 }
 
 // AccountResult struct for account proof

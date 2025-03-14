@@ -1,4 +1,4 @@
-CHAINID="4242"
+CHAINID="1234"
 PASSPHRASE="12345678"
 USER=$(yes 12345678 | heliades keys show wasm -a)
 INIT='{}'
@@ -7,7 +7,7 @@ vote() {
   ID=$1
   yes 12345678 | heliades tx gov vote $ID yes \
   --from genesis --keyring-backend file --gas=20000000 --fees=10000000000000000helios --yes \
-  --chain-id 4242 --broadcast-mode sync
+  --chain-id 1234 --broadcast-mode sync
 }
 
 
@@ -47,13 +47,13 @@ sleep 3
 echo 'cw20 contract mint'
 yes 12345678 | heliades tx wasm execute $CW20_ADDRESS \
 '{"mint":{"recipient":"helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r","amount": "7777"}}' \
---from wasm --chain-id=4242 --fees=1500000000000000helios --yes --broadcast-mode=sync
+--from wasm --chain-id=1234 --fees=1500000000000000helios --yes --broadcast-mode=sync
 sleep 3
 
 echo 'cw20 contract transfer'
 yes 12345678 | heliades tx wasm execute $CW20_ADDRESS \
 '{"transfer":{"recipient":"helios1cml96vmptgw99syqrrz8az79xer2pcgp0a885r","amount": "9999"}}' \
---from wasm --chain-id=4242 --fees=1500000000000000helios --yes --broadcast-mode=sync
+--from wasm --chain-id=1234 --fees=1500000000000000helios --yes --broadcast-mode=sync
 sleep 3
 
 CODE_CREATOR=$(yes 12345678 | heliades keys show -a wasm)
@@ -62,7 +62,7 @@ yes 12345678 | heliades tx wasm submit-proposal wasm-store ./scripts/wasm-contra
 --title "Store CW20 base contract via proposal" \
 --description "Store CW20 base contract" \
 --deposit 500000000000000000000helios \
---from=wasm --chain-id="4242" --fees=10000000000000000helios \
+--from=wasm --chain-id="1234" --fees=10000000000000000helios \
 --gas=20000000 \
 --run-as $CODE_CREATOR \
 --yes \

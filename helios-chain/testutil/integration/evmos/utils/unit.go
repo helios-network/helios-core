@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-//
 // This file contains all utility function that require the access to the unit
 // test network and should only be used in unit tests.
 package utils

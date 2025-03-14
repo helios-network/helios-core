@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PASSPHRASE="12345678"
-TX_OPTS="--from=genesis  --chain-id=4242 --gas-prices 500000000helios --broadcast-mode=sync --yes"
+TX_OPTS="--from=genesis  --chain-id=1234 --gas-prices 500000000helios --broadcast-mode=sync --yes"
 
 # calculate halt height
 CUR_HEIGHT=$(curl -sS localhost:26657/block | jq .result.block.header.height | tr -d '"')

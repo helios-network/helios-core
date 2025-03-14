@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package common
 
 import (
@@ -123,6 +120,22 @@ func AccAddressFromHexAddress(evmAddr common.Address) (res sdk.AccAddress) {
 // ValAddressFromHexAddress converts a evm hex address to a bech32 val sdk.ValAddress.
 func ValAddressFromHexAddress(evmAddr common.Address) (res sdk.ValAddress) {
 	return sdk.ValAddress(AccAddressFromHexAddress(evmAddr))
+}
+
+func AnyToHexAddress(addr string) (res common.Address) {
+	if strings.Contains(addr, sdk.PrefixValidator) {
+		valAddr, err := sdk.ValAddressFromBech32(addr)
+		if err != nil {
+			return common.HexToAddress(addr)
+		}
+		return common.BytesToAddress(valAddr.Bytes())
+	}
+
+	addrResult, err := HexAddressFromBech32String(addr)
+	if err == nil {
+		return addrResult
+	}
+	return common.HexToAddress(addr)
 }
 
 // SafeAdd adds two integers and returns a boolean if an overflow occurs to avoid panic.

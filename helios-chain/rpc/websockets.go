@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package rpc
 
 import (
@@ -29,6 +27,7 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	cmttypes "github.com/cometbft/cometbft/types"
 
+	"helios-core/helios-chain/rpc/backend"
 	"helios-core/helios-chain/rpc/ethereum/pubsub"
 	rpcfilters "helios-core/helios-chain/rpc/namespaces/ethereum/eth/filters"
 	"helios-core/helios-chain/rpc/types"
@@ -75,9 +74,10 @@ type websocketsServer struct {
 	keyFile  string
 	api      *pubSubAPI
 	logger   log.Logger
+	backend  *backend.Backend
 }
 
-func NewWebsocketsServer(clientCtx client.Context, logger log.Logger, tmWSClient *rpcclient.WSClient, cfg *config.Config) WebsocketsServer {
+func NewWebsocketsServer(clientCtx client.Context, logger log.Logger, tmWSClient *rpcclient.WSClient, cfg *config.Config, backend *backend.Backend) WebsocketsServer {
 	logger = logger.With("api", "websocket-server")
 	_, port, _ := net.SplitHostPort(cfg.JSONRPC.Address) // #nosec G703
 
@@ -86,8 +86,9 @@ func NewWebsocketsServer(clientCtx client.Context, logger log.Logger, tmWSClient
 		wsAddr:   cfg.JSONRPC.WsAddress,
 		certFile: cfg.TLS.CertificatePath,
 		keyFile:  cfg.TLS.KeyPath,
-		api:      newPubSubAPI(clientCtx, logger, tmWSClient),
+		api:      newPubSubAPI(clientCtx, logger, tmWSClient, backend),
 		logger:   logger,
+		backend:  backend,
 	}
 }
 
@@ -345,15 +346,17 @@ type pubSubAPI struct {
 	events    *rpcfilters.EventSystem
 	logger    log.Logger
 	clientCtx client.Context
+	backend   *backend.Backend
 }
 
 // newPubSubAPI creates an instance of the ethereum PubSub API.
-func newPubSubAPI(clientCtx client.Context, logger log.Logger, tmWSClient *rpcclient.WSClient) *pubSubAPI {
+func newPubSubAPI(clientCtx client.Context, logger log.Logger, tmWSClient *rpcclient.WSClient, backend *backend.Backend) *pubSubAPI {
 	logger = logger.With("module", "websocket-client")
 	return &pubSubAPI{
 		events:    rpcfilters.NewEventSystem(logger, tmWSClient),
 		logger:    logger,
 		clientCtx: clientCtx,
+		backend:   backend,
 	}
 }
 
@@ -563,6 +566,73 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 		return nil, err
 	}
 
+	sub2, unsubFn2, err := api.events.SubscribeNewHeads()
+	if err != nil {
+		api.logger.Error("failed to subscribe to new heads", "error", err.Error())
+		return nil, err
+	}
+
+	// CRON LOGS
+	go func() {
+		ch := sub2.Event()
+		errCh := sub2.Err()
+		for {
+			select {
+			case event, ok := <-ch:
+				if !ok {
+					return
+				}
+
+				// Handle new block event
+				if blockHeader, ok := event.Data.(cmttypes.EventDataNewBlockHeader); ok {
+					height := uint64(blockHeader.Header.Height)
+
+					// Fetch cron logs for this block
+					cronLogs, err := api.backend.GetBlockCronLogs(height)
+					if err != nil {
+						api.logger.Error("failed to get cron logs", "height", height, "error", err.Error())
+						continue
+					}
+
+					// Filter logs based on criteria
+					filteredLogs := rpcfilters.FilterLogs(cronLogs, crit.FromBlock, crit.ToBlock, crit.Addresses, crit.Topics)
+					if len(filteredLogs) == 0 {
+						continue
+					}
+
+					// Send each matching log to the websocket
+					for _, log := range filteredLogs {
+						res := &SubscriptionNotification{
+							Jsonrpc: "2.0",
+							Method:  "eth_subscription",
+							Params: &SubscriptionResult{
+								Subscription: subID,
+								Result:       log,
+							},
+						}
+
+						err = wsConn.WriteJSON(res)
+						if err != nil {
+							api.logger.Error("error writing log", "error", err.Error())
+							try(func() {
+								if err != websocket.ErrCloseSent {
+									_ = wsConn.Close()
+								}
+							}, api.logger, "closing websocket peer sub")
+						}
+					}
+				}
+
+			case err, ok := <-errCh:
+				if !ok {
+					return
+				}
+				api.logger.Debug("dropping Logs WebSocket subscription", "subscription-id", subID, "error", err.Error())
+				return
+			}
+		}
+	}()
+
 	go func() {
 		ch := sub.Event()
 		errCh := sub.Err()
@@ -584,6 +654,8 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 					api.logger.Error("failed to decode tx response", "error", err.Error())
 					return
 				}
+
+				api.logger.Info("LOGSSSS", "txResponse", txResponse.Hash)
 
 				logs := rpcfilters.FilterLogs(evmtypes.LogsToEthereum(txResponse.Logs), crit.FromBlock, crit.ToBlock, crit.Addresses, crit.Topics)
 				if len(logs) == 0 {
@@ -618,7 +690,13 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 		}
 	}()
 
-	return unsubFn, nil
+	// Combine both unsubscribe functions
+	combinedUnsubFn := func() {
+		unsubFn()
+		unsubFn2()
+	}
+
+	return combinedUnsubFn, nil
 }
 
 func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID) (pubsub.UnsubscribeFunc, error) {

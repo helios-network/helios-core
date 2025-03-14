@@ -1,10 +1,11 @@
 const ethers = require('ethers');
 const WebSocket = require('ws');
+const fs = require('fs');
 
 const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
-const PRIVATE_KEY = '2c37c3d09d7a1c957f01ad200cec69bc287d0a9cc85b4dce694611a4c9c24036';
+const PRIVATE_KEY = 'da8b1967d390929c785c4da297682b55a2ee4fc02eceae1a1b2bf364d6b75288';
 
 const PRIVATE_KEY2 = 'e1ab51c450698b0af4722e074e39394bd99822f0b00f1a787a131b48c14d4483'
 
@@ -415,6 +416,32 @@ async function getRewards() {
     console.log('WithdrawRewards en cours...');
 
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000801', withdrawDelegatorRewardsAbi, wallet);
+    const tx = await contract.withdrawDelegatorRewards.staticCall(wallet.address, validatorAddress, {
+      gasLimit: 500000,
+      gasPrice: ethers.parseUnits('20', "gwei")
+    });
+    console.log(tx);
+    // console.log('Transaction envoyée, hash :', tx.hash);
+
+    // const receipt = await tx.wait();
+    // console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    // console.log('WithdrawRewards réussie !');
+  } catch (error) {
+    console.error('Erreur lors de la WithdrawRewards :', error);
+  }
+}
+
+async function getRewards() {
+
+  const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse Cosmos du validateur
+  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+    // Extraire et afficher la clé publique
+    console.log("wallet : ", wallet.address)
+  try {
+    console.log('WithdrawRewards en cours...');
+
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000801', withdrawDelegatorRewardsAbi, wallet);
     const tx = await contract.withdrawDelegatorRewards(wallet.address, validatorAddress);
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -427,16 +454,148 @@ async function getRewards() {
   }
 }
 
+async function createCron() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('createCron en cours...');
+
+    // let x = await wallet.sendTransaction({
+    //   value: ethers.parseEther("500"),
+    //   to: wallet2.address
+    // });
+    // await x.wait();
+
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
+    const tx = await contract.createCron(
+      "0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F",
+      `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
+      "increment", // methodName
+      [], // params
+      1, // frequency
+      0, // expirationBlock
+      400000, // gasLimit
+      ethers.parseUnits("2", "gwei"), // maxGasPrice
+      ethers.parseEther("1")
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la createCron :', error);
+  }
+}
+
+async function cancelCron() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('createCron en cours...');
+
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
+    const tx = await contract.cancelCron(
+      1
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la cancelCron :', error);
+  }
+}
+
+async function getEventsCronCreated() {
+  const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+  const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wsProvider);
+
+  contract.on('CronCreated', (from, to, cronId, event) => {
+    console.log('New event received!');
+    console.log('even:', event);
+    console.log('cronId:', cronId.toString());
+  });
+}
+
+async function getEventsCronCancelled() {
+  const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+  const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wsProvider);
+
+  contract.on('CronCancelled', (from, to, cronId, event) => {
+    console.log('New event received!');
+    console.log('even:', event);
+    console.log('cronId:', cronId.toString());
+  });
+}
+
+async function getEvents() {
+  const abiContract = [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newCount",
+          "type": "uint256"
+        }
+      ],
+      "name": "CountIncremented",
+      "type": "event"
+    }
+  ];
+
+  const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
+  const contract = new ethers.Contract('0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F', abiContract, wsProvider);
+  // const contract = new ethers.Contract('0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A', abiContract, wallet);
+  // test events
+  // Obtenir le bloc actuel
+  // const currentBlock = await provider.getBlockNumber();
+  // Chercher sur les 1000 derniers blocs par exemple
+  // const fromBlock = Math.max(0, currentBlock - 1000);
+  
+  // const filter = contract.filters.CountIncremented();
+  // Spécifier la plage de blocs
+  // const events = await contract.queryFilter(filter, fromBlock, currentBlock);
+
+  // const eventSignature = "CountIncremented(uint256)";
+  // const eventHash = ethers.id(eventSignature);
+  // console.log("Event signature:", eventSignature);
+  // console.log("Event hash (keccak256):", eventHash);
+  // console.log("Recherche d'événements du bloc", fromBlock, "au bloc", currentBlock);
+
+  // for (const event of events) {
+  //   console.log('Event:', event);
+  // }
+
+  contract.on('CountIncremented', (newCount, event) => {
+    console.log('New event received!');
+    console.log('even:', event);
+    console.log('New count:', newCount.toString());
+  });
+}
+
 async function main() {
-  await create();
+  // await createCron();
+  // await getEvents();
+  // await getEventsCronCancelled();
+  // await cancelCron();
+  // await getEventsEVMCallScheduled();
+  // await create();
   //await fetch();
   //await delegate();
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
-  //await undelegate();
+  // await undelegate();
 
-  //await getRewards();
+  // await getRewards();
   
 }
 

@@ -57,7 +57,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	err := app.InitializeAppConfiguration("4242-1")
+	err := app.InitializeAppConfiguration("1234-1")
 	suite.Require().NoError(err)
 }
 

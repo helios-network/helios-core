@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package backend
 
 import (
@@ -419,6 +417,7 @@ func (b *Backend) BlockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.
 				return ethtypes.BytesToBloom([]byte(attr.Value)), nil
 			}
 		}
+
 	}
 	return ethtypes.Bloom{}, errors.New("block bloom event is not found")
 }
