@@ -301,30 +301,44 @@ func (b *Backend) GetTransactionCount(address common.Address, blockNum rpctypes.
 	return &n, nil
 }
 
-// GetTransactionCount returns the number of transactions at the given address up to the given block number.
+// GetAccountTransactionsByPageAndSize returns the transactions at the given page and size for the filtered by address
 func (b *Backend) GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
-	transactions := make([]*rpctypes.RPCTransaction, 0)
+	if page == 0 || size == 0 {
+		return nil, errors.New("page and size must be greater than 0")
+	}
 
-	// Get current block number using proper context
-	latestBlockNumber, err := b.BlockNumber()
+	if size > 100 {
+		return nil, errors.New("size must be less than 100")
+	}
+
+	sizeNum := uint64(size)
+	pageNum := uint64(page)
+
+	transactions := make([]*rpctypes.RPCTransaction, 0, sizeNum)
+
+	pendingTxs, err := b.PendingTransactions()
 	if err != nil {
 		return nil, err
 	}
 
-	// Calculate starting position
-	start := false
-	counter := uint64(0)
-	currentBlockNum := uint64(latestBlockNumber)
+	pageOffset := (pageNum - 1) * sizeNum
 
-	// Get pending transactions first
-	pendingTxs, err := b.PendingTransactions()
-	if err == nil && len(pendingTxs) > 0 {
-		for _, tx := range pendingTxs {
-			msg, err := evmtypes.UnwrapEthereumMsgTx(tx)
+	pendingTxCount := uint64(len(pendingTxs))
+
+	// add mempool txs if we are in the page range
+	if pageOffset < pendingTxCount {
+		pendingEndPosition := min(pageOffset+sizeNum, pendingTxCount)
+
+		for i := pageOffset; i < pendingEndPosition; i++ {
+			msg, err := evmtypes.UnwrapEthereumMsgTx(pendingTxs[i])
 			if err != nil {
-				// not ethereum tx
+				return nil, fmt.Errorf("failed to unwrap ethereum tx: %w", err)
+			}
+
+			if !isAddressInvolved(msg, address) {
 				continue
 			}
+
 			rpctx, err := rpctypes.NewTransactionFromMsg(
 				msg,
 				common.Hash{},
@@ -334,51 +348,144 @@ func (b *Backend) GetAccountTransactionsByPageAndSize(address common.Address, pa
 				b.chainID,
 			)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to create transaction from msg: %w", err)
 			}
-			if rpctx.From == address || (rpctx.To != nil && *rpctx.To == address) {
-				counter++
-				if counter >= (uint64(page)-1)*uint64(size) {
-					start = true
-				}
-				if start {
-					transactions = append(transactions, rpctx)
-					if uint64(len(transactions)) >= uint64(size) {
-						return transactions, nil
-					}
-				}
+
+			transactions = append(transactions, rpctx)
+
+			if uint64(len(transactions)) >= sizeNum {
+				return transactions, nil
 			}
 		}
 	}
 
-	// Iterate through blocks from latest to first
-	for currentBlockNum > 0 && uint64(len(transactions)) < uint64(size) {
-		block, err := b.GetBlockByNumber(rpctypes.BlockNumber(currentBlockNum), true)
+	// we need to find txs in confirmed blocks
+	latestBlockNumber, err := b.BlockNumber()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest block number: %w", err)
+	}
+
+	// calculate the updated page offset
+	updatedPageOffset := pageOffset - uint64(len(transactions))
+
+	// use BlockchainInfo to estimate the target block based on num_txs using batches of 100
+	const batchSize = int64(100)
+	maxHeight := int64(latestBlockNumber)
+	var targetBlock int64 = -1
+	txCount := uint64(0)
+
+	// find target block to start searching for txs and filter by address
+	for maxHeight > 0 {
+		minHeight := int64(1)
+		if maxHeight > int64(batchSize) {
+			minHeight = maxHeight - int64(batchSize) + 1
+		}
+
+		info, err := b.clientCtx.Client.BlockchainInfo(b.ctx, int64(minHeight), int64(maxHeight))
 		if err != nil {
-			b.logger.Error("failed to get block", "number", currentBlockNum, "error", err.Error())
+			return nil, fmt.Errorf("failed to get block metadata: %w", err)
+		}
+		for i := 0; i < len(info.BlockMetas); i++ {
+			txCount += uint64(info.BlockMetas[i].NumTxs)
+			if txCount >= updatedPageOffset {
+				targetBlock = info.BlockMetas[i].Header.Height
+				break
+			}
+		}
+		if targetBlock != -1 {
 			break
 		}
-		// Check each transaction in the block
-		if txs, ok := block["transactions"].([]interface{}); ok {
-			for _, tx := range txs {
-				if ethTx, ok := tx.(*rpctypes.RPCTransaction); ok {
-					// Check if the address is either the sender or receiver
-					if ethTx.From == address || (ethTx.To != nil && *ethTx.To == address) {
-						counter++
-						if counter >= (uint64(page)-1)*uint64(size) {
-							start = true
-						}
-						if start {
-							transactions = append(transactions, ethTx)
-							if uint64(len(transactions)) >= uint64(size) {
-								return transactions, nil
-							}
-						}
-					}
+		if maxHeight > int64(batchSize) {
+			maxHeight -= int64(batchSize)
+		} else {
+			break
+		}
+	}
+
+	if targetBlock == -1 {
+		return nil, fmt.Errorf("txs not found for page %d and size %d", pageNum, sizeNum)
+	}
+
+	// search for txs filtered by address starting from the target block in reverse order
+	for blockHeight := targetBlock; blockHeight > 0 && uint64(len(transactions)) < sizeNum; blockHeight-- {
+
+		block, err := b.rpcClient.Block(b.ctx, &blockHeight)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get block %d: %w", blockHeight, err)
+		}
+
+		blockRes, err := b.rpcClient.BlockResults(b.ctx, &blockHeight)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get block results for block %d: %w", blockHeight, err)
+		}
+
+		// pre filter messages by address before creating full RPC tx objects
+		ethMsgs := b.EthMsgsFromTendermintBlock(block, blockRes)
+		filteredMsgs := make([]*evmtypes.MsgEthereumTx, 0)
+		for _, msg := range ethMsgs {
+			if isAddressInvolved(msg, address) {
+				filteredMsgs = append(filteredMsgs, msg)
+			}
+		}
+
+		// only fetch base fee if we have txs filtered by address
+		if len(filteredMsgs) > 0 {
+			baseFee, err := b.BaseFee(blockRes)
+			if err != nil {
+				return nil, fmt.Errorf("failed to fetch Base Fee from prunned block. Check node prunning configuration: %w", err)
+			}
+
+			// now create full RPC tx objects
+			for i, msg := range filteredMsgs {
+				rpctx, err := rpctypes.NewTransactionFromMsg(
+					msg,
+					common.BytesToHash(block.Block.Hash()),
+					uint64(block.Block.Height),
+					uint64(i),
+					baseFee,
+					b.chainID,
+				)
+				if err != nil {
+					return nil, fmt.Errorf("failed to create transaction from msg: %w", err)
+				}
+				transactions = append(transactions, rpctx)
+				if uint64(len(transactions)) >= sizeNum {
+					break
 				}
 			}
 		}
-		currentBlockNum--
 	}
 	return transactions, nil
+}
+
+// isAddressInvolved is a helper method that checks if an address is involved in a transaction as sender or receiver
+func isAddressInvolved(msg *evmtypes.MsgEthereumTx, address common.Address) bool {
+	// Check sender (From)
+	if common.HexToAddress(msg.From) == address {
+		return true
+	}
+
+	// Unpack the transaction data
+	txData, err := evmtypes.UnpackTxData(msg.Data)
+	if err != nil {
+		return false
+	}
+
+	// Different transaction types have different ways to access the recipient
+	switch txData := txData.(type) {
+	case *evmtypes.LegacyTx:
+		if txData.To != "" && common.HexToAddress(txData.To) == address {
+			return true
+		}
+	case *evmtypes.AccessListTx:
+		if txData.To != "" && common.HexToAddress(txData.To) == address {
+			return true
+		}
+	case *evmtypes.DynamicFeeTx:
+		if txData.To != "" && common.HexToAddress(txData.To) == address {
+			return true
+		}
+	}
+
+	return false
 }
