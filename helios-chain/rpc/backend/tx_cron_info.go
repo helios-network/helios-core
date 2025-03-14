@@ -112,8 +112,9 @@ func (b *Backend) GetCronTransactionReceiptByHash(hash string) (*chronostypes.Cr
 	return res.Transaction, nil
 }
 
-func (b *Backend) GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+func (b *Backend) GetCronTransactionReceiptsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
 	req := &chronostypes.QueryGetCronTransactionReceiptsByPageAndSizeRequest{
+		Address: address.String(),
 		Pagination: &query.PageRequest{
 			Offset:  (uint64(page) - 1) * uint64(size),
 			Limit:   uint64(size),
@@ -127,8 +128,9 @@ func (b *Backend) GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, s
 	return res.Transactions, nil
 }
 
-func (b *Backend) GetCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+func (b *Backend) GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
 	req := &chronostypes.QueryGetCronTransactionsByPageAndSizeRequest{
+		Address: address.String(),
 		Pagination: &query.PageRequest{
 			Offset:  (uint64(page) - 1) * uint64(size),
 			Limit:   uint64(size),
@@ -136,6 +138,36 @@ func (b *Backend) GetCronTransactionsByPageAndSize(page hexutil.Uint64, size hex
 		},
 	}
 	res, err := b.queryClient.Chronos.QueryGetCronTransactionsByPageAndSize(b.ctx, req)
+	if err != nil || res.Transactions == nil {
+		return []*chronostypes.CronTransactionRPC{}, err
+	}
+	return res.Transactions, nil
+}
+
+func (b *Backend) GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	req := &chronostypes.QueryGetAllCronTransactionReceiptsByPageAndSizeRequest{
+		Pagination: &query.PageRequest{
+			Offset:  (uint64(page) - 1) * uint64(size),
+			Limit:   uint64(size),
+			Reverse: true,
+		},
+	}
+	res, err := b.queryClient.Chronos.QueryGetAllCronTransactionReceiptsByPageAndSize(b.ctx, req)
+	if err != nil || res.Transactions == nil {
+		return []*chronostypes.CronTransactionReceiptRPC{}, err
+	}
+	return res.Transactions, nil
+}
+
+func (b *Backend) GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+	req := &chronostypes.QueryGetAllCronTransactionsByPageAndSizeRequest{
+		Pagination: &query.PageRequest{
+			Offset:  (uint64(page) - 1) * uint64(size),
+			Limit:   uint64(size),
+			Reverse: true,
+		},
+	}
+	res, err := b.queryClient.Chronos.QueryGetAllCronTransactionsByPageAndSize(b.ctx, req)
 	if err != nil || res.Transactions == nil {
 		return []*chronostypes.CronTransactionRPC{}, err
 	}

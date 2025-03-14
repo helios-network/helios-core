@@ -16,15 +16,16 @@ const (
 
 // Key prefixes for different types of data
 const (
-	prefixCronKey                       = iota + 1 // 1
-	prefixCronAddressKey                           // 2
-	prefixCronCountKey                             // 3
-	prefixParamsKey                                // 4
-	prefixNextCronIDKey                            // 5
-	prefixCronNonceKey                             // 6
-	prefixCronTransactionResultKey                 // 7
-	prefixCronBlockTransactionHashsKey             // 8
-	prefixCronTransactionHashToNonceKey            // 9
+	prefixCronKey                          = iota + 1 // 1
+	prefixCronAddressKey                              // 2
+	prefixCronCountKey                                // 3
+	prefixParamsKey                                   // 4
+	prefixNextCronIDKey                               // 5
+	prefixCronNonceKey                                // 6
+	prefixCronTransactionResultKey                    // 7
+	prefixCronBlockTransactionHashsKey                // 8
+	prefixCronTransactionHashToNonceKey               // 9
+	prefixCronTransactionResultByCronIdKey            // 10
 )
 
 var (
@@ -54,6 +55,9 @@ var (
 
 	// CronTransactionHashToNonceKey it the key for storing the individual crons tx results Nonce Key
 	CronTransactionHashToNonceKey = []byte{prefixCronTransactionHashToNonceKey}
+
+	// CronTransactionResultByCronIdKey it the key for storing the multiple cron tx results on CronIdKey
+	CronTransactionResultByCronIdKey = []byte{prefixCronTransactionResultByCronIdKey}
 )
 
 // GetCronKey returns the key for a specific cron by name

@@ -57,11 +57,18 @@ service Query {
     option (google.api.http).get = "/helios/chronos/transaction/receipt/nonce/{nonce}";
   }
 
-  rpc QueryGetCronTransactionReceiptsByPageAndSize(QueryGetCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetCronTransactionReceiptsByPageAndSizeResponse) {
+  rpc QueryGetAllCronTransactionReceiptsByPageAndSize(QueryGetAllCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetAllCronTransactionReceiptsByPageAndSizeResponse) {
     option (google.api.http).get = "/helios/chronos/transaction/receipts";
   }
-  rpc QueryGetCronTransactionsByPageAndSize(QueryGetCronTransactionsByPageAndSizeRequest) returns (QueryGetCronTransactionsByPageAndSizeResponse) {
+  rpc QueryGetAllCronTransactionsByPageAndSize(QueryGetAllCronTransactionsByPageAndSizeRequest) returns (QueryGetAllCronTransactionsByPageAndSizeResponse) {
     option (google.api.http).get = "/helios/chronos/transactions";
+  }
+
+  rpc QueryGetCronTransactionReceiptsByPageAndSize(QueryGetCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetCronTransactionReceiptsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/address/{address}/transaction/receipts";
+  }
+  rpc QueryGetCronTransactionsByPageAndSize(QueryGetCronTransactionsByPageAndSizeRequest) returns (QueryGetCronTransactionsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/address/{address}/transactions";
   }
 }
 
@@ -154,8 +161,27 @@ message QueryGetCronTransactionReceiptByHashResponse {
   CronTransactionReceiptRPC transaction = 1;
 }
 
+message QueryGetAllCronTransactionReceiptsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetAllCronTransactionReceiptsByPageAndSizeResponse {
+  repeated CronTransactionReceiptRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetAllCronTransactionsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetAllCronTransactionsByPageAndSizeResponse {
+  repeated CronTransactionRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
 message QueryGetCronTransactionReceiptsByPageAndSizeRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  string address = 2;
 }
 
 message QueryGetCronTransactionReceiptsByPageAndSizeResponse {
@@ -165,6 +191,7 @@ message QueryGetCronTransactionReceiptsByPageAndSizeResponse {
 
 message QueryGetCronTransactionsByPageAndSizeRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  string address = 2;
 }
 
 message QueryGetCronTransactionsByPageAndSizeResponse {

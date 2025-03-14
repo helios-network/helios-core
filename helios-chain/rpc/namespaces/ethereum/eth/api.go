@@ -68,6 +68,7 @@ type EthereumAPI interface {
 	//
 	// Returns information regarding an address's stored on-chain data.
 	Accounts() ([]common.Address, error)
+	GetAccountType(address common.Address) (string, error)
 	GetHeliosAddress(address common.Address) (string, error)
 	GetHeliosValoperAddress(address common.Address) (string, error)
 	GetBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
@@ -151,8 +152,10 @@ type EthereumAPI interface {
 	GetCronTransactionByHash(hash string) (*chronostypes.CronTransactionRPC, error)
 	GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error)
 	GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error)
-	GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
-	GetCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
+	GetCronTransactionReceiptsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
+	GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
 }
 
@@ -295,6 +298,11 @@ func (e *PublicAPI) SendTransaction(args evmtypes.TransactionArgs) (common.Hash,
 func (e *PublicAPI) Accounts() ([]common.Address, error) {
 	e.logger.Debug("eth_accounts")
 	return e.backend.Accounts()
+}
+
+func (e *PublicAPI) GetAccountType(address common.Address) (string, error) {
+	e.logger.Debug("eth_getAccountType", "address", address.String())
+	return e.backend.GetAccountType(address)
 }
 
 func (e *PublicAPI) GetHeliosAddress(address common.Address) (string, error) {
@@ -698,14 +706,24 @@ func (e *PublicAPI) GetCronTransactionReceiptByHash(hash string) (*chronostypes.
 	return e.backend.GetCronTransactionReceiptByHash(hash)
 }
 
-func (e *PublicAPI) GetCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
-	e.logger.Debug("eth_getCronTransactionReceiptsByPageAndSize", "page", page, "size", size)
-	return e.backend.GetCronTransactionReceiptsByPageAndSize(page, size)
+func (e *PublicAPI) GetCronTransactionReceiptsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptsByPageAndSize", "address", address, "page", page, "size", size)
+	return e.backend.GetCronTransactionReceiptsByPageAndSize(address, page, size)
 }
 
-func (e *PublicAPI) GetCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
-	e.logger.Debug("eth_getCronTransactionsByPageAndSize", "page", page, "size", size)
-	return e.backend.GetCronTransactionsByPageAndSize(page, size)
+func (e *PublicAPI) GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getCronTransactionsByPageAndSize", "address", address, "page", page, "size", size)
+	return e.backend.GetCronTransactionsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getAllCronTransactionReceiptsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetAllCronTransactionReceiptsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getAllCronTransactionsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetAllCronTransactionsByPageAndSize(page, size)
 }
 
 func (e *PublicAPI) GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error) {

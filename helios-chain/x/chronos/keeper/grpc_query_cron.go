@@ -213,7 +213,101 @@ func (k Keeper) QueryGetCronTransactionReceiptByNonce(c context.Context, req *ty
 	}, nil
 }
 
-func (k Keeper) QueryGetCronTransactionReceiptsByPageAndSize(c context.Context, req *types.QueryGetCronTransactionReceiptsByPageAndSizeRequest) (*types.QueryGetCronTransactionReceiptsByPageAndSizeResponse, error) {
+func (k Keeper) QueryGetCronTransactionReceiptsByPageAndSize(ctx context.Context, req *types.QueryGetCronTransactionReceiptsByPageAndSizeRequest) (*types.QueryGetCronTransactionReceiptsByPageAndSizeResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := sdkCtx.KVStore(k.storeKey)
+	addr := cmn.AccAddressFromHexAddressString(req.Address)
+	cronId, ok := k.GetCronIdByAddress(sdkCtx, addr.String())
+	if !ok {
+		return nil, status.Error(codes.NotFound, "cron transaction not found")
+	}
+
+	cronIndexStore := prefix.NewStore(store, append(types.CronTransactionResultByCronIdKey, sdk.Uint64ToBigEndian(cronId)...))
+
+	var cronsTxReceipts []*types.CronTransactionReceiptRPC
+
+	pageRes, err := query.Paginate(cronIndexStore, req.Pagination, func(key, _ []byte) error {
+		// Ici, récupère la vraie donnée dans le store principal à partir du nonce (clé)
+		txBz := store.Get(append(types.CronTransactionResultKey, key...))
+		if txBz == nil {
+			return nil // ou gestion d'erreur
+		}
+
+		var tx types.CronTransactionResult
+		if err := k.cdc.Unmarshal(txBz, &tx); err != nil {
+			return err
+		}
+
+		txReceipt, err := k.FormatCronTransactionResultToCronTransactionReceiptRPC(sdkCtx, tx)
+		if err != nil {
+			return err
+		}
+		cronsTxReceipts = append(cronsTxReceipts, txReceipt)
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryGetCronTransactionReceiptsByPageAndSizeResponse{
+		Transactions: cronsTxReceipts,
+		Pagination:   pageRes,
+	}, nil
+}
+
+func (k Keeper) QueryGetCronTransactionsByPageAndSize(ctx context.Context, req *types.QueryGetCronTransactionsByPageAndSizeRequest) (*types.QueryGetCronTransactionsByPageAndSizeResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := sdkCtx.KVStore(k.storeKey)
+	addr := cmn.AccAddressFromHexAddressString(req.Address)
+	cronId, ok := k.GetCronIdByAddress(sdkCtx, addr.String())
+	if !ok {
+		return nil, status.Error(codes.NotFound, "cron transaction not found")
+	}
+
+	cronIndexStore := prefix.NewStore(store, append(types.CronTransactionResultByCronIdKey, sdk.Uint64ToBigEndian(cronId)...))
+
+	var cronsTxs []*types.CronTransactionRPC
+
+	pageRes, err := query.Paginate(cronIndexStore, req.Pagination, func(key, _ []byte) error {
+		// Ici, récupère la vraie donnée dans le store principal à partir du nonce (clé)
+		txBz := store.Get(append(types.CronTransactionResultKey, key...))
+		if txBz == nil {
+			return nil // ou gestion d'erreur
+		}
+
+		var tx types.CronTransactionResult
+		if err := k.cdc.Unmarshal(txBz, &tx); err != nil {
+			return err
+		}
+
+		txFormatted, err := k.FormatCronTransactionResultToCronTransactionRPC(sdkCtx, tx)
+		if err != nil {
+			return err
+		}
+		cronsTxs = append(cronsTxs, txFormatted)
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryGetCronTransactionsByPageAndSizeResponse{
+		Transactions: cronsTxs,
+		Pagination:   pageRes,
+	}, nil
+}
+
+func (k Keeper) QueryGetAllCronTransactionReceiptsByPageAndSize(c context.Context, req *types.QueryGetAllCronTransactionReceiptsByPageAndSizeRequest) (*types.QueryGetAllCronTransactionReceiptsByPageAndSizeResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -239,13 +333,13 @@ func (k Keeper) QueryGetCronTransactionReceiptsByPageAndSize(c context.Context, 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetCronTransactionReceiptsByPageAndSizeResponse{
+	return &types.QueryGetAllCronTransactionReceiptsByPageAndSizeResponse{
 		Transactions: cronsTxReceipts,
 		Pagination:   pageRes,
 	}, nil
 }
 
-func (k Keeper) QueryGetCronTransactionsByPageAndSize(c context.Context, req *types.QueryGetCronTransactionsByPageAndSizeRequest) (*types.QueryGetCronTransactionsByPageAndSizeResponse, error) {
+func (k Keeper) QueryGetAllCronTransactionsByPageAndSize(c context.Context, req *types.QueryGetAllCronTransactionsByPageAndSizeRequest) (*types.QueryGetAllCronTransactionsByPageAndSizeResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -271,7 +365,7 @@ func (k Keeper) QueryGetCronTransactionsByPageAndSize(c context.Context, req *ty
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetCronTransactionsByPageAndSizeResponse{
+	return &types.QueryGetAllCronTransactionsByPageAndSizeResponse{
 		Transactions: cronsTxs,
 		Pagination:   pageRes,
 	}, nil

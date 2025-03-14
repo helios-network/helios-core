@@ -1106,6 +1106,12 @@ func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionResultKey)
 	bz := k.cdc.MustMarshal(&tx)
 	store.Set(GetTxIDBytes(tx.Nonce), bz)
+
+	// Stockage uniquement du nonce dans l'index secondaire pour éviter les doublons
+	storeByCronId := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.CronTransactionResultByCronIdKey, sdk.Uint64ToBigEndian(cron.Id)...))
+
+	// ici on ne stocke que le nonce (très léger) comme référence
+	storeByCronId.Set(GetTxIDBytes(tx.Nonce), []byte{}) // pas besoin de valeur car on récupère la donnée via le nonce dans le store principal
 }
 
 func (k *Keeper) GetCronIdByAddress(ctx sdk.Context, address string) (uint64, bool) {

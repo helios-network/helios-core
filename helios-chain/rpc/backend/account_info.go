@@ -32,6 +32,25 @@ func (b *Backend) GetHeliosValoperAddress(address common.Address) (string, error
 	return sdk.ValAddress(sdk.AccAddress(address.Bytes())).String(), nil
 }
 
+func (b *Backend) GetAccountType(address common.Address) (string, error) {
+	if _, err := b.GetCronByAddress(address); err == nil {
+		return "CRON", nil
+	}
+	for _, addr := range evmtypes.AvailableStaticPrecompiles {
+		if addr == address.String() {
+			return "PRECOMPILE", nil
+		}
+	}
+	req := &evmtypes.QueryCodeRequest{
+		Address: address.String(),
+	}
+	res, err := b.queryClient.Code(b.ctx, req)
+	if err == nil && len(res.Code) != 0 {
+		return "SMART_CONTRACT", nil
+	}
+	return "ADDRESS", nil
+}
+
 // GetCode returns the contract code at the given address and block number.
 func (b *Backend) GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error) {
 	blockNum, err := b.BlockNumberFromTendermint(blockNrOrHash)
@@ -351,7 +370,7 @@ func (b *Backend) GetAccountTransactionsByPageAndSize(address common.Address, pa
 
 	// Check for Chronos wallet transactions first
 	if _, err := b.GetCronByAddress(address); err == nil {
-		chronTxs, err := b.GetCronTransactionsByPageAndSize(page, size)
+		chronTxs, err := b.GetCronTransactionsByPageAndSize(address, page, size)
 		if err != nil {
 			return nil, err
 		}
