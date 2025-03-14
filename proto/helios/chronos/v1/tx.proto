@@ -28,9 +28,9 @@ message MsgCreateCron {
   uint64 frequency = 6; // Execution frequency in blocks
   uint64 expiration_block = 7; // Optional expiration block height
   uint64 gas_limit = 8; // Maximum gas allowed for execution
-  uint64 max_gas_price = 9; // Maximum gas price accepted
+  string max_gas_price = 9 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Maximum gas price accepted
   string sender = 10; // Add this field for the Cosmos SDK signer
-  uint64 amount_to_deposit = 11; // Amount to deposit for pay Cron runs
+  string amount_to_deposit = 11 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Amount to deposit for pay Cron runs
 }
 
 message MsgCreateCronResponse {
@@ -47,7 +47,7 @@ message MsgUpdateCron {
   repeated string new_params = 4;
   uint64 new_expiration_block = 5;
   uint64 new_gas_limit = 6; // Maximum gas allowed for execution
-  uint64 new_max_gas_price = 7; // Maximum gas price accepted
+  string new_max_gas_price = 7 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Maximum gas price accepted
 
   string sender = 8; // Add this field for the Cosmos SDK signer
 }

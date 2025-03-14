@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"math/big"
+	"strconv"
 
 	testtx "helios-core/helios-chain/testutil/tx"
 	evmostypes "helios-core/helios-chain/types"
@@ -38,7 +39,7 @@ func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 	return Config{
 		chainID:            utils.MainnetChainID + "-1",
-		eip155ChainID:      big.NewInt(4242),
+		eip155ChainID:      big.NewInt(parseMainnetChainID(utils.MainnetChainID)),
 		amountOfValidators: 3,
 		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},
@@ -149,4 +150,12 @@ func WithCustomBaseAppOpts(opts ...func(*baseapp.BaseApp)) ConfigOption {
 	return func(cfg *Config) {
 		cfg.customBaseAppOpts = opts
 	}
+}
+
+func parseMainnetChainID(chainID string) int64 {
+	value, err := strconv.ParseInt(chainID, 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse MainnetChainID: %s", err.Error()))
+	}
+	return value
 }

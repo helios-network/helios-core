@@ -416,13 +416,17 @@ async function getRewards() {
     console.log('WithdrawRewards en cours...');
 
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000801', withdrawDelegatorRewardsAbi, wallet);
-    const tx = await contract.withdrawDelegatorRewards(wallet.address, validatorAddress);
-    console.log('Transaction envoyée, hash :', tx.hash);
+    const tx = await contract.withdrawDelegatorRewards.staticCall(wallet.address, validatorAddress, {
+      gasLimit: 500000,
+      gasPrice: ethers.parseUnits('20', "gwei")
+    });
+    console.log(tx);
+    // console.log('Transaction envoyée, hash :', tx.hash);
 
-    const receipt = await tx.wait();
-    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+    // const receipt = await tx.wait();
+    // console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
 
-    console.log('WithdrawRewards réussie !');
+    // console.log('WithdrawRewards réussie !');
   } catch (error) {
     console.error('Erreur lors de la WithdrawRewards :', error);
   }
@@ -471,7 +475,8 @@ async function createCron() {
       1, // frequency
       0, // expirationBlock
       400000, // gasLimit
-      20000000000 // maxGasPrice
+      ethers.parseUnits("2", "gwei"), // maxGasPrice
+      ethers.parseEther("1")
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -577,7 +582,7 @@ async function getEvents() {
 }
 
 async function main() {
-  await createCron();
+  // await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
@@ -588,9 +593,9 @@ async function main() {
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
-  //await undelegate();
+  // await undelegate();
 
-  //await getRewards();
+  // await getRewards();
   
 }
 

@@ -134,9 +134,17 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
 		}
+		// update cron
+		k.UpdateCronTotalFeesPaid(ctx, cron, fees[0].Amount)
 	}
 
 	return nil
+}
+
+func (k *Keeper) UpdateCronTotalFeesPaid(ctx sdk.Context, cron types.Cron, fees sdkmath.Int) {
+	newTotalFeesPaid := cron.TotalFeesPaid.Add(fees)
+	cron.TotalFeesPaid = &newTotalFeesPaid
+	k.StoreSetCron(ctx, cron)
 }
 
 func (k *Keeper) CronInTransfer(ctx sdk.Context, cron types.Cron, amount *big.Int) error {
@@ -498,7 +506,7 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 	}
 
 	// check acceptence in terms of fees
-	if big.NewInt(int64(cron.MaxGasPrice)).Cmp(decUtils.BaseFee) < 0 {
+	if cron.MaxGasPrice.BigInt().Cmp(decUtils.BaseFee) < 0 {
 		return nil, fmt.Errorf("max gas price too low: %d (max gas price) < %d (base fee)", cron.MaxGasPrice, decUtils.BaseFee)
 	}
 
@@ -681,6 +689,8 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	if err != nil {
 		return nil, err
 	}
+	// update cron fees paid
+	k.UpdateCronTotalFeesPaid(ctx, cron, msgFees[0].Amount)
 	// 5. prepare tx for evm
 	msg := k.TxAsMessage(tx, decUtils.BaseFee, ownerAddress)
 	// 6. execute tx
@@ -702,6 +712,9 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 
 	if err = k.evmKeeper.RefundGas(ctx, msgForRefund, msgForRefund.Gas()-res.GasUsed, baseDenom); err != nil {
 		return nil, errors.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
+	}
+	if refundCoinsR[0].Amount.GT(sdkmath.NewInt(0)) { // update cron fees paid
+		k.UpdateCronTotalFeesPaid(ctx, cron, refundCoinsR[0].Amount)
 	}
 	return res, nil
 }
@@ -762,7 +775,8 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 
 	// Update the next execution block after successful execution
 	cron.NextExecutionBlock = uint64(ctx.BlockHeight()) + cron.Frequency
-	// cron.totalGasUsed =
+	cron.TotalExecutedTransactions += 1
+
 	k.StoreSetCron(ctx, cron)
 	k.StoreCronTransactionResult(ctx, cron, cronTxResult)
 	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
@@ -892,11 +906,12 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
 		return nil, fmt.Errorf("transaction converting failed")
 	}
+	ethCfg := evmtypes.GetEthChainConfig()
 
 	height := uint64(txResult.BlockNumber)
-	index := uint64(0)          // ou récupérer l'index de la transaction si disponible
-	baseFee := big.NewInt(0)    // ou récupérer le baseFee du bloc si disponible
-	chainID := big.NewInt(4242) // remplacer par votre chainID
+	index := uint64(0)        // ou récupérer l'index de la transaction si disponible
+	baseFee := big.NewInt(0)  // ou récupérer le baseFee du bloc si disponible
+	chainID := ethCfg.ChainID // remplacer par votre chainID
 	from := common.HexToAddress(txResult.From)
 
 	// blockHash := ctx.HeaderHash()

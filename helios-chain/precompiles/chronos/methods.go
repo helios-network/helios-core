@@ -2,6 +2,7 @@ package chronos
 
 import (
 	"fmt"
+	"math/big"
 	"strings"
 
 	cmn "helios-core/helios-chain/precompiles/common"
@@ -10,6 +11,7 @@ import (
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	"helios-core/helios-chain/x/evm/core/vm"
 
+	cosmosmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -30,7 +32,7 @@ func (p Precompile) CreateCron(
 	args []interface{},
 ) ([]byte, error) {
 
-	if len(args) != 8 {
+	if len(args) != 9 {
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 8, len(args))
 	}
 
@@ -86,13 +88,24 @@ func (p Precompile) CreateCron(
 		return nil, fmt.Errorf("invalid zero GasLimit")
 	}
 
-	maxGasPrice, ok := args[7].(uint64)
+	maxGasPrice, ok := args[7].(*big.Int)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 for MaxGasPrice")
 	}
-	if maxGasPrice == 0 {
+	if maxGasPrice.Cmp(big.NewInt(0)) <= 0 {
 		return nil, fmt.Errorf("invalid zero MaxGasPrice")
 	}
+
+	amountToDeposit, ok := args[8].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for AmountToDeposit")
+	}
+	if amountToDeposit.Cmp(big.NewInt(0)) <= 0 {
+		return nil, fmt.Errorf("invalid zero AmountToDeposit")
+	}
+
+	maxGasPriceV := cosmosmath.NewIntFromBigInt(maxGasPrice)
+	amountToDepositV := cosmosmath.NewIntFromBigInt(amountToDeposit)
 
 	msg := &chronostypes.MsgCreateCron{
 		OwnerAddress:    cmn.AccAddressFromHexAddress(origin).String(),
@@ -103,8 +116,9 @@ func (p Precompile) CreateCron(
 		Frequency:       frequency,
 		ExpirationBlock: expirationBlock,
 		GasLimit:        gasLimit,
-		MaxGasPrice:     maxGasPrice,
+		MaxGasPrice:     &maxGasPriceV,
 		Sender:          cmn.AccAddressFromHexAddress(origin).String(),
+		AmountToDeposit: &amountToDepositV,
 	}
 
 	msgSrv := chronoskeeper.NewMsgServerImpl(p.chronosKeeper)
@@ -180,13 +194,15 @@ func (p Precompile) UpdateCron(
 		return nil, fmt.Errorf("invalid zero GasLimit")
 	}
 
-	newMaxGasPrice, ok := args[5].(uint64)
+	newMaxGasPrice, ok := args[5].(*big.Int)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 for MaxGasPrice")
 	}
-	if newMaxGasPrice == 0 {
+	if newMaxGasPrice.Cmp(big.NewInt(0)) <= 0 {
 		return nil, fmt.Errorf("invalid zero MaxGasPrice")
 	}
+
+	newMaxGasPriceV := cosmosmath.NewIntFromBigInt(newMaxGasPrice)
 
 	msg := &chronostypes.MsgUpdateCron{
 		OwnerAddress:       cmn.AccAddressFromHexAddress(origin).String(),
@@ -195,7 +211,7 @@ func (p Precompile) UpdateCron(
 		NewParams:          newParams,
 		NewExpirationBlock: newExpirationBlock,
 		NewGasLimit:        newGasLimit,
-		NewMaxGasPrice:     newMaxGasPrice,
+		NewMaxGasPrice:     &newMaxGasPriceV,
 		Sender:             cmn.AccAddressFromHexAddress(origin).String(),
 	}
 

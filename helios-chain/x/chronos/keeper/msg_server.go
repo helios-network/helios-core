@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"math/big"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
@@ -14,6 +13,7 @@ import (
 	"helios-core/helios-chain/x/chronos/types"
 
 	errors "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -36,7 +36,7 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if req.OwnerAddress != req.Sender {
-		return nil, errors.Wrap(errortypes.ErrUnauthorized, fmt.Sprintf("only the owner can schedule an EVM call %s != %s", req.OwnerAddress, req.Sender))
+		return nil, errors.Wrap(errortypes.ErrUnauthorized, fmt.Sprintf("only the owner can create a cron %s != %s", req.OwnerAddress, req.Sender))
 	}
 
 	newID := k.keeper.StoreGetNextCronID(ctx)
@@ -45,25 +45,38 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 		return nil, fmt.Errorf("cron already exists with id=%d", newID)
 	}
 
+	amount := req.AmountToDeposit.BigInt() // ahelios
+
+	// check Balance of OwnerAddress
+	account := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
+	balance := sdkmath.NewIntFromBigInt(account.Balance)
+
+	if balance.IsNegative() || balance.BigInt().Cmp(amount) < 0 {
+		return nil, errors.Wrapf(errortypes.ErrInsufficientFunds, fmt.Sprintf("Balance too low: %d (balance) < %d (amountToDeposit)", balance.BigInt(), amount))
+	}
+
 	cronAddress := sdk.AccAddress(crypto.AddressHash([]byte(fmt.Sprintf("cron_%d", newID)))) // Générer une adresse unique basée sur cronId
 	acc := k.keeper.accountKeeper.NewAccountWithAddress(ctx, cronAddress)
 	k.keeper.accountKeeper.SetAccount(ctx, acc)
 
-	amount := big.NewInt(1000000000000000000) // 1ahelios
+	// initiate value
+	totalFeesPaid := sdkmath.NewInt(0)
 
 	newCron := types.Cron{
-		Id:                 newID,
-		Address:            cronAddress.String(),
-		OwnerAddress:       req.OwnerAddress,
-		ContractAddress:    req.ContractAddress,
-		AbiJson:            req.AbiJson,
-		MethodName:         req.MethodName,
-		Params:             req.Params,
-		Frequency:          req.Frequency,
-		NextExecutionBlock: uint64(ctx.BlockHeight()) + req.Frequency,
-		ExpirationBlock:    req.ExpirationBlock,
-		GasLimit:           req.GasLimit,
-		MaxGasPrice:        req.MaxGasPrice,
+		Id:                        newID,
+		Address:                   cronAddress.String(),
+		OwnerAddress:              req.OwnerAddress,
+		ContractAddress:           req.ContractAddress,
+		AbiJson:                   req.AbiJson,
+		MethodName:                req.MethodName,
+		Params:                    req.Params,
+		Frequency:                 req.Frequency,
+		NextExecutionBlock:        uint64(ctx.BlockHeight()) + req.Frequency,
+		ExpirationBlock:           req.ExpirationBlock,
+		GasLimit:                  req.GasLimit,
+		MaxGasPrice:               req.MaxGasPrice,
+		TotalExecutedTransactions: 0,
+		TotalFeesPaid:             &totalFeesPaid,
 	}
 
 	if err := k.keeper.CronInTransfer(ctx, newCron, amount); err != nil {

@@ -128,7 +128,7 @@ func NewContractDeregistrationRequestProposalTxCmd() *cobra.Command {
 		Short: "Submit a proposal to deregister contract",
 		Long: `Submit a proposal to deregister contract.
 			Example:
-			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --code-id 1 --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y"  --granter-address=helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz --contract-funding-mode self-funded --pin-contract=true --from wasm --chain-id 4242 
+			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --code-id 1 --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y"  --granter-address=helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz --contract-funding-mode self-funded --pin-contract=true --from wasm --chain-id 1234 
 		`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
