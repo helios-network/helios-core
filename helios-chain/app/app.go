@@ -1068,6 +1068,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.keys[chronostypes.MemStoreKey],
 		app.AccountKeeper,
 		app.EvmKeeper,
+		app.BankKeeper,
 	)
 
 	erc20Keeper := erc20keeper.NewKeeper(

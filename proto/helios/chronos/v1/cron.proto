@@ -14,15 +14,16 @@ enum ExecutionStage {
 // Cron for autonomous EVM smart-contract execution
 message Cron {
   uint64 id = 1;
-  string owner_address = 2; // Owner wallet address
-  string contract_address = 3; // EVM smart contract address
-  string abi_json = 4; // Contract ABI JSON
-  string method_name = 5; // Method to execute
-  repeated string params = 6; // Method parameters serialized as strings
-  uint64 frequency = 7; // Execution frequency in blocks
-  uint64 next_execution_block = 8; // Next execution block height
-  uint64 expiration_block = 9; // Expiration block height (0 if never expires)
-  ExecutionStage execution_stage = 10;
-  uint64 gas_limit = 11; // maximum gas limit accepted
-  uint64 max_gas_price = 12; // maximum gas price accepted
+  string address = 2; // Cron Wallet Address
+  string owner_address = 3; // Owner wallet address
+  string contract_address = 4; // EVM smart contract address
+  string abi_json = 5; // Contract ABI JSON
+  string method_name = 6; // Method to execute
+  repeated string params = 7; // Method parameters serialized as strings
+  uint64 frequency = 8; // Execution frequency in blocks
+  uint64 next_execution_block = 9; // Next execution block height
+  uint64 expiration_block = 10; // Expiration block height (0 if never expires)
+  ExecutionStage execution_stage = 11;
+  uint64 gas_limit = 12; // maximum gas limit accepted
+  uint64 max_gas_price = 13; // maximum gas price accepted
 }

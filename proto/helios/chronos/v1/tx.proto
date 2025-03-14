@@ -30,10 +30,12 @@ message MsgCreateCron {
   uint64 gas_limit = 8; // Maximum gas allowed for execution
   uint64 max_gas_price = 9; // Maximum gas price accepted
   string sender = 10; // Add this field for the Cosmos SDK signer
+  uint64 amount_to_deposit = 11; // Amount to deposit for pay Cron runs
 }
 
 message MsgCreateCronResponse {
   uint64 cron_id = 1;
+  string cron_address = 2; // Address of cron
 }
 
 message MsgUpdateCron {

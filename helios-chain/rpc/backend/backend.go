@@ -148,6 +148,7 @@ type EVMBackend interface {
 
 	//cron
 	GetCron(id uint64) (*chronostypes.Cron, error)
+	GetCronByAddress(address common.Address) (*chronostypes.Cron, error)
 	GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
 	GetAccountCronsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
 	GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error)

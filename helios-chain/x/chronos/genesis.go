@@ -10,11 +10,12 @@ import (
 // InitGenesis initializes the module's state from a provided genesis state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 	// Set all the crons
-	for _, schedule := range genState.CronList {
-		err := k.AddCron(ctx, schedule)
-		if err != nil {
-			panic(err)
-		}
+	for _, cron := range genState.CronList {
+		k.AddCron(ctx, cron)
+		// err := k.AddCron(ctx, cron)
+		// if err != nil {
+		// 	panic(err)
+		// }
 	}
 
 	// this line is used by starport scaffolding # genesis/module/init

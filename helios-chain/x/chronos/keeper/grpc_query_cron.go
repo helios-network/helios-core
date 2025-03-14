@@ -20,27 +20,40 @@ func (k Keeper) QueryGetCron(c context.Context, req *types.QueryGetCronRequest) 
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-
 	ctx := sdk.UnwrapSDKContext(c)
-	store := ctx.KVStore(k.storeKey)
-	scheduleStore := prefix.NewStore(store, types.CronKey)
-	if !k.StoreCronExists(ctx, req.Id) {
-		return nil, status.Errorf(codes.NotFound, "cron with ID %d not found", req.Id)
-	}
-	val := scheduleStore.Get(GetCronIDBytes(req.Id))
-	if val == nil {
-		return nil, status.Errorf(codes.NotFound, "cron with ID %d not found", req.Id)
-	}
+	cron, ok := k.GetCron(ctx, req.Id)
 
-	var cron types.Cron
-	if err := k.cdc.Unmarshal(val, &cron); err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "cron with ID %d not found", req.Id)
 	}
 
 	// display OwnerAddress in hex address format
 	cron.OwnerAddress = cmn.AnyToHexAddress(cron.OwnerAddress).String()
+	cron.Address = cmn.AnyToHexAddress(cron.Address).String()
 
 	return &types.QueryGetCronResponse{Cron: cron}, nil
+}
+
+func (k Keeper) QueryGetCronByAddress(c context.Context, req *types.QueryGetCronByAddressRequest) (*types.QueryGetCronByAddressResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	addr := cmn.AccAddressFromHexAddressString(req.Address)
+	id, ok := k.GetCronIdByAddress(ctx, addr.String())
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "cron with Address %s not found", req.Address)
+	}
+	cron, ok := k.GetCron(ctx, id)
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "cron with Address %s And Id %d Cancelled", req.Address, id)
+	}
+
+	// display OwnerAddress in hex address format
+	cron.OwnerAddress = cmn.AnyToHexAddress(cron.OwnerAddress).String()
+	cron.Address = cmn.AnyToHexAddress(cron.Address).String()
+
+	return &types.QueryGetCronByAddressResponse{Cron: cron}, nil
 }
 
 // Crons retrieves all crons.
@@ -60,6 +73,7 @@ func (k Keeper) QueryGetCrons(c context.Context, req *types.QueryGetCronsRequest
 		}
 		// display OwnerAddress in hex address format
 		cron.OwnerAddress = cmn.AnyToHexAddress(cron.OwnerAddress).String()
+		cron.Address = cmn.AnyToHexAddress(cron.Address).String()
 
 		crons = append(crons, cron)
 		return nil
@@ -94,6 +108,7 @@ func (k Keeper) QueryGetCronsByOwner(c context.Context, req *types.QueryGetCrons
 		if cron.OwnerAddress == reqAccOwnerAddressString {
 			// display OwnerAddress in hex address format
 			cron.OwnerAddress = cmn.AnyToHexAddress(cron.OwnerAddress).String()
+			cron.Address = cmn.AnyToHexAddress(cron.Address).String()
 			crons = append(crons, cron)
 		}
 		return nil

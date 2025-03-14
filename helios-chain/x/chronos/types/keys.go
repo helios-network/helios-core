@@ -17,40 +17,48 @@ const (
 // Key prefixes for different types of data
 const (
 	prefixCronKey                       = iota + 1 // 1
-	prefixCronCountKey                             // 2
-	prefixParamsKey                                // 3
-	prefixNextCronIDKey                            // 4
-	prefixCronNonceKey                             // 5
-	prefixCronTransactionResultKey                 // 6
-	prefixCronBlockTransactionHashsKey             // 7
-	prefixCronTransactionHashToNonceKey            // 8
+	prefixCronAddressKey                           // 2
+	prefixCronCountKey                             // 3
+	prefixParamsKey                                // 4
+	prefixNextCronIDKey                            // 5
+	prefixCronNonceKey                             // 6
+	prefixCronTransactionResultKey                 // 7
+	prefixCronBlockTransactionHashsKey             // 8
+	prefixCronTransactionHashToNonceKey            // 9
 )
 
 var (
-	// ScheduleKey is the prefix for storing individual schedules
+	// CronKey is the prefix for storing individual crons
 	CronKey = []byte{prefixCronKey}
 
-	// ScheduleCountKey is the key for storing the total count of schedules
+	// CronAddressKey is the prefix for storing individual crons Address Key
+	CronAddressKey = []byte{prefixCronAddressKey}
+
+	// CronCountKey is the key for storing the total count of crons
 	CronCountKey = []byte{prefixCronCountKey}
 
 	// ParamsKey is the key for storing module parameters
 	ParamsKey = []byte{prefixParamsKey}
 
-	// NextScheduleIDKey is the key for storing the next schedule ID counter
+	// NextCronIDKey is the key for storing the next cron ID counter
 	NextCronIDKey = []byte{prefixNextCronIDKey}
 
+	// CronNonceKey is the key for storing the transactions nonce of all crons
 	CronNonceKey = []byte{prefixCronNonceKey}
 
+	// CronTransactionResultKey it the key for storing the individual crons tx results
 	CronTransactionResultKey = []byte{prefixCronTransactionResultKey}
 
+	// CronBlockTransactionHashsKey it the key for storing the individual crons tx results Hash Key
 	CronBlockTransactionHashsKey = []byte{prefixCronBlockTransactionHashsKey}
 
+	// CronTransactionHashToNonceKey it the key for storing the individual crons tx results Nonce Key
 	CronTransactionHashToNonceKey = []byte{prefixCronTransactionHashToNonceKey}
 )
 
-// GetScheduleKey returns the key for a specific schedule by name
-// Note: This function is deprecated. Use schedule IDs with GetScheduleIDBytes
+// GetCronKey returns the key for a specific cron by name
+// Note: This function is deprecated. Use cron IDs with GetCronIDBytes
 // in the keeper package instead.
-func GetScheduleKey(name string) []byte {
+func GetCronKey(name string) []byte {
 	return []byte(name)
 }

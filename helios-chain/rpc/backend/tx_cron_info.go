@@ -21,6 +21,18 @@ func (b *Backend) GetCron(id uint64) (*chronostypes.Cron, error) {
 	return &res.Cron, err
 }
 
+func (b *Backend) GetCronByAddress(address common.Address) (*chronostypes.Cron, error) {
+
+	req := &chronostypes.QueryGetCronByAddressRequest{
+		Address: address.String(),
+	}
+	res, err := b.queryClient.Chronos.QueryGetCronByAddress(b.ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Cron, err
+}
+
 func (b *Backend) GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error) {
 
 	req := &chronostypes.QueryGetCronsRequest{

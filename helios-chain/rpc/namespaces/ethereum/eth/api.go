@@ -144,6 +144,7 @@ type EthereumAPI interface {
 
 	// cron
 	GetCron(id uint64) (*chronostypes.Cron, error)
+	GetCronByAddress(address common.Address) (*chronostypes.Cron, error)
 	GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
 	GetAccountCronsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
 	GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error)
@@ -660,6 +661,11 @@ func (e *PublicAPI) GetAllWhitelistedAssets() ([]map[string]interface{}, error) 
 func (e *PublicAPI) GetCron(id uint64) (*chronostypes.Cron, error) {
 	e.logger.Debug("eth_getCron", "id", id)
 	return e.backend.GetCron(id)
+}
+
+func (e *PublicAPI) GetCronByAddress(address common.Address) (*chronostypes.Cron, error) {
+	e.logger.Debug("eth_getCronByAddress", "address", address.String())
+	return e.backend.GetCronByAddress(address)
 }
 
 func (e *PublicAPI) GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error) {

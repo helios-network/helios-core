@@ -18,7 +18,11 @@ service Query {
   }
 
   rpc QueryGetCron(QueryGetCronRequest) returns (QueryGetCronResponse) {
-    option (google.api.http).get = "/helios/chronos/cron/{id}";
+    option (google.api.http).get = "/helios/chronos/cron/id/{id}";
+  }
+
+  rpc QueryGetCronByAddress(QueryGetCronByAddressRequest) returns (QueryGetCronByAddressResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/address/{address}";
   }
 
   rpc QueryGetCrons(QueryGetCronsRequest) returns (QueryGetCronsResponse) {
@@ -72,6 +76,14 @@ message QueryGetCronRequest {
 }
 
 message QueryGetCronResponse {
+  Cron cron = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetCronByAddressRequest {
+  string address = 1;
+}
+
+message QueryGetCronByAddressResponse {
   Cron cron = 1 [(gogoproto.nullable) = false];
 }
 

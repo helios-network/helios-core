@@ -3,8 +3,13 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"math/big"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+
+	"github.com/cometbft/cometbft/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	"helios-core/helios-chain/x/chronos/types"
 
@@ -36,8 +41,19 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 
 	newID := k.keeper.StoreGetNextCronID(ctx)
 
+	if k.keeper.StoreCronExists(ctx, newID) { // impossible
+		return nil, fmt.Errorf("cron already exists with id=%d", newID)
+	}
+
+	cronAddress := sdk.AccAddress(crypto.AddressHash([]byte(fmt.Sprintf("cron_%d", newID)))) // Générer une adresse unique basée sur cronId
+	acc := k.keeper.accountKeeper.NewAccountWithAddress(ctx, cronAddress)
+	k.keeper.accountKeeper.SetAccount(ctx, acc)
+
+	amount := big.NewInt(1000000000000000000) // 1ahelios
+
 	newCron := types.Cron{
 		Id:                 newID,
+		Address:            cronAddress.String(),
 		OwnerAddress:       req.OwnerAddress,
 		ContractAddress:    req.ContractAddress,
 		AbiJson:            req.AbiJson,
@@ -50,9 +66,11 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 		MaxGasPrice:        req.MaxGasPrice,
 	}
 
-	if err := k.keeper.AddCron(ctx, newCron); err != nil {
-		return nil, errors.Wrap(err, "failed to add schedule")
+	if err := k.keeper.CronInTransfer(ctx, newCron, amount); err != nil {
+		return nil, fmt.Errorf("initial transfer failed amount=%s", hexutil.EncodeBig(amount))
 	}
+
+	k.keeper.AddCron(ctx, newCron)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -64,7 +82,10 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 		),
 	)
 
-	return &types.MsgCreateCronResponse{CronId: newCron.Id}, nil
+	return &types.MsgCreateCronResponse{
+		CronId:      newCron.Id,
+		CronAddress: cmn.AnyToHexAddress(newCron.Address).String(),
+	}, nil
 }
 
 // UpdateCron modifies an existing cron

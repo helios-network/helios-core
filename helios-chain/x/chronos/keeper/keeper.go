@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -44,6 +45,7 @@ type Keeper struct {
 	memKey        storetypes.StoreKey
 	accountKeeper types.AccountKeeper
 	evmKeeper     types.EVMKeeper
+	bankKeeper    bankkeeper.Keeper
 }
 
 func NewKeeper(
@@ -52,6 +54,7 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 	accountKeeper types.AccountKeeper,
 	evmKeeper types.EVMKeeper,
+	bankKeeper bankkeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
@@ -59,6 +62,7 @@ func NewKeeper(
 		memKey:        memKey,
 		accountKeeper: accountKeeper,
 		evmKeeper:     evmKeeper,
+		bankKeeper:    bankKeeper,
 	}
 }
 
@@ -116,8 +120,7 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 	fees := sdk.Coins{{Denom: baseDenom, Amount: sdkmath.NewIntFromBigInt(tx.Cost())}}
 
 	for _, cron := range crons {
-		account := k.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.OwnerAddress))
-		balance := sdkmath.NewIntFromBigInt(account.Balance)
+		balance := k.CronBalance(ctx, cron)
 		cost := tx.Cost()
 
 		if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
@@ -125,7 +128,7 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
 		}
-		err := k.ConsumeFeesAndEmitEvent(ctx, fees, sdk.MustAccAddressFromBech32(cron.OwnerAddress), cron) // deduct 100 Gas mult BaseFee
+		err := k.ConsumeFeesAndEmitEvent(ctx, fees, sdk.MustAccAddressFromBech32(cron.Address), cron) // deduct 100 Gas mult BaseFee
 		if err != nil {
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
@@ -136,15 +139,58 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 	return nil
 }
 
-func (k *Keeper) AddCron(ctx sdk.Context, cron types.Cron) error {
-	if k.StoreCronExists(ctx, cron.Id) {
-		return fmt.Errorf("cron already exists with id=%d", cron.Id)
+func (k *Keeper) CronInTransfer(ctx sdk.Context, cron types.Cron, amount *big.Int) error {
+	account := k.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.OwnerAddress))
+	balance := sdkmath.NewIntFromBigInt(account.Balance)
+
+	if balance.IsNegative() && balance.BigInt().Cmp(amount) < 0 {
+		return errors.Wrapf(errortypes.ErrInsufficientFunds, "cronTransfer")
 	}
 
-	k.StoreSetCron(ctx, cron)
-	k.StoreChangeTotalCount(ctx, 1)
-
+	if !balance.IsNegative() && balance.BigInt().Cmp(big.NewInt(0)) > 0 {
+		err := k.bankKeeper.SendCoins(ctx,
+			sdk.MustAccAddressFromBech32(cron.OwnerAddress),
+			sdk.MustAccAddressFromBech32(cron.Address),
+			sdk.NewCoins(sdk.NewCoin(evmtypes.GetEVMCoinDenom(), sdkmath.NewIntFromBigInt(amount))),
+		)
+		if err != nil {
+			return errors.Wrapf(errortypes.ErrInsufficientFunds, err.Error())
+		}
+	}
 	return nil
+}
+
+func (k *Keeper) CronOutTransfer(ctx sdk.Context, cron types.Cron, amount *big.Int) error {
+	balance := k.CronBalance(ctx, cron)
+
+	if balance.IsNegative() && balance.BigInt().Cmp(amount) < 0 {
+		return errors.Wrapf(errortypes.ErrInsufficientFunds, "cronTransfer")
+	}
+
+	if !balance.IsNegative() && balance.BigInt().Cmp(big.NewInt(0)) > 0 {
+		err := k.bankKeeper.SendCoins(ctx,
+			sdk.MustAccAddressFromBech32(cron.Address),
+			sdk.MustAccAddressFromBech32(cron.OwnerAddress),
+			sdk.NewCoins(sdk.NewCoin(evmtypes.GetEVMCoinDenom(), sdkmath.NewIntFromBigInt(amount))),
+		)
+		if err != nil {
+			return errors.Wrapf(errortypes.ErrInsufficientFunds, err.Error())
+		}
+	}
+	return nil
+}
+
+func (k *Keeper) CronBalance(ctx sdk.Context, cron types.Cron) sdkmath.Int {
+	account := k.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.Address))
+	balance := sdkmath.NewIntFromBigInt(account.Balance)
+
+	return balance
+}
+
+func (k *Keeper) AddCron(ctx sdk.Context, cron types.Cron) {
+	k.StoreSetCron(ctx, cron)
+	k.StoreSetCronAddress(ctx, cron)
+	k.StoreChangeTotalCount(ctx, 1)
 }
 
 func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) error {
@@ -154,6 +200,16 @@ func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) er
 	}
 	if cron.OwnerAddress != owner.String() {
 		return fmt.Errorf("unauthorized removal")
+	}
+
+	// send back cron wallet funds
+	balance := k.CronBalance(ctx, cron)
+
+	if !balance.IsNegative() && balance.BigInt().Cmp(big.NewInt(0)) > 0 {
+		err := k.CronOutTransfer(ctx, cron, balance.BigInt())
+		if err != nil {
+			return err
+		}
 	}
 
 	k.StoreRemoveCron(ctx, id)
@@ -615,11 +671,11 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	if err != nil {
 		return nil, err
 	}
-	// 4. Consume Fees
+	// 4. Consume Fees on cron Wallet
 	err = k.ConsumeFeesAndEmitEvent(
 		ctx,
 		msgFees,
-		cmn.AccAddressFromHexAddress(ownerAddress),
+		sdk.MustAccAddressFromBech32(cron.Address),
 		cron,
 	)
 	if err != nil {
@@ -636,8 +692,15 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	// 7. refund gas in order to match the Ethereum gas consumption
 	remaining := new(big.Int).Mul(new(big.Int).SetUint64(msg.Gas()-res.GasUsed), msg.GasPrice())
 	refundCoins := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remaining))}
-	k.Logger(ctx).Debug("RefundFees", "fees", refundCoins, "receiver", msg.From().String())
-	if err = k.evmKeeper.RefundGas(ctx, msg, msg.Gas()-res.GasUsed, baseDenom); err != nil {
+	k.Logger(ctx).Info("RefundFees", "fees", refundCoins, "receiver", msg.From().String())
+
+	msgForRefund := k.TxAsMessage(tx, nil, cmn.AnyToHexAddress(cron.Address))
+
+	remainingR := new(big.Int).Mul(new(big.Int).SetUint64(msgForRefund.Gas()-res.GasUsed), msgForRefund.GasPrice())
+	refundCoinsR := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remainingR))}
+	k.Logger(ctx).Info("RefundFees", "fees", refundCoinsR, "receiver", msgForRefund.From().String())
+
+	if err = k.evmKeeper.RefundGas(ctx, msgForRefund, msgForRefund.Gas()-res.GasUsed, baseDenom); err != nil {
 		return nil, errors.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
 	}
 	return res, nil
@@ -1034,10 +1097,26 @@ func (k *Keeper) StoreSetCron(ctx sdk.Context, cron types.Cron) {
 	store.Set(GetCronIDBytes(cron.Id), bz)
 }
 
+func (k *Keeper) StoreSetCronAddress(ctx sdk.Context, cron types.Cron) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronAddressKey)
+	store.Set([]byte(cron.Address), sdk.Uint64ToBigEndian(cron.Id))
+}
+
 func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx types.CronTransactionResult) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionResultKey)
 	bz := k.cdc.MustMarshal(&tx)
 	store.Set(GetTxIDBytes(tx.Nonce), bz)
+}
+
+func (k *Keeper) GetCronIdByAddress(ctx sdk.Context, address string) (uint64, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronAddressKey)
+	bz := store.Get([]byte(address))
+	if bz == nil {
+		return 0, false
+	}
+
+	id := sdk.BigEndianToUint64(bz)
+	return id, true
 }
 
 func (k *Keeper) GetBlockTxHashs(ctx sdk.Context, blockNumber uint64) ([]string, bool) {
@@ -1089,6 +1168,11 @@ func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
 func (k *Keeper) StoreCronExists(ctx sdk.Context, id uint64) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	return store.Has(GetCronIDBytes(id))
+}
+
+func (k *Keeper) StoreCronExistsByAddress(ctx sdk.Context, address string) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronAddressKey)
+	return store.Has([]byte(address))
 }
 
 func (k *Keeper) StoreChangeTotalCount(ctx sdk.Context, increment int32) {
