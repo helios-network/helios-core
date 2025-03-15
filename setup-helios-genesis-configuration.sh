@@ -31,6 +31,15 @@ jq '.app_state["staking"]["params"]["validators_per_epoch"]="100"' $GENESIS_CONF
 jq '.app_state["staking"]["params"]["epoch_enabled"]=true' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 ############ EPOCH CYCLE CONFIG #################
 
+############ VALIDATOR SELECTION CONFIG #################
+jq '.app_state["staking"]["params"]["stake_weight_factor"]="85"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
+jq '.app_state["staking"]["params"]["baseline_chance_factor"]="5"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+
+jq '.app_state["staking"]["params"]["randomness_factor"]="10"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+############ VALIDATOR SELECTION CONFIG #################
+
+
 # HELIOS DEFAULT COMMUNITY TAX
 jq '.app_state["distribution"]["params"]["community_tax"]="0.02"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 
