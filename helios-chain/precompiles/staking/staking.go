@@ -92,7 +92,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	if err != nil {
 		return nil, err
 	}
-
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
@@ -116,8 +115,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Delegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case UndelegateMethod:
 		bz, err = p.Undelegate(ctx, evm.Origin, contract, stateDB, method, args)
-	case RedelegateMethod:
-		bz, err = p.Redelegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case CancelUnbondingDelegationMethod:
 		bz, err = p.CancelUnbondingDelegation(ctx, evm.Origin, contract, stateDB, method, args)
 	// Staking queries
@@ -129,8 +126,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Validator(ctx, method, contract, args)
 	case ValidatorsMethod:
 		bz, err = p.Validators(ctx, method, contract, args)
-	case RedelegationMethod:
-		bz, err = p.Redelegation(ctx, method, contract, args)
+	/*case RedelegationMethod:
+	bz, err = p.Redelegation(ctx, method, contract, args)*/
 	case RedelegationsMethod:
 		bz, err = p.Redelegations(ctx, method, contract, args)
 	// Authorization queries

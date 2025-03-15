@@ -25,6 +25,8 @@ const (
 	DoNotModifyCommissionRate = -1
 	// DoNotModifyMinSelfDelegation constant used in flags to indicate that min self delegation field should not be updated
 	DoNotModifyMinSelfDelegation = -1
+	// DoNotModifyMinDelegation constant used in flags to indicate that min delegation field should not be updated
+	DoNotModifyMinDelegation = -1
 )
 
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.
@@ -93,7 +95,7 @@ type Commission = struct {
 // NewMsgCreateValidator creates a new MsgCreateValidator instance and does sanity checks
 // on the given arguments before populating the message.
 func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgCreateValidator, common.Address, error) {
-	if len(args) != 6 {
+	if len(args) != 7 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 6, len(args))
 	}
 
@@ -143,6 +145,11 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[5])
 	}
 
+	minDelegation, ok := args[6].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+	}
+
 	msg := &stakingtypes.MsgCreateValidator{
 		Description: stakingtypes.Description{
 			Moniker:         description.Moniker,
@@ -161,6 +168,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		ValidatorAddress:  cmn.ValAddressFromHexAddress(validatorAddress).String(),
 		Pubkey:            pubkey,
 		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
+		MinDelegation:     math.NewIntFromBigInt(minDelegation),
 	}
 
 	return msg, validatorAddress, nil
@@ -169,7 +177,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 // NewMsgEditValidator creates a new MsgEditValidator instance and does sanity checks
 // on the given arguments before populating the message.
 func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, common.Address, error) {
-	if len(args) != 4 {
+	if len(args) != 6 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
 
@@ -207,6 +215,22 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		minSelfDelegation = &msd
 	}
 
+	minDelegationBigInt, ok := args[4].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minDelegation", &big.Int{}, args[4])
+	}
+
+	var minDelegation *math.Int
+	if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinDelegation)) != 0 {
+		msd := math.NewIntFromBigInt(minDelegationBigInt)
+		minDelegation = &msd
+	}
+
+	delegateAuthorization, ok := args[5].(bool)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "delegateAuthorization", true, args[5])
+	}
+
 	msg := &stakingtypes.MsgEditValidator{
 		Description: stakingtypes.Description{
 			Moniker:         description.Moniker,
@@ -215,9 +239,11 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 			SecurityContact: description.SecurityContact,
 			Details:         description.Details,
 		},
-		ValidatorAddress:  cmn.ValAddressFromHexAddress(validatorHexAddr).String(),
-		CommissionRate:    commissionRate,
-		MinSelfDelegation: minSelfDelegation,
+		ValidatorAddress:      cmn.ValAddressFromHexAddress(validatorHexAddr).String(),
+		CommissionRate:        commissionRate,
+		MinSelfDelegation:     minSelfDelegation,
+		MinDelegation:         minDelegation,
+		DelegateAuthorization: delegateAuthorization,
 	}
 
 	return msg, validatorHexAddr, nil
@@ -265,9 +291,9 @@ func NewMsgUndelegate(args []interface{}) (*stakingtypes.MsgUndelegate, common.A
 
 // NewMsgRedelegate creates a new MsgRedelegate instance and does sanity checks
 // on the given arguments before populating the message.
-func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginRedelegate, common.Address, error) {
-	if len(args) != 4 {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+func NewMsgRedelegate(args []interface{}) (*stakingtypes.MsgBeginRedelegate, common.Address, error) {
+	if len(args) != 5 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
 	delegatorAddr, ok := args[0].(common.Address)
@@ -275,14 +301,14 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorSrcAddress, ok := args[1].(string)
+	validatorSrcAddress, ok := args[1].(common.Address)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorSrcAddress", "string", args[1])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
 	}
 
-	validatorDstAddress, ok := args[2].(string)
+	validatorDstAddress, ok := args[2].(common.Address)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorDstAddress", "string", args[2])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[2])
 	}
 
 	amount, ok := args[3].(*big.Int)
@@ -290,10 +316,16 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[3])
 	}
 
+	denom, ok := args[4].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDenom, args[4])
+
+	}
+
 	msg := &stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    sdk.AccAddress(delegatorAddr.Bytes()).String(), // bech32 formatted
-		ValidatorSrcAddress: validatorSrcAddress,
-		ValidatorDstAddress: validatorDstAddress,
+		ValidatorSrcAddress: cmn.ValAddressFromHexAddressString(validatorSrcAddress.String()).String(),
+		ValidatorDstAddress: cmn.ValAddressFromHexAddressString(validatorDstAddress.String()).String(),
 		Amount: sdk.Coin{
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
@@ -573,6 +605,7 @@ type ValidatorInfo struct {
 	UnbondingTime     int64    `abi:"unbondingTime"`
 	Commission        *big.Int `abi:"commission"`
 	MinSelfDelegation *big.Int `abi:"minSelfDelegation"`
+	MinDelegation     *big.Int `abi:"minDelegation"`
 }
 
 type ValidatorOutput struct {
@@ -594,6 +627,7 @@ func DefaultValidatorOutput() ValidatorOutput {
 			UnbondingTime:     int64(0),
 			Commission:        big.NewInt(0),
 			MinSelfDelegation: big.NewInt(0),
+			MinDelegation:     big.NewInt(0),
 		},
 	}
 }

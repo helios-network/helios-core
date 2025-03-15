@@ -27,7 +27,6 @@ KEYS=(
     "user6"
     "user7"
     "user8"
-    "user9"
 )
 
 
@@ -42,7 +41,6 @@ MNEMONICS=(
 "slow fine dentist give small black shrug mouse fix coral omit type fish palace portion rhythm danger cream notice bless print pioneer announce course"
 "liar oven damp useless again please dream birth box bottom hat olive slow rice busy atom carpet pilot always trust balcony hammer extend laptop"
 "cash shoulder people eternal expire occur pen black funny idle afraid manual pause replace faith goose junior kite forest poet pulp treat cable merry"
-"ostrich prefer glad boat slight hedgehog burden manage enforce post wrap pottery daring delay video energy mammal urge enemy prevent wool badge garage thrive"
 )
 
 # Import keys from mnemonics
@@ -66,5 +64,4 @@ heliades collect-gentxs
 echo "Validating genesis"
 # Validate the genesis file
 heliades validate-genesis
-
 echo "Setup done!"

@@ -146,6 +146,7 @@ interface StakingI is authorization.AuthorizationI {
         address validatorAddress,
         string memory pubkey,
         uint256 value
+        uint256 minDelegation,
     ) external returns (bool success);
 
     /// @dev Defines a method for edit a validator.
@@ -161,6 +162,8 @@ interface StakingI is authorization.AuthorizationI {
         address validatorAddress,
         int256 commissionRate,
         int256 minSelfDelegation
+        uint256 minDelegation,
+        bool delegateAuthorization,
     ) external returns (bool success);
 
     /// @dev Defines a method for performing a delegation of coins from a delegator to a validator.
@@ -199,9 +202,10 @@ interface StakingI is authorization.AuthorizationI {
     /// @return completionTime The time when the redelegation is completed
     function redelegate(
         address delegatorAddress,
-        string memory validatorSrcAddress,
-        string memory validatorDstAddress,
-        uint256 amount
+        address validatorSrcAddress,
+        address validatorDstAddress,
+        uint256 amount,
+        string denom
     ) external returns (int64 completionTime);
 
     /// @dev Allows delegators to cancel the unbondingDelegation entry
