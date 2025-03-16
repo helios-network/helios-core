@@ -55,6 +55,7 @@ func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, 
 	queryMsg := &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: cmn.ValAddressFromHexAddress(address).String(),
 	}
+
 	res, err := b.queryClient.Staking.Validator(b.ctx, queryMsg)
 	if err != nil {
 		return nil, err
@@ -69,7 +70,22 @@ func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, 
 	evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
 
 	apr, err := b.GetValidatorAPR(validator.OperatorAddress)
-	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr)
+
+	if err != nil {
+		b.logger.Error("GetValidatorAPR", "err", err)
+		return nil, err
+	}
+
+	boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+		ValidatorAddr: validator.OperatorAddress,
+	}
+
+	boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+	if err != nil {
+		b.logger.Error("TotalBoostedDelegation", "err", err)
+		return nil, err
+	}
+	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr, boostRes.TotalBoost)
 	return &formattedValidatorResp, nil
 }
 
@@ -198,7 +214,17 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		validatorCosmosAddress := sdk.AccAddress(valAddr.Bytes())
 		validatorEVMAddress := common.BytesToAddress(validatorCosmosAddress.Bytes()).String()
 
-		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr))
+		boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+			ValidatorAddr: validator.OperatorAddress,
+		}
+
+		boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+		if err != nil {
+			b.logger.Error("TotalBoostedDelegation", "err", err)
+			return nil, err
+		}
+
+		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr, boostRes.TotalBoost))
 	}
 	return validatorsResult, nil
 }
@@ -210,7 +236,7 @@ func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) 
 }
 
 // Helper function to format validator response
-func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string) rpctypes.ValidatorRPC {
+func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string, totalBoost string) rpctypes.ValidatorRPC {
 	return rpctypes.ValidatorRPC{
 		ValidatorAddress:        evmAddress,
 		Shares:                  validator.DelegatorShares.String(),
@@ -225,7 +251,9 @@ func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string
 		UnbondingTime:           validator.UnbondingTime,
 		MinSelfDelegation:       validator.MinSelfDelegation,
 		Apr:                     apr,
-		// todo details of the staking
+		MinDelegation:           validator.MinDelegation,
+		DelegationAuthorization: validator.DelegateAuthorization,
+		TotalBoost:              totalBoost,
 	}
 }
 

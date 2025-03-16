@@ -149,6 +149,9 @@ type ValidatorRPC struct {
 	UnbondingTime           time.Time
 	MinSelfDelegation       cosmossdk_io_math.Int
 	Apr                     string
+	MinDelegation           cosmossdk_io_math.Int
+	DelegationAuthorization bool
+	TotalBoost              string
 }
 
 type ValidatorWithDelegationRPC struct {
