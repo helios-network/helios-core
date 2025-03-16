@@ -131,16 +131,16 @@ type EthereumAPI interface {
 	// eth_submitHashrate (on Ethereum.org)
 
 	// Staking
-	GetDelegations(address common.Address) ([]map[string]interface{}, error)
-	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
-	GetValidator(address common.Address) (map[string]interface{}, error)
-	GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error)
-	GetValidatorCommission(address common.Address) (map[string]interface{}, error)
-	GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error)
-	GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error)
-	GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error)
-	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
-	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
+	GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error)
+	GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error)
+	GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error)
+	GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error)
+	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
+	GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error)
+	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
+	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
+	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
+	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	// eth_getDelegations
 
 	// cron
@@ -616,52 +616,52 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 	return result, nil
 }
 
-func (e *PublicAPI) GetDelegations(address common.Address) ([]map[string]interface{}, error) {
+func (e *PublicAPI) GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error) {
 	e.logger.Debug("eth_getDelegations", "address", address.Hex())
 	return e.backend.GetDelegations(address)
 }
 
-func (e *PublicAPI) GetValidator(address common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error) {
 	e.logger.Debug("eth_getValidator", "address", address)
 	return e.backend.GetValidator(address)
 }
 
-func (e *PublicAPI) GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error) {
 	e.logger.Debug("eth_getValidatorAndHisDelegation", "address", address)
 	return e.backend.GetValidatorAndHisDelegation(address)
 }
 
-func (e *PublicAPI) GetValidatorCommission(address common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error) {
 	e.logger.Debug("eth_getValidatorCommission", "address", address)
 	return e.backend.GetValidatorCommission(address)
 }
 
-func (e *PublicAPI) GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error) {
 	e.logger.Debug("eth_getValidatorOutStandingRewards", "address", address)
 	return e.backend.GetValidatorOutStandingRewards(address)
 }
 
-func (e *PublicAPI) GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error) {
 	e.logger.Debug("eth_getValidatorWithHisDelegationAndCommission", "address", address)
 	return e.backend.GetValidatorWithHisDelegationAndCommission(address)
 }
 
-func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {
 	e.logger.Debug("eth_getValidatorAndHisCommission", "address", address)
 	return e.backend.GetValidatorAndHisCommission(address)
 }
 
-func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error) {
 	e.logger.Debug("eth_getValidatorsByPageAndSize", "page", page, "size", size)
 	return e.backend.GetValidatorsByPageAndSize(page, size)
 }
 
-func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error) {
+func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
 	e.logger.Debug("eth_getDelegation", "address", address.Hex(), "validatorAddress", validatorAddress)
 	return e.backend.GetDelegation(address, validatorAddress)
 }
 
-func (e *PublicAPI) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
+func (e *PublicAPI) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error) {
 	e.logger.Debug("eth_getAllWhitelistedAssets")
 	return e.backend.GetAllWhitelistedAssets()
 }

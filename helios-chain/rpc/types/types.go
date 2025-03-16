@@ -2,7 +2,10 @@ package types
 
 import (
 	"math/big"
+	"time"
 
+	cosmossdk_io_math "cosmossdk.io/math"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -101,4 +104,76 @@ type OneFeeHistory struct {
 	BaseFee, NextBaseFee *big.Int   // base fee for each block
 	Reward               []*big.Int // each element of the array will have the tip provided to miners for the percentile given
 	GasUsedRatio         float64    // the ratio of gas used to the gas limit for each block
+}
+
+type DelegationAsset struct {
+	Denom          string
+	BaseAmount     cosmossdk_io_math.Int
+	Amount         cosmossdk_io_math.Int
+	WeightedAmount cosmossdk_io_math.Int
+}
+
+type DelegationRewardRPC struct {
+	Denom  string
+	Amount cosmossdk_io_math.Int
+}
+
+type ValidatorCommissionRPC struct {
+	Denom  string
+	Amount cosmossdk_io_math.Int
+}
+
+type ValidatorRewardRPC struct {
+	Denom  string
+	Amount cosmossdk_io_math.Int
+}
+
+type DelegationRPC struct {
+	ValidatorAddress string
+	Shares           string
+	Assets           []DelegationAsset
+	Rewards          DelegationRewardRPC
+}
+
+type ValidatorRPC struct {
+	ValidatorAddress        string
+	Shares                  string
+	Moniker                 string
+	Commission              stakingtypes.Commission
+	Description             stakingtypes.Description
+	Status                  stakingtypes.BondStatus
+	UnbondingHeight         int64
+	UnbondingIds            []uint64
+	Jailed                  bool
+	UnbondingOnHoldRefCount int64
+	UnbondingTime           time.Time
+	MinSelfDelegation       cosmossdk_io_math.Int
+	Apr                     string
+}
+
+type ValidatorWithDelegationRPC struct {
+	Validator  ValidatorRPC
+	Delegation DelegationRPC
+}
+
+type ValidatorWithCommissionRPC struct {
+	Validator  ValidatorRPC
+	Commission ValidatorCommissionRPC
+}
+
+type ValidatorWithCommissionAndDelegationRPC struct {
+	Validator  ValidatorRPC
+	Delegation DelegationRPC
+	Commission ValidatorCommissionRPC
+}
+
+type WhitelistedAssetRPC struct {
+	Denom                         string
+	BaseWeight                    uint64
+	ChainId                       string
+	Decimals                      uint64
+	Metadata                      string
+	ContractAddress               string
+	TotalShares                   cosmossdk_io_math.Int
+	NetworkPercentageSecurisation string
 }

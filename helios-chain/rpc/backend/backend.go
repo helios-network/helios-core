@@ -136,16 +136,16 @@ type EVMBackend interface {
 	TraceBlock(height rpctypes.BlockNumber, config *evmtypes.TraceConfig, block *tmrpctypes.ResultBlock) ([]*evmtypes.TxTraceResult, error)
 
 	// Staking [to update]
-	GetDelegations(address common.Address) ([]map[string]interface{}, error)
-	GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error)
-	GetValidator(address common.Address) (map[string]interface{}, error)
-	GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error)
-	GetValidatorCommission(address common.Address) (map[string]interface{}, error)
-	GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error)
-	GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error)
-	GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error)
-	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
-	GetAllWhitelistedAssets() ([]map[string]interface{}, error)
+	GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error)
+	GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error)
+	GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error)
+	GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error)
+	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
+	GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error)
+	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
+	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
+	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
+	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 
 	//cron
 	GetCron(id uint64) (*chronostypes.Cron, error)

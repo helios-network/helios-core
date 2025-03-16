@@ -15,6 +15,8 @@ import (
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 
+	"helios-core/helios-chain/rpc/namespaces/ethereum/eth"
+
 	svrconfig "helios-core/helios-chain/server/config"
 	evmostypes "helios-core/helios-chain/types"
 )
@@ -49,7 +51,19 @@ func StartJSONRPC(ctx *server.Context,
 
 	apis := rpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, indexer, rpcAPIArr)
 
+	r := mux.NewRouter()
+
 	for _, api := range apis {
+		//////////////////////////////
+		// Swagger for rpc 8545 eth_
+		//////////////////////////////
+		if api.Namespace == "eth" {
+			apiService, ok := api.Service.(*eth.PublicAPI)
+			if ok {
+				generateSwagger(ctx, apiService, r, config)
+			}
+		}
+		//////////////////////////////
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {
 			ctx.Logger.Error(
 				"failed to register service in JSON RPC namespace",
@@ -60,7 +74,6 @@ func StartJSONRPC(ctx *server.Context,
 		}
 	}
 
-	r := mux.NewRouter()
 	r.HandleFunc("/", rpcServer.ServeHTTP).Methods("POST")
 
 	handlerWithCors := cors.Default()

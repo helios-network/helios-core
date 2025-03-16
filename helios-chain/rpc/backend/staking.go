@@ -17,9 +17,11 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+
+	rpctypes "helios-core/helios-chain/rpc/types"
 )
 
-func (b *Backend) GetValidatorCommission(address common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error) {
 	queryMsg := &distributiontypes.QueryValidatorCommissionRequest{
 		ValidatorAddress: cmn.ValAddressFromHexAddress(address).String(),
 	}
@@ -28,13 +30,13 @@ func (b *Backend) GetValidatorCommission(address common.Address) (map[string]int
 		return nil, err
 	}
 
-	return map[string]interface{}{
-		"amount": res.Commission.Commission.AmountOf("ahelios").TruncateInt(),
-		"denom":  "ahelios",
+	return &rpctypes.ValidatorCommissionRPC{
+		Amount: res.Commission.Commission.AmountOf(sdk.DefaultBondDenom).TruncateInt(),
+		Denom:  sdk.DefaultBondDenom,
 	}, nil
 }
 
-func (b *Backend) GetValidatorOutStandingRewards(address common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error) {
 	queryMsg := &distributiontypes.QueryValidatorOutstandingRewardsRequest{
 		ValidatorAddress: cmn.ValAddressFromHexAddress(address).String(),
 	}
@@ -43,13 +45,13 @@ func (b *Backend) GetValidatorOutStandingRewards(address common.Address) (map[st
 		return nil, err
 	}
 
-	return map[string]interface{}{
-		"amount": res.Rewards.Rewards.AmountOf("ahelios").TruncateInt(),
-		"denom":  "ahelios",
+	return &rpctypes.ValidatorRewardRPC{
+		Amount: res.Rewards.Rewards.AmountOf(sdk.DefaultBondDenom).TruncateInt(),
+		Denom:  sdk.DefaultBondDenom,
 	}, nil
 }
 
-func (b *Backend) GetValidator(address common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error) {
 	queryMsg := &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: cmn.ValAddressFromHexAddress(address).String(),
 	}
@@ -67,26 +69,11 @@ func (b *Backend) GetValidator(address common.Address) (map[string]interface{}, 
 	evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
 
 	apr, err := b.GetValidatorAPR(validator.OperatorAddress)
-
-	return map[string]interface{}{
-		"validatorAddress":        evmAddressOfTheValidator,
-		"shares":                  validator.DelegatorShares.String(),
-		"moniker":                 validator.GetMoniker(),
-		"commission":              validator.Commission,
-		"description":             validator.Description,
-		"status":                  validator.Status,
-		"unbondingHeight":         validator.UnbondingHeight,
-		"unbondingIds":            validator.UnbondingIds,
-		"jailed":                  validator.Jailed,
-		"unbondingOnHoldRefCount": validator.UnbondingOnHoldRefCount,
-		"unbondingTime":           validator.UnbondingTime,
-		"minSelfDelegation":       validator.MinSelfDelegation,
-		"apr":                     apr,
-		// todo details of the staking
-	}, nil
+	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr)
+	return &formattedValidatorResp, nil
 }
 
-func (b *Backend) GetValidatorAndHisCommission(address common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {
 	validator, err := b.GetValidator(address)
 
 	if err != nil {
@@ -97,13 +84,13 @@ func (b *Backend) GetValidatorAndHisCommission(address common.Address) (map[stri
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"validator":  validator,
-		"commission": commission,
+	return &rpctypes.ValidatorWithCommissionRPC{
+		Validator:  *validator,
+		Commission: *commission,
 	}, nil
 }
 
-func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error) {
 	validator, err := b.GetValidator(address)
 
 	if err != nil {
@@ -114,13 +101,13 @@ func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (map[stri
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"validator":  validator,
-		"delegation": delegation,
+	return &rpctypes.ValidatorWithDelegationRPC{
+		Validator:  *validator,
+		Delegation: *delegation,
 	}, nil
 }
 
-func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error) {
 	validator, err := b.GetValidator(address)
 
 	if err != nil {
@@ -136,14 +123,14 @@ func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Addr
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"validator":  validator,
-		"delegation": delegation,
-		"commission": commission,
+	return &rpctypes.ValidatorWithCommissionAndDelegationRPC{
+		Validator:  *validator,
+		Delegation: *delegation,
+		Commission: *commission,
 	}, nil
 }
 
-func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error) {
 	if page <= 0 {
 		return nil, fmt.Errorf("page must be greater than 0")
 	}
@@ -193,7 +180,7 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		return nil, fmt.Errorf("failed to get validators: %w", err)
 	}
 
-	validatorsResult := make([]map[string]interface{}, 0, len(validatorsResp.Validators))
+	validatorsResult := make([]rpctypes.ValidatorRPC, 0, len(validatorsResp.Validators))
 
 	for _, validator := range validatorsResp.Validators {
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
@@ -223,26 +210,27 @@ func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) 
 }
 
 // Helper function to format validator response
-func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string) map[string]interface{} {
-	return map[string]interface{}{
-		"validatorAddress":        evmAddress,
-		"shares":                  validator.DelegatorShares.String(),
-		"moniker":                 validator.GetMoniker(),
-		"commission":              validator.Commission,
-		"description":             validator.Description,
-		"status":                  validator.Status,
-		"unbondingHeight":         validator.UnbondingHeight,
-		"unbondingIds":            validator.UnbondingIds,
-		"jailed":                  validator.Jailed,
-		"unbondingOnHoldRefCount": validator.UnbondingOnHoldRefCount,
-		"unbondingTime":           validator.UnbondingTime,
-		"minSelfDelegation":       validator.MinSelfDelegation,
-		"apr":                     apr,
+func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string) rpctypes.ValidatorRPC {
+	return rpctypes.ValidatorRPC{
+		ValidatorAddress:        evmAddress,
+		Shares:                  validator.DelegatorShares.String(),
+		Moniker:                 validator.GetMoniker(),
+		Commission:              validator.Commission,
+		Description:             validator.Description,
+		Status:                  validator.Status,
+		UnbondingHeight:         validator.UnbondingHeight,
+		UnbondingIds:            validator.UnbondingIds,
+		Jailed:                  validator.Jailed,
+		UnbondingOnHoldRefCount: validator.UnbondingOnHoldRefCount,
+		UnbondingTime:           validator.UnbondingTime,
+		MinSelfDelegation:       validator.MinSelfDelegation,
+		Apr:                     apr,
+		// todo details of the staking
 	}
 }
 
-func (b *Backend) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
-	whitelistedAssets := make([]map[string]interface{}, 0)
+func (b *Backend) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error) {
+	whitelistedAssets := make([]rpctypes.WhitelistedAssetRPC, 0)
 	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
 	if err != nil {
 		b.logger.Error("GetAllWhitelistedAssets", "err", err)
@@ -254,15 +242,15 @@ func (b *Backend) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
 		return nil, err
 	}
 	for _, asset := range whitelistedAssetsResp.Assets {
-		whitelistedAssets = append(whitelistedAssets, map[string]interface{}{
-			"denom":                         asset.Denom,
-			"baseWeight":                    asset.BaseWeight,
-			"chainId":                       asset.ChainId,
-			"decimals":                      asset.Decimals,
-			"metadata":                      asset.Metadata,
-			"contractAddress":               asset.ContractAddress,
-			"totalShares":                   repartitionMap.SharesRepartitionMap[asset.Denom].NetworkShares,
-			"networkPercentageSecurisation": repartitionMap.SharesRepartitionMap[asset.Denom].NetworkPercentageSecurisation,
+		whitelistedAssets = append(whitelistedAssets, rpctypes.WhitelistedAssetRPC{
+			Denom:                         asset.Denom,
+			BaseWeight:                    asset.BaseWeight,
+			ChainId:                       asset.ChainId,
+			Decimals:                      asset.Decimals,
+			Metadata:                      asset.Metadata,
+			ContractAddress:               asset.ContractAddress,
+			TotalShares:                   repartitionMap.SharesRepartitionMap[asset.Denom].NetworkShares,
+			NetworkPercentageSecurisation: repartitionMap.SharesRepartitionMap[asset.Denom].NetworkPercentageSecurisation,
 		})
 	}
 
@@ -270,8 +258,8 @@ func (b *Backend) GetAllWhitelistedAssets() ([]map[string]interface{}, error) {
 }
 
 // GetTransactionCount returns the number of transactions at the given address up to the given block number.
-func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]interface{}, error) {
-	delegations := make([]map[string]interface{}, 0)
+func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.DelegationRPC, error) {
+	delegations := make([]rpctypes.DelegationRPC, 0)
 	queryMsg := &stakingtypes.QueryGetDelegationsRequest{
 		DelegatorAddr: sdk.AccAddress(delegatorAddress.Bytes()).String(),
 	}
@@ -289,13 +277,10 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 			b.logger.Error("GetDelegations", "err", err)
 			return delegations, nil
 		}
-		b.logger.Info("GetDelegations", "valAddr", valAddr)
 		cosmosAddressOfTheValidator := sdk.AccAddress(valAddr.Bytes())
-		b.logger.Info("GetDelegations", "cosmosAddressOfTheValidator", cosmosAddressOfTheValidator.String())
 		evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
-		b.logger.Info("GetDelegations", "evmAddressOfTheValidator", evmAddressOfTheValidator)
 
-		assets := make([]map[string]interface{}, 0)
+		assets := make([]rpctypes.DelegationAsset, 0)
 		for _, asset := range delegation.AssetWeights {
 
 			idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
@@ -304,11 +289,11 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 				baseWeight = math.NewIntFromUint64(whitelistedAssetsResp.Assets[idx].GetBaseWeight())
 			}
 
-			assets = append(assets, map[string]interface{}{
-				"symbol":         asset.Denom,
-				"baseAmount":     asset.BaseAmount,
-				"amount":         asset.WeightedAmount.Quo(baseWeight),
-				"weightedAmount": asset.WeightedAmount,
+			assets = append(assets, rpctypes.DelegationAsset{
+				Denom:          asset.Denom,
+				BaseAmount:     asset.BaseAmount,
+				Amount:         asset.WeightedAmount.Quo(baseWeight),
+				WeightedAmount: asset.WeightedAmount,
 			})
 		}
 
@@ -321,17 +306,13 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 			return delegations, err
 		}
 
-		// delegationTotalRewardsResponse, err := b.queryClient.Distribution.DelegationTotalRewards(b.ctx, &distributiontypes.QueryDelegationTotalRewardsRequest{
-		// 	DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		// })
-
-		delegations = append(delegations, map[string]interface{}{
-			"validator_address": evmAddressOfTheValidator,
-			"shares":            delegation.Shares.TruncateInt(),
-			"assets":            assets,
-			"rewards": map[string]interface{}{
-				"denom":  delegationRewardsResponse.Rewards[0].Denom,
-				"amount": delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+		delegations = append(delegations, rpctypes.DelegationRPC{
+			ValidatorAddress: evmAddressOfTheValidator,
+			Shares:           delegation.Shares.TruncateInt().String(),
+			Assets:           assets,
+			Rewards: rpctypes.DelegationRewardRPC{
+				Denom:  delegationRewardsResponse.Rewards[0].Denom,
+				Amount: delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
 			},
 		})
 	}
@@ -339,7 +320,7 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]map[string]
 	return delegations, nil
 }
 
-func (b *Backend) GetDelegation(address common.Address, validatorAddress common.Address) (map[string]interface{}, error) {
+func (b *Backend) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
 
 	// transform evm address to validator cosmos address
 	validatorBech32Addr := sdk.AccAddress(validatorAddress.Bytes())
@@ -358,7 +339,7 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 
 	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
 
-	assets := make([]map[string]interface{}, 0)
+	assets := make([]rpctypes.DelegationAsset, 0)
 	for _, asset := range delegation.AssetWeights {
 
 		idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
@@ -367,11 +348,11 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 			baseWeight = math.NewIntFromUint64(whitelistedAssetsResp.Assets[idx].GetBaseWeight())
 		}
 
-		assets = append(assets, map[string]interface{}{
-			"symbol":         asset.Denom,
-			"baseAmount":     asset.BaseAmount,
-			"amount":         asset.WeightedAmount.Quo(baseWeight),
-			"weightedAmount": asset.WeightedAmount,
+		assets = append(assets, rpctypes.DelegationAsset{
+			Denom:          asset.Denom,
+			BaseAmount:     asset.BaseAmount,
+			Amount:         asset.WeightedAmount.Quo(baseWeight),
+			WeightedAmount: asset.WeightedAmount,
 		})
 	}
 
@@ -392,13 +373,13 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		delegationRewardsResponse.Rewards = append(delegationRewardsResponse.Rewards, sdk.DecCoin{Denom: "ahelios", Amount: math.NewInt(0).ToLegacyDec()})
 	}
 
-	return map[string]interface{}{
-		"validator_address": validatorAddress,
-		"shares":            delegation.Shares.TruncateInt(),
-		"assets":            assets,
-		"rewards": map[string]interface{}{
-			"denom":  delegationRewardsResponse.Rewards[0].Denom,
-			"amount": delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+	return &rpctypes.DelegationRPC{
+		ValidatorAddress: validatorAddress.String(),
+		Shares:           delegation.Shares.TruncateInt().String(),
+		Assets:           assets,
+		Rewards: rpctypes.DelegationRewardRPC{
+			Denom:  delegationRewardsResponse.Rewards[0].Denom,
+			Amount: delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
 		},
 	}, nil
 }
