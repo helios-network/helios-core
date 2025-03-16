@@ -621,6 +621,8 @@ func startAPIServer(
 		apiSrv.SetTelemetry(metrics)
 	}
 
+	setupGrpcSwagger(svrCtx, apiSrv.Router, svrCfg)
+
 	g.Go(func() error {
 		return apiSrv.Start(ctx, svrCfg)
 	})

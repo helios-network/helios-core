@@ -60,7 +60,7 @@ func StartJSONRPC(ctx *server.Context,
 		if api.Namespace == "eth" {
 			apiService, ok := api.Service.(*eth.PublicAPI)
 			if ok {
-				generateSwagger(apiService, r)
+				generateSwagger(ctx, apiService, r, config)
 			}
 		}
 		//////////////////////////////

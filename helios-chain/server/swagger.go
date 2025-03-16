@@ -1,9 +1,11 @@
 package server
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"net"
 	"net/http"
 	"reflect"
 	"strings"
@@ -21,6 +23,11 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	svrconfig "helios-core/helios-chain/server/config"
+
+	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -435,7 +442,7 @@ func generateOpenAPI(paths map[string]interface{}) map[string]interface{} {
 	}
 }
 
-func generateSwagger(structType interface{}, router *mux.Router) *v3cdn.Handler {
+func generateSwagger(ctx *server.Context, structType interface{}, router *mux.Router, srvConfig *svrconfig.Config) *v3cdn.Handler {
 	rpcPath := "/"
 	settingsUI := make(map[string]string)
 	settingsUI["requestInterceptor"] = `function(request) {
@@ -470,6 +477,64 @@ func generateSwagger(structType interface{}, router *mux.Router) *v3cdn.Handler 
 	}).Methods("GET")
 	router.HandleFunc("/docs", handler.ServeHTTP).Methods("GET")
 
-	fmt.Println("[SWAGGER API] http://localhost:8545/docs")
+	host, port, _ := net.SplitHostPort(parseURL(srvConfig.JSONRPC.Address))
+	docsURL := fmt.Sprintf("http://%s:%s/docs", host, port)
+
+	ctx.Logger.Info("SWAGGER API RPC Documentation", "url", docsURL)
+	return handler
+}
+
+//go:embed grpc-openapi.json
+var openapiFile embed.FS
+
+func serveOpenAPI(w http.ResponseWriter, r *http.Request) {
+	data, err := openapiFile.ReadFile("grpc-openapi.json")
+	if err != nil {
+		http.Error(w, "Failed to load OpenAPI file", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+func parseURL(url string) string {
+	p1 := strings.Replace(url, "http://", "", -1)
+	p1 = strings.Replace(url, "tcp://", "", -1)
+	return p1
+}
+
+func setupGrpcSwagger(ctx *server.Context, router *mux.Router, svrCfg serverconfig.Config) *v3cdn.Handler {
+
+	if !svrCfg.GRPC.Enable {
+		return nil
+	}
+
+	settingsUI := make(map[string]string)
+	settingsUI["requestInterceptor"] = `function(request) {
+		if (request.loadSpec) {
+			return request;
+		}
+		var url = window.location.protocol + '//'+ window.location.host;
+		var method = request.url.substring(url.length);
+		request.headers['Content-Type'] = 'application/json';
+		return request;
+	}`
+
+	handler := v3cdn.NewHandlerWithConfig(swgui.Config{
+		Title:       "Helios RPC",
+		SwaggerJSON: "/docs/openapi.json",
+		BasePath:    "/docs",
+		SettingsUI:  settingsUI,
+	})
+
+	router.HandleFunc("/docs/openapi.json", serveOpenAPI).Methods("GET")
+	router.HandleFunc("/docs", handler.ServeHTTP).Methods("GET")
+
+	host, port, _ := net.SplitHostPort(parseURL(svrCfg.API.Address))
+	docsURL := fmt.Sprintf("http://%s:%s/docs", host, port)
+
+	ctx.Logger.Info("SWAGGER API GRPC Documentation", "url", docsURL)
 	return handler
 }
