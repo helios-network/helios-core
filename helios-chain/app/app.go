@@ -156,6 +156,9 @@ import (
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 
+	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
+	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
+
 	srvflags "helios-core/helios-chain/server/flags"
 
 	chronos "helios-core/helios-chain/x/chronos"
@@ -334,6 +337,7 @@ type HeliosApp struct {
 	// ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
+	InflationKeeper inflationkeeper.Keeper
 
 	// Helios keepers
 	Erc20Keeper   erc20keeper.Keeper
@@ -471,6 +475,7 @@ func initHeliosApp(
 			hyperiontypes.StoreKey,
 			tokenfactorytypes.StoreKey,
 			epochstypes.StoreKey,
+			inflationtypes.StoreKey,
 			// Add missing EVM-related keys
 			evmtypes.StoreKey,
 			feemarkettypes.StoreKey,
@@ -1028,6 +1033,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.tKeys[feemarkettypes.TransientKey],
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
+
+	app.InflationKeeper = *inflationkeeper.NewKeeper(app.codec, app.keys[inflationtypes.StoreKey])
 
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 

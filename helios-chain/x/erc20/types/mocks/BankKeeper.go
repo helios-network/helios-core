@@ -126,7 +126,6 @@ type MockBankKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBankKeeperMockRecorder
 }
-
 // MockBankKeeperMockRecorder is the mock recorder for MockBankKeeper.
 type MockBankKeeperMockRecorder struct {
 	mock *MockBankKeeper
@@ -144,6 +143,23 @@ func (m *MockBankKeeper) EXPECT() *MockBankKeeperMockRecorder {
 	return m.recorder
 }
 
+// SafeTransferTreasury implements keeper.Keeper.
+func (m *MockBankKeeper) SafeTransferTreasury(ctx context.Context, addr types.AccAddress, amt types.Coins) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SafeTransferTreasury", ctx, addr, amt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UndelegateErc20FromModuleToAccount implements keeper.Keeper.
+func (m *MockBankKeeper) UndelegateErc20FromModuleToAccount(ctx context.Context, senderModule string, recipientAddr types.AccAddress, amt types.Coin, erc20 types.Coin) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UndelegateErc20FromModuleToAccount", ctx, senderModule, recipientAddr, amt, erc20)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+
 // AllBalances mocks base method.
 func (m *MockBankKeeper) AllBalances(arg0 context.Context, arg1 *types0.QueryAllBalancesRequest) (*types0.QueryAllBalancesResponse, error) {
 	m.ctrl.T.Helper()
@@ -151,6 +167,13 @@ func (m *MockBankKeeper) AllBalances(arg0 context.Context, arg1 *types0.QueryAll
 	ret0, _ := ret[0].(*types0.QueryAllBalancesResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
+}
+
+func (m *MockBankKeeper) DelegateErc20FromAccountToModule(arg0 context.Context, arg1 types.AccAddress, arg2 string, arg3 types.Coins, arg4 types.Coin) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DelegateErc20FromAccountToModule", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // AllBalances indicates an expected call of AllBalances.
