@@ -1,0 +1,26 @@
+{
+  "name": "counter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "counter.js",
+  "scripts": {
+    "test": "hardhat test",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "test:helios": "hardhat test --network helios"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "chai": "^4.3.7",
+    "hardhat": "^2.20.0",
+    "hardhat-deploy": "^0.11.45",
+    "hardhat-gas-reporter": "^1.0.9"
+  },
+  "dependencies": {
+    "@cosmjs/encoding": "^0.33.1",
+    "@cosmjs/stargate": "^0.33.1",
+    "dotenv": "^16.4.7"
+  }
+}
