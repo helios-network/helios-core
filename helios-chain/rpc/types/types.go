@@ -107,76 +107,76 @@ type OneFeeHistory struct {
 }
 
 type DelegationAsset struct {
-	Denom          string
-	BaseAmount     cosmossdk_io_math.Int
-	Amount         cosmossdk_io_math.Int
-	WeightedAmount cosmossdk_io_math.Int
+	Denom          string                `json:"denom"`
+	BaseAmount     cosmossdk_io_math.Int `json:"baseAmount"`
+	Amount         cosmossdk_io_math.Int `json:"amount"`
+	WeightedAmount cosmossdk_io_math.Int `json:"weightedAmount"`
 }
 
 type DelegationRewardRPC struct {
-	Denom  string
-	Amount cosmossdk_io_math.Int
+	Denom  string                `json:"denom"`
+	Amount cosmossdk_io_math.Int `json:"amount"`
 }
 
 type ValidatorCommissionRPC struct {
-	Denom  string
-	Amount cosmossdk_io_math.Int
+	Denom  string                `json:"denom"`
+	Amount cosmossdk_io_math.Int `json:"amount"`
 }
 
 type ValidatorRewardRPC struct {
-	Denom  string
-	Amount cosmossdk_io_math.Int
+	Denom  string                `json:"denom"`
+	Amount cosmossdk_io_math.Int `json:"amount"`
 }
 
 type DelegationRPC struct {
-	ValidatorAddress string
-	Shares           string
-	Assets           []DelegationAsset
-	Rewards          DelegationRewardRPC
+	ValidatorAddress string              `json:"validatorAddress"`
+	Shares           string              `json:"shares"`
+	Assets           []DelegationAsset   `json:"assets"`
+	Rewards          DelegationRewardRPC `json:"rewards"`
 }
 
 type ValidatorRPC struct {
-	ValidatorAddress        string
-	Shares                  string
-	Moniker                 string
-	Commission              stakingtypes.Commission
-	Description             stakingtypes.Description
-	Status                  stakingtypes.BondStatus
-	UnbondingHeight         int64
-	UnbondingIds            []uint64
-	Jailed                  bool
-	UnbondingOnHoldRefCount int64
-	UnbondingTime           time.Time
-	MinSelfDelegation       cosmossdk_io_math.Int
-	Apr                     string
-	MinDelegation           cosmossdk_io_math.Int
-	DelegationAuthorization bool
-	TotalBoost              string
+	ValidatorAddress        string                   `json:"validatorAddress"`
+	Shares                  string                   `json:"shares"`
+	Moniker                 string                   `json:"moniker"`
+	Commission              stakingtypes.Commission  `json:"commision"`
+	Description             stakingtypes.Description `json:"description"`
+	Status                  stakingtypes.BondStatus  `json:"status"`
+	UnbondingHeight         int64                    `json:"unbondingHeight"`
+	UnbondingIds            []uint64                 `json:"unbondingIds"`
+	Jailed                  bool                     `json:"jailed"`
+	UnbondingOnHoldRefCount int64                    `json:"unbondingOnHoldRefCount"`
+	UnbondingTime           time.Time                `json:"unbondingTime"`
+	MinSelfDelegation       cosmossdk_io_math.Int    `json:"minSelfDelegation"`
+	Apr                     string                   `json:"apr"`
+	MinDelegation           cosmossdk_io_math.Int    `json:"minDelegation"`
+	DelegationAuthorization bool                     `json:"delegationAuthorization"`
+	TotalBoost              string                   `json:"totalBoost"`
 }
 
 type ValidatorWithDelegationRPC struct {
-	Validator  ValidatorRPC
-	Delegation DelegationRPC
+	Validator  ValidatorRPC  `json:"validator"`
+	Delegation DelegationRPC `json:"delegation"`
 }
 
 type ValidatorWithCommissionRPC struct {
-	Validator  ValidatorRPC
-	Commission ValidatorCommissionRPC
+	Validator  ValidatorRPC           `json:"validator"`
+	Commission ValidatorCommissionRPC `json:"commission"`
 }
 
 type ValidatorWithCommissionAndDelegationRPC struct {
-	Validator  ValidatorRPC
-	Delegation DelegationRPC
-	Commission ValidatorCommissionRPC
+	Validator  ValidatorRPC           `json:"validator"`
+	Delegation DelegationRPC          `json:"delegation"`
+	Commission ValidatorCommissionRPC `json:"commission"`
 }
 
 type WhitelistedAssetRPC struct {
-	Denom                         string
-	BaseWeight                    uint64
-	ChainId                       string
-	Decimals                      uint64
-	Metadata                      string
-	ContractAddress               string
-	TotalShares                   cosmossdk_io_math.Int
-	NetworkPercentageSecurisation string
+	Denom                         string                `json:"denom"`
+	BaseWeight                    uint64                `json:"baseWeight"`
+	ChainId                       string                `json:"chainId"`
+	Decimals                      uint64                `json:"decimals"`
+	Metadata                      string                `json:"metadata"`
+	ContractAddress               string                `json:"oldestBlock"`
+	TotalShares                   cosmossdk_io_math.Int `json:"totalShares"`
+	NetworkPercentageSecurisation string                `json:"networkPercentageSecurisation"`
 }

@@ -32,7 +32,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (interface{}, interface{}) {
+func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (string, interface{}) {
 	switch t.String() {
 	case "<*common.Address Value>":
 		return "string", "0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd"
@@ -319,9 +319,10 @@ func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (i
 	return t.String(), t.Interface()
 }
 
-func generateInputOutput(structType interface{}) map[string]interface{} {
+func generateInputOutput(structType interface{}) (map[string]interface{}, map[string]interface{}) {
 	t := reflect.TypeOf(structType)
 	paths := make(map[string]interface{})
+	schemas := make(map[string]interface{})
 
 	for i := 0; i < t.NumMethod(); i++ {
 		method := t.Method(i)
@@ -344,6 +345,7 @@ func generateInputOutput(structType interface{}) map[string]interface{} {
 			}
 
 			t, d := getDefaultForType(methodName, inType.Kind(), reflect.New(inType))
+
 			param := map[string]interface{}{
 				"type":    t,
 				"default": d,
@@ -355,7 +357,12 @@ func generateInputOutput(structType interface{}) map[string]interface{} {
 		// OUTPUT's
 		//////////////////////////////////////
 
-		responseSchema := map[string]interface{}{"type": "object", "properties": map[string]interface{}{}, "default": map[string]interface{}{}}
+		responseSchema := map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+			"default":    map[string]interface{}{},
+		}
+		// responseSchema := map[string]interface{}{"type": "object", "properties": map[string]interface{}{}, "default": map[string]interface{}{}}
 		if method.Type.NumOut() > 0 {
 			outType := method.Type.Out(0)
 			if outType.Kind() == reflect.Ptr {
@@ -366,13 +373,59 @@ func generateInputOutput(structType interface{}) map[string]interface{} {
 				sliceInstance := make([]interface{}, 0)
 				elementInstance := reflect.New(outType.Elem()).Elem()
 
-				_, d := getDefaultForType(methodName, elementInstance.Kind(), elementInstance)
+				t, d := getDefaultForType(methodName, elementInstance.Kind(), elementInstance)
 				sliceInstance = append(sliceInstance, d)
 				responseSchema["default"] = sliceInstance
+
+				if _, exists := schemas[t]; !exists {
+					properties := map[string]interface{}{}
+					outType := reflect.TypeOf(d)
+
+					if outType.Kind() == reflect.Struct {
+						for i := 0; i < outType.NumField(); i++ {
+							field := outType.Field(i)
+							properties[field.Name] = map[string]interface{}{
+								"type": field.Type.String(),
+							}
+						}
+					}
+
+					schemas[t] = map[string]interface{}{
+						"type":       "object",
+						"properties": properties,
+						"example":    d,
+					}
+				}
+				responseSchema = map[string]interface{}{
+					"$ref": fmt.Sprintf("#/components/schemas/%s", t),
+				}
 			} else {
 				outputInstance := reflect.New(outType)
-				_, d := getDefaultForType(methodName, outputInstance.Kind(), outputInstance)
+				t, d := getDefaultForType(methodName, outputInstance.Kind(), outputInstance)
 				responseSchema["default"] = d
+
+				if _, exists := schemas[t]; !exists {
+					properties := map[string]interface{}{}
+					outType := reflect.TypeOf(d)
+
+					if outType.Kind() == reflect.Struct {
+						for i := 0; i < outType.NumField(); i++ {
+							field := outType.Field(i)
+							properties[field.Name] = map[string]interface{}{
+								"type": field.Type.String(),
+							}
+						}
+					}
+
+					schemas[t] = map[string]interface{}{
+						"type":       "object",
+						"properties": properties,
+						"example":    d,
+					}
+				}
+				responseSchema = map[string]interface{}{
+					"$ref": fmt.Sprintf("#/components/schemas/%s", t),
+				}
 			}
 		}
 
@@ -420,12 +473,14 @@ func generateInputOutput(structType interface{}) map[string]interface{} {
 				},
 			},
 		}
+		responseSchemaName := fmt.Sprintf("%sResponse", methodName)
+		schemas[responseSchemaName] = responseSchema
 	}
 
-	return paths
+	return paths, schemas
 }
 
-func generateOpenAPI(paths map[string]interface{}) map[string]interface{} {
+func generateOpenAPI(paths map[string]interface{}, schemas map[string]interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"openapi": "3.0.0",
 		"info": map[string]interface{}{
@@ -439,6 +494,9 @@ func generateOpenAPI(paths map[string]interface{}) map[string]interface{} {
 			`,
 		},
 		"paths": paths,
+		"components": map[string]interface{}{
+			"schemas": schemas, // Ajout des schémas ici
+		},
 	}
 }
 
@@ -465,8 +523,8 @@ func generateSwagger(ctx *server.Context, structType interface{}, router *mux.Ro
 		SettingsUI:  settingsUI,
 	})
 
-	paths := generateInputOutput(structType)
-	openAPI := generateOpenAPI(paths)
+	paths, schemas := generateInputOutput(structType)
+	openAPI := generateOpenAPI(paths, schemas)
 	jsonData, _ := json.MarshalIndent(openAPI, "", "  ")
 
 	openApi := []byte(string(jsonData))
