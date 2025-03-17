@@ -1,0 +1,69 @@
+syntax = "proto3";
+package helios.chronos.v1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "helios-core/helios-chain/x/chronos/types";
+
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  rpc CreateCron(MsgCreateCron) returns (MsgCreateCronResponse);
+  rpc UpdateCron(MsgUpdateCron) returns (MsgUpdateCronResponse);
+  rpc CancelCron(MsgCancelCron) returns (MsgCancelCronResponse);
+}
+
+message MsgCreateCron {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string owner_address = 1; // User wallet scheduling the call
+  string contract_address = 2; // Target EVM smart contract address
+  string abi_json = 3; // Contract ABI (JSON)
+  string method_name = 4; // Method to call
+  repeated string params = 5; // Method parameters serialized as strings
+  uint64 frequency = 6; // Execution frequency in blocks
+  uint64 expiration_block = 7; // Optional expiration block height
+  uint64 gas_limit = 8; // Maximum gas allowed for execution
+  string max_gas_price = 9 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Maximum gas price accepted
+  string sender = 10; // Add this field for the Cosmos SDK signer
+  string amount_to_deposit = 11 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Amount to deposit for pay Cron runs
+}
+
+message MsgCreateCronResponse {
+  uint64 cron_id = 1;
+  string cron_address = 2; // Address of cron
+}
+
+message MsgUpdateCron {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  uint64 cron_id = 1;
+  string owner_address = 2;
+  uint64 new_frequency = 3;
+  repeated string new_params = 4;
+  uint64 new_expiration_block = 5;
+  uint64 new_gas_limit = 6; // Maximum gas allowed for execution
+  string new_max_gas_price = 7 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Maximum gas price accepted
+
+  string sender = 8; // Add this field for the Cosmos SDK signer
+}
+
+message MsgUpdateCronResponse {
+  bool success = 1;
+}
+
+message MsgCancelCron {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string owner_address = 1;
+  uint64 cron_id = 2;
+  string sender = 3; // Add this field for the Cosmos SDK signer
+}
+
+message MsgCancelCronResponse {
+  bool success = 1;
+}

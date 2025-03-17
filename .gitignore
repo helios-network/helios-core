@@ -49,3 +49,5 @@ helios-chain/modules/exchange/testexchange/test.properties
 vendor/
 cmd/heliades/heliades
 cmd/heliades/heliades
+
+heliades

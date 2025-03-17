@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package cli
 
 import (
@@ -84,7 +82,7 @@ func NewRawTxCmd() *cobra.Command {
 				_, _ = fmt.Fprintf(os.Stderr, "%s\n\n", out)
 
 				buf := bufio.NewReader(os.Stdin)
-				ok, err := input.GetConfirmation("confirm transaction before signing and broadcasting", buf, os.Stderr)
+				ok, err := input.GetConfirmation("confirm transaction before signing and broadcasting a", buf, os.Stderr)
 
 				if err != nil || !ok {
 					_, _ = fmt.Fprintf(os.Stderr, "%s\n", "canceled transaction")
@@ -96,7 +94,6 @@ func NewRawTxCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			// broadcast to a Tendermint node
 			res, err := clientCtx.BroadcastTx(txBytes)
 			if err != nil {

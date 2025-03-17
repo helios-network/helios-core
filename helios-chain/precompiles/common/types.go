@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package common
 
 import (
@@ -8,10 +5,11 @@ import (
 	"strings"
 	"time"
 
+	evmosutils "helios-core/helios-chain/utils"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosutils "helios-core/helios-chain/utils"
 )
 
 var (
@@ -87,7 +85,7 @@ func NewDecCoinsResponse(amount sdk.DecCoins) []DecCoin {
 	return outputs
 }
 
-// HexAddressFromBech32String converts a hex address to a bech32 encoded address.
+// HexAddressFromBech32String converts a bech32 address to evm hex address (common.Address).
 func HexAddressFromBech32String(addr string) (res common.Address, err error) {
 	if strings.Contains(addr, sdk.PrefixValidator) {
 		valAddr, err := sdk.ValAddressFromBech32(addr)
@@ -101,6 +99,43 @@ func HexAddressFromBech32String(addr string) (res common.Address, err error) {
 		return res, err
 	}
 	return common.BytesToAddress(accAddr), nil
+}
+
+// AccAddressFromHexAddressString converts a string evm hex address to a bech32 sdk.AccAddress.
+func AccAddressFromHexAddressString(addr string) (res sdk.AccAddress) {
+	evmAddr := common.HexToAddress(addr)
+	return sdk.AccAddress(evmAddr.Bytes())
+}
+
+// ValAddressFromHexAddressString converts a string evm hex address to a bech32 val sdk.ValAddress.
+func ValAddressFromHexAddressString(addr string) (res sdk.ValAddress) {
+	return sdk.ValAddress(AccAddressFromHexAddressString(addr))
+}
+
+// AccAddressFromHexAddress converts a evm hex address to a bech32 sdk.AccAddress.
+func AccAddressFromHexAddress(evmAddr common.Address) (res sdk.AccAddress) {
+	return sdk.AccAddress(evmAddr.Bytes())
+}
+
+// ValAddressFromHexAddress converts a evm hex address to a bech32 val sdk.ValAddress.
+func ValAddressFromHexAddress(evmAddr common.Address) (res sdk.ValAddress) {
+	return sdk.ValAddress(AccAddressFromHexAddress(evmAddr))
+}
+
+func AnyToHexAddress(addr string) (res common.Address) {
+	if strings.Contains(addr, sdk.PrefixValidator) {
+		valAddr, err := sdk.ValAddressFromBech32(addr)
+		if err != nil {
+			return common.HexToAddress(addr)
+		}
+		return common.BytesToAddress(valAddr.Bytes())
+	}
+
+	addrResult, err := HexAddressFromBech32String(addr)
+	if err == nil {
+		return addrResult
+	}
+	return common.HexToAddress(addr)
 }
 
 // SafeAdd adds two integers and returns a boolean if an overflow occurs to avoid panic.

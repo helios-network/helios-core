@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package erc20
 
 import (
@@ -31,6 +28,18 @@ func InitGenesis(
 		panic("the erc20 module account has not been set")
 	}
 	for _, pair := range data.TokenPairs {
+		// TODO REMOVE AFTER
+		asset := types.Asset{
+			Denom:           pair.Denom,
+			ContractAddress: pair.Erc20Address,
+			ChainId:         "helios",
+			Decimals:        uint64(18),
+			BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
+			Metadata:        fmt.Sprintf("Token %s metadata", "ahelios"),
+		}
+
+		// TODO : remove this !!
+		k.AddAssetToConsensusWhitelist(ctx, asset)
 		k.SetToken(ctx, pair)
 	}
 }

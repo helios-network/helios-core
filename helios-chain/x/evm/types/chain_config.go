@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
 // This config provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
@@ -20,7 +18,7 @@ import (
 )
 
 // testChainID represents the ChainID used for the purpose of testing.
-const testChainID string = "4242"
+const testChainID string = "1234"
 
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.

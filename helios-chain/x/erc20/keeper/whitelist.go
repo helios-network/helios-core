@@ -3,6 +3,7 @@ package keeper
 import (
 	"helios-core/helios-chain/x/erc20/types"
 
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 
 	"cosmossdk.io/errors"
@@ -124,4 +125,8 @@ func (k Keeper) UpdateAssetInConsensusWhitelist(ctx sdk.Context, asset types.Ass
 	store.Set(assetKey, bz)
 
 	return nil
+}
+
+func (k Keeper) UpdateAssetNativeSharesWeight(ctx sdk.Context, denom string, percentage math.LegacyDec, increase bool) error {
+	return k.stakingKeeper.UpdateAssetWeight(ctx, denom, percentage, increase)
 }

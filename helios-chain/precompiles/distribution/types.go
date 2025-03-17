@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package distribution
 
 import (
@@ -111,11 +108,14 @@ func NewMsgWithdrawDelegatorReward(args []interface{}) (*distributiontypes.MsgWi
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, _ := args[1].(string)
+	validatorAddress, ok := args[1].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
+	}
 
 	msg := &distributiontypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		ValidatorAddress: validatorAddress,
+		DelegatorAddress: cmn.AccAddressFromHexAddress(delegatorAddress).String(),
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 	}
 
 	return msg, delegatorAddress, nil
@@ -127,10 +127,13 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, _ := args[0].(string)
+	validatorAddress, ok := args[0].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
+	}
 
 	msg := &distributiontypes.MsgWithdrawValidatorCommission{
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: cmn.ValAddressFromHexAddress(validatorAddress).String(),
 	}
 
 	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)

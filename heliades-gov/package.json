@@ -17,8 +17,10 @@
   "license": "ISC",
   "dependencies": {
     "@ethersproject/wallet": "^5.7.0",
+    "@grpc/grpc-js": "^1.12.6",
     "@helios-chain-labs/helios-ts-wallet": "^0.2.2",
-    "@helios-chain-labs/transactions": "^0.1.2",
+    "@helios-chain-labs/proto": "^0.1.24",
+    "@helios-chain-labs/transactions": "^0.1.4",
     "google-protobuf": "^3.21.4"
   },
   "description": "",

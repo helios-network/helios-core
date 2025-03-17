@@ -1,0 +1,700 @@
+//nolint:staticcheck // deprecated gov proposal flags
+package cli
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/CosmWasm/wasmd/x/wasm/ioutils"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
+	"helios-core/cli"
+	cliflags "helios-core/cli/flags"
+	"helios-core/helios-chain/modules/wasmx/types"
+)
+
+const (
+	FlagContractGasLimit      = "contract-gas-limit"
+	FlagContractGasPrice      = "contract-gas-price"
+	FlagContractFundingMode   = "contract-funding-mode"
+	FlagGranterAddress        = "granter-address"
+	FlagPinContract           = "pin-contract"
+	FlagContractAddress       = "contract-address"
+	FlagContractAdmin         = "contract-admin"
+	FlagMigrationAllowed      = "migration-allowed"
+	FlagCodeId                = "code-id"
+	FlagBatchUploadProposal   = "batch-upload-proposal"
+	FlagContractFiles         = "contract-files"
+	FlagContractAddresses     = "contract-addresses"
+	flagAmount                = "amount"
+	FlagContractCallerAddress = "contract-caller-address"
+	FlagContractExecMsg       = "contract-exec-msg"
+)
+
+// NewTxCmd returns a root CLI command handler for certain modules/wasmx transaction commands.
+func NewTxCmd() *cobra.Command {
+	cmd := cli.ModuleRootCommand(types.ModuleName, false)
+
+	cmd.AddCommand(
+		NewContractRegistrationRequestProposalTxCmd(),
+		NewContractDeregistrationRequestProposalTxCmd(),
+		NewBatchStoreCodeProposalTxCmd(),
+		ContractParamsUpdateTxCmd(),
+		ContractActivateTxCmd(),
+		ContractDeactivateTxCmd(),
+		ExecuteContractCompatCmd(),
+		RegisterContractTxCmd(),
+	)
+	return cmd
+}
+
+func NewContractRegistrationRequestProposalTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "propose-contract-registration-request [flags]",
+		Args:  cobra.ExactArgs(0),
+		Short: "Submit a proposal to register contract",
+		Long: `Submit a proposal to register contract.
+			Example:
+			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" (--contract-funding-mode=dual) (--granter-address=helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz) --pin-contract=true --from mykey
+		`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			content, err := ContractRegistrationRequestProposalArgsToContent(cmd, args)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			depositStr, err := cmd.Flags().GetString(govcli.FlagDeposit)
+			if err != nil {
+				return err
+			}
+			deposit, err := sdk.ParseCoinsNormalized(depositStr)
+			if err != nil {
+				return err
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().Uint64(FlagContractGasLimit, 300000, "Maximum gas to use for the contract execution")
+	cmd.Flags().String(FlagContractAddress, "", "contract address to register")
+	cmd.Flags().Uint64(FlagContractGasPrice, 1000000000, "gas price in helios to use for the contract execution")
+	cmd.Flags().String(FlagContractFundingMode, "", "funding mode: self-funded, grant-only, dual")
+	cmd.Flags().String(FlagGranterAddress, "", "address that will pay gas fees for contract execution")
+	cmd.Flags().Bool(FlagPinContract, false, "Pin the contract upon registration to reduce the gas usage")
+	cmd.Flags().Uint64(FlagCodeId, 0, "code-id of contract")
+	cmd.Flags().Bool(FlagMigrationAllowed, true, "is contract migration allowed?")
+	cmd.Flags().String(FlagContractAdmin, "", "address of contract admin")
+
+	cmd.Flags().String(govcli.FlagTitle, "", "title of proposal")
+	cmd.Flags().String(govcli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(govcli.FlagDeposit, "", "deposit of proposal")
+
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func NewContractDeregistrationRequestProposalTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "propose-batch-contract-deregistration-request [flags]",
+		Args:  cobra.ExactArgs(0),
+		Short: "Submit a proposal to deregister contract",
+		Long: `Submit a proposal to deregister contract.
+			Example:
+			$ %s tx xwasm propose-contract-registration-request --migration-allowed true --contract-gas-limit 20000 --contract-gas-price "1000000000" --code-id 1 --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y"  --granter-address=helios1dzqd00lfd4y4qy2pxa0dsdwzfnmsu27hgttswz --contract-funding-mode self-funded --pin-contract=true --from wasm --chain-id 1234 
+		`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			content, err := BatchContractDeregistrationRequestProposalArgsToContent(cmd, args)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			depositStr, err := cmd.Flags().GetString(govcli.FlagDeposit)
+			if err != nil {
+				return err
+			}
+			deposit, err := sdk.ParseCoinsNormalized(depositStr)
+			if err != nil {
+				return err
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().StringSlice(FlagContractAddresses, []string{}, "Contract addresses to deregister")
+
+	cmd.Flags().String(govcli.FlagTitle, "", "title of proposal")
+	cmd.Flags().String(govcli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(govcli.FlagDeposit, "", "deposit of proposal")
+
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func BatchContractDeregistrationRequestProposalArgsToContent(
+	cmd *cobra.Command,
+	args []string,
+) (govtypes.Content, error) {
+
+	title, err := cmd.Flags().GetString(govcli.FlagTitle)
+	if err != nil {
+		return nil, err
+	}
+
+	description, err := cmd.Flags().GetString(govcli.FlagDescription)
+	if err != nil {
+		return nil, err
+	}
+
+	contractAddresses, err := cmd.Flags().GetStringSlice(FlagContractAddresses)
+	if err != nil {
+		return nil, err
+	}
+
+	content := &types.BatchContractDeregistrationProposal{
+		Title:       title,
+		Description: description,
+		Contracts:   contractAddresses,
+	}
+	if err := content.ValidateBasic(); err != nil {
+		return nil, err
+	}
+	return content, nil
+}
+
+func ContractRegistrationRequestProposalArgsToContent(
+	cmd *cobra.Command,
+	args []string,
+) (govtypes.Content, error) {
+
+	title, err := cmd.Flags().GetString(govcli.FlagTitle)
+	if err != nil {
+		return nil, err
+	}
+
+	description, err := cmd.Flags().GetString(govcli.FlagDescription)
+	if err != nil {
+		return nil, err
+	}
+
+	contractAddrStr, err := cmd.Flags().GetString(FlagContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	contractGasLimit, err := cmd.Flags().GetUint64(FlagContractGasLimit)
+	if err != nil {
+		return nil, err
+	}
+
+	pinContract, err := cmd.Flags().GetBool(FlagPinContract)
+	if err != nil {
+		return nil, err
+	}
+
+	contractGasPrice, err := cmd.Flags().GetUint64(FlagContractGasPrice)
+	if err != nil {
+		return nil, err
+	}
+
+	codeId, err := cmd.Flags().GetUint64(FlagCodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	if codeId == 0 {
+		return nil, fmt.Errorf("code id cannot be equal to 0")
+	}
+
+	allowMigration, err := cmd.Flags().GetBool(FlagMigrationAllowed)
+	if err != nil {
+		return nil, err
+	}
+
+	adminAddress, err := cmd.Flags().GetString(FlagContractAdmin)
+	if err != nil {
+		adminAddress = ""
+	}
+
+	fundingModeFlag, err := cmd.Flags().GetString(FlagContractFundingMode)
+	if err != nil {
+		return nil, err
+	}
+
+	var fundingMode types.FundingMode
+	switch strings.ToLower(fundingModeFlag) {
+	case "self-funded":
+		fundingMode = types.FundingMode_SelfFunded
+	case "grant-only":
+		fundingMode = types.FundingMode_GrantOnly
+	case "dual":
+		fundingMode = types.FundingMode_Dual
+	default:
+		return nil, fmt.Errorf("following funding modes are valid: 'self-funded', 'grant-only' and 'dual'; but '%s' was provided", fundingModeFlag)
+	}
+
+	content := &types.ContractRegistrationRequestProposal{
+		Title:       title,
+		Description: description,
+		ContractRegistrationRequest: types.ContractRegistrationRequest{
+			ContractAddress:    contractAddrStr,
+			GasLimit:           contractGasLimit,
+			GasPrice:           contractGasPrice,
+			ShouldPinContract:  pinContract,
+			CodeId:             codeId,
+			IsMigrationAllowed: allowMigration,
+			AdminAddress:       adminAddress,
+			FundingMode:        fundingMode,
+		},
+	}
+
+	if fundingMode > types.FundingMode_SelfFunded {
+		granterAddrFlag, err := cmd.Flags().GetString(FlagGranterAddress)
+		if err != nil {
+			return nil, err
+		}
+
+		if granterAddrFlag == "" {
+			return nil, errors.New("granter address cannot be empty if funding mode is used")
+		}
+
+		granterAddr, err := sdk.AccAddressFromBech32(granterAddrFlag)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse granter address due to: %s", err.Error())
+		}
+		content.ContractRegistrationRequest.GranterAddress = granterAddr.String()
+	}
+
+	if err := content.ValidateBasic(); err != nil {
+		return nil, err
+	}
+	return content, nil
+}
+
+func NewBatchStoreCodeProposalTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "batch-store-code-proposal [flags]",
+		Args:  cobra.ExactArgs(0),
+		Short: "Submit a proposal to batch upload Cosmwasm contracts.",
+		Long: `Submit a proposal to batch upload Cosmwasm contracts.
+
+Example:
+$ %s tx xwasm "batch-store-code-proposal \
+	--contract-files="proposal1.wasm,proposal2.wasm" \
+	--batch-upload-proposal="path/to/batch-store-code-proposal.json" \
+	--from=genesis \
+	--deposit="1000000000000000000helios" \
+	--keyring-backend=file \
+	--yes
+
+	Where batch-store-code-proposal.json contains:
+{
+    "title":"title",
+    "description":"description",
+    "proposals":[
+        {
+            "title":"Contract 1 Title",
+            "description":"Contract 1 Description",
+            "run_as":"<put your address here>",
+            "wasm_byte_code":"",
+            "instantiate_permission":{
+                "permission":"3",
+                "address":""
+            }
+        },
+        {
+            "title":"Contract 2 Title",
+            "description":"Contract 2 Description",
+            "run_as":"<put your address here>",
+            "wasm_byte_code":"",
+            "instantiate_permission":{
+                "permission":"3",
+                "address":""
+            }
+        }
+    ]
+}
+		`,
+
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := parseBatchStoreCodeProposalFlags(cmd.Flags())
+			if err != nil {
+				return fmt.Errorf("failed to parse proposal: %w", err)
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			depositStr, err := cmd.Flags().GetString(govcli.FlagDeposit)
+			if err != nil {
+				return err
+			}
+
+			deposit, err := sdk.ParseCoinsNormalized(depositStr)
+			if err != nil {
+				return err
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(proposal, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	cmd.Flags().StringSlice(FlagContractFiles, nil, "The comma separated list of contract files to upload")
+	cmd.Flags().String(FlagBatchUploadProposal, "", "Batch Upload Proposal options")
+	cmd.Flags().String(govcli.FlagTitle, "", "Title of proposal")
+	cmd.Flags().String(govcli.FlagDescription, "", "Description of proposal")
+	cmd.Flags().String(govcli.FlagDeposit, "", "deposit of proposal")
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func ContractParamsUpdateTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "contract-params-update <contract-address> [flags]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Update registered contract params",
+		Long: `Update registered contract params (gas price, gas limit, admin address).
+			Example:
+			$ %s tx xwasm contract-params-update helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y --contract-gas-limit 20000 --contract-gas-price "1000000000" --contract-admin="helios1p7z8p649xspcey7wp5e4leqf7wa39kjjj6wja8" --from mykey
+		`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			contractAddrStr := args[0]
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryContractRegistrationInfoRequest{
+				ContractAddress: contractAddrStr,
+			}
+
+			flagChanged := cmd.Flags().Changed(FlagContractAdmin)
+			if !flagChanged {
+				return fmt.Errorf("Error: the --contract-admin flag must be explicitly provided")
+			}
+
+			res, err := queryClient.ContractRegistrationInfo(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			if res.Contract == nil {
+				return fmt.Errorf("contract with address %s not found", contractAddrStr)
+			}
+
+			contract := res.Contract
+			fromAddress := clientCtx.GetFromAddress().String()
+
+			msg := &types.MsgUpdateContract{
+				Sender:          fromAddress,
+				ContractAddress: contractAddrStr,
+				GasLimit:        contract.GasLimit,
+				GasPrice:        contract.GasPrice,
+				AdminAddress:    contract.AdminAddress,
+			}
+
+			cmd.Flags().Visit(func(f *pflag.Flag) {
+				switch f.Name {
+				case FlagContractGasLimit:
+					if contractGasLimit, err := cmd.Flags().GetUint64(FlagContractGasLimit); err == nil {
+						msg.GasLimit = contractGasLimit
+					}
+				case FlagContractAdmin:
+					if contractAdminStr, err := cmd.Flags().GetString(FlagContractAdmin); err == nil {
+						msg.AdminAddress = contractAdminStr
+					}
+				case FlagContractGasPrice:
+					if contractGasPrice, err := cmd.Flags().GetUint64(FlagContractGasPrice); err == nil {
+						msg.GasPrice = contractGasPrice
+					}
+				}
+			})
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().Uint64(FlagContractGasLimit, 300000, "Maximum gas to use for the contract execution")
+	cmd.Flags().String(FlagContractAddress, "", "contract address ")
+	cmd.Flags().Uint64(FlagContractGasPrice, 1000000000, "gas price in helios to use for the contract execution")
+	cmd.Flags().String(FlagContractAdmin, "", "contract admin allowed to perform changes")
+
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func ContractActivateTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "contract-activate [flags]",
+		Args:  cobra.ExactArgs(0),
+		Short: "Activate registered contract",
+		Long: `Activate registered contract to be executed in begin blocker.
+			Example:
+			$ %s tx xwasm contract-activate --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" --from mykey
+		`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			contractAddrStr, err := cmd.Flags().GetString(FlagContractAddress)
+			if err != nil {
+				return nil
+			}
+
+			fromAddress := clientCtx.GetFromAddress().String()
+
+			msg := &types.MsgActivateContract{
+				Sender:          fromAddress,
+				ContractAddress: contractAddrStr,
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().String(FlagContractAddress, "", "contract address ")
+
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func ContractDeactivateTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "contract-deactivate [flags]",
+		Args:  cobra.ExactArgs(0),
+		Short: "Deactivate registered contract",
+		Long: `Deactivate registered contract (will no longer be executed in begin blocker, but remains registered).
+			Example:
+			$ %s tx xwasm contract-deactivate --contract-address "helios14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9swvf72y" --from mykey
+		`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			contractAddrStr, err := cmd.Flags().GetString(FlagContractAddress)
+			if err != nil {
+				return nil
+			}
+
+			fromAddress := clientCtx.GetFromAddress().String()
+
+			msg := &types.MsgDeactivateContract{
+				Sender:          fromAddress,
+				ContractAddress: contractAddrStr,
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().String(FlagContractAddress, "", "contract address ")
+
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func RegisterContractTxCmd() *cobra.Command {
+	cmd := cli.TxCmd(
+		"register-contract <contract_address> <gas_limit> <gas_price> <should_pin_contract> <is_migration_allowed> <code_id> <admin_address> --granter-address <granter_address> --contract-funding-mode <funding_mode>",
+		"Register contract for BeginBlocker execution",
+		&types.MsgRegisterContract{},
+		cli.FlagsMapping{
+			"GranterAddress": cli.Flag{Flag: FlagGranterAddress},
+			"FundingMode":    cli.Flag{Flag: FlagContractFundingMode},
+		},
+		cli.ArgsMapping{},
+	)
+	cmd.Example = "heliades tx xwasm register-contract helios1apapy3g66m52mmt2wkyjm6hpyd563t90u0dgmx 4500000 1000000000 true true 1 helios17gkuet8f6pssxd8nycm3qr9d9y699rupv6397z"
+	cmd.Flags().String(FlagGranterAddress, "", "Granter address")
+	cmd.Flags().Int32(FlagContractFundingMode, 1, "Funding mode (1 for self-funded, 2 for grant-only, 3 for dual")
+	return cmd
+}
+
+// ExecuteContractCompatCmd will instantiate a contract from previously uploaded code.
+func ExecuteContractCompatCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "execute-compat [contract_addr_bech32] [json_encoded_send_args] --amount [coins,optional]",
+		Short:   "Execute a command on a wasm contract",
+		Aliases: []string{"run-compat", "call-compat", "exec-compat", "ex-compat", "e-compat"},
+		Args:    cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg, err := parseExecuteCompatArgs(args[0], args[1], clientCtx.GetFromAddress(), cmd.Flags())
+			if err != nil {
+				return err
+			}
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+		},
+		SilenceUsage: true,
+	}
+
+	cmd.Flags().String(flagAmount, "", "Coins to send to the contract along with command")
+	cliflags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func parseBatchStoreCodeProposalFlags(fs *pflag.FlagSet) (*types.BatchStoreCodeProposal, error) {
+	proposal := &types.BatchStoreCodeProposal{}
+
+	contractSrcs, err := fs.GetStringSlice(FlagContractFiles)
+	proposalFile, err1 := fs.GetString(FlagBatchUploadProposal)
+
+	if err != nil && err1 != nil {
+		return nil, err
+	}
+
+	if proposalFile != "" {
+		contents, err := os.ReadFile(proposalFile)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(contents, proposal)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(proposal.Proposals) != len(contractSrcs) || len(proposal.Proposals) == 0 {
+		return nil, fmt.Errorf("number of contracts and proposals must match and be non-zero, but got %d proposals and %d contract sources", len(proposal.Proposals), len(contractSrcs))
+	}
+
+	for idx := range contractSrcs {
+		wasmFile, err := getWasmFile(contractSrcs[idx])
+		if err != nil {
+			return nil, err
+		}
+		p := proposal.Proposals[idx]
+
+		p.WASMByteCode = wasmFile
+
+		if p.InstantiatePermission == nil {
+			p.InstantiatePermission = &wasmtypes.AccessConfig{}
+		}
+
+		hasEmptyInstantiatePermissions := p.InstantiatePermission.Permission == wasmtypes.AccessTypeUnspecified && len(p.InstantiatePermission.Addresses) == 0
+		if hasEmptyInstantiatePermissions {
+			p.InstantiatePermission.Permission = wasmtypes.AccessTypeEverybody
+		}
+		proposal.Proposals[idx] = p
+	}
+
+	return proposal, nil
+}
+
+func parseExecuteCompatArgs(
+	contractAddr string, execMsg string, sender sdk.AccAddress, fs *pflag.FlagSet,
+) (types.MsgExecuteContractCompat, error) {
+	fundsStr, err := fs.GetString(flagAmount)
+	if err != nil {
+		return types.MsgExecuteContractCompat{}, fmt.Errorf("amount: %w", err)
+	}
+
+	return types.MsgExecuteContractCompat{
+		Sender:   sender.String(),
+		Contract: contractAddr,
+		Funds:    fundsStr,
+		Msg:      execMsg,
+	}, nil
+}
+
+func getWasmFile(contractSrc string) ([]byte, error) {
+	wasm, err := os.ReadFile(contractSrc)
+	if err != nil {
+		return nil, err
+	}
+
+	// gzip the wasm file
+	if ioutils.IsWasm(wasm) {
+		wasm, err = ioutils.GzipIt(wasm)
+
+		if err != nil {
+			return nil, err
+		}
+	} else if !ioutils.IsGzip(wasm) {
+		return nil, fmt.Errorf("invalid input file. Use wasm binary or gzip")
+	}
+	return wasm, nil
+}

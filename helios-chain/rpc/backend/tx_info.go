@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package backend
 
 import (
@@ -9,6 +7,10 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+	"helios-core/helios-chain/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,9 +19,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	"helios-core/helios-chain/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // GetTransactionByHash returns the Ethereum format transaction identified by Ethereum transaction hash
@@ -451,4 +450,151 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 		baseFee,
 		b.chainID,
 	)
+}
+
+func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
+	if page == 0 || size == 0 {
+		return nil, errors.New("page and size must be greater than 0")
+	}
+	pageNum := uint64(page)
+	pageSize := uint64(size)
+
+	transactions := make([]*rpctypes.RPCTransaction, 0, pageSize)
+
+	// Get pending transactions
+	pendingTxs, err := b.PendingTransactions()
+	if err != nil {
+		return nil, err
+	}
+	// offSet is the index of the first transaction in the page (0-indexed)
+	offSet := (pageNum - 1) * pageSize
+
+	// pendingTxCount is the number of pending transactions in the mempool
+	pendingTxCount := uint64(len(pendingTxs))
+
+	// add mempool txs if we are in the page range
+	if offSet < pendingTxCount {
+		pendingEndPosition := min(offSet+pageSize, pendingTxCount)
+
+		for i := offSet; i < pendingEndPosition; i++ {
+			msg, err := evmtypes.UnwrapEthereumMsgTx(pendingTxs[i])
+			if err != nil {
+				return nil, fmt.Errorf("failed to unwrap ethereum tx: %w", err)
+			}
+
+			rpctx, err := rpctypes.NewTransactionFromMsg(
+				msg,
+				common.Hash{},
+				uint64(0),
+				uint64(0),
+				nil,
+				b.chainID,
+			)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create transaction from msg: %w", err)
+			}
+			transactions = append(transactions, rpctx)
+
+			if uint64(len(transactions)) >= pageSize {
+				return transactions, nil
+			}
+		}
+	}
+
+	// we need to find txs in confirmed blocks
+	// get latest block number
+	latestBlockNumber, err := b.BlockNumber()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest block number: %w", err)
+	}
+
+	// Calculate how many more transactions we need
+	txCount := uint64(0)
+
+	// use BlockchainInfo to estimate the target block based on num_txs using batches of 100
+	const batchSize = int64(100)
+	maxHeight := int64(latestBlockNumber)
+	for maxHeight > 0 && uint64(len(transactions)) < pageSize {
+		// Calculate minHeight safely
+		minHeight := int64(1)
+		if maxHeight > int64(batchSize) {
+			minHeight = maxHeight - int64(batchSize) + 1
+		}
+
+		b.logger.Debug("Querying BlockchainInfo",
+			"minHeight", minHeight,
+			"maxHeight", maxHeight)
+
+		// get block metadata for the current batch
+		info, err := b.clientCtx.Client.BlockchainInfo(b.ctx, int64(minHeight), int64(maxHeight))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get block metadata: %w", err)
+		}
+
+		var targetBlock int64
+		// inspect the number of txs in each block and find the block within the page range
+		for i := 0; i < len(info.BlockMetas); i++ {
+			txCount += uint64(info.BlockMetas[i].NumTxs)
+			if uint64(txCount) >= offSet { // this block contains txs we need
+				targetBlock = info.BlockMetas[i].Header.Height
+				break
+			}
+		}
+		if targetBlock == 0 {
+			return nil, fmt.Errorf("txs not found for page %d and size %d", pageNum, pageSize)
+		}
+
+		for blockHeight := targetBlock; blockHeight > 0 && uint64(len(transactions)) < pageSize; blockHeight-- {
+
+			block, err := b.rpcClient.Block(b.ctx, &blockHeight)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get block %d: %w", blockHeight, err)
+			}
+
+			blockRes, err := b.rpcClient.BlockResults(b.ctx, &blockHeight)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get block results for block %d: %w", blockHeight, err)
+			}
+
+			updatedOffset := offSet + uint64(len(transactions))
+			txCount := uint64(0)
+			ethMsgs := b.EthMsgsFromTendermintBlock(block, blockRes)
+			for i, msg := range ethMsgs {
+
+				// Skip eth messages until we reach our start position
+				if txCount+uint64(i) < updatedOffset {
+					continue
+				}
+
+				// Check if we've reached our page size
+				if uint64(len(transactions)) >= pageSize {
+					return transactions, nil
+				}
+
+				// construct the rpc transaction
+				baseFee, err := b.BaseFee(blockRes)
+				if err != nil {
+					return nil, fmt.Errorf("failed to fetch Base Fee from prunned block. Check node prunning configuration: %w", err)
+				}
+
+				rpctx, err := rpctypes.NewTransactionFromMsg(
+					msg,
+					common.BytesToHash(block.Block.Hash()),
+					uint64(block.Block.Height),
+					uint64(i),
+					baseFee,
+					b.chainID,
+				)
+				if err != nil {
+					return nil, fmt.Errorf("failed to create transaction from msg: %w", err)
+				}
+				transactions = append(transactions, rpctx)
+			}
+			txCount += uint64(len(ethMsgs))
+		}
+		maxHeight -= batchSize
+	}
+
+	return transactions, nil
+
 }

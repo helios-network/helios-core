@@ -1,0 +1,220 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Chronos",
+  "sourceName": "solidity/precompiles/chronos/Chronos.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "fromAddress",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "toAddress",
+            "type": "address"
+          },
+          {
+              "indexed": false,
+              "internalType": "uint64",
+              "name": "cronId",
+              "type": "uint64"
+          }
+      ],
+      "name": "CronCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "fromAddress",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "toAddress",
+            "type": "address"
+          },
+          {
+              "indexed": false,
+              "internalType": "uint64",
+              "name": "cronId",
+              "type": "uint64"
+          },
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+        }
+      ],
+      "name": "CronModified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "fromAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "toAddress",
+          "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint64",
+            "name": "cronId",
+            "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "name": "CronCancelled",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "contractAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "abi",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "methodName",
+          "type": "string"
+        },
+        {
+          "internalType": "string[]",
+          "name": "params",
+          "type": "string[]"
+        },
+        {
+          "internalType": "uint64",
+          "name": "frequency",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expirationBlock",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "gasLimit",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxGasPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountToDeposit",
+          "type": "uint256"
+        }
+      ],
+      "name": "createCron",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cronId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newFrequency",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string[]",
+          "name": "newParams",
+          "type": "string[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newExpirationBlock",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newGasLimit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "newMaxGasPrice",
+          "type": "uint64"
+        }
+      ],
+      "name": "updateCron",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "cronId",
+          "type": "uint64"
+        }
+      ],
+      "name": "cancelCron",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

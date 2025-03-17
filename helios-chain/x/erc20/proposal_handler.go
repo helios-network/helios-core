@@ -2,12 +2,15 @@ package erc20
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
+
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -78,48 +81,90 @@ func HandleUpdateAssetConsensusProposal(ctx sdk.Context, k keeper.Keeper, propos
 		return err
 	}
 
-	//TODO: Check the min avg score of the sender to make sure no useless proposals
+	// TODO: Check the min avg score of the sender to ensure no useless proposals
 
 	// Iterate over the updates in the proposal
 	for _, update := range proposal.Updates {
-		// Check if the asset is already whitelisted
+		// Validate and retrieve the asset
 		if !k.IsAssetWhitelisted(ctx, update.Denom) {
 			return errors.Wrapf(types.ErrAssetNotFound, "asset %s is not whitelisted", update.Denom)
 		}
 
-		// Retrieve the asset from the whitelist
 		asset, err := k.GetAssetFromWhitelist(ctx, update.Denom)
 		if err != nil {
 			return errors.Wrapf(err, "failed to retrieve asset %s from whitelist", update.Denom)
 		}
 
-		// Determine the adjustment factor based on the magnitude
-		var adjustmentFactor float64
-		switch update.Magnitude {
-		case "small":
-			adjustmentFactor = 0.05
-		case "medium":
-			adjustmentFactor = 0.15
-		case "high":
-			adjustmentFactor = 0.30
-		default:
-			return errors.Wrapf(types.ErrInvalidLengthQuery, "invalid magnitude: %s", update.Magnitude)
+		// Determine the adjustment factor
+		percentFactor, adjustmentFactor, err := getAdjustmentFactors(asset, update.Magnitude, update.Direction)
+		if err != nil {
+			return err
 		}
 
-		// Apply the adjustment
-		if update.Direction == "up" {
-			asset.BaseWeight += uint64(float64(asset.BaseWeight) * adjustmentFactor)
-		} else if update.Direction == "down" {
-			asset.BaseWeight -= uint64(float64(asset.BaseWeight) * adjustmentFactor)
-		} else {
-			return errors.Wrapf(types.ErrInvalidLengthQuery, "invalid direction: %s", update.Direction)
+		// Apply the adjustment to the asset weight
+		updatedAsset, increaseWeight, err := applyWeightAdjustment(asset, update.Direction, adjustmentFactor)
+		if err != nil {
+			return err
 		}
 
 		// Update the asset in the whitelist
-		if err := k.UpdateAssetInConsensusWhitelist(ctx, asset); err != nil {
+		if err := k.UpdateAssetInConsensusWhitelist(ctx, updatedAsset); err != nil {
 			return errors.Wrapf(err, "failed to update asset %s in whitelist", update.Denom)
+		}
+
+		// Update delegation stakes with the new weighted amount
+		if err := k.UpdateAssetNativeSharesWeight(ctx, update.Denom, percentFactor, increaseWeight); err != nil {
+			return errors.Wrapf(err, "failed to update native delegation shares weight: %s", err)
 		}
 	}
 
 	return nil
+}
+
+// Helper to determine adjustment factors based on magnitude
+func getAdjustmentFactors(asset types.Asset, magnitude string, direction string) (math.LegacyDec, float64, error) {
+
+	var baseFactor float64
+	switch magnitude {
+	case "small":
+		baseFactor = 0.05
+	case "medium":
+		baseFactor = 0.15
+	case "high":
+		baseFactor = 0.30
+	default:
+		return math.LegacyDec{}, 0, errors.Wrapf(types.ErrInvalidLengthQuery, "invalid magnitude: %s", magnitude)
+	}
+
+	// manage the weight one by one under 10 baseWeight
+	adjustedFactor := baseFactor
+	if asset.BaseWeight < 10 {
+		if direction == "down" {
+			if asset.BaseWeight == 1 {
+				return math.LegacyDec{}, 0, errors.Wrapf(types.ErrInvalidLengthQuery, "BaseWeight minimum reach")
+			}
+			targetWeight := float64(asset.BaseWeight - 1)
+			adjustedFactor = (float64(asset.BaseWeight) - targetWeight) / float64(asset.BaseWeight)
+		} else {
+			targetWeight := float64(asset.BaseWeight + 1)
+			adjustedFactor = (targetWeight - float64(asset.BaseWeight)) / float64(asset.BaseWeight)
+		}
+	}
+	adjustedFactorStr := fmt.Sprintf("%.2f", adjustedFactor) // 2 decimals
+	return math.LegacyMustNewDecFromStr(adjustedFactorStr), adjustedFactor, nil
+}
+
+// Helper to apply weight adjustment based on direction
+func applyWeightAdjustment(asset types.Asset, direction string, adjustmentFactor float64) (types.Asset, bool, error) {
+	increaseWeight := false
+	switch direction {
+	case "up":
+		asset.BaseWeight += uint64(float64(asset.BaseWeight) * adjustmentFactor)
+		increaseWeight = true
+	case "down":
+		asset.BaseWeight -= uint64(float64(asset.BaseWeight) * adjustmentFactor)
+	default:
+		return asset, false, errors.Wrapf(types.ErrInvalidLengthQuery, "invalid direction: %s", direction)
+	}
+	return asset, increaseWeight, nil
 }

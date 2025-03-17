@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package staking
 
 import (
@@ -9,14 +6,15 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	"helios-core/helios-chain/precompiles/authorization"
+	cmn "helios-core/helios-chain/precompiles/common"
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/authorization"
-	cmn "helios-core/helios-chain/precompiles/common"
-	"helios-core/helios-chain/x/evm/core/vm"
 )
 
 var (

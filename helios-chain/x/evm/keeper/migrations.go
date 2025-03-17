@@ -1,10 +1,6 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	v8 "helios-core/helios-chain/x/evm/migrations/v8"
 	"helios-core/helios-chain/x/evm/types"
 )
 
@@ -20,9 +16,4 @@ func NewMigrator(keeper Keeper, legacySubspace types.Subspace) Migrator {
 		keeper:         keeper,
 		legacySubspace: legacySubspace,
 	}
-}
-
-// Migrate7to8 migrates the store from consensus version 6 to 7.
-func (m Migrator) Migrate7to8(ctx sdk.Context) error {
-	return v8.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
 }

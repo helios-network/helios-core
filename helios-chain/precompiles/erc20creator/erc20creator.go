@@ -35,6 +35,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -128,8 +129,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	coinMetadata := banktypes.Metadata{
 		Description: fmt.Sprintf("Token %s created with ERC20Creator precompile", base),
 		Base:        base,
+		Name:        base,
 		Symbol:      symbol,
 		Decimals:    uint32(decimals),
+		Display:     base,
 		DenomUnits: []*banktypes.DenomUnit{
 			{
 				Denom:    base,
@@ -156,6 +159,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	recipient := sdk.AccAddress(evm.Origin.Bytes())
 	coins := sdk.NewCoins(sdk.NewCoin(base, sdkmath.NewIntFromBigInt(supply)))
 
+	p.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
+
 	// Mint native coins to the module account
 	if err := p.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
 		return nil, fmt.Errorf("failed to mint coins on-chain: %w", err)
@@ -172,6 +177,32 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 
 	// Enable dynamic precompiles for the deployed ERC20 contract
 	p.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+
+	ctx.EventManager().EmitEvent(
+		sdktypes.NewEvent(
+			"erc20_created", // todo: add to sdktypes
+			sdktypes.NewAttribute("denom", base),
+			sdktypes.NewAttribute("symbol", symbol),
+			sdktypes.NewAttribute("contract_address", contractAddr.String()),
+			sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
+			sdktypes.NewAttribute("supply", supply.String()),
+		),
+	)
+
+	// TODO REMOVE AFTER
+	asset := types.Asset{
+		Denom:           base,
+		ContractAddress: contractAddr.Hex(),
+		ChainId:         "ethereum", // Exemple de chainId, à ajuster si nécessaire
+		Decimals:        uint64(decimals),
+		BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
+		Metadata:        fmt.Sprintf("Token %s metadata", symbol),
+	}
+
+	// TODO : remove this !!
+	if err := p.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset); err != nil {
+		return nil, fmt.Errorf("failed to add ERC20 asset to whitelist: %w", err)
+	}
 
 	return method.Outputs.Pack(contractAddr)
 }

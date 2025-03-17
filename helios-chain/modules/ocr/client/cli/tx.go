@@ -125,7 +125,7 @@ func NewCreateFeedTxCmd() *cobra.Command {
 				--feed-config-description="BTC/USDT feed" \
 				--feed-admin=$FEEDADMIN \
 				--billing-admin=$FEEDADMIN \
-				--chain-id=4242 \
+				--chain-id=1234 \
 				--from=$FEEDADMIN \
 				--yes
 			`,
@@ -206,7 +206,7 @@ func NewSetConfigProposalTxCmd() *cobra.Command {
 			--feed-config-description="BTC/USDT feed" \
 			--feed-admin=$FEEDADMIN \
 			--billing-admin=$FEEDADMIN \
-			--chain-id=4242 \
+			--chain-id=1234 \
 			--from=$FEEDADMIN \
 			--yes
 		`,

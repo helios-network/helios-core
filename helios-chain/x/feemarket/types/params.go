@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
 import (
@@ -10,12 +8,12 @@ import (
 )
 
 var (
-	// DefaultBaseFee for the Evmos chain
+	// DefaultBaseFee for the Evmos chain (1 Gwei)
 	DefaultBaseFee = math.LegacyNewDec(1_000_000_000)
 	// DefaultMinGasMultiplier is 0.5 or 50%
 	DefaultMinGasMultiplier = math.LegacyNewDecWithPrec(50, 2)
-	// DefaultMinGasPrice is 0 (i.e disabled)
-	DefaultMinGasPrice = math.LegacyZeroDec()
+	// DefaultMinGasPrice (0 = disabled, 1000000000 = 1 Gwei)
+	DefaultMinGasPrice = math.LegacyNewDec(1_000_000_000)
 	// DefaultEnableHeight is 0 (i.e disabled)
 	DefaultEnableHeight = int64(0)
 	// DefaultNoBaseFee is false

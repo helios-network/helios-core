@@ -1,0 +1,200 @@
+syntax = "proto3";
+package helios.chronos.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "helios/chronos/v1/params.proto";
+import "helios/chronos/v1/cron.proto";
+import "helios/chronos/v1/types.proto";
+import "google/protobuf/struct.proto";  // Ajout de l'import
+import "ethermint/evm/v1/evm.proto";
+
+option go_package = "helios-core/helios-chain/x/chronos/types";
+
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/helios/chronos/params";
+  }
+
+  rpc QueryGetCron(QueryGetCronRequest) returns (QueryGetCronResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/id/{id}";
+  }
+
+  rpc QueryGetCronByAddress(QueryGetCronByAddressRequest) returns (QueryGetCronByAddressResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/address/{address}";
+  }
+
+  rpc QueryGetCrons(QueryGetCronsRequest) returns (QueryGetCronsResponse) {
+    option (google.api.http).get = "/helios/chronos/crons";
+  }
+
+  rpc QueryGetCronsByOwner(QueryGetCronsByOwnerRequest) returns (QueryGetCronsByOwnerResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/owner/{owner_address}";
+  }
+
+  rpc QueryGetCronTransactionByNonce(QueryGetCronTransactionByNonceRequest) returns (QueryGetCronTransactionByNonceResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/transaction/nonce/{nonce}";
+  }
+
+  rpc QueryGetCronTransactionByHash(QueryGetCronTransactionByHashRequest) returns (QueryGetCronTransactionByHashResponse) {
+    option (google.api.http).get = "/helios/chronos/crons/transaction/hash/{hash}";
+  }
+
+  rpc QueryGetCronTransactionReceiptLogsByBlockNumber(QueryGetCronTransactionReceiptLogsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptLogsByBlockNumberResponse) {
+    option (google.api.http).get = "/helios/chronos/block/transaction/logs/{block_number}";
+  }
+
+  rpc QueryGetCronTransactionReceiptsByBlockNumber(QueryGetCronTransactionReceiptsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptsByBlockNumberResponse) {
+    option (google.api.http).get = "/helios/chronos/block/transaction/receipts/{block_number}";
+  }
+
+  rpc QueryGetCronTransactionReceiptByHash(QueryGetCronTransactionReceiptByHashRequest) returns (QueryGetCronTransactionReceiptByHashResponse) {
+    option (google.api.http).get = "/helios/chronos/transaction/receipt/hash/{hash}";
+  }
+
+  rpc QueryGetCronTransactionReceiptByNonce(QueryGetCronTransactionReceiptByNonceRequest) returns (QueryGetCronTransactionReceiptByNonceResponse) {
+    option (google.api.http).get = "/helios/chronos/transaction/receipt/nonce/{nonce}";
+  }
+
+  rpc QueryGetAllCronTransactionReceiptsByPageAndSize(QueryGetAllCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetAllCronTransactionReceiptsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/transaction/receipts";
+  }
+  rpc QueryGetAllCronTransactionsByPageAndSize(QueryGetAllCronTransactionsByPageAndSizeRequest) returns (QueryGetAllCronTransactionsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/transactions";
+  }
+
+  rpc QueryGetCronTransactionReceiptsByPageAndSize(QueryGetCronTransactionReceiptsByPageAndSizeRequest) returns (QueryGetCronTransactionReceiptsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/address/{address}/transaction/receipts";
+  }
+  rpc QueryGetCronTransactionsByPageAndSize(QueryGetCronTransactionsByPageAndSizeRequest) returns (QueryGetCronTransactionsByPageAndSizeResponse) {
+    option (google.api.http).get = "/helios/chronos/cron/address/{address}/transactions";
+  }
+}
+
+message QueryParamsRequest {}
+
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetCronRequest {
+  uint64 id = 1;
+}
+
+message QueryGetCronResponse {
+  Cron cron = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetCronByAddressRequest {
+  string address = 1;
+}
+
+message QueryGetCronByAddressResponse {
+  Cron cron = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetCronsRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetCronsResponse {
+  repeated Cron crons = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetCronsByOwnerRequest {
+  string owner_address = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetCronsByOwnerResponse {
+  repeated Cron crons = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetCronTransactionByNonceRequest {
+  uint64 nonce = 1;
+}
+
+message QueryGetCronTransactionByNonceResponse {
+  CronTransactionRPC transaction = 1;
+}
+
+message QueryGetCronTransactionByHashRequest {
+  string hash = 1;
+}
+
+message QueryGetCronTransactionByHashResponse {
+  CronTransactionRPC transaction = 1;
+}
+
+message QueryGetCronTransactionReceiptByNonceRequest {
+  uint64 nonce = 1;
+}
+
+message QueryGetCronTransactionReceiptByNonceResponse {
+  CronTransactionReceiptRPC transaction = 1;
+}
+
+message QueryGetCronTransactionReceiptLogsByBlockNumberRequest {
+  uint64 block_number = 1;
+}
+
+message QueryGetCronTransactionReceiptLogsByBlockNumberResponse {
+  repeated ethermint.evm.v1.Log logs = 1;
+}
+
+message QueryGetCronTransactionReceiptsByBlockNumberRequest {
+  uint64 block_number = 1;
+}
+
+message QueryGetCronTransactionReceiptsByBlockNumberResponse {
+  repeated CronTransactionReceiptRPC transactions = 1;
+}
+
+message QueryGetCronTransactionReceiptByHashRequest {
+  string hash = 1;
+}
+
+message QueryGetCronTransactionReceiptByHashResponse {
+  CronTransactionReceiptRPC transaction = 1;
+}
+
+message QueryGetAllCronTransactionReceiptsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetAllCronTransactionReceiptsByPageAndSizeResponse {
+  repeated CronTransactionReceiptRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetAllCronTransactionsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryGetAllCronTransactionsByPageAndSizeResponse {
+  repeated CronTransactionRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetCronTransactionReceiptsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  string address = 2;
+}
+
+message QueryGetCronTransactionReceiptsByPageAndSizeResponse {
+  repeated CronTransactionReceiptRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetCronTransactionsByPageAndSizeRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  string address = 2;
+}
+
+message QueryGetCronTransactionsByPageAndSizeResponse {
+  repeated CronTransactionRPC transactions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

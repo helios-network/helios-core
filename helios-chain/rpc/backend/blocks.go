@@ -1,12 +1,15 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package backend
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"math/big"
 	"strconv"
+	"time"
+
+	rpctypes "helios-core/helios-chain/rpc/types"
+	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,8 +21,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // BlockNumber returns the current block number in abci app state. Because abci
@@ -106,6 +107,69 @@ func (b *Backend) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]inte
 	}
 
 	return res, nil
+}
+
+func (b *Backend) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error) {
+	if page == 0 || size == 0 {
+		return nil, errors.New("page and size must be greater than 0")
+	}
+
+	if size > 100 {
+		return nil, errors.New("size must be less than 100")
+	}
+
+	sizeNum := uint64(size)
+	pageNum := uint64(page)
+
+	latestBlock, err := b.BlockNumber()
+	if err != nil {
+		return nil, err
+	}
+	latestBlockNumber := uint64(latestBlock)
+
+	pageOffset := (pageNum - 1) * sizeNum
+
+	if pageOffset > latestBlockNumber {
+		return nil, errors.New("page offset is greater than the latest block number")
+	}
+
+	startBlockNumber := latestBlockNumber - pageOffset
+	endBlockNumber := startBlockNumber - sizeNum + 1
+
+	if endBlockNumber > latestBlockNumber {
+		endBlockNumber = 0 // handle overflow
+	}
+
+	// pre-allocate the slice with the size of the number of blocks to fetch
+	capacity := min(sizeNum, latestBlockNumber-startBlockNumber+1)
+	blocks := make([]map[string]interface{}, 0, capacity)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// fetch the blocks in reverse order
+	for i := int64(startBlockNumber); i >= int64(endBlockNumber); i-- {
+		block, err := b.rpcClient.Block(ctx, &i)
+		if err != nil {
+			return nil, err
+		}
+		if block.Block == nil {
+			return nil, fmt.Errorf("block %d not found", i)
+		}
+
+		blockRes, err := b.rpcClient.BlockResults(ctx, &block.Block.Height)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch block result from Tendermint at height %d: %w", block.Block.Height, err)
+		}
+
+		formattedBlock, err := b.RPCBlockFromTendermintBlock(block, blockRes, fullTx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to format block at height %d: %w", block.Block.Height, err)
+		}
+		blocks = append(blocks, formattedBlock)
+	}
+
+	return blocks, nil
 }
 
 // GetBlockTransactionCountByHash returns the number of Ethereum transactions in
@@ -353,6 +417,7 @@ func (b *Backend) BlockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.
 				return ethtypes.BytesToBloom([]byte(attr.Value)), nil
 			}
 		}
+
 	}
 	return ethtypes.Bloom{}, errors.New("block bloom event is not found")
 }

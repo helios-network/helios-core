@@ -1,0 +1,18 @@
+syntax = "proto3";
+package helios.chronos.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "helios-core/helios-chain/x/chronos/types";
+
+// Defines the parameters for the cron module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+
+  // Gas cost per block for actives crons
+  uint64 cron_active_gas_cost_per_block = 1;
+
+  // maximum executions per block
+  uint64 executions_limit_per_block = 2;
+
+}

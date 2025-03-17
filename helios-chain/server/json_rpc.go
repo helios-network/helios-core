@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package server
 
 import (
@@ -10,11 +8,14 @@ import (
 	"github.com/rs/cors"
 
 	"helios-core/helios-chain/rpc"
+	"helios-core/helios-chain/rpc/backend"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
+
+	"helios-core/helios-chain/rpc/namespaces/ethereum/eth"
 
 	svrconfig "helios-core/helios-chain/server/config"
 	evmostypes "helios-core/helios-chain/types"
@@ -50,7 +51,19 @@ func StartJSONRPC(ctx *server.Context,
 
 	apis := rpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, indexer, rpcAPIArr)
 
+	r := mux.NewRouter()
+
 	for _, api := range apis {
+		//////////////////////////////
+		// Swagger for rpc 8545 eth_
+		//////////////////////////////
+		if api.Namespace == "eth" {
+			apiService, ok := api.Service.(*eth.PublicAPI)
+			if ok {
+				generateSwagger(ctx, apiService, r, config)
+			}
+		}
+		//////////////////////////////
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {
 			ctx.Logger.Error(
 				"failed to register service in JSON RPC namespace",
@@ -61,7 +74,6 @@ func StartJSONRPC(ctx *server.Context,
 		}
 	}
 
-	r := mux.NewRouter()
 	r.HandleFunc("/", rpcServer.ServeHTTP).Methods("POST")
 
 	handlerWithCors := cors.Default()
@@ -109,7 +121,8 @@ func StartJSONRPC(ctx *server.Context,
 
 	// allocate separate WS connection to Tendermint
 	tmWsClient = ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
-	wsSrv := rpc.NewWebsocketsServer(clientCtx, ctx.Logger, tmWsClient, config)
+	backend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer)
+	wsSrv := rpc.NewWebsocketsServer(clientCtx, ctx.Logger, tmWsClient, config, backend)
 	wsSrv.Start()
 	return httpSrv, httpSrvDone, nil
 }

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -10,12 +7,14 @@ import (
 
 	bankprecompile "helios-core/helios-chain/precompiles/bank"
 	"helios-core/helios-chain/precompiles/bech32"
+	"helios-core/helios-chain/precompiles/chronos"
 	distprecompile "helios-core/helios-chain/precompiles/distribution"
 	"helios-core/helios-chain/precompiles/erc20creator"
 	govprecompile "helios-core/helios-chain/precompiles/gov"
 	ics20precompile "helios-core/helios-chain/precompiles/ics20"
 	"helios-core/helios-chain/precompiles/p256"
 	stakingprecompile "helios-core/helios-chain/precompiles/staking"
+	chronosKeeper "helios-core/helios-chain/x/chronos/keeper"
 	erc20Keeper "helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/types"
@@ -43,6 +42,7 @@ func NewAvailableStaticPrecompiles(
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
+	chronosKeeper chronosKeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -60,7 +60,12 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate erc20Creator precompile: %w", err))
 	}
 
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
+	chronosPrecompile, err := chronos.NewPrecompile(chronosKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
+	}
+
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}
@@ -105,6 +110,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
+	precompiles[chronosPrecompile.Address()] = chronosPrecompile
 	return precompiles
 }
 
