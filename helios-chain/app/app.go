@@ -389,7 +389,6 @@ func NewHeliosApp(
 	// load state streaming if enabled
 	if err := app.RegisterStreamingServices(appOpts, app.keys); err != nil {
 		panic("failed to load state streaming: " + err.Error())
-		os.Exit(1)
 	}
 
 	// initialize BaseApp
