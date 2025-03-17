@@ -25,12 +25,12 @@ In order to build from source you’ll need at least [Go 1.22+](https://golang.o
 
 ```bash
 # need to clone if you plan to run tests, and use Makefile
-$ git clone git@github.com:Helios-Chain-Labs/helios-core.git
+$ git clone git@github.com:helios-network/helios-core.git
 $ cd helios-core
 $ make install
 
 # or simply do this to fetch modules and build executables
-$ go install github.com/Helios-Chain-Labs/helios-core/cmd/...
+$ go install github.com/helios-network/helios-core/cmd/...
 ```
 ### Quick Setup
 The most convenient way to launch services is by running the setup script:
@@ -43,6 +43,12 @@ $ ./heliades.sh
 ```
 
 Voila! You have now successfully setup a full node on the Helios Chain.
+
+More Simply you can (it clean and setup and start node)
+```bash
+$ make install-full
+```
+
 
 ## Generating the module specification docs
 ```bash
