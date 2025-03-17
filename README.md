@@ -61,14 +61,7 @@ Then simply run the following command to auto-generate the Swagger UI docs.
 ```bash
 $ make proto-swagger-gen
 ```
-Then when you start the Helios Daemon, simply navigate to [http://localhost:10337/swagger/](http://localhost:10337/swagger/).
-
-## Generating Helios Chain API gRPC Typescript bindings
-
-```bash
-$ make gen
-```
-Then when you start the Helios Daemon, simply navigate to [http://localhost:10337/swagger/](http://localhost:10337/swagger/).
+Then when you start the Helios Daemon, simply navigate to [http://localhost:1317/docs](http://localhost:1317/docs).
 
 
 ## Maintenance
