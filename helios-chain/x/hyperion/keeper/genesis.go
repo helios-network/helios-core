@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 // NormalizeGenesis takes care of formatting in the internal structures, as they're used as values

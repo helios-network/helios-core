@@ -131,9 +131,6 @@ import (
 
 	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
-	hyperion "helios-core/helios-chain/modules/hyperion"
-	hyperionKeeper "helios-core/helios-chain/modules/hyperion/keeper"
-	hyperiontypes "helios-core/helios-chain/modules/hyperion/types"
 	"helios-core/helios-chain/modules/ocr"
 	ocrkeeper "helios-core/helios-chain/modules/ocr/keeper"
 	ocrtypes "helios-core/helios-chain/modules/ocr/types"
@@ -142,6 +139,9 @@ import (
 	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
+	hyperion "helios-core/helios-chain/x/hyperion"
+	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"

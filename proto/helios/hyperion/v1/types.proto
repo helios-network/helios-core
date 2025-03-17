@@ -1,7 +1,7 @@
 syntax = "proto3";
 package helios.hyperion.v1;
 import "gogoproto/gogo.proto";
-option go_package = "helios-core/helios-chain/modules/hyperion/types";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
 
 // BridgeValidator represents a validator's ETH address and its power
 message BridgeValidator {

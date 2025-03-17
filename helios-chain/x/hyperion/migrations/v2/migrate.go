@@ -5,8 +5,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"helios-core/helios-chain/modules/hyperion/exported"
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/exported"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 func Migrate(

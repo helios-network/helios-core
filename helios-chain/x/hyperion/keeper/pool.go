@@ -13,7 +13,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 // AddToOutgoingPool
@@ -66,7 +66,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	outgoing := &types.OutgoingTransferTx{
 		Id:          nextID,
 		Sender:      sender.String(),
-		HyperionId: hyperionId,
+		HyperionId:  hyperionId,
 		DestAddress: counterpartReceiver.Hex(),
 		Erc20Token:  types.NewSDKIntERC20Token(amount.Amount, tokenContract),
 		Erc20Fee:    erc20Fee,

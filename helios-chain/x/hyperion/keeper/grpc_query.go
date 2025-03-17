@@ -14,7 +14,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 var _ types.QueryServer = &Keeper{}
@@ -399,9 +399,9 @@ func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAll
 	res.UnbatchedTransfers = make([]*types.OutgoingTransferTx, 0)
 
 	for _, batch := range batches {
-		res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...) 
+		res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...)
 	}
-	res.UnbatchedTransfers = append(res.UnbatchedTransfers, unbatchedTx...) 
+	res.UnbatchedTransfers = append(res.UnbatchedTransfers, unbatchedTx...)
 
 	return res, nil
 }

@@ -7,12 +7,12 @@ import (
 
 	"cosmossdk.io/core/appmodule"
 
-	"helios-core/helios-chain/modules/hyperion/exported"
+	"helios-core/helios-chain/x/hyperion/exported"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"helios-core/helios-chain/modules/hyperion/keeper"
+	"helios-core/helios-chain/x/hyperion/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -20,8 +20,8 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"helios-core/helios-chain/modules/hyperion/client/cli"
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/client/cli"
+	"helios-core/helios-chain/x/hyperion/types"
 
 	// "github.com/cosmos/cosmos-sdk/x/gov/simulation"
 

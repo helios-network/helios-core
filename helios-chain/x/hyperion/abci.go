@@ -10,8 +10,8 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
-	"helios-core/helios-chain/modules/hyperion/keeper"
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/keeper"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 type BlockHandler struct {
@@ -167,7 +167,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 			// it will be skipped. The same will happen for every nonce after that.
 			fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx))
 			// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
-				h.k.TryAttestation(ctx, attestation)
+			h.k.TryAttestation(ctx, attestation)
 			// }
 		}
 	}

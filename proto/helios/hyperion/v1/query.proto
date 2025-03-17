@@ -11,7 +11,7 @@ import "helios/hyperion/v1/batch.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "helios-core/helios-chain/modules/hyperion/types";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
 
 // Query defines the gRPC querier service
 service Query {

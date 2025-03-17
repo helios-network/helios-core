@@ -4,7 +4,7 @@ package helios.hyperion.v1;
 import "helios/hyperion/v1/attestation.proto";
 // import "helios/hyperion/v1/types.proto";
 
-option go_package = "helios-core/helios-chain/modules/hyperion/types";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
 
 // OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH
 message OutgoingTxBatch {

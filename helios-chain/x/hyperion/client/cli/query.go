@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cliflags "helios-core/cli/flags"
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 func GetQueryCmd() *cobra.Command {

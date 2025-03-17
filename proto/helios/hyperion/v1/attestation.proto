@@ -6,7 +6,7 @@ package helios.hyperion.v1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 
-option go_package = "helios-core/helios-chain/modules/hyperion/types";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
 
 // ClaimType is the cosmos type of an event from the counterpart chain that can
 // be handled

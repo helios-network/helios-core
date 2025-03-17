@@ -71,8 +71,8 @@ import (
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
-	hyperionKeeper "helios-core/helios-chain/modules/hyperion/keeper"
-	"helios-core/helios-chain/modules/hyperion/types"
+	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
+	"helios-core/helios-chain/x/hyperion/types"
 
 	storemetrics "cosmossdk.io/store/metrics"
 )

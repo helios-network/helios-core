@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"helios-core/helios-chain/modules/hyperion/exported"
-	v2 "helios-core/helios-chain/modules/hyperion/migrations/v2"
+	"helios-core/helios-chain/x/hyperion/exported"
+	v2 "helios-core/helios-chain/x/hyperion/migrations/v2"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -18,7 +18,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cliflags "helios-core/cli/flags"
-	"helios-core/helios-chain/modules/hyperion/types"
+	"helios-core/helios-chain/x/hyperion/types"
 )
 
 func GetTxCmd(storeKey string) *cobra.Command {
@@ -114,7 +114,7 @@ func CmdSendToChain() *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "dest hypperionId")
 			}
-			
+
 			amount, err := sdk.ParseCoinsNormalized(args[2])
 			if err != nil {
 				return errors.Wrap(err, "amount")

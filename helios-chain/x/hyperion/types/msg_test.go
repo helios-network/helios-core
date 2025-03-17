@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	hyperiontypes "helios-core/helios-chain/modules/hyperion/types"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

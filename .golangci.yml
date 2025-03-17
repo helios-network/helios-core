@@ -38,4 +38,4 @@ issues:
 run:
   tests: false
   skip-dirs:
-    - helios-chain/modules/hyperion/testhyperion
+    - helios-chain/x/hyperion/testhyperion
