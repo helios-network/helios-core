@@ -13,8 +13,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"helios-core/helios-chain/x/tokenfactory/exported"
+
 	"cosmossdk.io/core/appmodule"
-	"helios-core/helios-chain/modules/tokenfactory/exported"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -24,9 +25,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"helios-core/helios-chain/modules/tokenfactory/client/cli"
-	tokenfactorykeeper "helios-core/helios-chain/modules/tokenfactory/keeper"
-	"helios-core/helios-chain/modules/tokenfactory/types"
+	"helios-core/helios-chain/x/tokenfactory/client/cli"
+	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
+	"helios-core/helios-chain/x/tokenfactory/types"
 )
 
 var (

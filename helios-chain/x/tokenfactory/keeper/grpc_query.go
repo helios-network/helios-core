@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"helios-core/helios-chain/modules/tokenfactory/types"
+	"helios-core/helios-chain/x/tokenfactory/types"
 )
 
 var _ types.QueryServer = Keeper{}

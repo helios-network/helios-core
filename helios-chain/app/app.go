@@ -131,14 +131,14 @@ import (
 
 	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
-	"helios-core/helios-chain/modules/tokenfactory"
-	tokenfactorykeeper "helios-core/helios-chain/modules/tokenfactory/keeper"
-	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
 	hyperion "helios-core/helios-chain/x/hyperion"
 	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
+	"helios-core/helios-chain/x/tokenfactory"
+	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
+	tokenfactorytypes "helios-core/helios-chain/x/tokenfactory/types"
 
 	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"

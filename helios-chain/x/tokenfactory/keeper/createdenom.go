@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"helios-core/helios-chain/modules/tokenfactory/types"
+	"helios-core/helios-chain/x/tokenfactory/types"
 )
 
 // createDenom creates a new denom in bank module after validating and charging creation fee

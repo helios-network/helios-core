@@ -14,7 +14,7 @@ for file in $(find "../sdk-go/chain/hyperion/types/" -type f); do
   }' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
 done
 
-cp helios-chain/modules/tokenfactory/types/*.go ../sdk-go/chain/tokenfactory/types/
+cp helios-chain/x/tokenfactory/types/*.go ../sdk-go/chain/tokenfactory/types/
 # Parcourir tous les fichiers du répertoire
 for file in $(find "../sdk-go/chain/tokenfactory/types/" -type f); do
   echo "Processing file: $file"

@@ -6,7 +6,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/bank/v1beta1/bank.proto";
 import "helios/tokenfactory/v1beta1/authorityMetadata.proto";
 
-option go_package = "helios-core/helios-chain/modules/tokenfactory/types";
+option go_package = "helios-core/helios-chain/x/tokenfactory/types";
 
 message EventCreateTFDenom {
   string account = 1;

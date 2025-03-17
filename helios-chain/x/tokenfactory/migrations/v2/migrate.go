@@ -5,8 +5,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
 
-	"helios-core/helios-chain/modules/tokenfactory/exported"
-	"helios-core/helios-chain/modules/tokenfactory/types"
+	"helios-core/helios-chain/x/tokenfactory/exported"
+	"helios-core/helios-chain/x/tokenfactory/types"
 )
 
 func Migrate(

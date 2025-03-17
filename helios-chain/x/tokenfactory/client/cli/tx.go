@@ -13,7 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// "github.com/cosmos/cosmos-sdk/client/flags"
-	"helios-core/helios-chain/modules/tokenfactory/types"
+	"helios-core/helios-chain/x/tokenfactory/types"
+
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 

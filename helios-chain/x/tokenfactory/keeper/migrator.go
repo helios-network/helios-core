@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"helios-core/helios-chain/modules/tokenfactory/exported"
-	v2 "helios-core/helios-chain/modules/tokenfactory/migrations/v2"
+	"helios-core/helios-chain/x/tokenfactory/exported"
+	v2 "helios-core/helios-chain/x/tokenfactory/migrations/v2"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
