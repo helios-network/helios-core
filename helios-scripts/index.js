@@ -6,7 +6,7 @@ const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
 const PRIVATE_KEY = '2c37c3d09d7a1c957f01ad200cec69bc287d0a9cc85b4dce694611a4c9c24036';
 
-const PRIVATE_KEY2 = 'e1ab51c450698b0af4722e074e39394bd99822f0b00f1a787a131b48c14d4483'
+const PRIVATE_KEY2 = '262d4b734eae5e891f226b43bd893a97449b9f4df793ac505001c03575100700'
 
 const PRIVATE_KEYS3 = '9eaba88611d3b24507fd077e609d18bed9b0e912f46b9f51f389905aad428875'
 const PUBLIC_KEY = '0x17267eB1FEC301848d4B5140eDDCFC48945427Ab'
@@ -421,7 +421,6 @@ async function getRewards() {
   }
 }
 
-
 const createValidatorAbi = [
   {
     "inputs": [
@@ -498,6 +497,11 @@ const createValidatorAbi = [
         "internalType": "uint256",
         "name": "value",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minDelegation",
+        "type": "uint256"
       }
     ],
     "name": "createValidator",
@@ -550,9 +554,10 @@ async function createValidator() {
       description,
       commissionRates,
       minSelfDelegation,
-      validatorAddress,
+      wallet2.address,
       pubkey,
-      value
+      value,
+      0
     );
     console.log("Tx envoyée. hash =", tx.hash);
 
@@ -722,14 +727,14 @@ async function redelegate() {
 async function main() {
   //await create();
   //await fetch();
-  await delegate();
+  //await delegate();
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
   //await undelegate();
   //await getRewards();
   
-  //await createValidator();
+  await createValidator();
   //await editValidator();
   //await redelegate();
  
