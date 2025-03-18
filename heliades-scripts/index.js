@@ -2,7 +2,7 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
-const RPC_URL = 'http://localhost:8545';
+const RPC_URL = 'http://testnet1.helioschainlabs.org:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
 const PRIVATE_KEY = 'da8b1967d390929c785c4da297682b55a2ee4fc02eceae1a1b2bf364d6b75288';
@@ -454,6 +454,53 @@ async function getRewards() {
   }
 }
 
+async function addCounterpartyChainParams() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('addCounterpartyChainParams en cours...');
+
+    const hyperionAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', hyperionAbi, wallet);
+    const tx = await contract.addCounterpartyChainParams(
+      10, // New HyperionId
+      "", // bridge contract hash
+      "0x316E330807488e168c526A694C03a494Ba714910", // bridge contract address
+      80002, // chainId
+      18947101 // start height
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la addCounterpartyChainParams :', error);
+  }
+}
+
+async function setOrchestratorAddresses() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('setOrchestratorAddresses en cours...');
+
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', chronosAbi, wallet);
+    const tx = await contract.setOrchestratorAddresses(
+      "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab",
+      "0x316E330807488e168c526A694C03a494Ba714910"
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la setOrchestratorAddresses :', error);
+  }
+}
+
 async function createCron() {
   console.log("wallet : ", wallet.address)
   try {
@@ -468,7 +515,7 @@ async function createCron() {
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
     const tx = await contract.createCron(
-      "0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F",
+      "0xa80799d619abafB179e843025571d7913bC00ce8",
       `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
       "increment", // methodName
       [], // params
@@ -512,7 +559,7 @@ async function cancelCron() {
 
 async function getEventsCronCreated() {
   const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
-  const wsProvider = new ethers.WebSocketProvider('ws://localhost:8546');
+  const wsProvider = new ethers.WebSocketProvider('ws://testnet1.helioschainlabs.org:8546');
   const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wsProvider);
 
   contract.on('CronCreated', (from, to, cronId, event) => {
@@ -595,7 +642,12 @@ async function main() {
   //await vote();
   // await undelegate();
 
+  // await getEventsCronCreated();
+
   // await getRewards();
+
+  // await setOrchestratorAddresses();
+  // await addCounterpartyChainParams();
   
 }
 

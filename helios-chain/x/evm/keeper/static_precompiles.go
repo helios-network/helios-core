@@ -11,6 +11,7 @@ import (
 	distprecompile "helios-core/helios-chain/precompiles/distribution"
 	"helios-core/helios-chain/precompiles/erc20creator"
 	govprecompile "helios-core/helios-chain/precompiles/gov"
+	"helios-core/helios-chain/precompiles/hyperion"
 	ics20precompile "helios-core/helios-chain/precompiles/ics20"
 	"helios-core/helios-chain/precompiles/p256"
 	stakingprecompile "helios-core/helios-chain/precompiles/staking"
@@ -18,6 +19,7 @@ import (
 	erc20Keeper "helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/types"
+	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
 	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 
@@ -43,6 +45,7 @@ func NewAvailableStaticPrecompiles(
 	channelKeeper channelkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	chronosKeeper chronosKeeper.Keeper,
+	hyperionKeeper hyperionKeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -61,6 +64,11 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	chronosPrecompile, err := chronos.NewPrecompile(chronosKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
+	}
+
+	hyperionPrecompile, err := hyperion.NewPrecompile(hyperionKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}
@@ -111,6 +119,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[chronosPrecompile.Address()] = chronosPrecompile
+	precompiles[hyperionPrecompile.Address()] = hyperionPrecompile
 	return precompiles
 }
 

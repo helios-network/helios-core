@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"cosmossdk.io/errors"
@@ -139,7 +140,6 @@ func DefaultPolygonAmoyTestnet02ChainParams() *CounterpartyChainParams {
 	}
 }
 
-
 func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    3,
@@ -164,11 +164,12 @@ func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
 	}
 }
 
-
 // ValidateBasic checks that the parameters have valid values.
 func (p Params) ValidateBasic() error {
 	for _, cp := range p.CounterpartyChainParams {
-		validateCounterpartyChainParams(cp)
+		if err := validateCounterpartyChainParams(*cp); err != nil {
+			return err
+		}
 	}
 	if err := validateAdmins(p.Admins); err != nil {
 		return errors.Wrap(err, "admins")
@@ -183,7 +184,12 @@ func (p Params) Equal(p2 Params) bool {
 	return bytes.Equal(bz1, bz2)
 }
 
+func (p CounterpartyChainParams) ValidateBasic() error {
+	return validateCounterpartyChainParams(p)
+}
+
 func validateCounterpartyChainParams(i interface{}) error {
+	fmt.Println(reflect.TypeOf(i))
 	v, ok := i.(CounterpartyChainParams)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -253,12 +259,9 @@ func validateCounterpartyChainParams(i interface{}) error {
 }
 
 func validateHyperionID(i interface{}) error {
-	v, ok := i.(string)
+	_, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	if _, err := strToFixByteArray(v); err != nil {
-		return err
 	}
 	return nil
 }

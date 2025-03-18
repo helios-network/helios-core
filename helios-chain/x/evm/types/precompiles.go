@@ -14,6 +14,7 @@ const (
 	GovPrecompileAddress          = "0x0000000000000000000000000000000000000805"
 	Erc20CreatorPrecompileAddress = "0x0000000000000000000000000000000000000806"
 	ChronosPrecompileAddress      = "0x0000000000000000000000000000000000000830"
+	HyperionPrecompileAddress     = "0x0000000000000000000000000000000000000900"
 )
 
 // AvailableStaticPrecompiles defines the full list of all available EVM extension addresses.
@@ -31,4 +32,5 @@ var AvailableStaticPrecompiles = []string{
 	GovPrecompileAddress,
 	Erc20CreatorPrecompileAddress,
 	ChronosPrecompileAddress,
+	HyperionPrecompileAddress,
 }

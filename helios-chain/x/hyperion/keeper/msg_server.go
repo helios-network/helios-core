@@ -93,6 +93,40 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 
 }
 
+func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgAddCounterpartyChainParams) (*types.MsgAddCounterpartyChainParamsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	k.Logger(ctx).Info("AddCounterpartyChainParams -1")
+	// todo check msg.orchestrator funds and pay the cost of AddCounterpartyChain to the fundation
+
+	if err := msg.CounterpartyChainParams.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	k.Logger(ctx).Info("AddCounterpartyChainParams 0")
+	params := k.GetParams(ctx)
+
+	k.Logger(ctx).Info("AddCounterpartyChainParams 1")
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.HyperionId == msg.CounterpartyChainParams.HyperionId {
+			return nil, errors.Wrap(types.ErrDuplicate, "HyperionId already exists")
+		}
+	}
+
+	k.Logger(ctx).Info("AddCounterpartyChainParams 2")
+
+	params.CounterpartyChainParams = append(params.CounterpartyChainParams, msg.CounterpartyChainParams)
+	k.SetParams(ctx, params)
+
+	k.Logger(ctx).Info("AddCounterpartyChainParams 3")
+
+	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
+}
+
 // ValsetConfirm handles MsgValsetConfirm
 func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm) (*types.MsgValsetConfirmResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)

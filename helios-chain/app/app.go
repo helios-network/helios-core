@@ -1085,6 +1085,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.IBCKeeper.ChannelKeeper,
 			app.GovKeeper,
 			app.ChronosKeeper,
+			app.HyperionKeeper,
 		),
 	)
 

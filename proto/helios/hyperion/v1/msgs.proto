@@ -55,6 +55,11 @@ service Msg {
         "/helios/hyperion/v1/submit_bad_signature_evidence";
   }
 
+  rpc AddCounterpartyChainParams(MsgAddCounterpartyChainParams)
+      returns (MsgAddCounterpartyChainParamsResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/add_counterparty_chain_params";
+  }
+
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
   // BlacklistEthereumAddresses adds Ethereum addresses to the hyperion blacklist.
@@ -293,6 +298,18 @@ message MsgValsetUpdatedClaim {
 }
 
 message MsgValsetUpdatedClaimResponse {}
+
+message MsgAddCounterpartyChainParams {
+  option (amino.name) = "hyperion/MsgAddChainToParams";
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
+  // orchestrator is the address of the first orchestrator of the new chain
+  string orchestrator = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  CounterpartyChainParams counterparty_chain_params = 2;
+}
+
+message MsgAddCounterpartyChainParamsResponse {}
 
 message MsgUpdateParams {
   option (amino.name) = "hyperion/MsgUpdateParams";
