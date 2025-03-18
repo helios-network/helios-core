@@ -1,23 +1,25 @@
 # Gas Fee Estimation
 
-## Smart contract
+## Change direcoty to testing folder
+```shell
+cd heliades-scripts/gasFee
+```
 
-### Deploy contract
+## Deploy counter contract
 
 ```shell
+# optional
+rm -rf deployments 
+# deploy counter contract
 npx hardhat deploy --network helios
 ```
-
-### Test gas consumption
-
+## Create ERC20 token
 ```shell
-npx hardhat test test/counter-gas-helios.test.js --network helios
+node ./contracts/precompile/create.js
 ```
 
-## Pre compile
+## Test gas consumption
 
-TBD
-
-## Transfer HELIOS
-
-TBD
+```shell
+npx hardhat test test/gas-analysis-helios.test.js --network helios 
+```
