@@ -23,10 +23,10 @@
         }
       },
       {
-        "url": "./tmp-swagger-gen/helios/peggy/v1/query.swagger.json",
+        "url": "./tmp-swagger-gen/helios/hyperion/v1/query.swagger.json",
         "operationIds": {
           "rename": {
-            "Params": "PeggyParams"
+            "Params": "HyperionParams"
           }
         }
       },

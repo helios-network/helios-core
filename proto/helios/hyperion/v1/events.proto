@@ -1,0 +1,159 @@
+syntax = "proto3";
+package helios.hyperion.v1;
+
+import "gogoproto/gogo.proto";
+import "helios/hyperion/v1/attestation.proto";
+import "helios/hyperion/v1/types.proto";
+
+option go_package = "helios-core/helios-chain/x/hyperion/types";
+
+message EventAttestationObserved {
+  ClaimType attestation_type = 1;
+  string bridge_contract = 2;
+  uint64 bridge_chain_id = 3;
+  bytes attestation_id = 4;
+  uint64 nonce = 5;
+}
+
+message EventBridgeWithdrawCanceled {
+  string bridge_contract = 1;
+  uint64 bridge_chain_id = 2;
+}
+
+message EventOutgoingBatch {
+  uint64 hyperion_id = 1;
+  string denom = 2;
+  string orchestrator_address = 3;
+  uint64 batch_nonce = 4;
+  uint64 batch_timeout = 5;
+  repeated uint64 batch_tx_ids = 6;
+}
+
+message EventOutgoingBatchCanceled {
+  uint64 hyperion_id = 1;
+  string bridge_contract = 2;
+  uint64 bridge_chain_id = 3;
+  uint64 batch_id = 4;
+  uint64 nonce = 5;
+}
+
+message EventValsetUpdateRequest {
+  uint64 hyperion_id = 1;
+  uint64 valset_nonce = 2;
+  uint64 valset_height = 3;
+  repeated BridgeValidator valset_members = 4;
+  string reward_amount = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string reward_token = 6;
+}
+message EventSetOrchestratorAddresses {
+  string validator_address = 1;
+  string orchestrator_address = 2;
+  string operator_eth_address = 3;
+}
+
+message EventValsetConfirm {
+  uint64 hyperion_id = 1;
+  uint64 valset_nonce = 2;
+  string orchestrator_address = 3;
+}
+
+message EventSendToChain {
+  uint64 hyperion_id = 1;
+  uint64 outgoing_tx_id = 2;
+  string sender = 3;
+  string receiver = 4;
+  string amount = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+
+  string bridge_fee = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventConfirmBatch {
+  uint64 hyperion_id = 1;
+  uint64 batch_nonce = 2;
+  string orchestrator_address = 3;
+}
+
+message EventAttestationVote {
+  uint64 event_nonce = 1;
+  bytes attestation_id = 2;
+  string voter = 3;
+}
+
+message EventDepositClaim {
+  uint64 hyperion_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  string ethereum_sender = 5;
+  string cosmos_receiver = 6;
+  string token_contract = 7;
+  string amount = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string orchestrator_address = 9;
+  string data = 10;
+}
+
+message EventWithdrawClaim {
+  uint64 hyperion_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  uint64 batch_nonce = 5;
+  string token_contract = 6;
+  string orchestrator_address = 7;
+}
+
+message EventERC20DeployedClaim {
+  uint64 hyperion_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  string cosmos_denom = 5;
+  string token_contract = 6;
+  string name = 7;
+  string symbol = 8;
+  uint64 decimals = 9;
+  string orchestrator_address = 10;
+}
+
+message EventValsetUpdateClaim {
+  uint64 hyperion_id = 1;
+  uint64 event_nonce = 2;
+  uint64 event_height = 3;
+  bytes attestation_id = 4;
+  uint64 valset_nonce = 5;
+  repeated BridgeValidator valset_members = 6;
+  string reward_amount = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string reward_token = 8;
+  string orchestrator_address = 9;
+}
+
+message EventCancelSendToChain { uint64 outgoing_tx_id = 1; }
+
+message EventSubmitBadSignatureEvidence {
+  string bad_eth_signature = 1;
+  string bad_eth_signature_subject = 2;
+}
+
+message EventValidatorSlash {
+  uint64 hyperion_id = 1;
+  int64 power = 2;
+  string reason = 3;
+  string consensus_address = 4;
+  string operator_address = 5;
+  string moniker = 6;
+}

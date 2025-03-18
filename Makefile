@@ -87,7 +87,7 @@ mock: tests/mocks.go
 	go install github.com/golang/mock/mockgen
 	go generate ./tests/...
 
-PKGS_TO_COVER := $(shell go list ./helios-chain/modules/exchange | paste -sd "," -)
+# PKGS_TO_COVER := $(shell go list ./helios-chain/modules/exchange | paste -sd "," -)
 
 deploy:
 	./deploy_contracts.sh
@@ -101,13 +101,35 @@ test-full:
 
 test: export GOPROXY=direct
 test:
-	go install github.com/onsi/ginkgo/ginkgo@latest
-	ginkgo -r --race --randomizeSuites --randomizeAllSpecs --coverpkg=$(PKGS_TO_COVER) ./...
+	go test ./helios-chain/...
 
-test-erc20bridge:
-	@go test -v ./helios-chain/modules/erc20bridge/...
-test-exchange:
-	@go test -v ./helios-chain/modules/exchange/...
+test-with-ginko:
+	go install github.com/onsi/ginkgo/ginkgo@latest
+	ginkgo -r --race --randomizeSuites --randomizeAllSpecs ./...
+
+test-chronos:
+	@go test -v ./helios-chain/x/chronos/...
+test-epochs:
+	@go test -v ./helios-chain/x/epochs/...
+test-erc20:
+	@go test -v ./helios-chain/x/erc20/...
+test-evm:
+	@go test -v ./helios-chain/x/evm/...
+test-feemarket:
+	@go test -v ./helios-chain/x/feemarket/...
+test-hyperion:
+	@go test -v ./helios-chain/x/hyperion/...
+test-ibc:
+	@go test -v ./helios-chain/x/ibc/...
+test-inflation:
+	@go test -v ./helios-chain/x/inflation/...
+test-staking:
+	@go test -v ./helios-chain/x/staking/...
+test-tokenfactory:
+	@go test -v ./helios-chain/x/tokenfactory/...
+test-vesting:
+	@go test -v ./helios-chain/x/vesting/...
+
 test-unit:
 	@go test -v ./... $(PACKAGES)
 
@@ -161,6 +183,9 @@ proto: proto-format proto-gen proto-swagger-gen
 
 proto-gen:
 	@$(protoImage) sh ./scripts/protocgen.sh
+
+proto-gen-hyperion:
+	@$(protoImage) sh ./scripts/protocgen-hyperion.sh
 
 proto-gen-pulsar:
 	@$(protoImage) sh ./scripts/protocgen-pulsar.sh

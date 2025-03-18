@@ -5,31 +5,17 @@ import (
 	"fmt"
 	"os"
 
+	"helios-core/helios-chain/stream/types"
+
 	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/pubsub"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"helios-core/helios-chain/stream/types"
 )
 
 type Topic string
 
 const BankBalances = Topic("cosmos.bank.v1beta1.EventSetBalances")
-const SpotOrders = Topic("helios.exchange.v1beta1.EventNewSpotOrders")
-const DerivativeOrders = Topic("helios.exchange.v1beta1.EventNewDerivativeOrders")
-const OrderbookUpdate = Topic("helios.exchange.v1beta1.EventOrderbookUpdate")
-const BatchSpotExecution = Topic("helios.exchange.v1beta1.EventBatchSpotExecution")
-const BatchDerivativeExecution = Topic("helios.exchange.v1beta1.EventBatchDerivativeExecution")
-const SubaccountDeposit = Topic("helios.exchange.v1beta1.EventBatchDepositUpdate")
-const Position = Topic("helios.exchange.v1beta1.EventBatchDerivativePosition")
-const CoinbaseOracle = Topic("helios.oracle.v1beta1.SetCoinbasePriceEvent")
-const PythOracle = Topic("helios.oracle.v1beta1.EventSetPythPrices")
-const BandIBCOracle = Topic("helios.oracle.v1beta1.SetBandIBCPriceEvent")
-const ProviderOracle = Topic("helios.oracle.v1beta1.SetProviderPriceEvent")
-const PriceFeedOracle = Topic("helios.oracle.v1beta1.SetPriceFeedPriceEvent")
-const ConditionalDerivativeOrder = Topic("helios.exchange.v1beta1.EventNewConditionalDerivativeOrder")
-const CancelSpotOrders = Topic("helios.exchange.v1beta1.EventCancelSpotOrder")
-const CancelDerivativeOrders = Topic("helios.exchange.v1beta1.EventCancelDerivativeOrder")
 
 const StreamEvents = "stream.events"
 
@@ -139,21 +125,6 @@ func (e *Publisher) Stop() error {
 func (e *Publisher) registerHandlers() {
 	// Register events
 	e.RegisterEventHandler(BankBalances, handleBankBalanceEvent)
-	e.RegisterEventHandler(SpotOrders, handleSpotOrderEvent)
-	e.RegisterEventHandler(DerivativeOrders, handleDerivativeOrderEvent)
-	e.RegisterEventHandler(OrderbookUpdate, handleOrderbookUpdateEvent)
-	e.RegisterEventHandler(SubaccountDeposit, handleSubaccountDepositEvent)
-	e.RegisterEventHandler(BatchSpotExecution, handleBatchSpotExecutionEvent)
-	e.RegisterEventHandler(BatchDerivativeExecution, handleBatchDerivativeExecutionEvent)
-	e.RegisterEventHandler(Position, handleBatchDerivativePositionEvent)
-	e.RegisterEventHandler(CoinbaseOracle, handleSetCoinbasePriceEvent)
-	e.RegisterEventHandler(ConditionalDerivativeOrder, handleConditionalDerivativeOrderEvent)
-	e.RegisterEventHandler(PythOracle, handleSetPythPricesEvent)
-	e.RegisterEventHandler(BandIBCOracle, handleSetBandIBCPricesEvent)
-	e.RegisterEventHandler(ProviderOracle, handleSetProviderPriceEvent)
-	e.RegisterEventHandler(PriceFeedOracle, handleSetPriceFeedPriceEvent)
-	e.RegisterEventHandler(CancelSpotOrders, handleCancelSpotOrderEvent)
-	e.RegisterEventHandler(CancelDerivativeOrders, handleCancelDerivativeOrderEvent)
 }
 
 func (e *Publisher) RegisterEventHandler(topic Topic, handler eventHandler) {

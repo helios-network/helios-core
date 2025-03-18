@@ -2373,7 +2373,344 @@ paths:
                       format: byte
       tags:
         - Query
-  /peggy/v1/attestation/{nonce}/{claim_hash}:
+  /hyperion/v1/all_pending_send_to_chain:
+    get:
+      operationId: GetAllPendingSendToChain
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              transfers_in_batches:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
+                    id:
+                      type: string
+                      format: uint64
+                    sender:
+                      type: string
+                    dest_address:
+                      type: string
+                    erc20_token:
+                      type: object
+                      properties:
+                        contract:
+                          type: string
+                        amount:
+                          type: string
+                      title: >-
+                        ERC20Token unique identifier for an Ethereum ERC20
+                        token.
+
+                        CONTRACT:
+
+                        The contract address on ETH of the token, this could be
+                        a Cosmos
+
+                        originated token, if so it will be the ERC20 address of
+                        the representation
+
+                        (note: developers should look up the token symbol using
+                        the address on ETH to
+
+                        display for UI)
+                    erc20_fee:
+                      type: object
+                      properties:
+                        contract:
+                          type: string
+                        amount:
+                          type: string
+                      title: >-
+                        ERC20Token unique identifier for an Ethereum ERC20
+                        token.
+
+                        CONTRACT:
+
+                        The contract address on ETH of the token, this could be
+                        a Cosmos
+
+                        originated token, if so it will be the ERC20 address of
+                        the representation
+
+                        (note: developers should look up the token symbol using
+                        the address on ETH to
+
+                        display for UI)
+                  title: >-
+                    OutgoingTransferTx represents an individual send from
+                    Hyperion to ETH
+              unbatched_transfers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
+                    id:
+                      type: string
+                      format: uint64
+                    sender:
+                      type: string
+                    dest_address:
+                      type: string
+                    erc20_token:
+                      type: object
+                      properties:
+                        contract:
+                          type: string
+                        amount:
+                          type: string
+                      title: >-
+                        ERC20Token unique identifier for an Ethereum ERC20
+                        token.
+
+                        CONTRACT:
+
+                        The contract address on ETH of the token, this could be
+                        a Cosmos
+
+                        originated token, if so it will be the ERC20 address of
+                        the representation
+
+                        (note: developers should look up the token symbol using
+                        the address on ETH to
+
+                        display for UI)
+                    erc20_fee:
+                      type: object
+                      properties:
+                        contract:
+                          type: string
+                        amount:
+                          type: string
+                      title: >-
+                        ERC20Token unique identifier for an Ethereum ERC20
+                        token.
+
+                        CONTRACT:
+
+                        The contract address on ETH of the token, this could be
+                        a Cosmos
+
+                        originated token, if so it will be the ERC20 address of
+                        the representation
+
+                        (note: developers should look up the token symbol using
+                        the address on ETH to
+
+                        display for UI)
+                  title: >-
+                    OutgoingTransferTx represents an individual send from
+                    Hyperion to ETH
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      tags:
+        - Query
+  /hyperion/v1/attestation/{nonce}/{claim_hash}:
     get:
       summary: attestation
       operationId: Attestation
@@ -2602,7 +2939,7 @@ paths:
 
                   EVENT_NONCE:
 
-                  EventNonce a nonce provided by the peggy contract that is
+                  EventNonce a nonce provided by the hyperion contract that is
                   unique per event
 
                   fired These event nonces must be relayed in order. This is a
@@ -2616,7 +2953,7 @@ paths:
                   Observed indicates that >67% of validators have attested to
                   the event,
 
-                  and that the event should be executed by the peggy state
+                  and that the event should be executed by the hyperion state
                   machine
         default:
           description: An unexpected error response.
@@ -2829,7 +3166,7 @@ paths:
           format: byte
       tags:
         - Query
-  /peggy/v1/batch:
+  /hyperion/v1/batch:
     get:
       operationId: BatchRequestByNonce
       responses:
@@ -2841,6 +3178,9 @@ paths:
               batch:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   batch_nonce:
                     type: string
                     format: uint64
@@ -2852,6 +3192,9 @@ paths:
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         id:
                           type: string
                           format: uint64
@@ -2907,7 +3250,7 @@ paths:
                             display for UI)
                       title: >-
                         OutgoingTransferTx represents an individual send from
-                        Peggy to ETH
+                        Hyperion to ETH
                   token_contract:
                     type: string
                   block:
@@ -2915,7 +3258,7 @@ paths:
                     format: uint64
                 title: >-
                   OutgoingTxBatch represents a batch of transactions going from
-                  Peggy to ETH
+                  Hyperion to ETH
         default:
           description: An unexpected error response.
           schema:
@@ -3115,6 +3458,11 @@ paths:
                           "value": "1.212s"
                         }
       parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
         - name: nonce
           in: query
           required: false
@@ -3126,7 +3474,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/batch/confirms:
+  /hyperion/v1/batch/confirms:
     get:
       operationId: BatchConfirms
       responses:
@@ -3140,6 +3488,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     nonce:
                       type: string
                       format: uint64
@@ -3372,6 +3723,11 @@ paths:
                           "value": "1.212s"
                         }
       parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
         - name: nonce
           in: query
           required: false
@@ -3383,7 +3739,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/batch/last:
+  /hyperion/v1/batch/last:
     get:
       operationId: LastPendingBatchRequestByAddr
       responses:
@@ -3395,6 +3751,9 @@ paths:
               batch:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   batch_nonce:
                     type: string
                     format: uint64
@@ -3406,6 +3765,9 @@ paths:
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         id:
                           type: string
                           format: uint64
@@ -3461,7 +3823,7 @@ paths:
                             display for UI)
                       title: >-
                         OutgoingTransferTx represents an individual send from
-                        Peggy to ETH
+                        Hyperion to ETH
                   token_contract:
                     type: string
                   block:
@@ -3469,7 +3831,7 @@ paths:
                     format: uint64
                 title: >-
                   OutgoingTxBatch represents a batch of transactions going from
-                  Peggy to ETH
+                  Hyperion to ETH
         default:
           description: An unexpected error response.
           schema:
@@ -3675,7 +4037,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/batch/outgoingtx:
+  /hyperion/v1/batch/outgoingtx:
     get:
       operationId: OutgoingTxBatches
       responses:
@@ -3689,6 +4051,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     batch_nonce:
                       type: string
                       format: uint64
@@ -3700,6 +4065,9 @@ paths:
                       items:
                         type: object
                         properties:
+                          hyperion_id:
+                            type: string
+                            format: uint64
                           id:
                             type: string
                             format: uint64
@@ -3755,7 +4123,7 @@ paths:
                               display for UI)
                         title: >-
                           OutgoingTransferTx represents an individual send from
-                          Peggy to ETH
+                          Hyperion to ETH
                     token_contract:
                       type: string
                     block:
@@ -3763,7 +4131,7 @@ paths:
                       format: uint64
                   title: >-
                     OutgoingTxBatch represents a batch of transactions going
-                    from Peggy to ETH
+                    from Hyperion to ETH
         default:
           description: An unexpected error response.
           schema:
@@ -3964,7 +4332,7 @@ paths:
                         }
       tags:
         - Query
-  /peggy/v1/batchfees:
+  /hyperion/v1/batchfees:
     get:
       operationId: BatchFees
       responses:
@@ -4182,7 +4550,7 @@ paths:
                         }
       tags:
         - Query
-  /peggy/v1/confirms/{nonce}:
+  /hyperion/v1/confirms/{nonce}:
     get:
       operationId: ValsetConfirmsByNonce
       responses:
@@ -4196,6 +4564,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     nonce:
                       type: string
                       format: uint64
@@ -4451,7 +4822,7 @@ paths:
           format: uint64
       tags:
         - Query
-  /peggy/v1/cosmos_originated/denom_to_erc20:
+  /hyperion/v1/cosmos_originated/denom_to_erc20:
     get:
       operationId: DenomToERC20
       responses:
@@ -4663,13 +5034,18 @@ paths:
                           "value": "1.212s"
                         }
       parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
         - name: denom
           in: query
           required: false
           type: string
       tags:
         - Query
-  /peggy/v1/cosmos_originated/erc20_to_denom:
+  /hyperion/v1/cosmos_originated/erc20_to_denom:
     get:
       operationId: ERC20ToDenom
       responses:
@@ -4881,15 +5257,20 @@ paths:
                           "value": "1.212s"
                         }
       parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
         - name: erc20
           in: query
           required: false
           type: string
       tags:
         - Query
-  /peggy/v1/missing_nonces:
+  /hyperion/v1/missing_nonces:
     get:
-      operationId: MissingPeggoNonces
+      operationId: MissingHyperionNonces
       responses:
         '200':
           description: A successful response.
@@ -5100,10 +5481,10 @@ paths:
                         }
       tags:
         - Query
-  /peggy/v1/module_state:
+  /hyperion/v1/module_state:
     get:
-      summary: Retrieves the entire peggy module's state
-      operationId: PeggyModuleState
+      summary: Retrieves the entire hyperion module's state
+      operationId: HyperionModuleState
       responses:
         '200':
           description: A successful response.
@@ -5116,76 +5497,82 @@ paths:
                   params:
                     type: object
                     properties:
-                      peggy_id:
-                        type: string
-                      contract_source_hash:
-                        type: string
-                      bridge_ethereum_address:
-                        type: string
-                      bridge_chain_id:
-                        type: string
-                        format: uint64
-                      signed_valsets_window:
-                        type: string
-                        format: uint64
-                      signed_batches_window:
-                        type: string
-                        format: uint64
-                      signed_claims_window:
-                        type: string
-                        format: uint64
-                      target_batch_timeout:
-                        type: string
-                        format: uint64
-                      average_block_time:
-                        type: string
-                        format: uint64
-                      average_ethereum_block_time:
-                        type: string
-                        format: uint64
-                      slash_fraction_valset:
-                        type: string
-                        format: byte
-                      slash_fraction_batch:
-                        type: string
-                        format: byte
-                      slash_fraction_claim:
-                        type: string
-                        format: byte
-                      slash_fraction_conflicting_claim:
-                        type: string
-                        format: byte
-                      unbond_slashing_valsets_window:
-                        type: string
-                        format: uint64
-                      slash_fraction_bad_eth_signature:
-                        type: string
-                        format: byte
-                      cosmos_coin_denom:
-                        type: string
-                      cosmos_coin_erc20_contract:
-                        type: string
-                      claim_slashing_enabled:
-                        type: boolean
-                      bridge_contract_start_height:
-                        type: string
-                        format: uint64
-                      valset_reward:
-                        type: object
-                        properties:
-                          denom:
-                            type: string
-                          amount:
-                            type: string
-                        description: >-
-                          Coin defines a token with a denomination and an
-                          amount.
+                      counterparty_chain_params:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            hyperion_id:
+                              type: string
+                              format: uint64
+                            contract_source_hash:
+                              type: string
+                            bridge_counterparty_address:
+                              type: string
+                            bridge_chain_id:
+                              type: string
+                              format: uint64
+                            signed_valsets_window:
+                              type: string
+                              format: uint64
+                            signed_batches_window:
+                              type: string
+                              format: uint64
+                            signed_claims_window:
+                              type: string
+                              format: uint64
+                            target_batch_timeout:
+                              type: string
+                              format: uint64
+                            average_block_time:
+                              type: string
+                              format: uint64
+                            average_counterparty_block_time:
+                              type: string
+                              format: uint64
+                            slash_fraction_valset:
+                              type: string
+                              format: byte
+                            slash_fraction_batch:
+                              type: string
+                              format: byte
+                            slash_fraction_claim:
+                              type: string
+                              format: byte
+                            slash_fraction_conflicting_claim:
+                              type: string
+                              format: byte
+                            unbond_slashing_valsets_window:
+                              type: string
+                              format: uint64
+                            slash_fraction_bad_eth_signature:
+                              type: string
+                              format: byte
+                            cosmos_coin_denom:
+                              type: string
+                            cosmos_coin_erc20_contract:
+                              type: string
+                            claim_slashing_enabled:
+                              type: boolean
+                            bridge_contract_start_height:
+                              type: string
+                              format: uint64
+                            valset_reward:
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                              description: >-
+                                Coin defines a token with a denomination and an
+                                amount.
 
 
-                          NOTE: The amount field is an Int which implements the
-                          custom method
+                                NOTE: The amount field is an Int which
+                                implements the custom method
 
-                          signatures required by gogoproto.
+                                signatures required by gogoproto.
                       admins:
                         type: array
                         items:
@@ -5198,6 +5585,9 @@ paths:
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         nonce:
                           type: string
                           format: uint64
@@ -5225,18 +5615,22 @@ paths:
                             the reward token in it's Ethereum hex address
                             representation
                       title: >-
-                        Valset is the Ethereum Bridge Multsig Set, each peggy
+                        Valset is the Ethereum Bridge Multsig Set, each hyperion
                         validator also
 
-                        maintains an ETH key to sign messages, these are used to
-                        check signatures on
+                        maintains an ETH key to sign messages for each
+                        counterparty chain, these are 
 
-                        ETH because of the significant gas savings
+                        used to check signatures on counterparty chain because
+                        of the significant gas savings
                   valset_confirms:
                     type: array
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         nonce:
                           type: string
                           format: uint64
@@ -5292,6 +5686,9 @@ paths:
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         batch_nonce:
                           type: string
                           format: uint64
@@ -5303,6 +5700,9 @@ paths:
                           items:
                             type: object
                             properties:
+                              hyperion_id:
+                                type: string
+                                format: uint64
                               id:
                                 type: string
                                 format: uint64
@@ -5358,7 +5758,7 @@ paths:
                                   display for UI)
                             title: >-
                               OutgoingTransferTx represents an individual send
-                              from Peggy to ETH
+                              from Hyperion to ETH
                         token_contract:
                           type: string
                         block:
@@ -5366,12 +5766,15 @@ paths:
                           format: uint64
                       title: >-
                         OutgoingTxBatch represents a batch of transactions going
-                        from Peggy to ETH
+                        from Hyperion to ETH
                   batch_confirms:
                     type: array
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         nonce:
                           type: string
                           format: uint64
@@ -5629,8 +6032,8 @@ paths:
 
                         EVENT_NONCE:
 
-                        EventNonce a nonce provided by the peggy contract that
-                        is unique per event
+                        EventNonce a nonce provided by the hyperion contract
+                        that is unique per event
 
                         fired These event nonces must be relayed in order. This
                         is a correctness
@@ -5643,8 +6046,8 @@ paths:
                         Observed indicates that >67% of validators have attested
                         to the event,
 
-                        and that the event should be executed by the peggy state
-                        machine
+                        and that the event should be executed by the hyperion
+                        state machine
                   orchestrator_addresses:
                     type: array
                     items:
@@ -5692,6 +6095,8 @@ paths:
                     items:
                       type: object
                       properties:
+                        chain_id:
+                          type: string
                         erc20:
                           type: string
                         denom:
@@ -5706,6 +6111,9 @@ paths:
                     items:
                       type: object
                       properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
                         id:
                           type: string
                           format: uint64
@@ -5761,7 +6169,7 @@ paths:
                             display for UI)
                       title: >-
                         OutgoingTransferTx represents an individual send from
-                        Peggy to ETH
+                        Hyperion to ETH
                   last_observed_ethereum_height:
                     type: string
                     format: uint64
@@ -5774,6 +6182,9 @@ paths:
                   last_observed_valset:
                     type: object
                     properties:
+                      hyperion_id:
+                        type: string
+                        format: uint64
                       nonce:
                         type: string
                         format: uint64
@@ -5801,13 +6212,14 @@ paths:
                           the reward token in it's Ethereum hex address
                           representation
                     title: >-
-                      Valset is the Ethereum Bridge Multsig Set, each peggy
+                      Valset is the Ethereum Bridge Multsig Set, each hyperion
                       validator also
 
-                      maintains an ETH key to sign messages, these are used to
-                      check signatures on
+                      maintains an ETH key to sign messages for each
+                      counterparty chain, these are 
 
-                      ETH because of the significant gas savings
+                      used to check signatures on counterparty chain because of
+                      the significant gas savings
                   ethereum_blacklist:
                     type: array
                     items:
@@ -5815,7 +6227,7 @@ paths:
                 title: GenesisState struct
             description: >-
               QueryModuleStateResponse is the response type for the
-              Query/PeggyModuleState
+              Query/HyperionModuleState
 
               RPC method.
         default:
@@ -6018,7 +6430,7 @@ paths:
                         }
       tags:
         - Query
-  /peggy/v1/oracle/event/{address}:
+  /hyperion/v1/oracle/event/{address}:
     get:
       summary: claim
       operationId: LastEventByAddr
@@ -6031,6 +6443,8 @@ paths:
               last_claim_event:
                 type: object
                 properties:
+                  chain_id:
+                    type: string
                   ethereum_event_nonce:
                     type: string
                     format: uint64
@@ -6243,10 +6657,10 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/params:
+  /hyperion/v1/params:
     get:
       summary: Deployments queries deployments
-      operationId: PeggyParams
+      operationId: HyperionParams
       responses:
         '200':
           description: A successful response.
@@ -6256,75 +6670,82 @@ paths:
               params:
                 type: object
                 properties:
-                  peggy_id:
-                    type: string
-                  contract_source_hash:
-                    type: string
-                  bridge_ethereum_address:
-                    type: string
-                  bridge_chain_id:
-                    type: string
-                    format: uint64
-                  signed_valsets_window:
-                    type: string
-                    format: uint64
-                  signed_batches_window:
-                    type: string
-                    format: uint64
-                  signed_claims_window:
-                    type: string
-                    format: uint64
-                  target_batch_timeout:
-                    type: string
-                    format: uint64
-                  average_block_time:
-                    type: string
-                    format: uint64
-                  average_ethereum_block_time:
-                    type: string
-                    format: uint64
-                  slash_fraction_valset:
-                    type: string
-                    format: byte
-                  slash_fraction_batch:
-                    type: string
-                    format: byte
-                  slash_fraction_claim:
-                    type: string
-                    format: byte
-                  slash_fraction_conflicting_claim:
-                    type: string
-                    format: byte
-                  unbond_slashing_valsets_window:
-                    type: string
-                    format: uint64
-                  slash_fraction_bad_eth_signature:
-                    type: string
-                    format: byte
-                  cosmos_coin_denom:
-                    type: string
-                  cosmos_coin_erc20_contract:
-                    type: string
-                  claim_slashing_enabled:
-                    type: boolean
-                  bridge_contract_start_height:
-                    type: string
-                    format: uint64
-                  valset_reward:
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a token with a denomination and an amount.
+                  counterparty_chain_params:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
+                        contract_source_hash:
+                          type: string
+                        bridge_counterparty_address:
+                          type: string
+                        bridge_chain_id:
+                          type: string
+                          format: uint64
+                        signed_valsets_window:
+                          type: string
+                          format: uint64
+                        signed_batches_window:
+                          type: string
+                          format: uint64
+                        signed_claims_window:
+                          type: string
+                          format: uint64
+                        target_batch_timeout:
+                          type: string
+                          format: uint64
+                        average_block_time:
+                          type: string
+                          format: uint64
+                        average_counterparty_block_time:
+                          type: string
+                          format: uint64
+                        slash_fraction_valset:
+                          type: string
+                          format: byte
+                        slash_fraction_batch:
+                          type: string
+                          format: byte
+                        slash_fraction_claim:
+                          type: string
+                          format: byte
+                        slash_fraction_conflicting_claim:
+                          type: string
+                          format: byte
+                        unbond_slashing_valsets_window:
+                          type: string
+                          format: uint64
+                        slash_fraction_bad_eth_signature:
+                          type: string
+                          format: byte
+                        cosmos_coin_denom:
+                          type: string
+                        cosmos_coin_erc20_contract:
+                          type: string
+                        claim_slashing_enabled:
+                          type: boolean
+                        bridge_contract_start_height:
+                          type: string
+                          format: uint64
+                        valset_reward:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
 
 
-                      NOTE: The amount field is an Int which implements the
-                      custom method
+                            NOTE: The amount field is an Int which implements
+                            the custom method
 
-                      signatures required by gogoproto.
+                            signatures required by gogoproto.
                   admins:
                     type: array
                     items:
@@ -6529,10 +6950,10 @@ paths:
                         }
       tags:
         - Query
-  /peggy/v1/pending_send_to_eth:
+  /hyperion/v1/pending_send_to_chain:
     get:
       summary: batch
-      operationId: GetPendingSendToEth
+      operationId: GetPendingSendToChain
       responses:
         '200':
           description: A successful response.
@@ -6544,6 +6965,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     id:
                       type: string
                       format: uint64
@@ -6598,13 +7022,16 @@ paths:
 
                         display for UI)
                   title: >-
-                    OutgoingTransferTx represents an individual send from Peggy
-                    to ETH
+                    OutgoingTransferTx represents an individual send from
+                    Hyperion to ETH
               unbatched_transfers:
                 type: array
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     id:
                       type: string
                       format: uint64
@@ -6659,8 +7086,8 @@ paths:
 
                         display for UI)
                   title: >-
-                    OutgoingTransferTx represents an individual send from Peggy
-                    to ETH
+                    OutgoingTransferTx represents an individual send from
+                    Hyperion to ETH
         default:
           description: An unexpected error response.
           schema:
@@ -6866,7 +7293,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/query_delegate_keys_by_eth:
+  /hyperion/v1/query_delegate_keys_by_eth:
     get:
       operationId: GetDelegateKeyByEth
       responses:
@@ -7084,7 +7511,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/query_delegate_keys_by_orchestrator:
+  /hyperion/v1/query_delegate_keys_by_orchestrator:
     get:
       operationId: GetDelegateKeyByOrchestrator
       responses:
@@ -7302,7 +7729,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/query_delegate_keys_by_validator:
+  /hyperion/v1/query_delegate_keys_by_validator:
     get:
       operationId: GetDelegateKeyByValidator
       responses:
@@ -7520,7 +7947,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/valset:
+  /hyperion/v1/valset:
     get:
       operationId: ValsetRequest
       responses:
@@ -7532,6 +7959,9 @@ paths:
               valset:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   nonce:
                     type: string
                     format: uint64
@@ -7559,13 +7989,14 @@ paths:
                       the reward token in it's Ethereum hex address
                       representation
                 title: >-
-                  Valset is the Ethereum Bridge Multsig Set, each peggy
+                  Valset is the Ethereum Bridge Multsig Set, each hyperion
                   validator also
 
-                  maintains an ETH key to sign messages, these are used to check
-                  signatures on
+                  maintains an ETH key to sign messages for each counterparty
+                  chain, these are 
 
-                  ETH because of the significant gas savings
+                  used to check signatures on counterparty chain because of the
+                  significant gas savings
         default:
           description: An unexpected error response.
           schema:
@@ -7772,7 +8203,7 @@ paths:
           format: uint64
       tags:
         - Query
-  /peggy/v1/valset/confirm:
+  /hyperion/v1/valset/confirm:
     get:
       operationId: ValsetConfirm
       responses:
@@ -7784,6 +8215,9 @@ paths:
               confirm:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   nonce:
                     type: string
                     format: uint64
@@ -8043,7 +8477,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/valset/current:
+  /hyperion/v1/valset/current:
     get:
       summary: valset
       operationId: CurrentValset
@@ -8056,6 +8490,9 @@ paths:
               valset:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   nonce:
                     type: string
                     format: uint64
@@ -8083,13 +8520,14 @@ paths:
                       the reward token in it's Ethereum hex address
                       representation
                 title: >-
-                  Valset is the Ethereum Bridge Multsig Set, each peggy
+                  Valset is the Ethereum Bridge Multsig Set, each hyperion
                   validator also
 
-                  maintains an ETH key to sign messages, these are used to check
-                  signatures on
+                  maintains an ETH key to sign messages for each counterparty
+                  chain, these are 
 
-                  ETH because of the significant gas savings
+                  used to check signatures on counterparty chain because of the
+                  significant gas savings
         default:
           description: An unexpected error response.
           schema:
@@ -8288,9 +8726,15 @@ paths:
                           "@type": "type.googleapis.com/google.protobuf.Duration",
                           "value": "1.212s"
                         }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
       tags:
         - Query
-  /peggy/v1/valset/last:
+  /hyperion/v1/valset/last:
     get:
       operationId: LastPendingValsetRequestByAddr
       responses:
@@ -8304,6 +8748,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     nonce:
                       type: string
                       format: uint64
@@ -8331,13 +8778,14 @@ paths:
                         the reward token in it's Ethereum hex address
                         representation
                   title: >-
-                    Valset is the Ethereum Bridge Multsig Set, each peggy
+                    Valset is the Ethereum Bridge Multsig Set, each hyperion
                     validator also
 
-                    maintains an ETH key to sign messages, these are used to
-                    check signatures on
+                    maintains an ETH key to sign messages for each counterparty
+                    chain, these are 
 
-                    ETH because of the significant gas savings
+                    used to check signatures on counterparty chain because of
+                    the significant gas savings
         default:
           description: An unexpected error response.
           schema:
@@ -8543,7 +8991,7 @@ paths:
           type: string
       tags:
         - Query
-  /peggy/v1/valset/requests:
+  /hyperion/v1/valset/requests:
     get:
       operationId: LastValsetRequests
       responses:
@@ -8557,6 +9005,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
                     nonce:
                       type: string
                       format: uint64
@@ -8584,13 +9035,14 @@ paths:
                         the reward token in it's Ethereum hex address
                         representation
                   title: >-
-                    Valset is the Ethereum Bridge Multsig Set, each peggy
+                    Valset is the Ethereum Bridge Multsig Set, each hyperion
                     validator also
 
-                    maintains an ETH key to sign messages, these are used to
-                    check signatures on
+                    maintains an ETH key to sign messages for each counterparty
+                    chain, these are 
 
-                    ETH because of the significant gas savings
+                    used to check signatures on counterparty chain because of
+                    the significant gas savings
         default:
           description: An unexpected error response.
           schema:
@@ -54719,7 +55171,7 @@ definitions:
 
       NOTE: The amount field is an Int which implements the custom method
       signatures required by gogoproto.
-  helios.peggy.v1.Attestation:
+  helios.hyperion.v1.Attestation:
     type: object
     properties:
       observed:
@@ -54920,7 +55372,8 @@ definitions:
 
       EVENT_NONCE:
 
-      EventNonce a nonce provided by the peggy contract that is unique per event
+      EventNonce a nonce provided by the hyperion contract that is unique per
+      event
 
       fired These event nonces must be relayed in order. This is a correctness
 
@@ -54930,15 +55383,15 @@ definitions:
 
       Observed indicates that >67% of validators have attested to the event,
 
-      and that the event should be executed by the peggy state machine
-  helios.peggy.v1.BatchFees:
+      and that the event should be executed by the hyperion state machine
+  helios.hyperion.v1.BatchFees:
     type: object
     properties:
       token:
         type: string
       total_fees:
         type: string
-  helios.peggy.v1.BridgeValidator:
+  helios.hyperion.v1.BridgeValidator:
     type: object
     properties:
       power:
@@ -54947,9 +55400,81 @@ definitions:
       ethereum_address:
         type: string
     title: BridgeValidator represents a validator's ETH address and its power
-  helios.peggy.v1.ERC20ToDenom:
+  helios.hyperion.v1.CounterpartyChainParams:
     type: object
     properties:
+      hyperion_id:
+        type: string
+        format: uint64
+      contract_source_hash:
+        type: string
+      bridge_counterparty_address:
+        type: string
+      bridge_chain_id:
+        type: string
+        format: uint64
+      signed_valsets_window:
+        type: string
+        format: uint64
+      signed_batches_window:
+        type: string
+        format: uint64
+      signed_claims_window:
+        type: string
+        format: uint64
+      target_batch_timeout:
+        type: string
+        format: uint64
+      average_block_time:
+        type: string
+        format: uint64
+      average_counterparty_block_time:
+        type: string
+        format: uint64
+      slash_fraction_valset:
+        type: string
+        format: byte
+      slash_fraction_batch:
+        type: string
+        format: byte
+      slash_fraction_claim:
+        type: string
+        format: byte
+      slash_fraction_conflicting_claim:
+        type: string
+        format: byte
+      unbond_slashing_valsets_window:
+        type: string
+        format: uint64
+      slash_fraction_bad_eth_signature:
+        type: string
+        format: byte
+      cosmos_coin_denom:
+        type: string
+      cosmos_coin_erc20_contract:
+        type: string
+      claim_slashing_enabled:
+        type: boolean
+      bridge_contract_start_height:
+        type: string
+        format: uint64
+      valset_reward:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+  helios.hyperion.v1.ERC20ToDenom:
+    type: object
+    properties:
+      chain_id:
+        type: string
       erc20:
         type: string
       denom:
@@ -54957,7 +55482,7 @@ definitions:
     title: |-
       This records the relationship between an ERC20 token and the denom
       of the corresponding Cosmos originated asset
-  helios.peggy.v1.ERC20Token:
+  helios.hyperion.v1.ERC20Token:
     type: object
     properties:
       contract:
@@ -54977,81 +55502,87 @@ definitions:
       to
 
       display for UI)
-  helios.peggy.v1.GenesisState:
+  helios.hyperion.v1.GenesisState:
     type: object
     properties:
       params:
         type: object
         properties:
-          peggy_id:
-            type: string
-          contract_source_hash:
-            type: string
-          bridge_ethereum_address:
-            type: string
-          bridge_chain_id:
-            type: string
-            format: uint64
-          signed_valsets_window:
-            type: string
-            format: uint64
-          signed_batches_window:
-            type: string
-            format: uint64
-          signed_claims_window:
-            type: string
-            format: uint64
-          target_batch_timeout:
-            type: string
-            format: uint64
-          average_block_time:
-            type: string
-            format: uint64
-          average_ethereum_block_time:
-            type: string
-            format: uint64
-          slash_fraction_valset:
-            type: string
-            format: byte
-          slash_fraction_batch:
-            type: string
-            format: byte
-          slash_fraction_claim:
-            type: string
-            format: byte
-          slash_fraction_conflicting_claim:
-            type: string
-            format: byte
-          unbond_slashing_valsets_window:
-            type: string
-            format: uint64
-          slash_fraction_bad_eth_signature:
-            type: string
-            format: byte
-          cosmos_coin_denom:
-            type: string
-          cosmos_coin_erc20_contract:
-            type: string
-          claim_slashing_enabled:
-            type: boolean
-          bridge_contract_start_height:
-            type: string
-            format: uint64
-          valset_reward:
-            type: object
-            properties:
-              denom:
-                type: string
-              amount:
-                type: string
-            description: >-
-              Coin defines a token with a denomination and an amount.
+          counterparty_chain_params:
+            type: array
+            items:
+              type: object
+              properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
+                contract_source_hash:
+                  type: string
+                bridge_counterparty_address:
+                  type: string
+                bridge_chain_id:
+                  type: string
+                  format: uint64
+                signed_valsets_window:
+                  type: string
+                  format: uint64
+                signed_batches_window:
+                  type: string
+                  format: uint64
+                signed_claims_window:
+                  type: string
+                  format: uint64
+                target_batch_timeout:
+                  type: string
+                  format: uint64
+                average_block_time:
+                  type: string
+                  format: uint64
+                average_counterparty_block_time:
+                  type: string
+                  format: uint64
+                slash_fraction_valset:
+                  type: string
+                  format: byte
+                slash_fraction_batch:
+                  type: string
+                  format: byte
+                slash_fraction_claim:
+                  type: string
+                  format: byte
+                slash_fraction_conflicting_claim:
+                  type: string
+                  format: byte
+                unbond_slashing_valsets_window:
+                  type: string
+                  format: uint64
+                slash_fraction_bad_eth_signature:
+                  type: string
+                  format: byte
+                cosmos_coin_denom:
+                  type: string
+                cosmos_coin_erc20_contract:
+                  type: string
+                claim_slashing_enabled:
+                  type: boolean
+                bridge_contract_start_height:
+                  type: string
+                  format: uint64
+                valset_reward:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
 
 
-              NOTE: The amount field is an Int which implements the custom
-              method
+                    NOTE: The amount field is an Int which implements the custom
+                    method
 
-              signatures required by gogoproto.
+                    signatures required by gogoproto.
           admins:
             type: array
             items:
@@ -55064,6 +55595,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -55089,17 +55623,22 @@ definitions:
               type: string
               title: the reward token in it's Ethereum hex address representation
           title: >-
-            Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+            Valset is the Ethereum Bridge Multsig Set, each hyperion validator
+            also
 
-            maintains an ETH key to sign messages, these are used to check
-            signatures on
+            maintains an ETH key to sign messages for each counterparty chain,
+            these are 
 
-            ETH because of the significant gas savings
+            used to check signatures on counterparty chain because of the
+            significant gas savings
       valset_confirms:
         type: array
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -55152,6 +55691,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             batch_nonce:
               type: string
               format: uint64
@@ -55163,6 +55705,9 @@ definitions:
               items:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   id:
                     type: string
                     format: uint64
@@ -55215,21 +55760,24 @@ definitions:
 
                       display for UI)
                 title: >-
-                  OutgoingTransferTx represents an individual send from Peggy to
-                  ETH
+                  OutgoingTransferTx represents an individual send from Hyperion
+                  to ETH
             token_contract:
               type: string
             block:
               type: string
               format: uint64
           title: >-
-            OutgoingTxBatch represents a batch of transactions going from Peggy
-            to ETH
+            OutgoingTxBatch represents a batch of transactions going from
+            Hyperion to ETH
       batch_confirms:
         type: array
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -55477,8 +56025,8 @@ definitions:
 
             EVENT_NONCE:
 
-            EventNonce a nonce provided by the peggy contract that is unique per
-            event
+            EventNonce a nonce provided by the hyperion contract that is unique
+            per event
 
             fired These event nonces must be relayed in order. This is a
             correctness
@@ -55491,7 +56039,7 @@ definitions:
             Observed indicates that >67% of validators have attested to the
             event,
 
-            and that the event should be executed by the peggy state machine
+            and that the event should be executed by the hyperion state machine
       orchestrator_addresses:
         type: array
         items:
@@ -55539,6 +56087,8 @@ definitions:
         items:
           type: object
           properties:
+            chain_id:
+              type: string
             erc20:
               type: string
             denom:
@@ -55551,6 +56101,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             id:
               type: string
               format: uint64
@@ -55600,7 +56153,9 @@ definitions:
                 address on ETH to
 
                 display for UI)
-          title: OutgoingTransferTx represents an individual send from Peggy to ETH
+          title: >-
+            OutgoingTransferTx represents an individual send from Hyperion to
+            ETH
       last_observed_ethereum_height:
         type: string
         format: uint64
@@ -55613,6 +56168,9 @@ definitions:
       last_observed_valset:
         type: object
         properties:
+          hyperion_id:
+            type: string
+            format: uint64
           nonce:
             type: string
             format: uint64
@@ -55638,20 +56196,24 @@ definitions:
             type: string
             title: the reward token in it's Ethereum hex address representation
         title: >-
-          Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+          Valset is the Ethereum Bridge Multsig Set, each hyperion validator
+          also
 
-          maintains an ETH key to sign messages, these are used to check
-          signatures on
+          maintains an ETH key to sign messages for each counterparty chain,
+          these are 
 
-          ETH because of the significant gas savings
+          used to check signatures on counterparty chain because of the
+          significant gas savings
       ethereum_blacklist:
         type: array
         items:
           type: string
     title: GenesisState struct
-  helios.peggy.v1.LastClaimEvent:
+  helios.hyperion.v1.LastClaimEvent:
     type: object
     properties:
+      chain_id:
+        type: string
       ethereum_event_nonce:
         type: string
         format: uint64
@@ -55659,16 +56221,19 @@ definitions:
         type: string
         format: uint64
     description: LastClaimEvent stores last claim event details of validator.
-  helios.peggy.v1.MissingNoncesResponse:
+  helios.hyperion.v1.MissingNoncesResponse:
     type: object
     properties:
       operator_addresses:
         type: array
         items:
           type: string
-  helios.peggy.v1.MsgConfirmBatch:
+  helios.hyperion.v1.MsgConfirmBatch:
     type: object
     properties:
+      hyperion_id:
+        type: string
+        format: uint64
       nonce:
         type: string
         format: uint64
@@ -55697,7 +56262,7 @@ definitions:
       as well as an Ethereum signature over this batch by the validator
 
       -------------
-  helios.peggy.v1.MsgSetOrchestratorAddresses:
+  helios.hyperion.v1.MsgSetOrchestratorAddresses:
     type: object
     properties:
       sender:
@@ -55720,9 +56285,12 @@ definitions:
       ETH_ADDRESS
       This is a hex encoded 0x Ethereum public key that will be used by this
       validator on Ethereum
-  helios.peggy.v1.MsgValsetConfirm:
+  helios.hyperion.v1.MsgValsetConfirm:
     type: object
     properties:
+      hyperion_id:
+        type: string
+        format: uint64
       nonce:
         type: string
         format: uint64
@@ -55763,9 +56331,12 @@ definitions:
       chain store and submit them to Ethereum to update the validator set
 
       -------------
-  helios.peggy.v1.OutgoingTransferTx:
+  helios.hyperion.v1.OutgoingTransferTx:
     type: object
     properties:
+      hyperion_id:
+        type: string
+        format: uint64
       id:
         type: string
         format: uint64
@@ -55815,10 +56386,13 @@ definitions:
           ETH to
 
           display for UI)
-    title: OutgoingTransferTx represents an individual send from Peggy to ETH
-  helios.peggy.v1.OutgoingTxBatch:
+    title: OutgoingTransferTx represents an individual send from Hyperion to ETH
+  helios.hyperion.v1.OutgoingTxBatch:
     type: object
     properties:
+      hyperion_id:
+        type: string
+        format: uint64
       batch_nonce:
         type: string
         format: uint64
@@ -55830,6 +56404,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             id:
               type: string
               format: uint64
@@ -55879,87 +56456,223 @@ definitions:
                 address on ETH to
 
                 display for UI)
-          title: OutgoingTransferTx represents an individual send from Peggy to ETH
+          title: >-
+            OutgoingTransferTx represents an individual send from Hyperion to
+            ETH
       token_contract:
         type: string
       block:
         type: string
         format: uint64
-    title: OutgoingTxBatch represents a batch of transactions going from Peggy to ETH
-  helios.peggy.v1.Params:
+    title: >-
+      OutgoingTxBatch represents a batch of transactions going from Hyperion to
+      ETH
+  helios.hyperion.v1.Params:
     type: object
     properties:
-      peggy_id:
-        type: string
-      contract_source_hash:
-        type: string
-      bridge_ethereum_address:
-        type: string
-      bridge_chain_id:
-        type: string
-        format: uint64
-      signed_valsets_window:
-        type: string
-        format: uint64
-      signed_batches_window:
-        type: string
-        format: uint64
-      signed_claims_window:
-        type: string
-        format: uint64
-      target_batch_timeout:
-        type: string
-        format: uint64
-      average_block_time:
-        type: string
-        format: uint64
-      average_ethereum_block_time:
-        type: string
-        format: uint64
-      slash_fraction_valset:
-        type: string
-        format: byte
-      slash_fraction_batch:
-        type: string
-        format: byte
-      slash_fraction_claim:
-        type: string
-        format: byte
-      slash_fraction_conflicting_claim:
-        type: string
-        format: byte
-      unbond_slashing_valsets_window:
-        type: string
-        format: uint64
-      slash_fraction_bad_eth_signature:
-        type: string
-        format: byte
-      cosmos_coin_denom:
-        type: string
-      cosmos_coin_erc20_contract:
-        type: string
-      claim_slashing_enabled:
-        type: boolean
-      bridge_contract_start_height:
-        type: string
-        format: uint64
-      valset_reward:
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          Coin defines a token with a denomination and an amount.
+      counterparty_chain_params:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            contract_source_hash:
+              type: string
+            bridge_counterparty_address:
+              type: string
+            bridge_chain_id:
+              type: string
+              format: uint64
+            signed_valsets_window:
+              type: string
+              format: uint64
+            signed_batches_window:
+              type: string
+              format: uint64
+            signed_claims_window:
+              type: string
+              format: uint64
+            target_batch_timeout:
+              type: string
+              format: uint64
+            average_block_time:
+              type: string
+              format: uint64
+            average_counterparty_block_time:
+              type: string
+              format: uint64
+            slash_fraction_valset:
+              type: string
+              format: byte
+            slash_fraction_batch:
+              type: string
+              format: byte
+            slash_fraction_claim:
+              type: string
+              format: byte
+            slash_fraction_conflicting_claim:
+              type: string
+              format: byte
+            unbond_slashing_valsets_window:
+              type: string
+              format: uint64
+            slash_fraction_bad_eth_signature:
+              type: string
+              format: byte
+            cosmos_coin_denom:
+              type: string
+            cosmos_coin_erc20_contract:
+              type: string
+            claim_slashing_enabled:
+              type: boolean
+            bridge_contract_start_height:
+              type: string
+              format: uint64
+            valset_reward:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
 
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
       admins:
         type: array
         items:
           type: string
-  helios.peggy.v1.QueryAttestationResponse:
+  helios.hyperion.v1.QueryAllPendingSendToChainResponse:
+    type: object
+    properties:
+      transfers_in_batches:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            id:
+              type: string
+              format: uint64
+            sender:
+              type: string
+            dest_address:
+              type: string
+            erc20_token:
+              type: object
+              properties:
+                contract:
+                  type: string
+                amount:
+                  type: string
+              title: >-
+                ERC20Token unique identifier for an Ethereum ERC20 token.
+
+                CONTRACT:
+
+                The contract address on ETH of the token, this could be a Cosmos
+
+                originated token, if so it will be the ERC20 address of the
+                representation
+
+                (note: developers should look up the token symbol using the
+                address on ETH to
+
+                display for UI)
+            erc20_fee:
+              type: object
+              properties:
+                contract:
+                  type: string
+                amount:
+                  type: string
+              title: >-
+                ERC20Token unique identifier for an Ethereum ERC20 token.
+
+                CONTRACT:
+
+                The contract address on ETH of the token, this could be a Cosmos
+
+                originated token, if so it will be the ERC20 address of the
+                representation
+
+                (note: developers should look up the token symbol using the
+                address on ETH to
+
+                display for UI)
+          title: >-
+            OutgoingTransferTx represents an individual send from Hyperion to
+            ETH
+      unbatched_transfers:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            id:
+              type: string
+              format: uint64
+            sender:
+              type: string
+            dest_address:
+              type: string
+            erc20_token:
+              type: object
+              properties:
+                contract:
+                  type: string
+                amount:
+                  type: string
+              title: >-
+                ERC20Token unique identifier for an Ethereum ERC20 token.
+
+                CONTRACT:
+
+                The contract address on ETH of the token, this could be a Cosmos
+
+                originated token, if so it will be the ERC20 address of the
+                representation
+
+                (note: developers should look up the token symbol using the
+                address on ETH to
+
+                display for UI)
+            erc20_fee:
+              type: object
+              properties:
+                contract:
+                  type: string
+                amount:
+                  type: string
+              title: >-
+                ERC20Token unique identifier for an Ethereum ERC20 token.
+
+                CONTRACT:
+
+                The contract address on ETH of the token, this could be a Cosmos
+
+                originated token, if so it will be the ERC20 address of the
+                representation
+
+                (note: developers should look up the token symbol using the
+                address on ETH to
+
+                display for UI)
+          title: >-
+            OutgoingTransferTx represents an individual send from Hyperion to
+            ETH
+  helios.hyperion.v1.QueryAttestationResponse:
     type: object
     properties:
       attestation:
@@ -56170,8 +56883,8 @@ definitions:
 
           EVENT_NONCE:
 
-          EventNonce a nonce provided by the peggy contract that is unique per
-          event
+          EventNonce a nonce provided by the hyperion contract that is unique
+          per event
 
           fired These event nonces must be relayed in order. This is a
           correctness
@@ -56183,8 +56896,8 @@ definitions:
 
           Observed indicates that >67% of validators have attested to the event,
 
-          and that the event should be executed by the peggy state machine
-  helios.peggy.v1.QueryBatchConfirmsResponse:
+          and that the event should be executed by the hyperion state machine
+  helios.hyperion.v1.QueryBatchConfirmsResponse:
     type: object
     properties:
       confirms:
@@ -56192,6 +56905,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -56224,7 +56940,7 @@ definitions:
             as well as an Ethereum signature over this batch by the validator
 
             -------------
-  helios.peggy.v1.QueryBatchFeeResponse:
+  helios.hyperion.v1.QueryBatchFeeResponse:
     type: object
     properties:
       batchFees:
@@ -56236,12 +56952,15 @@ definitions:
               type: string
             total_fees:
               type: string
-  helios.peggy.v1.QueryBatchRequestByNonceResponse:
+  helios.hyperion.v1.QueryBatchRequestByNonceResponse:
     type: object
     properties:
       batch:
         type: object
         properties:
+          hyperion_id:
+            type: string
+            format: uint64
           batch_nonce:
             type: string
             format: uint64
@@ -56253,6 +56972,9 @@ definitions:
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 id:
                   type: string
                   format: uint64
@@ -56305,22 +57027,25 @@ definitions:
 
                     display for UI)
               title: >-
-                OutgoingTransferTx represents an individual send from Peggy to
-                ETH
+                OutgoingTransferTx represents an individual send from Hyperion
+                to ETH
           token_contract:
             type: string
           block:
             type: string
             format: uint64
         title: >-
-          OutgoingTxBatch represents a batch of transactions going from Peggy to
-          ETH
-  helios.peggy.v1.QueryCurrentValsetResponse:
+          OutgoingTxBatch represents a batch of transactions going from Hyperion
+          to ETH
+  helios.hyperion.v1.QueryCurrentValsetResponse:
     type: object
     properties:
       valset:
         type: object
         properties:
+          hyperion_id:
+            type: string
+            format: uint64
           nonce:
             type: string
             format: uint64
@@ -56346,53 +57071,57 @@ definitions:
             type: string
             title: the reward token in it's Ethereum hex address representation
         title: >-
-          Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+          Valset is the Ethereum Bridge Multsig Set, each hyperion validator
+          also
 
-          maintains an ETH key to sign messages, these are used to check
-          signatures on
+          maintains an ETH key to sign messages for each counterparty chain,
+          these are 
 
-          ETH because of the significant gas savings
-  helios.peggy.v1.QueryDelegateKeysByEthAddressResponse:
+          used to check signatures on counterparty chain because of the
+          significant gas savings
+  helios.hyperion.v1.QueryDelegateKeysByEthAddressResponse:
     type: object
     properties:
       validator_address:
         type: string
       orchestrator_address:
         type: string
-  helios.peggy.v1.QueryDelegateKeysByOrchestratorAddressResponse:
+  helios.hyperion.v1.QueryDelegateKeysByOrchestratorAddressResponse:
     type: object
     properties:
       validator_address:
         type: string
       eth_address:
         type: string
-  helios.peggy.v1.QueryDelegateKeysByValidatorAddressResponse:
+  helios.hyperion.v1.QueryDelegateKeysByValidatorAddressResponse:
     type: object
     properties:
       eth_address:
         type: string
       orchestrator_address:
         type: string
-  helios.peggy.v1.QueryDenomToERC20Response:
+  helios.hyperion.v1.QueryDenomToERC20Response:
     type: object
     properties:
       erc20:
         type: string
       cosmos_originated:
         type: boolean
-  helios.peggy.v1.QueryERC20ToDenomResponse:
+  helios.hyperion.v1.QueryERC20ToDenomResponse:
     type: object
     properties:
       denom:
         type: string
       cosmos_originated:
         type: boolean
-  helios.peggy.v1.QueryLastEventByAddrResponse:
+  helios.hyperion.v1.QueryLastEventByAddrResponse:
     type: object
     properties:
       last_claim_event:
         type: object
         properties:
+          chain_id:
+            type: string
           ethereum_event_nonce:
             type: string
             format: uint64
@@ -56400,12 +57129,15 @@ definitions:
             type: string
             format: uint64
         description: LastClaimEvent stores last claim event details of validator.
-  helios.peggy.v1.QueryLastPendingBatchRequestByAddrResponse:
+  helios.hyperion.v1.QueryLastPendingBatchRequestByAddrResponse:
     type: object
     properties:
       batch:
         type: object
         properties:
+          hyperion_id:
+            type: string
+            format: uint64
           batch_nonce:
             type: string
             format: uint64
@@ -56417,6 +57149,9 @@ definitions:
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 id:
                   type: string
                   format: uint64
@@ -56469,17 +57204,17 @@ definitions:
 
                     display for UI)
               title: >-
-                OutgoingTransferTx represents an individual send from Peggy to
-                ETH
+                OutgoingTransferTx represents an individual send from Hyperion
+                to ETH
           token_contract:
             type: string
           block:
             type: string
             format: uint64
         title: >-
-          OutgoingTxBatch represents a batch of transactions going from Peggy to
-          ETH
-  helios.peggy.v1.QueryLastPendingValsetRequestByAddrResponse:
+          OutgoingTxBatch represents a batch of transactions going from Hyperion
+          to ETH
+  helios.hyperion.v1.QueryLastPendingValsetRequestByAddrResponse:
     type: object
     properties:
       valsets:
@@ -56487,6 +57222,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -56512,13 +57250,15 @@ definitions:
               type: string
               title: the reward token in it's Ethereum hex address representation
           title: >-
-            Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+            Valset is the Ethereum Bridge Multsig Set, each hyperion validator
+            also
 
-            maintains an ETH key to sign messages, these are used to check
-            signatures on
+            maintains an ETH key to sign messages for each counterparty chain,
+            these are 
 
-            ETH because of the significant gas savings
-  helios.peggy.v1.QueryLastValsetRequestsResponse:
+            used to check signatures on counterparty chain because of the
+            significant gas savings
+  helios.hyperion.v1.QueryLastValsetRequestsResponse:
     type: object
     properties:
       valsets:
@@ -56526,6 +57266,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -56551,13 +57294,15 @@ definitions:
               type: string
               title: the reward token in it's Ethereum hex address representation
           title: >-
-            Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+            Valset is the Ethereum Bridge Multsig Set, each hyperion validator
+            also
 
-            maintains an ETH key to sign messages, these are used to check
-            signatures on
+            maintains an ETH key to sign messages for each counterparty chain,
+            these are 
 
-            ETH because of the significant gas savings
-  helios.peggy.v1.QueryModuleStateResponse:
+            used to check signatures on counterparty chain because of the
+            significant gas savings
+  helios.hyperion.v1.QueryModuleStateResponse:
     type: object
     properties:
       state:
@@ -56566,75 +57311,81 @@ definitions:
           params:
             type: object
             properties:
-              peggy_id:
-                type: string
-              contract_source_hash:
-                type: string
-              bridge_ethereum_address:
-                type: string
-              bridge_chain_id:
-                type: string
-                format: uint64
-              signed_valsets_window:
-                type: string
-                format: uint64
-              signed_batches_window:
-                type: string
-                format: uint64
-              signed_claims_window:
-                type: string
-                format: uint64
-              target_batch_timeout:
-                type: string
-                format: uint64
-              average_block_time:
-                type: string
-                format: uint64
-              average_ethereum_block_time:
-                type: string
-                format: uint64
-              slash_fraction_valset:
-                type: string
-                format: byte
-              slash_fraction_batch:
-                type: string
-                format: byte
-              slash_fraction_claim:
-                type: string
-                format: byte
-              slash_fraction_conflicting_claim:
-                type: string
-                format: byte
-              unbond_slashing_valsets_window:
-                type: string
-                format: uint64
-              slash_fraction_bad_eth_signature:
-                type: string
-                format: byte
-              cosmos_coin_denom:
-                type: string
-              cosmos_coin_erc20_contract:
-                type: string
-              claim_slashing_enabled:
-                type: boolean
-              bridge_contract_start_height:
-                type: string
-                format: uint64
-              valset_reward:
-                type: object
-                properties:
-                  denom:
-                    type: string
-                  amount:
-                    type: string
-                description: >-
-                  Coin defines a token with a denomination and an amount.
+              counterparty_chain_params:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
+                    contract_source_hash:
+                      type: string
+                    bridge_counterparty_address:
+                      type: string
+                    bridge_chain_id:
+                      type: string
+                      format: uint64
+                    signed_valsets_window:
+                      type: string
+                      format: uint64
+                    signed_batches_window:
+                      type: string
+                      format: uint64
+                    signed_claims_window:
+                      type: string
+                      format: uint64
+                    target_batch_timeout:
+                      type: string
+                      format: uint64
+                    average_block_time:
+                      type: string
+                      format: uint64
+                    average_counterparty_block_time:
+                      type: string
+                      format: uint64
+                    slash_fraction_valset:
+                      type: string
+                      format: byte
+                    slash_fraction_batch:
+                      type: string
+                      format: byte
+                    slash_fraction_claim:
+                      type: string
+                      format: byte
+                    slash_fraction_conflicting_claim:
+                      type: string
+                      format: byte
+                    unbond_slashing_valsets_window:
+                      type: string
+                      format: uint64
+                    slash_fraction_bad_eth_signature:
+                      type: string
+                      format: byte
+                    cosmos_coin_denom:
+                      type: string
+                    cosmos_coin_erc20_contract:
+                      type: string
+                    claim_slashing_enabled:
+                      type: boolean
+                    bridge_contract_start_height:
+                      type: string
+                      format: uint64
+                    valset_reward:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
 
 
-                  NOTE: The amount field is an Int which implements the custom
-                  method
+                        NOTE: The amount field is an Int which implements the
+                        custom method
 
-                  signatures required by gogoproto.
+                        signatures required by gogoproto.
               admins:
                 type: array
                 items:
@@ -56647,6 +57398,9 @@ definitions:
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 nonce:
                   type: string
                   format: uint64
@@ -56672,18 +57426,22 @@ definitions:
                   type: string
                   title: the reward token in it's Ethereum hex address representation
               title: >-
-                Valset is the Ethereum Bridge Multsig Set, each peggy validator
-                also
+                Valset is the Ethereum Bridge Multsig Set, each hyperion
+                validator also
 
-                maintains an ETH key to sign messages, these are used to check
-                signatures on
+                maintains an ETH key to sign messages for each counterparty
+                chain, these are 
 
-                ETH because of the significant gas savings
+                used to check signatures on counterparty chain because of the
+                significant gas savings
           valset_confirms:
             type: array
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 nonce:
                   type: string
                   format: uint64
@@ -56738,6 +57496,9 @@ definitions:
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 batch_nonce:
                   type: string
                   format: uint64
@@ -56749,6 +57510,9 @@ definitions:
                   items:
                     type: object
                     properties:
+                      hyperion_id:
+                        type: string
+                        format: uint64
                       id:
                         type: string
                         format: uint64
@@ -56804,7 +57568,7 @@ definitions:
                           display for UI)
                     title: >-
                       OutgoingTransferTx represents an individual send from
-                      Peggy to ETH
+                      Hyperion to ETH
                 token_contract:
                   type: string
                 block:
@@ -56812,12 +57576,15 @@ definitions:
                   format: uint64
               title: >-
                 OutgoingTxBatch represents a batch of transactions going from
-                Peggy to ETH
+                Hyperion to ETH
           batch_confirms:
             type: array
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 nonce:
                   type: string
                   format: uint64
@@ -57072,8 +57839,8 @@ definitions:
 
                 EVENT_NONCE:
 
-                EventNonce a nonce provided by the peggy contract that is unique
-                per event
+                EventNonce a nonce provided by the hyperion contract that is
+                unique per event
 
                 fired These event nonces must be relayed in order. This is a
                 correctness
@@ -57086,7 +57853,8 @@ definitions:
                 Observed indicates that >67% of validators have attested to the
                 event,
 
-                and that the event should be executed by the peggy state machine
+                and that the event should be executed by the hyperion state
+                machine
           orchestrator_addresses:
             type: array
             items:
@@ -57134,6 +57902,8 @@ definitions:
             items:
               type: object
               properties:
+                chain_id:
+                  type: string
                 erc20:
                   type: string
                 denom:
@@ -57148,6 +57918,9 @@ definitions:
             items:
               type: object
               properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
                 id:
                   type: string
                   format: uint64
@@ -57200,8 +57973,8 @@ definitions:
 
                     display for UI)
               title: >-
-                OutgoingTransferTx represents an individual send from Peggy to
-                ETH
+                OutgoingTransferTx represents an individual send from Hyperion
+                to ETH
           last_observed_ethereum_height:
             type: string
             format: uint64
@@ -57214,6 +57987,9 @@ definitions:
           last_observed_valset:
             type: object
             properties:
+              hyperion_id:
+                type: string
+                format: uint64
               nonce:
                 type: string
                 format: uint64
@@ -57239,13 +58015,14 @@ definitions:
                 type: string
                 title: the reward token in it's Ethereum hex address representation
             title: >-
-              Valset is the Ethereum Bridge Multsig Set, each peggy validator
+              Valset is the Ethereum Bridge Multsig Set, each hyperion validator
               also
 
-              maintains an ETH key to sign messages, these are used to check
-              signatures on
+              maintains an ETH key to sign messages for each counterparty chain,
+              these are 
 
-              ETH because of the significant gas savings
+              used to check signatures on counterparty chain because of the
+              significant gas savings
           ethereum_blacklist:
             type: array
             items:
@@ -57253,10 +58030,10 @@ definitions:
         title: GenesisState struct
     description: >-
       QueryModuleStateResponse is the response type for the
-      Query/PeggyModuleState
+      Query/HyperionModuleState
 
       RPC method.
-  helios.peggy.v1.QueryOutgoingTxBatchesResponse:
+  helios.hyperion.v1.QueryOutgoingTxBatchesResponse:
     type: object
     properties:
       batches:
@@ -57264,6 +58041,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             batch_nonce:
               type: string
               format: uint64
@@ -57275,6 +58055,9 @@ definitions:
               items:
                 type: object
                 properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
                   id:
                     type: string
                     format: uint64
@@ -57327,96 +58110,102 @@ definitions:
 
                       display for UI)
                 title: >-
-                  OutgoingTransferTx represents an individual send from Peggy to
-                  ETH
+                  OutgoingTransferTx represents an individual send from Hyperion
+                  to ETH
             token_contract:
               type: string
             block:
               type: string
               format: uint64
           title: >-
-            OutgoingTxBatch represents a batch of transactions going from Peggy
-            to ETH
-  helios.peggy.v1.QueryParamsResponse:
+            OutgoingTxBatch represents a batch of transactions going from
+            Hyperion to ETH
+  helios.hyperion.v1.QueryParamsResponse:
     type: object
     properties:
       params:
         type: object
         properties:
-          peggy_id:
-            type: string
-          contract_source_hash:
-            type: string
-          bridge_ethereum_address:
-            type: string
-          bridge_chain_id:
-            type: string
-            format: uint64
-          signed_valsets_window:
-            type: string
-            format: uint64
-          signed_batches_window:
-            type: string
-            format: uint64
-          signed_claims_window:
-            type: string
-            format: uint64
-          target_batch_timeout:
-            type: string
-            format: uint64
-          average_block_time:
-            type: string
-            format: uint64
-          average_ethereum_block_time:
-            type: string
-            format: uint64
-          slash_fraction_valset:
-            type: string
-            format: byte
-          slash_fraction_batch:
-            type: string
-            format: byte
-          slash_fraction_claim:
-            type: string
-            format: byte
-          slash_fraction_conflicting_claim:
-            type: string
-            format: byte
-          unbond_slashing_valsets_window:
-            type: string
-            format: uint64
-          slash_fraction_bad_eth_signature:
-            type: string
-            format: byte
-          cosmos_coin_denom:
-            type: string
-          cosmos_coin_erc20_contract:
-            type: string
-          claim_slashing_enabled:
-            type: boolean
-          bridge_contract_start_height:
-            type: string
-            format: uint64
-          valset_reward:
-            type: object
-            properties:
-              denom:
-                type: string
-              amount:
-                type: string
-            description: >-
-              Coin defines a token with a denomination and an amount.
+          counterparty_chain_params:
+            type: array
+            items:
+              type: object
+              properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
+                contract_source_hash:
+                  type: string
+                bridge_counterparty_address:
+                  type: string
+                bridge_chain_id:
+                  type: string
+                  format: uint64
+                signed_valsets_window:
+                  type: string
+                  format: uint64
+                signed_batches_window:
+                  type: string
+                  format: uint64
+                signed_claims_window:
+                  type: string
+                  format: uint64
+                target_batch_timeout:
+                  type: string
+                  format: uint64
+                average_block_time:
+                  type: string
+                  format: uint64
+                average_counterparty_block_time:
+                  type: string
+                  format: uint64
+                slash_fraction_valset:
+                  type: string
+                  format: byte
+                slash_fraction_batch:
+                  type: string
+                  format: byte
+                slash_fraction_claim:
+                  type: string
+                  format: byte
+                slash_fraction_conflicting_claim:
+                  type: string
+                  format: byte
+                unbond_slashing_valsets_window:
+                  type: string
+                  format: uint64
+                slash_fraction_bad_eth_signature:
+                  type: string
+                  format: byte
+                cosmos_coin_denom:
+                  type: string
+                cosmos_coin_erc20_contract:
+                  type: string
+                claim_slashing_enabled:
+                  type: boolean
+                bridge_contract_start_height:
+                  type: string
+                  format: uint64
+                valset_reward:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
 
 
-              NOTE: The amount field is an Int which implements the custom
-              method
+                    NOTE: The amount field is an Int which implements the custom
+                    method
 
-              signatures required by gogoproto.
+                    signatures required by gogoproto.
           admins:
             type: array
             items:
               type: string
-  helios.peggy.v1.QueryPendingSendToEthResponse:
+  helios.hyperion.v1.QueryPendingSendToChainResponse:
     type: object
     properties:
       transfers_in_batches:
@@ -57424,6 +58213,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             id:
               type: string
               format: uint64
@@ -57473,12 +58265,17 @@ definitions:
                 address on ETH to
 
                 display for UI)
-          title: OutgoingTransferTx represents an individual send from Peggy to ETH
+          title: >-
+            OutgoingTransferTx represents an individual send from Hyperion to
+            ETH
       unbatched_transfers:
         type: array
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             id:
               type: string
               format: uint64
@@ -57528,13 +58325,18 @@ definitions:
                 address on ETH to
 
                 display for UI)
-          title: OutgoingTransferTx represents an individual send from Peggy to ETH
-  helios.peggy.v1.QueryValsetConfirmResponse:
+          title: >-
+            OutgoingTransferTx represents an individual send from Hyperion to
+            ETH
+  helios.hyperion.v1.QueryValsetConfirmResponse:
     type: object
     properties:
       confirm:
         type: object
         properties:
+          hyperion_id:
+            type: string
+            format: uint64
           nonce:
             type: string
             format: uint64
@@ -57582,7 +58384,7 @@ definitions:
           chain store and submit them to Ethereum to update the validator set
 
           -------------
-  helios.peggy.v1.QueryValsetConfirmsByNonceResponse:
+  helios.hyperion.v1.QueryValsetConfirmsByNonceResponse:
     type: object
     properties:
       confirms:
@@ -57590,6 +58392,9 @@ definitions:
         items:
           type: object
           properties:
+            hyperion_id:
+              type: string
+              format: uint64
             nonce:
               type: string
               format: uint64
@@ -57637,12 +58442,15 @@ definitions:
             chain store and submit them to Ethereum to update the validator set
 
             -------------
-  helios.peggy.v1.QueryValsetRequestResponse:
+  helios.hyperion.v1.QueryValsetRequestResponse:
     type: object
     properties:
       valset:
         type: object
         properties:
+          hyperion_id:
+            type: string
+            format: uint64
           nonce:
             type: string
             format: uint64
@@ -57668,15 +58476,20 @@ definitions:
             type: string
             title: the reward token in it's Ethereum hex address representation
         title: >-
-          Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+          Valset is the Ethereum Bridge Multsig Set, each hyperion validator
+          also
 
-          maintains an ETH key to sign messages, these are used to check
-          signatures on
+          maintains an ETH key to sign messages for each counterparty chain,
+          these are 
 
-          ETH because of the significant gas savings
-  helios.peggy.v1.Valset:
+          used to check signatures on counterparty chain because of the
+          significant gas savings
+  helios.hyperion.v1.Valset:
     type: object
     properties:
+      hyperion_id:
+        type: string
+        format: uint64
       nonce:
         type: string
         format: uint64
@@ -57700,12 +58513,13 @@ definitions:
         type: string
         title: the reward token in it's Ethereum hex address representation
     title: >-
-      Valset is the Ethereum Bridge Multsig Set, each peggy validator also
+      Valset is the Ethereum Bridge Multsig Set, each hyperion validator also
 
-      maintains an ETH key to sign messages, these are used to check signatures
-      on
+      maintains an ETH key to sign messages for each counterparty chain, these
+      are 
 
-      ETH because of the significant gas savings
+      used to check signatures on counterparty chain because of the significant
+      gas savings
   helios.tokenfactory.v1beta1.DenomAuthorityMetadata:
     type: object
     properties:

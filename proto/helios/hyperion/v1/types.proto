@@ -1,0 +1,52 @@
+syntax = "proto3";
+package helios.hyperion.v1;
+import "gogoproto/gogo.proto";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
+
+// BridgeValidator represents a validator's ETH address and its power
+message BridgeValidator {
+  uint64 power = 1;
+  string ethereum_address = 2;
+}
+
+// Valset is the Ethereum Bridge Multsig Set, each hyperion validator also
+// maintains an ETH key to sign messages for each counterparty chain, these are 
+// used to check signatures on counterparty chain because of the significant gas savings
+message Valset {
+  uint64 hyperion_id = 1;
+  uint64 nonce = 2;
+  repeated BridgeValidator members = 3;
+  uint64 height = 4;
+  string reward_amount = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // the reward token in it's Ethereum hex address representation
+  string reward_token = 6;
+}
+
+// LastObservedEthereumBlockHeight stores the last observed
+// Ethereum block height along with the Cosmos block height that
+// it was observed at. These two numbers can be used to project
+// outward and always produce batches with timeouts in the future
+// even if no Ethereum block height has been relayed for a long time
+message LastObservedEthereumBlockHeight {
+  string chain_id = 1;
+  uint64 cosmos_block_height = 2;
+  uint64 ethereum_block_height = 3;
+}
+
+// LastClaimEvent stores last claim event details of validator.
+message LastClaimEvent {
+  string chain_id = 1;
+  uint64 ethereum_event_nonce = 2;
+  uint64 ethereum_event_height = 3;
+}
+
+// This records the relationship between an ERC20 token and the denom
+// of the corresponding Cosmos originated asset
+message ERC20ToDenom {
+  string chain_id = 1;
+  string erc20 = 2;
+  string denom = 3;
+}

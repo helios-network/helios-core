@@ -245,6 +245,8 @@ func (s *PrecompileTestSuite) TestRun() {
 					0,
 					s.network.App.StakingKeeper.ValidatorAddressCodec(),
 					s.network.App.AccountKeeper.AddressCodec(),
+					"ahelios",
+					math.NewInt(0),
 				)
 				err = s.network.App.StakingKeeper.SetUnbondingDelegation(ctx, ubd)
 				s.Require().NoError(err, "failed to set unbonding delegation")
@@ -376,6 +378,8 @@ func (s *PrecompileTestSuite) TestRun() {
 					0,
 					s.network.App.StakingKeeper.ValidatorAddressCodec(),
 					s.network.App.AccountKeeper.AddressCodec(),
+					"ahelios",
+					math.NewInt(0),
 				)
 				err = s.network.App.StakingKeeper.SetUnbondingDelegation(ctx, ubd)
 				s.Require().NoError(err, "failed to set unbonding delegation")

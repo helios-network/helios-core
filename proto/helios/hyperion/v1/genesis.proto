@@ -1,0 +1,31 @@
+syntax = "proto3";
+package helios.hyperion.v1;
+
+import "gogoproto/gogo.proto";
+import "helios/hyperion/v1/types.proto";
+import "helios/hyperion/v1/msgs.proto";
+import "helios/hyperion/v1/batch.proto";
+import "helios/hyperion/v1/attestation.proto";
+import "helios/hyperion/v1/params.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "helios-core/helios-chain/x/hyperion/types";
+
+// GenesisState struct
+message GenesisState {
+  Params params = 1;
+  uint64 last_observed_nonce = 2;
+  repeated Valset valsets = 3;
+  repeated MsgValsetConfirm valset_confirms = 4;
+  repeated OutgoingTxBatch batches = 5;
+  repeated MsgConfirmBatch batch_confirms = 6;
+  repeated Attestation attestations = 7;
+  repeated MsgSetOrchestratorAddresses orchestrator_addresses = 8;
+  repeated ERC20ToDenom erc20_to_denoms = 9;
+  repeated OutgoingTransferTx unbatched_transfers = 10;
+  uint64 last_observed_ethereum_height = 11;
+  uint64 last_outgoing_batch_id = 12;
+  uint64 last_outgoing_pool_id = 13;
+  Valset last_observed_valset = 14 [ (gogoproto.nullable) = false ];
+  repeated string ethereum_blacklist = 15;
+}

@@ -9,7 +9,6 @@ rm -rf ~/.heliades
 # Define chain parameters
 CHAINID="4242"
 MONIKER="helios-main-node"
-
 # Initialize the chain with a moniker and chain ID
 heliades init $MONIKER --chain-id $CHAINID
 
@@ -50,7 +49,7 @@ done
 
 # Integrate accounts into the genesis block with specifical balance
 for key in "${KEYS[@]}"; do
-    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend="local") 1000000000000000000000ahelios --keyring-backend="local"
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend="local") 1000000000000000000000ahelios,1000000000000000000000hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498,1000000000000000000000hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8,1000000000000000000000000hyperion0xa2512e1f33020d34915124218edbec20901755b2 --keyring-backend="local"
 done
 
 echo "Signing genesis transaction"

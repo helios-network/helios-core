@@ -131,17 +131,14 @@ import (
 
 	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
-	"helios-core/helios-chain/modules/ocr"
-	ocrkeeper "helios-core/helios-chain/modules/ocr/keeper"
-	ocrtypes "helios-core/helios-chain/modules/ocr/types"
-	"helios-core/helios-chain/modules/peggy"
-	peggyKeeper "helios-core/helios-chain/modules/peggy/keeper"
-	peggytypes "helios-core/helios-chain/modules/peggy/types"
-	"helios-core/helios-chain/modules/tokenfactory"
-	tokenfactorykeeper "helios-core/helios-chain/modules/tokenfactory/keeper"
-	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
+	hyperion "helios-core/helios-chain/x/hyperion"
+	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
+	"helios-core/helios-chain/x/tokenfactory"
+	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
+	tokenfactorytypes "helios-core/helios-chain/x/tokenfactory/types"
 
 	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
@@ -158,6 +155,9 @@ import (
 	"helios-core/helios-chain/x/feemarket"
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+
+	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
+	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
 
 	srvflags "helios-core/helios-chain/server/flags"
 
@@ -242,8 +242,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		packetforward.AppModuleBasic{},
-		peggy.AppModuleBasic{},
-		ocr.AppModuleBasic{},
+		hyperion.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		chronos.AppModuleBasic{},
@@ -261,8 +260,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		ibcfeetypes.ModuleName:         nil,
-		peggytypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		ocrtypes.ModuleName:            nil,
+		hyperiontypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -273,8 +271,7 @@ var (
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
 		distrtypes.ModuleName:        true,
-		ocrtypes.ModuleName:          true,
-		peggytypes.ModuleName:        true,
+		hyperiontypes.ModuleName:     true,
 		tokenfactorytypes.ModuleName: true,
 	}
 )
@@ -312,8 +309,7 @@ type HeliosApp struct {
 
 	// helios keepers
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
-	PeggyKeeper        peggyKeeper.Keeper
-	OcrKeeper          ocrkeeper.Keeper
+	HyperionKeeper     hyperionKeeper.Keeper
 
 	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -341,6 +337,7 @@ type HeliosApp struct {
 	// ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
+	InflationKeeper inflationkeeper.Keeper
 
 	// Helios keepers
 	Erc20Keeper   erc20keeper.Keeper
@@ -392,7 +389,6 @@ func NewHeliosApp(
 	// load state streaming if enabled
 	if err := app.RegisterStreamingServices(appOpts, app.keys); err != nil {
 		panic("failed to load state streaming: " + err.Error())
-		os.Exit(1)
 	}
 
 	// initialize BaseApp
@@ -475,10 +471,10 @@ func initHeliosApp(
 			icahosttypes.StoreKey, ibcfeetypes.StoreKey, crisistypes.StoreKey,
 			consensustypes.StoreKey, packetforwardtypes.StoreKey,
 			// Helios keys
-			peggytypes.StoreKey,
-			ocrtypes.StoreKey,
+			hyperiontypes.StoreKey,
 			tokenfactorytypes.StoreKey,
 			epochstypes.StoreKey,
+			inflationtypes.StoreKey,
 			// Add missing EVM-related keys
 			evmtypes.StoreKey,
 			feemarkettypes.StoreKey,
@@ -490,7 +486,6 @@ func initHeliosApp(
 		tKeys = storetypes.NewTransientStoreKeys(
 			paramstypes.TStoreKey,
 			banktypes.TStoreKey,
-			ocrtypes.TStoreKey,
 			// Add missing EVM-related transient keys
 			evmtypes.TransientKey,
 			feemarkettypes.TransientKey,
@@ -900,28 +895,15 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
-	app.OcrKeeper = ocrkeeper.NewKeeper(
-		app.codec,
-		app.keys[ocrtypes.StoreKey],
-		app.tKeys[ocrtypes.TStoreKey],
-		app.BankKeeper,
-		authority,
-		app.AccountKeeper,
-	)
-
-	app.OcrKeeper.SetHooks(ocrtypes.NewMultiOcrHooks(
-		nil,
-	))
-
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		app.codec,
 		runtime.NewKVStoreService(app.keys[feegrant.StoreKey]),
 		&app.AccountKeeper,
 	)
 
-	app.PeggyKeeper = peggyKeeper.NewKeeper(
+	app.HyperionKeeper = hyperionKeeper.NewKeeper(
 		app.codec,
-		app.keys[peggytypes.StoreKey],
+		app.keys[hyperiontypes.StoreKey],
 		app.StakingKeeper,
 		app.BankKeeper,
 		app.SlashingKeeper,
@@ -941,7 +923,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
 		app.DistrKeeper.Hooks(),
 		app.SlashingKeeper.Hooks(),
-		app.PeggyKeeper.Hooks(),
+		app.HyperionKeeper.Hooks(),
 	))
 
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
@@ -1051,6 +1033,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
+	app.InflationKeeper = *inflationkeeper.NewKeeper(app.codec, app.keys[inflationtypes.StoreKey])
+
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
 	evmKeeper := evmkeeper.NewKeeper(
@@ -1101,6 +1085,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.IBCKeeper.ChannelKeeper,
 			app.GovKeeper,
 			app.ChronosKeeper,
+			app.HyperionKeeper,
 		),
 	)
 
@@ -1109,7 +1094,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
-		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
 		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper))
 
@@ -1169,8 +1153,7 @@ func (app *HeliosApp) initManagers() {
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Helios app modules
-		peggy.NewAppModule(app.PeggyKeeper, app.BankKeeper, app.GetSubspace(peggytypes.ModuleName)),
-		ocr.NewAppModule(app.OcrKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(ocrtypes.ModuleName)),
+		hyperion.NewAppModule(app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
@@ -1240,8 +1223,7 @@ func initParamsKeeper(
 
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	// helios subspaces
-	paramsKeeper.Subspace(peggytypes.ModuleName)
-	paramsKeeper.Subspace(ocrtypes.ModuleName)
+	paramsKeeper.Subspace(hyperiontypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 
 	// FIX: do we need a keytable?
@@ -1293,8 +1275,7 @@ func initGenesisOrder() []string {
 
 		// Helios modules
 		tokenfactorytypes.ModuleName,
-		peggytypes.ModuleName,
-		ocrtypes.ModuleName,
+		hyperiontypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,
@@ -1321,7 +1302,7 @@ func beginBlockerOrder() []string {
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
-		peggytypes.ModuleName,
+		hyperiontypes.ModuleName,
 		paramstypes.ModuleName,
 		authtypes.ModuleName,
 		crisistypes.ModuleName,
@@ -1339,7 +1320,6 @@ func beginBlockerOrder() []string {
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		ocrtypes.ModuleName,
 		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
 	}
@@ -1371,8 +1351,7 @@ func endBlockerOrder() []string {
 		evmtypes.ModuleName,
 		chronostypes.ModuleName,
 		feemarkettypes.ModuleName,
-		peggytypes.ModuleName,
-		ocrtypes.ModuleName,
+		hyperiontypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		banktypes.ModuleName,

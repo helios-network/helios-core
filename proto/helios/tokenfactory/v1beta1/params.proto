@@ -7,7 +7,7 @@ import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "amino/amino.proto";
 
-option go_package = "helios-core/helios-chain/modules/tokenfactory/types";
+option go_package = "helios-core/helios-chain/x/tokenfactory/types";
 
 // Params defines the parameters for the tokenfactory module.
 message Params {

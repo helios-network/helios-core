@@ -1,0 +1,74 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Hyperion",
+  "sourceName": "solidity/precompiles/hyperion/Hyperion.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "hyperionId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "string",
+          "name": "contractSourceHash",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "bridgeCounterpartyAddress",
+          "type": "string"
+        },
+        {
+          "internalType": "uint64",
+          "name": "bridgeChainId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "bridgeContractStartHeight",
+          "type": "uint64"
+        }
+      ],
+      "name": "addCounterpartyChainParams",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "orchestratorAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "hexHyperionContractAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setOrchestratorAddresses",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
