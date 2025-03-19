@@ -156,7 +156,8 @@ type EthereumAPI interface {
 	GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
 	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
-	GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
+	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -726,7 +727,12 @@ func (e *PublicAPI) GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, siz
 	return e.backend.GetAllCronTransactionsByPageAndSize(page, size)
 }
 
-func (e *PublicAPI) GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error) {
-	e.logger.Debug("eth_getBlockCronLogs", "blockNumber", blockNumber)
-	return e.backend.GetBlockCronLogs(blockNumber)
+func (e *PublicAPI) GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getAllCronTransactionReceiptsByBlockNumber", "height", blockNum.Int64())
+	return e.backend.GetAllCronTransactionReceiptsByBlockNumber(blockNum)
+}
+
+func (e *PublicAPI) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error) {
+	e.logger.Debug("eth_getBlockCronLogs", "height", blockNum.Int64())
+	return e.backend.GetBlockCronLogs(blockNum)
 }

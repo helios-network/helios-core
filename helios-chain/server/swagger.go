@@ -78,9 +78,9 @@ func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (s
 	case "<*rpc.DecimalOrHex Value>":
 		return "string", "0x1"
 	case "<*rpc.BlockNumber Value>":
-		return "number", 0
+		return "string", "latest"
 	case "<*types.BlockNumber Value>":
-		return "number", 0
+		return "string", "latest"
 	case "<*hexutil.Uint64 Value>":
 		return "string", "0x0"
 	case "<*uint64 Value>":

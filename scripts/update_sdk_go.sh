@@ -44,8 +44,8 @@
 # Fonction pour traiter les fichiers d'un type donné
 process_files() {
   local type=$1
-  local source_dir="helios-chain/x/$type/types/"
-  local dest_dir="../sdk-go/chain/$type/types"
+  local source_dir="helios-chain/x/$type/"
+  local dest_dir="../sdk-go/chain/$type"
 
   # Vérifier si le répertoire source existe
   if [ -d "$source_dir" ]; then
@@ -70,13 +70,13 @@ process_files() {
 cp -r proto/ ../sdk-go/proto
 
 current_dir=$(pwd)
-types=("chronos" "epochs" "erc20" "evm" "hyperion" "ibc/transfer" "inflation" "tokenfactory" "vesting")
+types=("chronos/types" "epochs/types" "erc20/types" "evm/types" "evm/statedb" "evm/core/vm" "hyperion/types" "ibc/transfer/types" "inflation/types" "tokenfactory/types" "vesting/types" "feemarket/types")
 
 for type in "${types[@]}"; do
 
   process_files "$type"
 
-  cd "../sdk-go/chain/$type/types/" || exit
+  cd "../sdk-go/chain/$type/" || exit
   rm -f *test.go
   rm -f *gw.go
   gsed -i "s/github.com\/Helios-Chain-Labs\/helios-core\/helios-chain\/x/github.com\/Helios-Chain-Labs\/sdk-go\/chain/g" *.go

@@ -22,8 +22,7 @@ interface HyperionI {
     ) external returns (bool success);
 
     function setOrchestratorAddresses(
-        address orchestratorAddress,
-        address hexHyperionContractAddress
+        address orchestratorAddress
     ) external returns (bool success);
 
 }

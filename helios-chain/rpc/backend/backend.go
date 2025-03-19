@@ -160,7 +160,8 @@ type EVMBackend interface {
 	GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
 	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
-	GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
+	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
 }
 
 var _ BackendI = (*Backend)(nil)

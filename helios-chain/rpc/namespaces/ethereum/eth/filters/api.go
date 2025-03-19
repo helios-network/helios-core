@@ -12,6 +12,8 @@ import (
 
 	"cosmossdk.io/log"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -45,7 +47,7 @@ type Backend interface {
 	GetLogs(blockHash common.Hash) ([][]*ethtypes.Log, error)
 	GetLogsByHeight(*int64) ([][]*ethtypes.Log, error)
 	BlockBloom(blockRes *coretypes.ResultBlockResults) (ethtypes.Bloom, error)
-	GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error)
+	GetBlockCronLogs(blockNumber rpctypes.BlockNumber) ([]*ethtypes.Log, error)
 
 	BloomStatus() (uint64, uint64)
 

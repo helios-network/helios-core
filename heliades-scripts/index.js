@@ -2,10 +2,10 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
-const RPC_URL = 'http://testnet1.helioschainlabs.org:8545';
+const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
-const PRIVATE_KEY = 'da8b1967d390929c785c4da297682b55a2ee4fc02eceae1a1b2bf364d6b75288';
+const PRIVATE_KEY = '2c37c3d09d7a1c957f01ad200cec69bc287d0a9cc85b4dce694611a4c9c24036';
 
 const PRIVATE_KEY2 = 'e1ab51c450698b0af4722e074e39394bd99822f0b00f1a787a131b48c14d4483'
 
@@ -462,11 +462,11 @@ async function addCounterpartyChainParams() {
     const hyperionAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', hyperionAbi, wallet);
     const tx = await contract.addCounterpartyChainParams(
-      10, // New HyperionId
+      20, // New HyperionId
       "", // bridge contract hash
-      "0x316E330807488e168c526A694C03a494Ba714910", // bridge contract address
+      "0x5b277BEdABe10520a13C78A07902811ad21432D1", // bridge contract address
       80002, // chainId
-      18947101 // start height
+      19367715 // start height
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -486,9 +486,8 @@ async function setOrchestratorAddresses() {
 
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', chronosAbi, wallet);
-    const tx = await contract.setOrchestratorAddresses(
-      "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab",
-      "0x316E330807488e168c526A694C03a494Ba714910"
+    const tx = await contract.setOrchestratorAddresses( // I'm validator and
+      "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab" // address of my hyperion Validator
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -629,7 +628,7 @@ async function getEvents() {
 }
 
 async function main() {
-  // await createCron();
+  await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();

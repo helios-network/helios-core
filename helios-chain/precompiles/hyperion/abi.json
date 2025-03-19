@@ -48,11 +48,6 @@
           "internalType": "address",
           "name": "orchestratorAddress",
           "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "hexHyperionContractAddress",
-          "type": "address"
         }
       ],
       "name": "setOrchestratorAddresses",

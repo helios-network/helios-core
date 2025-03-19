@@ -3,6 +3,8 @@ package backend
 import (
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 
+	rpctypes "helios-core/helios-chain/rpc/types"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -174,13 +176,54 @@ func (b *Backend) GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size 
 	return res.Transactions, nil
 }
 
-func (b *Backend) GetBlockCronLogs(blockNumber uint64) ([]*ethtypes.Log, error) {
+func (b *Backend) GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+
+	blockNumber := blockNum.TmHeight()
+
+	if blockNumber == nil {
+		block, err := b.TendermintBlockByNumber(blockNum)
+		if err != nil {
+			b.logger.Debug("block not found", "height", blockNum.Int64(), "error", err.Error())
+			return []*chronostypes.CronTransactionReceiptRPC{}, nil
+		}
+		if block.Block == nil {
+			b.logger.Debug("block not found", "height", blockNum.Int64())
+			return []*chronostypes.CronTransactionReceiptRPC{}, nil
+		}
+		blockNumber = &block.Block.Height
+	}
+
+	req := &chronostypes.QueryGetCronTransactionReceiptsByBlockNumberRequest{
+		BlockNumber: uint64(*blockNumber),
+	}
+	res, err := b.queryClient.Chronos.QueryGetCronTransactionReceiptsByBlockNumber(b.ctx, req)
+	if err != nil || res.Transactions == nil {
+		return []*chronostypes.CronTransactionReceiptRPC{}, err
+	}
+	return res.Transactions, nil
+}
+
+func (b *Backend) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error) {
+	unfiltered := make([]*ethtypes.Log, 0)
+	blockNumber := blockNum.TmHeight()
+
+	if blockNumber == nil {
+		block, err := b.TendermintBlockByNumber(blockNum)
+		if err != nil {
+			b.logger.Debug("block not found", "height", blockNum.Int64(), "error", err.Error())
+			return unfiltered, nil
+		}
+		if block.Block == nil {
+			b.logger.Debug("block not found", "height", blockNum.Int64())
+			return unfiltered, nil
+		}
+		blockNumber = &block.Block.Height
+	}
 
 	req := &chronostypes.QueryGetCronTransactionReceiptLogsByBlockNumberRequest{
-		BlockNumber: blockNumber,
+		BlockNumber: uint64(*blockNumber),
 	}
 	res, _ := b.queryClient.Chronos.QueryGetCronTransactionReceiptLogsByBlockNumber(b.ctx, req)
-	unfiltered := make([]*ethtypes.Log, 0)
 
 	for _, log := range res.Logs {
 		topics := make([]common.Hash, len(log.Topics))
