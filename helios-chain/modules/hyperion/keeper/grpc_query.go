@@ -145,7 +145,7 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 
 	var pendingBatchReq *types.OutgoingTxBatch
 	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) (stop bool) {
-		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr) != nil
+		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr, req.HyperionId) != nil
 		if !foundConfirm {
 			pendingBatchReq = batch
 			return true
@@ -159,6 +159,7 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 
 // OutgoingTxBatches queries the OutgoingTxBatches of the hyperion module
 func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTxBatchesRequest) (*types.QueryOutgoingTxBatchesResponse, error) {
+	log.Println("OutgoingTxBatches - hyperionId: ", req.HyperionId)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
@@ -192,11 +193,12 @@ func (k *Keeper) BatchRequestByNonce(c context.Context, req *types.QueryBatchReq
 
 // BatchConfirms returns the batch confirmations by nonce and token contract
 func (k *Keeper) BatchConfirms(c context.Context, req *types.QueryBatchConfirmsRequest) (*types.QueryBatchConfirmsResponse, error) {
+	log.Println("BatchConfirms - hyperionId: ", req.HyperionId)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
 	confirms := make([]*types.MsgConfirmBatch, 0)
-	k.IterateBatchConfirmByNonceAndTokenContract(sdk.UnwrapSDKContext(c), req.Nonce, common.HexToAddress(req.ContractAddress),
+	k.IterateBatchConfirmByNonceAndTokenContract(sdk.UnwrapSDKContext(c), req.Nonce, common.HexToAddress(req.ContractAddress), req.HyperionId,
 		func(_ []byte, batch *types.MsgConfirmBatch) (stop bool) {
 			confirms = append(confirms, batch)
 			return false

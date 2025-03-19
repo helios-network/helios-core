@@ -245,9 +245,10 @@ func GetOutgoingTxBatchBlockKey(block uint64) []byte {
 // prefix           eth-contract-address                BatchNonce                       Validator-address
 // [0xe1][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 1][cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 // TODO this should be a sdk.ValAddress
-func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validator sdk.AccAddress) []byte {
-	buf := make([]byte, 0, len(BatchConfirmKey)+ETHContractAddressLen+8+len(validator))
+func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validator sdk.AccAddress, hyperionId uint64) []byte {
+	buf := make([]byte, 0, len(BatchConfirmKey)+ETHContractAddressLen+8+len(validator)+len(UInt64Bytes(hyperionId)))
 	buf = append(buf, BatchConfirmKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, tokenContract.Bytes()...)
 	buf = append(buf, UInt64Bytes(batchNonce)...)
 	buf = append(buf, validator.Bytes()...)

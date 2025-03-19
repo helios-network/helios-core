@@ -283,7 +283,7 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, hyperionId uint64, cb
 	for ; iter.Valid(); iter.Next() {
 		var batch types.OutgoingTxBatch
 		k.cdc.MustUnmarshal(iter.Value(), &batch)
-		fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
+		// fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
 		// cb returns true to stop early
 		if cb(iter.Key(), &batch) {
 			break

@@ -417,12 +417,12 @@ func (k *Keeper) IterateValsetConfirmByNonce(ctx sdk.Context, nonce uint64, cb f
 /////////////////////////////
 
 // GetBatchConfirm returns a batch confirmation given its nonce, the token contract, and a validator address
-func (k *Keeper) GetBatchConfirm(ctx sdk.Context, nonce uint64, tokenContract common.Address, validator sdk.AccAddress) *types.MsgConfirmBatch {
+func (k *Keeper) GetBatchConfirm(ctx sdk.Context, nonce uint64, tokenContract common.Address, validator sdk.AccAddress, hyperionId uint64) *types.MsgConfirmBatch {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	entity := store.Get(types.GetBatchConfirmKey(tokenContract, nonce, validator))
+	entity := store.Get(types.GetBatchConfirmKey(tokenContract, nonce, validator, hyperionId))
 	if entity == nil {
 		return nil
 	}
@@ -449,7 +449,8 @@ func (k *Keeper) SetBatchConfirm(ctx sdk.Context, batch *types.MsgConfirmBatch) 
 		panic(err)
 	}
 
-	key := types.GetBatchConfirmKey(tokenContract, batch.Nonce, acc)
+	key := types.GetBatchConfirmKey(tokenContract, batch.Nonce, acc, batch.HyperionId)
+	fmt.Println("SetBatchConfirm - key: ", key)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	return key
@@ -460,19 +461,24 @@ func (k *Keeper) IterateBatchConfirmByNonceAndTokenContract(
 	ctx sdk.Context,
 	nonce uint64,
 	tokenContract common.Address,
+	hyperionId uint64,
 	cb func(k []byte, v *types.MsgConfirmBatch) (stop bool),
 ) {
+	fmt.Println("IterateBatchConfirmByNonceAndTokenContract - hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
+
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.BatchConfirmKey)
-	batchPrefix := append(tokenContract.Bytes(), types.UInt64Bytes(nonce)...)
+	batchPrefix := append(types.UInt64Bytes(hyperionId), tokenContract.Bytes()...)
+	batchPrefix = append(batchPrefix, types.UInt64Bytes(nonce)...)
 	iter := prefixStore.Iterator(PrefixRange(batchPrefix))
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
 		confirm := types.MsgConfirmBatch{}
 		k.cdc.MustUnmarshal(iter.Value(), &confirm)
+		fmt.Println("IterateBatchConfirmByNonceAndTokenContract - confirm: ", confirm)
 
 		if cb(iter.Key(), &confirm) {
 			break
@@ -481,11 +487,11 @@ func (k *Keeper) IterateBatchConfirmByNonceAndTokenContract(
 }
 
 // GetBatchConfirmByNonceAndTokenContract returns the batch confirms
-func (k *Keeper) GetBatchConfirmByNonceAndTokenContract(ctx sdk.Context, nonce uint64, tokenContract common.Address) (out []*types.MsgConfirmBatch) {
+func (k *Keeper) GetBatchConfirmByNonceAndTokenContract(ctx sdk.Context, nonce uint64, tokenContract common.Address, hyperionId uint64) (out []*types.MsgConfirmBatch) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	k.IterateBatchConfirmByNonceAndTokenContract(ctx, nonce, tokenContract, func(_ []byte, msg *types.MsgConfirmBatch) (stop bool) {
+	k.IterateBatchConfirmByNonceAndTokenContract(ctx, nonce, tokenContract, hyperionId, func(_ []byte, msg *types.MsgConfirmBatch) (stop bool) {
 		out = append(out, msg)
 		return false
 	})

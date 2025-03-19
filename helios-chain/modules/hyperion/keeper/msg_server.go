@@ -232,6 +232,7 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 
 // ConfirmBatch handles MsgConfirmBatch
 func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (*types.MsgConfirmBatchResponse, error) {
+	fmt.Println("ConfirmBatch - msg: ", msg)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -245,28 +246,30 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find batch")
 	}
+	fmt.Println("ConfirmBatch - batch: ", batch)
 
 	checkpoint := batch.GetCheckpoint(msg.HyperionId)
+	fmt.Println("ConfirmBatch - checkpoint: ", checkpoint)
 
 	sigBytes, err := hex.DecodeString(msg.Signature)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "signature decoding")
 	}
-
+	fmt.Println("ConfirmBatch - sigBytes: ", sigBytes)
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
 	validator, found := k.GetOrchestratorValidatorByHyperionID(ctx, orchaddr, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
-
+	fmt.Println("ConfirmBatch - validator: ", validator)
 	ethAddress, found := k.GetEthAddressByValidatorByHyperionID(ctx, validator, msg.HyperionId)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrEmpty, "eth address not found")
 	}
-
+	fmt.Println("ConfirmBatch - ethAddress: ", ethAddress)
 	err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress)
 	if err != nil {
 		description := fmt.Sprintf(
@@ -277,9 +280,10 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, description)
 	}
-
+	fmt.Println("ConfirmBatch - err: ", err)
 	// check if we already have this confirm
-	if k.GetBatchConfirm(ctx, msg.Nonce, tokenContract, orchaddr) != nil {
+	if k.GetBatchConfirm(ctx, msg.Nonce, tokenContract, orchaddr, msg.HyperionId) != nil {
+		fmt.Println("ConfirmBatch - duplicate signature")
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrDuplicate, "duplicate signature")
 	}

@@ -366,7 +366,7 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 	for _, batch := range unslashedBatches {
 		// SLASH BONDED VALIDTORS who didn't attest batch requests
 		currentBondedSet, _ := h.k.StakingKeeper.GetBondedValidatorsByPower(ctx)
-		confirms := h.k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.BatchNonce, common.HexToAddress(batch.TokenContract))
+		confirms := h.k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.BatchNonce, common.HexToAddress(batch.TokenContract), params.HyperionId)
 		for i := range currentBondedSet {
 			// Don't slash validators who joined after batch is created
 			consAddr, _ := currentBondedSet[i].GetConsAddr()
