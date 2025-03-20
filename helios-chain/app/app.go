@@ -924,6 +924,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.keys[hyperiontypes.StoreKey],
 		app.StakingKeeper,
 		app.BankKeeper,
+		&app.Erc20Keeper,
 		app.SlashingKeeper,
 		app.DistrKeeper,
 		authority,

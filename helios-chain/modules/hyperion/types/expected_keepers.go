@@ -48,9 +48,8 @@ type BankKeeper interface {
 }
 
 type ERC20Keeper interface {
-	GetERC20Contract(ctx context.Context, denom string) (common.Address, error)
-	GetTokenPairID(ctx context.Context, token string) []byte
-	GetTokenPair(ctx context.Context, id []byte) (erc20types.TokenPair, bool)
+	GetTokenPairID(ctx sdk.Context, token string) []byte
+	GetTokenPair(ctx sdk.Context, id []byte) (erc20types.TokenPair, bool)
 	ConvertCoinNativeERC20(
 		ctx sdk.Context,
 		pair erc20types.TokenPair,
@@ -63,7 +62,7 @@ type ERC20Keeper interface {
 		coinMetadata bank.Metadata,
 	) (common.Address, error) 
 	SetToken(ctx sdk.Context, pair erc20types.TokenPair)
-	EnableDynamicPrecompiles(ctx sdk.Context, contract common.Address)
+	EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error
 	MintERC20Tokens(
 		ctx sdk.Context,
 		contractAddr common.Address,

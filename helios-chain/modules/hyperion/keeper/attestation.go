@@ -250,6 +250,7 @@ func (k *Keeper) processAttestation(ctx sdk.Context, claim types.EthereumClaim) 
 			"id", types.GetAttestationKey(claim.GetEventNonce(), claim.ClaimHash()),
 			"nonce", claim.GetEventNonce(),
 		)
+		fmt.Println("processAttestation - err: ", err)
 	} else {
 		commit() // persist transient storage
 	}

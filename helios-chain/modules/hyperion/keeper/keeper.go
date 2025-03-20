@@ -57,6 +57,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	stakingKeeper types.StakingKeeper,
 	bankKeeper types.BankKeeper,
+	erc20Keeper types.ERC20Keeper,
 	slashingKeeper types.SlashingKeeper,
 	distKeeper distrkeeper.Keeper,
 	authority string,
@@ -80,7 +81,7 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 	}
 
-	k.AttestationHandler = NewAttestationHandler(bankKeeper, k)
+	k.AttestationHandler = NewAttestationHandler(bankKeeper, erc20Keeper, k)
 
 	return k
 }
