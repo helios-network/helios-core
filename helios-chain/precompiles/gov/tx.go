@@ -16,6 +16,9 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 )
 
 const (
@@ -29,6 +32,8 @@ const (
 	UpdateAssetProposalMethod = "updateAssetProposal"
 	// RemoveAssetProposalMethod defines the method name for add new proposal
 	RemoveAssetProposalMethod = "removeAssetProposal"
+	// UpdateBlockParamsProposalMethod defines the method name for updating consensus parameters
+	UpdateBlockParamsProposalMethod = "updateBlockParamsProposal"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -280,4 +285,60 @@ func (p *Precompile) RemoveAssetProposal(
 
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)
+}
+
+// UpdateBlockParamsProposal submits a proposal to update block parameters
+func (p *Precompile) UpdateBlockParamsProposal(
+	ctx sdk.Context,
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	_ *vm.Contract,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	updateArgs, err := p.parseUpdateBlockParamsArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	proposer := sdk.AccAddress(origin.Bytes())
+
+	// Create the consensus params update message
+	updateParamsMsg := &consensustypes.MsgUpdateParams{
+		Authority: govKeeper.GetAuthority(),
+		Block: &tmproto.BlockParams{
+			MaxBytes: updateArgs.MaxBytes,
+			MaxGas:   updateArgs.MaxGas,
+		},
+		// Keep existing values for other parameters
+		Evidence:  ctx.ConsensusParams().Evidence,
+		Validator: ctx.ConsensusParams().Validator,
+		Abci:      ctx.ConsensusParams().Abci,
+	}
+
+	// Pack the update params message into Any type
+	msgAny, err := codectypes.NewAnyWithValue(updateParamsMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the proposal message
+	msg := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{msgAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewInt(updateArgs.InitialDeposit.Int64())),
+		),
+		Proposer: proposer.String(),
+		Title:    updateArgs.Title,
+		Summary:  updateArgs.Description,
+	}
+
+	// Submit the proposal
+	msgServer := govkeeper.NewMsgServerImpl(&govKeeper)
+	res, err := msgServer.SubmitProposal(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(res.ProposalId)
 }
