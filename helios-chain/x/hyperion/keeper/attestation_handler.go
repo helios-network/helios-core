@@ -12,6 +12,10 @@ import (
 	"helios-core/helios-chain/x/hyperion/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
+
+	erc20types "helios-core/helios-chain/x/erc20/types"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // AttestationHandler processes `observed` Attestations
@@ -73,8 +77,56 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		fmt.Println("isCosmosOriginated", isCosmosOriginated)
 
 		if !isCosmosOriginated {
+
+			name := denom
+			symbol := denom
+			decimals := uint64(18)
+
+			if claim.Data != "" {
+				metadata, _, _ := a.keeper.parseClaimData(ctx, claim.Data)
+				if metadata != nil {
+					name = metadata.Name
+					symbol = metadata.Symbol
+					decimals = metadata.Decimals
+				}
+			}
+
+			tokenPair, ok := a.keeper.erc20Keeper.GetTokenPair(ctx, a.keeper.erc20Keeper.GetTokenPairID(ctx, denom))
+
+			// if pair doens't exists creation of the erc20 token and link it to denom
+			if !ok {
+				coinMetadata := banktypes.Metadata{
+					Description: fmt.Sprintf("Token %s created with Hyperion", denom),
+					Base:        denom,
+					Name:        name,
+					Symbol:      symbol,
+					Decimals:    uint32(decimals),
+					Display:     name,
+					DenomUnits: []*banktypes.DenomUnit{
+						{
+							Denom:    denom,
+							Exponent: 0,
+						},
+						{
+							Denom:    denom,
+							Exponent: uint32(decimals),
+						},
+					},
+				}
+				contractAddr, err := a.keeper.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
+				if err != nil {
+					return fmt.Errorf("failed to deploy ERC20 contract: %w", err)
+				}
+
+				a.keeper.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
+				tokenPair = erc20types.NewTokenPair(contractAddr, denom, erc20types.OWNER_MODULE)
+				a.keeper.erc20Keeper.SetToken(ctx, tokenPair)
+				a.keeper.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+			}
+
 			// Check if supply overflows with claim amount
 			currentSupply := a.bankKeeper.GetSupply(ctx, denom)
+
 			fmt.Println("currentSupply", currentSupply)
 			newSupply := new(big.Int).Add(currentSupply.Amount.BigInt(), claim.Amount.BigInt())
 			fmt.Println("newSupply", newSupply)
@@ -178,7 +230,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		// TODO here we should check the contents of the validator set against
 		// the store, if they differ we should take some action to indicate to the
 		// user that bridge highjacking has occurred
-		a.keeper.SetLastObservedValset(ctx, types.Valset{
+		a.keeper.SetLastObservedValset(ctx, claim.HyperionId, types.Valset{
 			Nonce:        claim.ValsetNonce,
 			Members:      claim.Members,
 			RewardAmount: claim.RewardAmount,

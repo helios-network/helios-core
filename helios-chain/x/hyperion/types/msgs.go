@@ -180,7 +180,7 @@ func (msg MsgSendToChain) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgSendToChain) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
@@ -216,7 +216,7 @@ func (msg MsgRequestBatch) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgRequestBatch) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
@@ -255,7 +255,7 @@ func (msg MsgConfirmBatch) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgConfirmBatch) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
@@ -327,7 +327,7 @@ func (msg *MsgDepositClaim) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgDepositClaim) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 func (msg MsgDepositClaim) GetClaimer() sdk.AccAddress {
@@ -400,7 +400,7 @@ func (msg *MsgWithdrawClaim) ClaimHash() []byte {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgWithdrawClaim) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 func (msg MsgWithdrawClaim) GetClaimer() sdk.AccAddress {
@@ -456,7 +456,7 @@ func (e *MsgERC20DeployedClaim) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgERC20DeployedClaim) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 func (msg MsgERC20DeployedClaim) GetClaimer() sdk.AccAddress {
@@ -524,7 +524,7 @@ func (e *MsgValsetUpdatedClaim) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgValsetUpdatedClaim) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 func (msg MsgValsetUpdatedClaim) GetClaimer() sdk.AccAddress {
@@ -605,7 +605,7 @@ func (e *MsgSubmitBadSignatureEvidence) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg MsgSubmitBadSignatureEvidence) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required

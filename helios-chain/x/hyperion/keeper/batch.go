@@ -87,7 +87,7 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint6
 	fmt.Println("currentCosmosHeight: ", currentCosmosHeight)
 	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
 	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
-	heights := k.GetLastObservedEthereumBlockHeight(ctx)
+	heights := k.GetLastObservedEthereumBlockHeight(ctx, hyperionId)
 	fmt.Println("heights: ", heights)
 	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
 		return 0

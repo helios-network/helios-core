@@ -50,3 +50,14 @@ message ERC20ToDenom {
   string erc20 = 2;
   string denom = 3;
 }
+
+message TokenMetadata {
+  string symbol = 1;
+  string name = 2;
+  uint64 decimals = 3;
+}
+
+message ClaimData {
+  TokenMetadata metadata = 1;
+  string data = 2;
+}

@@ -127,6 +127,7 @@ message QueryParamsResponse {
 message QueryAttestationRequest {
   uint64 nonce = 1;
   bytes claim_hash = 2;
+  uint64 hyperion_id = 3;
 }
 
 message QueryAttestationResponse { Attestation attestation = 1; }
@@ -181,7 +182,10 @@ message QueryBatchConfirmsRequest {
 }
 message QueryBatchConfirmsResponse { repeated MsgConfirmBatch confirms = 1; }
 
-message QueryLastEventByAddrRequest { string address = 1; }
+message QueryLastEventByAddrRequest {
+  string address = 1;
+  uint64 hyperion_id = 2;
+}
 message QueryLastEventByAddrResponse { LastClaimEvent last_claim_event = 1; }
 
 message QueryERC20ToDenomRequest { 
@@ -243,6 +247,8 @@ message QueryModuleStateRequest {}
 // RPC method.
 message QueryModuleStateResponse { GenesisState state = 1; }
 
-message MissingNoncesRequest {}
+message MissingNoncesRequest {
+  uint64 hyperion_id = 1;
+}
 
 message MissingNoncesResponse { repeated string operator_addresses = 1; }

@@ -22,8 +22,13 @@ const (
 // DefaultParams returns a copy of the default params
 func DefaultParams() *Params {
 	return &Params{
-		CounterpartyChainParams: []*CounterpartyChainParams{DefaultEthereumChainParams(), DefaultPolygonAmoyTestnetChainParams(), DefaultPolygonAmoyTestnet02ChainParams(), DefaultPolygonAmoyTestnet03ChainParams()},
-		Admins:                  []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
+		CounterpartyChainParams: []*CounterpartyChainParams{
+			// DefaultEthereumChainParams(),
+			// DefaultPolygonAmoyTestnetChainParams(),
+			// DefaultPolygonAmoyTestnet02ChainParams(),
+			DefaultPolygonAmoyTestnet21ChainParams(),
+		},
+		Admins: []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
 }
 
@@ -46,24 +51,7 @@ func MockErc20ToDenoms() []*ERC20ToDenom {
 	// 		"erc20": "0xa2512e1f33020d34915124218edbec20901755b2"
 	// 	}
 	// ],
-	return []*ERC20ToDenom{
-		{
-			Denom: "hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-			Erc20: "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-		},
-		{
-			Denom: "hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8",
-			Erc20: "0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8",
-		},
-		{
-			Denom: "ahelios",
-			Erc20: "0x77d1b28912dbd3a21474d2dd24475c751bf2f045",
-		},
-		{
-			Denom: "hyperion0xa2512e1f33020d34915124218edbec20901755b2",
-			Erc20: "0xa2512e1f33020d34915124218edbec20901755b2",
-		},
-	}
+	return []*ERC20ToDenom{}
 }
 
 // DefaultEthereumChainParams returns a copy of the default counterparty chain params for Ethereum
@@ -160,6 +148,31 @@ func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
 		CosmosCoinErc20Contract:       "",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
+		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
+	}
+}
+
+func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
+	return &CounterpartyChainParams{
+		HyperionId:                    21,
+		BridgeCounterpartyAddress:     common.HexToAddress("0x3d081BA7A552E8e03d7AE30743448CF909996aC1").Hex(),
+		BridgeChainId:                 80002,
+		SignedValsetsWindow:           25000,
+		SignedBatchesWindow:           25000,
+		SignedClaimsWindow:            25000,
+		TargetBatchTimeout:            43200000,
+		AverageBlockTime:              2000,
+		AverageCounterpartyBlockTime:  15000,
+		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		CosmosCoinDenom:               "ahelios",
+		CosmosCoinErc20Contract:       "",
+		UnbondSlashingValsetsWindow:   25000,
+		ClaimSlashingEnabled:          false,
+		BridgeContractStartHeight:     19466731,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 	}
 }

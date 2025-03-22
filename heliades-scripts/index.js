@@ -462,11 +462,11 @@ async function addCounterpartyChainParams() {
     const hyperionAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', hyperionAbi, wallet);
     const tx = await contract.addCounterpartyChainParams(
-      20, // New HyperionId
+      21, // New HyperionId
       "", // bridge contract hash
-      "0x5b277BEdABe10520a13C78A07902811ad21432D1", // bridge contract address
+      "0x17AAd46782B95fbDE4ff1051397F24e554f6A487", // bridge contract address
       80002, // chainId
-      19367715 // start height
+      19437427 // start height
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -497,6 +497,31 @@ async function setOrchestratorAddresses() {
     console.log(receipt);
   } catch (error) {
     console.error('Erreur lors de la setOrchestratorAddresses :', error);
+  }
+}
+
+async function sendToChain() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('sendToChain en cours...');
+
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', chronosAbi, wallet);
+    const tx = await contract.sendToChain( // I'm validator and
+      21,
+      "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
+      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address
+      ethers.parseEther("10"),
+      ethers.parseEther("1"),
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la sendToChain :', error);
   }
 }
 
@@ -628,7 +653,7 @@ async function getEvents() {
 }
 
 async function main() {
-  await createCron();
+  // await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
@@ -645,6 +670,7 @@ async function main() {
 
   // await getRewards();
 
+  await sendToChain();
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   

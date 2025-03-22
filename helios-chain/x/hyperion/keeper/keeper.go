@@ -4,6 +4,8 @@ import (
 	gomath "math"
 	"sort"
 
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -32,6 +34,7 @@ type Keeper struct {
 	bankKeeper     types.BankKeeper
 	DistKeeper     distrkeeper.Keeper
 	SlashingKeeper types.SlashingKeeper
+	erc20Keeper    erc20keeper.Keeper
 
 	AttestationHandler interface {
 		Handle(sdk.Context, types.EthereumClaim) error
@@ -59,6 +62,7 @@ func NewKeeper(
 	distKeeper distrkeeper.Keeper,
 	authority string,
 	accountKeeper keeper.AccountKeeper,
+	erc20Keeper erc20keeper.Keeper,
 ) Keeper {
 
 	k := Keeper{
@@ -76,6 +80,7 @@ func NewKeeper(
 			"svc": "hyperion_grpc",
 		},
 		accountKeeper: accountKeeper,
+		erc20Keeper:   erc20Keeper,
 	}
 
 	k.AttestationHandler = NewAttestationHandler(bankKeeper, k)
@@ -1021,4 +1026,8 @@ func (k *Keeper) CreateModuleAccount(ctx sdk.Context) {
 	baseAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter, authtypes.Burner)
 	moduleAcc := (k.accountKeeper.NewAccount(ctx, baseAcc)).(sdk.ModuleAccountI) // set the account number
 	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
+}
+
+func (k *Keeper) SetErc20Keeper(erc20Keeper erc20keeper.Keeper) {
+	k.erc20Keeper = erc20Keeper
 }

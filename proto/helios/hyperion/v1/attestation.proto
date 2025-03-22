@@ -45,6 +45,7 @@ message Attestation {
   repeated string votes = 2;
   uint64 height = 3;
   google.protobuf.Any claim = 4;
+  uint64 hyperionId = 5;
 }
 
 // ERC20Token unique identifier for an Ethereum ERC20 token.

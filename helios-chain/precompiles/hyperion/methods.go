@@ -149,26 +149,36 @@ func (p Precompile) SendToChain(
 	args []interface{},
 ) ([]byte, error) {
 
-	if len(args) != 3 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	if len(args) != 5 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
-	dest, ok := args[0].(string)
+	hyperionId, ok := args[0].(uint64)
 	if !ok {
-		return nil, fmt.Errorf("invalid string address")
+		return nil, fmt.Errorf("invalid uint64 hyperionId")
 	}
 
-	amount, ok := args[1].(*big.Int)
+	dest, ok := args[1].(string)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint64 for AmountToDeposit")
+		return nil, fmt.Errorf("invalid string dest address")
+	}
+
+	contractAddress, ok := args[2].(common.Address)
+	if !ok {
+		return nil, fmt.Errorf("invalid contract address")
+	}
+
+	amount, ok := args[3].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint256 for AmountToDeposit")
 	}
 	if amount.Cmp(big.NewInt(0)) <= 0 {
 		return nil, fmt.Errorf("invalid zero AmountToDeposit")
 	}
 
-	bridgeFee, ok := args[2].(*big.Int)
+	bridgeFee, ok := args[4].(*big.Int)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint64 for AmountToDeposit")
+		return nil, fmt.Errorf("invalid uint256 for AmountToDeposit")
 	}
 	if bridgeFee.Cmp(big.NewInt(0)) <= 0 {
 		return nil, fmt.Errorf("invalid zero AmountToDeposit")
@@ -177,12 +187,19 @@ func (p Precompile) SendToChain(
 	amountV := cosmosmath.NewIntFromBigInt(amount)
 	bridgeFeeV := cosmosmath.NewIntFromBigInt(bridgeFee)
 
+	tokenPair, ok := p.erc20Keeper.GetTokenPair(ctx, p.erc20Keeper.GetTokenPairID(ctx, contractAddress.String()))
+
+	if !ok {
+		// no erc20 exists for this token
+		return nil, fmt.Errorf("invalid token %s not registered as tokenPair", contractAddress.String())
+	}
+
 	msg := &hyperiontypes.MsgSendToChain{
 		Sender:         cmn.AccAddressFromHexAddress(origin).String(),
-		DestHyperionId: 1,
+		DestHyperionId: hyperionId,
 		Dest:           dest,
-		Amount:         sdk.NewCoin("aaa", amountV),
-		BridgeFee:      sdk.NewCoin("aaa", bridgeFeeV),
+		Amount:         sdk.NewCoin(tokenPair.Denom, amountV),
+		BridgeFee:      sdk.NewCoin(tokenPair.Denom, bridgeFeeV),
 	}
 
 	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)

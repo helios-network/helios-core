@@ -32,8 +32,8 @@ func NewBlockHandler(k keeper.Keeper) *BlockHandler {
 
 // EndBlocker is called at the end of every block
 func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
 	params := h.k.GetParams(ctx)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
@@ -49,8 +49,8 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 }
 
 func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
 	// Auto ValsetRequest Creation.
 	// WARNING: do not use k.GetLastObservedValset in this function, it *will* result in losing control of the bridge
@@ -77,41 +77,49 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 // but (A) pruning keeps the iteration small in the first place and (B) there is
 // already enough nuance in the other handler that it's best not to complicate it further
 func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
-	attmap := h.k.GetAttestationMapping(ctx)
+	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
+		hyperionId := counterParty.HyperionId
 
-	// We make a slice with all the event nonces that are in the attestation mapping
-	keys := make([]uint64, 0, len(attmap))
-	for k := range attmap {
-		keys = append(keys, k)
-	}
-	// Then we sort it
-	sort.SliceStable(keys, func(i, j int) bool { return keys[i] < keys[j] })
+		attmap := h.k.GetAttestationMapping(ctx, hyperionId)
 
-	// lastObservedEventNonce := h.k.GetLastObservedEventNonce(ctx)
-	// This iterates over all keys (event nonces) in the attestation mapping. Each value contains
-	// a slice with one or more attestations at that event nonce. There can be multiple attestations
-	// at one event nonce when validators disagree about what event happened at that nonce.
-	for _, nonce := range keys {
-		// This iterates over all attestations at a particular event nonce.
-		// They are ordered by when the first attestation at the event nonce was received.
-		// This order is not important.
-		for _, att := range attmap[nonce] {
-			// we delete all attestations earlier than the current event nonce
-			// if nonce < lastObservedEventNonce {
-			if att.Observed {
-				h.k.DeleteAttestation(ctx, att)
-			}
-			// }
+		h.k.Logger(ctx).Info("pruneAttestations", "attmap", len(attmap))
+
+		// We make a slice with all the event nonces that are in the attestation mapping
+		keys := make([]uint64, 0, len(attmap))
+		for k := range attmap {
+			keys = append(keys, k)
 		}
+		// Then we sort it
+		sort.SliceStable(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+		// lastObservedEventNonce := h.k.GetLastObservedEventNonce(ctx)
+		// This iterates over all keys (event nonces) in the attestation mapping. Each value contains
+		// a slice with one or more attestations at that event nonce. There can be multiple attestations
+		// at one event nonce when validators disagree about what event happened at that nonce.
+		for _, nonce := range keys {
+			// This iterates over all attestations at a particular event nonce.
+			// They are ordered by when the first attestation at the event nonce was received.
+			// This order is not important.
+			for _, att := range attmap[nonce] {
+				// we delete all attestations earlier than the current event nonce
+				// if nonce < lastObservedEventNonce {
+				if att.Observed {
+					h.k.Logger(ctx).Info("pruneAttestations", "pruning", att.HyperionId)
+					h.k.DeleteAttestation(ctx, att.HyperionId, att)
+				}
+				// }
+			}
+		}
+
 	}
 }
 
 func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
 	// Slash validator for not confirming valset requests, batch requests and not attesting claims rightfully
 	h.valsetSlashing(ctx, params)
@@ -127,48 +135,51 @@ func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChain
 // "Observe" those who have passed the threshold. Break the loop once we see
 // an attestation that has not passed the threshold
 func (h *BlockHandler) attestationTally(ctx sdk.Context) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
-	attmap := h.k.GetAttestationMapping(ctx)
-	// We make a slice with all the event nonces that are in the attestation mapping
-	keys := make([]uint64, 0, len(attmap))
-	fmt.Println("attmap", attmap)
-	for k := range attmap {
-		keys = append(keys, k)
-	}
-	// Then we sort it
-	sort.SliceStable(keys, func(i, j int) bool { return keys[i] < keys[j] })
+	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
+		hyperionId := counterParty.HyperionId
+		attmap := h.k.GetAttestationMapping(ctx, hyperionId)
+		// We make a slice with all the event nonces that are in the attestation mapping
+		keys := make([]uint64, 0, len(attmap))
+		fmt.Println("attmap", len(attmap))
+		for k := range attmap {
+			keys = append(keys, k)
+		}
+		// Then we sort it
+		sort.SliceStable(keys, func(i, j int) bool { return keys[i] < keys[j] })
 
-	// This iterates over all keys (event nonces) in the attestation mapping. Each value contains
-	// a slice with one or more attestations at that event nonce. There can be multiple attestations
-	// at one event nonce when validators disagree about what event happened at that nonce.
-	for _, nonce := range keys {
-		fmt.Println("nonce", nonce)
-		// This iterates over all attestations at a particular event nonce.
-		// They are ordered by when the first attestation at the event nonce was received.
-		// This order is not important.
-		for _, attestation := range attmap[nonce] {
-			// We check if the event nonce is exactly 1 higher than the last attestation that was
-			// observed. If it is not, we just move on to the next nonce. This will skip over all
-			// attestations that have already been observed.
-			//
-			// Once we hit an event nonce that is one higher than the last observed event, we stop
-			// skipping over this conditional and start calling tryAttestation (counting votes)
-			// Once an attestation at a given event nonce has enough votes and becomes observed,
-			// every other attestation at that nonce will be skipped, since the lastObservedEventNonce
-			// will be incremented.
-			//
-			// Then we go to the next event nonce in the attestation mapping, if there is one. This
-			// nonce will once again be one higher than the lastObservedEventNonce.
-			// If there is an attestation at this event nonce which has enough votes to be observed,
-			// we skip the other attestations and move on to the next nonce again.
-			// If no attestation becomes observed, when we get to the next nonce, every attestation in
-			// it will be skipped. The same will happen for every nonce after that.
-			fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx))
-			// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
-			h.k.TryAttestation(ctx, attestation)
-			// }
+		// This iterates over all keys (event nonces) in the attestation mapping. Each value contains
+		// a slice with one or more attestations at that event nonce. There can be multiple attestations
+		// at one event nonce when validators disagree about what event happened at that nonce.
+		for _, nonce := range keys {
+			fmt.Println("nonce", nonce)
+			// This iterates over all attestations at a particular event nonce.
+			// They are ordered by when the first attestation at the event nonce was received.
+			// This order is not important.
+			for _, attestation := range attmap[nonce] {
+				// We check if the event nonce is exactly 1 higher than the last attestation that was
+				// observed. If it is not, we just move on to the next nonce. This will skip over all
+				// attestations that have already been observed.
+				//
+				// Once we hit an event nonce that is one higher than the last observed event, we stop
+				// skipping over this conditional and start calling tryAttestation (counting votes)
+				// Once an attestation at a given event nonce has enough votes and becomes observed,
+				// every other attestation at that nonce will be skipped, since the lastObservedEventNonce
+				// will be incremented.
+				//
+				// Then we go to the next event nonce in the attestation mapping, if there is one. This
+				// nonce will once again be one higher than the lastObservedEventNonce.
+				// If there is an attestation at this event nonce which has enough votes to be observed,
+				// we skip the other attestations and move on to the next nonce again.
+				// If no attestation becomes observed, when we get to the next nonce, every attestation in
+				// it will be skipped. The same will happen for every nonce after that.
+				fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId))
+				// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
+				h.k.TryAttestation(ctx, attestation)
+				// }
+			}
 		}
 	}
 }
@@ -186,25 +197,29 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 //	project, if we do a slowdown on ethereum could cause a double spend. Instead timeouts will *only* occur after the timeout period
 //	AND any deposit or withdraw has occurred to update the Ethereum block height.
 func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
-	ethereumHeight := h.k.GetLastObservedEthereumBlockHeight(ctx).EthereumBlockHeight
-	batches := h.k.GetOutgoingTxBatches(ctx)
+	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
+		hyperionId := counterParty.HyperionId
 
-	for _, batch := range batches {
-		if batch.BatchTimeout < ethereumHeight {
-			err := h.k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
-			if err != nil {
-				ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
+		ethereumHeight := h.k.GetLastObservedEthereumBlockHeight(ctx, hyperionId).EthereumBlockHeight
+		batches := h.k.GetOutgoingTxBatches(ctx)
+
+		for _, batch := range batches {
+			if batch.BatchTimeout < ethereumHeight {
+				err := h.k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
+				if err != nil {
+					ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
+				}
 			}
 		}
 	}
 }
 
 func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
 	maxHeight := uint64(0)
 
@@ -338,8 +353,8 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 }
 
 func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
 	// #2 condition
 	// We look through the full bonded set (not just the active set, include unbonding validators)
@@ -409,25 +424,28 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 }
 
 func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	defer doneFn()
+	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	// defer doneFn()
 
-	// Validator set pruning
-	// prune all validator sets with a nonce less than the
-	// last observed nonce, they can't be submitted any longer
-	//
-	// Only prune valsets after the signed valsets window has passed
-	// so that slashing can occur the block before we remove them
-	lastObserved := h.k.GetLastObservedValset(ctx)
-	currentBlock := uint64(ctx.BlockHeight())
-	tooEarly := currentBlock < params.SignedValsetsWindow
-	if lastObserved != nil && !tooEarly {
-		earliestToPrune := currentBlock - params.SignedValsetsWindow
-		sets := h.k.GetValsets(ctx)
+	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
+		hyperionId := counterParty.HyperionId
+		// Validator set pruning
+		// prune all validator sets with a nonce less than the
+		// last observed nonce, they can't be submitted any longer
+		//
+		// Only prune valsets after the signed valsets window has passed
+		// so that slashing can occur the block before we remove them
+		lastObserved := h.k.GetLastObservedValset(ctx, hyperionId)
+		currentBlock := uint64(ctx.BlockHeight())
+		tooEarly := currentBlock < params.SignedValsetsWindow
+		if lastObserved != nil && !tooEarly {
+			earliestToPrune := currentBlock - params.SignedValsetsWindow
+			sets := h.k.GetValsets(ctx)
 
-		for _, set := range sets {
-			if set.Nonce < lastObserved.Nonce && set.Height < earliestToPrune {
-				h.k.DeleteValset(ctx, set.Nonce)
+			for _, set := range sets {
+				if set.Nonce < lastObserved.Nonce && set.Height < earliestToPrune {
+					h.k.DeleteValset(ctx, set.Nonce)
+				}
 			}
 		}
 	}

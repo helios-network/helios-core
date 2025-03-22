@@ -20,7 +20,7 @@ import (
 )
 
 type msgServer struct {
-	Keeper
+	Keeper Keeper
 
 	svcTags metrics.Tags
 }
@@ -55,8 +55,8 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 		orchestratorAddr = validatorAccountAddr
 	}
 
-	valAddr, foundExistingOrchestratorKey := k.GetOrchestratorValidator(ctx, orchestratorAddr)
-	ethAddress, foundExistingEthAddress := k.GetEthAddressByValidator(ctx, validatorAddr)
+	valAddr, foundExistingOrchestratorKey := k.Keeper.GetOrchestratorValidator(ctx, orchestratorAddr)
+	ethAddress, foundExistingEthAddress := k.Keeper.GetEthAddressByValidator(ctx, validatorAddr)
 	fmt.Println("valAddr: ", valAddr)
 	fmt.Println("orchestratorAddr: ", orchestratorAddr)
 	fmt.Println("ethAddress: ", ethAddress)
@@ -74,12 +74,12 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	}
 
 	// set the orchestrator address
-	k.SetOrchestratorValidator(ctx, validatorAddr, orchestratorAddr)
+	k.Keeper.SetOrchestratorValidator(ctx, validatorAddr, orchestratorAddr)
 	// set the ethereum address
 	fmt.Println("msg.EthAddress: ", msg.EthAddress)
 	ethAddr := common.HexToAddress(msg.EthAddress)
 	fmt.Println("ethAddr: ", ethAddr)
-	k.SetEthAddressForValidator(ctx, validatorAddr, ethAddr)
+	k.Keeper.SetEthAddressForValidator(ctx, validatorAddr, ethAddr)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSetOrchestratorAddresses{
@@ -99,17 +99,17 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	k.Logger(ctx).Info("AddCounterpartyChainParams -1")
+	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams -1")
 	// todo check msg.orchestrator funds and pay the cost of AddCounterpartyChain to the fundation
 
 	if err := msg.CounterpartyChainParams.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	k.Logger(ctx).Info("AddCounterpartyChainParams 0")
-	params := k.GetParams(ctx)
+	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 0")
+	params := k.Keeper.GetParams(ctx)
 
-	k.Logger(ctx).Info("AddCounterpartyChainParams 1")
+	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 1")
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.HyperionId == msg.CounterpartyChainParams.HyperionId {
@@ -117,12 +117,12 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 		}
 	}
 
-	k.Logger(ctx).Info("AddCounterpartyChainParams 2")
+	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 2")
 
 	params.CounterpartyChainParams = append(params.CounterpartyChainParams, msg.CounterpartyChainParams)
-	k.SetParams(ctx, params)
+	k.Keeper.SetParams(ctx, params)
 
-	k.Logger(ctx).Info("AddCounterpartyChainParams 3")
+	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 3")
 
 	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
 }
@@ -133,7 +133,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	valset := k.GetValset(ctx, msg.Nonce)
+	valset := k.Keeper.GetValset(ctx, msg.Nonce)
 	if valset == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find valset")
@@ -147,13 +147,13 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, errors.Wrap(types.ErrInvalid, "signature decoding")
 	}
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchaddr)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, orchaddr)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
-	ethAddress, found := k.GetEthAddressByValidator(ctx, validator)
+	ethAddress, found := k.Keeper.GetEthAddressByValidator(ctx, validator)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrEmpty, "no eth address found")
@@ -170,11 +170,11 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	}
 
 	// persist signature
-	if k.GetValsetConfirm(ctx, msg.Nonce, orchaddr) != nil {
+	if k.Keeper.GetValsetConfirm(ctx, msg.Nonce, orchaddr) != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrDuplicate, "signature duplicate")
 	}
-	k.SetValsetConfirm(ctx, msg)
+	k.Keeper.SetValsetConfirm(ctx, msg)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetConfirm{
@@ -199,11 +199,11 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	}
 
 	dest := common.HexToAddress(msg.Dest)
-	if k.InvalidSendToChainAddress(ctx, dest) {
+	if k.Keeper.InvalidSendToChainAddress(ctx, dest) {
 		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination address is invalid or blacklisted")
 	}
 
-	txID, err := k.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, msg.DestHyperionId)
+	txID, err := k.Keeper.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, msg.DestHyperionId)
 	if err != nil {
 		return nil, err
 	}
@@ -231,13 +231,13 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 
 	// Check if the denom is a hyperion coin, if not, check if there is a deployed ERC20 representing it.
 	// If not, error out
-	_, tokenContract, err := k.DenomToERC20Lookup(ctx, msg.Denom, msg.HyperionId)
+	_, tokenContract, err := k.Keeper.DenomToERC20Lookup(ctx, msg.Denom, msg.HyperionId)
 	if err != nil {
 		fmt.Println("RequestBatch - err: ", err)
 		return nil, err
 	}
 
-	batch, err := k.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize)
+	batch, err := k.Keeper.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	tokenContract := common.HexToAddress(msg.TokenContract)
 
 	// fetch the outgoing batch given the nonce
-	batch := k.GetOutgoingTXBatch(ctx, tokenContract, msg.Nonce, msg.HyperionId)
+	batch := k.Keeper.GetOutgoingTXBatch(ctx, tokenContract, msg.Nonce, msg.HyperionId)
 	if batch == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find batch")
@@ -286,13 +286,13 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	}
 
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchaddr)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, orchaddr)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
-	ethAddress, found := k.GetEthAddressByValidator(ctx, validator)
+	ethAddress, found := k.Keeper.GetEthAddressByValidator(ctx, validator)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrEmpty, "eth address not found")
@@ -310,11 +310,11 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	}
 
 	// check if we already have this confirm
-	if k.GetBatchConfirm(ctx, msg.Nonce, tokenContract, orchaddr) != nil {
+	if k.Keeper.GetBatchConfirm(ctx, msg.Nonce, tokenContract, orchaddr) != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrDuplicate, "duplicate signature")
 	}
-	k.SetBatchConfirm(ctx, msg)
+	k.Keeper.SetBatchConfirm(ctx, msg)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventConfirmBatch{
@@ -331,20 +331,20 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 // executed aka 'observed' and had it's slashing window expire) that will never be cleaned up in the endblocker. This
 // should not be a security risk as 'old' events can never execute but it does store spam in the chain.
 func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (*types.MsgDepositClaimResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orchestrator, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchestrator)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, orchestrator)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
 	// return an error if the validator isn't in the active set
-	val, err := k.StakingKeeper.Validator(ctx, validator)
+	val, err := k.Keeper.StakingKeeper.Validator(ctx, validator)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "validator can't be retrieved")
@@ -356,25 +356,39 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 
 	// Check if the claim data is a valid sdk.Msg. If not, ignore the data
 	if msg.Data != "" {
-		ethereumSenderHeliosAccAddr := sdk.AccAddress(common.FromHex(msg.EthereumSender))
-		if _, err := k.ValidateClaimData(ctx, msg.Data, ethereumSenderHeliosAccAddr); err != nil {
-			k.Logger(ctx).Info("claim data is not a valid sdk.Msg", err)
-			msg.Data = ""
+		metadata, msg, err := k.Keeper.parseClaimData(ctx, msg.Data)
+		if err != nil {
+			k.Keeper.Logger(ctx).Info("claim data is not valid", "err", err)
+			return nil, err
+		}
+		if metadata != nil {
+			if _, err := k.Keeper.ValidateTokenMetaData(ctx, metadata); err != nil {
+				k.Keeper.Logger(ctx).Info("claim data is not valid - TokenMetaData is not valid", "err", err)
+				return nil, err
+			}
+		}
+		if msg != nil {
+			if _, err := k.Keeper.handleValidateMsg(ctx, msg); err != nil {
+				k.Keeper.Logger(ctx).Info("claim data is not valid - sdk.Msg is not valid", "err", err)
+				return nil, err
+			}
 		}
 	}
 
-	any, err := codectypes.NewAnyWithValue(msg)
+	a, err := codectypes.NewAnyWithValue(msg)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
 	}
 
 	// Add the claim to the store
-	_, err = k.Attest(ctx, msg, any)
+	_, err = k.Keeper.Attest(ctx, msg, a)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "create attestation")
 	}
+
+	k.Keeper.Logger(ctx).Info("DepositClaim Received with success", "msg", msg)
 
 	return &types.MsgDepositClaimResponse{}, nil
 }
@@ -384,20 +398,20 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 // executed aka 'observed' and had it's slashing window expire) that will never be cleaned up in the endblocker. This
 // should not be a security risk as 'old' events can never execute but it does store spam in the chain.
 func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim) (*types.MsgWithdrawClaimResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orchestrator, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchestrator)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, orchestrator)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
 	// return an error if the validator isn't in the active set
-	val, err := k.StakingKeeper.Validator(ctx, validator)
+	val, err := k.Keeper.StakingKeeper.Validator(ctx, validator)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "validator can't be retrieved")
@@ -407,38 +421,40 @@ func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim)
 		return nil, errors.Wrap(sdkerrors.ErrorInvalidSigner, "validator not in active set")
 	}
 
-	any, err := codectypes.NewAnyWithValue(msg)
+	a, err := codectypes.NewAnyWithValue(msg)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
 	}
 
 	// Add the claim to the store
-	_, err = k.Attest(ctx, msg, any)
+	_, err = k.Keeper.Attest(ctx, msg, a)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "create attestation")
 	}
+
+	k.Keeper.Logger(ctx).Info("WithdrawClaim Received with success", "msg", msg)
 
 	return &types.MsgWithdrawClaimResponse{}, nil
 }
 
 // ERC20DeployedClaim handles MsgERC20Deployed
 func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20DeployedClaim) (*types.MsgERC20DeployedClaimResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orch, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orch)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, orch)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
 	// return an error if the validator isn't in the active set
-	val, err := k.StakingKeeper.Validator(ctx, validator)
+	val, err := k.Keeper.StakingKeeper.Validator(ctx, validator)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "validator can't be retrieved")
@@ -448,38 +464,40 @@ func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20Depl
 		return nil, errors.Wrap(sdkerrors.ErrorInvalidSigner, "validator not in active set")
 	}
 
-	any, err := codectypes.NewAnyWithValue(msg)
+	a, err := codectypes.NewAnyWithValue(msg)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
 	}
 
 	// Add the claim to the store
-	_, err = k.Attest(ctx, msg, any)
+	_, err = k.Keeper.Attest(ctx, msg, a)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "create attestation")
 	}
+
+	k.Keeper.Logger(ctx).Info("ERC20DeployedClaim Received with success", "msg", msg)
 
 	return &types.MsgERC20DeployedClaimResponse{}, nil
 }
 
 // ValsetUpdateClaim handles claims for executing a validator set update on Ethereum
 func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpdatedClaim) (*types.MsgValsetUpdatedClaimResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
 	orchaddr, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
-	validator, found := k.GetOrchestratorValidator(ctx, orchaddr)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, orchaddr)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
 	// return an error if the validator isn't in the active set
-	val, err := k.StakingKeeper.Validator(ctx, validator)
+	val, err := k.Keeper.StakingKeeper.Validator(ctx, validator)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "validator can't be retrieved")
@@ -489,25 +507,27 @@ func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpda
 		return nil, errors.Wrap(sdkerrors.ErrorInvalidSigner, "validator not in active set")
 	}
 
-	any, err := codectypes.NewAnyWithValue(msg)
+	a, err := codectypes.NewAnyWithValue(msg)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
 	}
 
 	// Add the claim to the store
-	_, err = k.Attest(ctx, msg, any)
+	_, err = k.Keeper.Attest(ctx, msg, a)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "create attestation")
 	}
 
+	k.Keeper.Logger(ctx).Info("ValsetUpdateClaim Received with success", "msg", msg)
+
 	return &types.MsgValsetUpdatedClaimResponse{}, nil
 }
 
 func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSendToChain) (*types.MsgCancelSendToChainResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
@@ -516,7 +536,7 @@ func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSend
 		return nil, err
 	}
 
-	err = k.RemoveFromOutgoingPoolAndRefund(ctx, msg.TransactionId, sender)
+	err = k.Keeper.RemoveFromOutgoingPoolAndRefund(ctx, msg.TransactionId, sender)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
@@ -531,12 +551,12 @@ func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSend
 }
 
 func (k msgServer) SubmitBadSignatureEvidence(c context.Context, msg *types.MsgSubmitBadSignatureEvidence) (*types.MsgSubmitBadSignatureEvidenceResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	err := k.CheckBadSignatureEvidence(ctx, msg)
+	err := k.Keeper.CheckBadSignatureEvidence(ctx, msg)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSubmitBadSignatureEvidence{
@@ -552,11 +572,11 @@ func (k msgServer) SubmitBadSignatureEvidence(c context.Context, msg *types.MsgS
 }
 
 func (k msgServer) UpdateParams(c context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	defer doneFn()
+	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	// defer doneFn()
 
-	if msg.Authority != k.authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority: expected %s, got %s", k.authority, msg.Authority)
+	if msg.Authority != k.Keeper.authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority: expected %s, got %s", k.Keeper.authority, msg.Authority)
 	}
 
 	if err := msg.Params.ValidateBasic(); err != nil {
@@ -564,17 +584,17 @@ func (k msgServer) UpdateParams(c context.Context, msg *types.MsgUpdateParams) (
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	k.SetParams(ctx, &msg.Params)
+	k.Keeper.SetParams(ctx, &msg.Params)
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
 func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.MsgBlacklistEthereumAddresses) (*types.MsgBlacklistEthereumAddressesResponse, error) {
-	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
+	// defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
 	sdkContext := sdk.UnwrapSDKContext(ctx)
 
-	isValidSigner := k.authority == msg.Signer || k.isAdmin(sdkContext, msg.Signer)
+	isValidSigner := k.Keeper.authority == msg.Signer || k.Keeper.isAdmin(sdkContext, msg.Signer)
 	if !isValidSigner {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Hyperion module admins", msg.Signer)
 	}
@@ -584,18 +604,18 @@ func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.Ms
 		if err != nil {
 			return nil, errors.Wrapf(err, "invalid blacklist address %s", address)
 		}
-		k.SetEthereumBlacklistAddress(sdkContext, *blacklistAddr)
+		k.Keeper.SetEthereumBlacklistAddress(sdkContext, *blacklistAddr)
 	}
 
 	return &types.MsgBlacklistEthereumAddressesResponse{}, nil
 }
 
 func (k msgServer) RevokeEthereumBlacklist(ctx context.Context, msg *types.MsgRevokeEthereumBlacklist) (*types.MsgRevokeEthereumBlacklistResponse, error) {
-	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
+	// defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
 	sdkContext := sdk.UnwrapSDKContext(ctx)
 
-	isValidSigner := k.authority == msg.Signer || k.isAdmin(sdkContext, msg.Signer)
+	isValidSigner := k.Keeper.authority == msg.Signer || k.Keeper.isAdmin(sdkContext, msg.Signer)
 	if !isValidSigner {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Hyperion module admins", msg.Signer)
 	}
@@ -607,10 +627,10 @@ func (k msgServer) RevokeEthereumBlacklist(ctx context.Context, msg *types.MsgRe
 			return nil, errors.Wrapf(err, "invalid blacklist address %s", blacklistAddress)
 		}
 
-		if !k.IsOnBlacklist(sdkContext, *blacklistAddr) {
+		if !k.Keeper.IsOnBlacklist(sdkContext, *blacklistAddr) {
 			return nil, fmt.Errorf("invalid blacklist address")
 		} else {
-			k.DeleteEthereumBlacklistAddress(sdkContext, *blacklistAddr)
+			k.Keeper.DeleteEthereumBlacklistAddress(sdkContext, *blacklistAddr)
 		}
 	}
 

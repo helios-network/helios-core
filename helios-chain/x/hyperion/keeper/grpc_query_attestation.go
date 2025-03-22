@@ -17,7 +17,7 @@ func (k Keeper) Attestation(c context.Context, req *types.QueryAttestationReques
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	att := k.GetAttestation(ctx, req.Nonce, req.ClaimHash)
+	att := k.GetAttestation(ctx, req.HyperionId, req.Nonce, req.ClaimHash)
 	if att == nil {
 		return nil, status.Error(codes.NotFound, "attestation not found")
 	}

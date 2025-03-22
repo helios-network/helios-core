@@ -11,9 +11,8 @@ import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "helios-core/helios-chain/x/hyperion/types";
 
-// GenesisState struct
-message GenesisState {
-  Params params = 1;
+message GenesisHyperionState {
+  uint64 hyperion_id = 1;
   uint64 last_observed_nonce = 2;
   repeated Valset valsets = 3;
   repeated MsgValsetConfirm valset_confirms = 4;
@@ -28,4 +27,10 @@ message GenesisState {
   uint64 last_outgoing_pool_id = 13;
   Valset last_observed_valset = 14 [ (gogoproto.nullable) = false ];
   repeated string ethereum_blacklist = 15;
+}
+
+// GenesisState struct
+message GenesisState {
+  Params params = 1;
+  repeated GenesisHyperionState sub_states = 2;
 }

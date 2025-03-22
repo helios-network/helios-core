@@ -155,21 +155,6 @@ func GetValsetConfirmKey(nonce uint64, validator sdk.AccAddress) []byte {
 	return append(ValsetConfirmKey, append(UInt64Bytes(nonce), validator.Bytes()...)...)
 }
 
-// GetAttestationKey returns the following key format
-// prefix     nonce                             claim-details-hash
-// [0x5][0 0 0 0 0 0 0 1][fd1af8cec6c67fcf156f1b61fdf91ebc04d05484d007436e75342fc05bbff35a]
-// An attestation is an event multiple people are voting on, this function needs the claim
-// details because each Attestation is aggregating all claims of a specific event, lets say
-// validator X and validator y where making different claims about the same event nonce
-// Note that the claim hash does NOT include the claimer address and only identifies an event
-func GetAttestationKey(eventNonce uint64, claimHash []byte) []byte {
-	key := make([]byte, len(OracleAttestationKey)+len(UInt64Bytes(0))+len(claimHash))
-	copy(key[0:], OracleAttestationKey)
-	copy(key[len(OracleAttestationKey):], UInt64Bytes(eventNonce))
-	copy(key[len(OracleAttestationKey)+len(UInt64Bytes(0)):], claimHash)
-	return key
-}
-
 // GetAttestationKeyWithHash returns the following key format
 // prefix     nonce                             claim-details-hash
 // [0x5][0 0 0 0 0 0 0 1][fd1af8cec6c67fcf156f1b61fdf91ebc04d05484d007436e75342fc05bbff35a]
@@ -178,11 +163,12 @@ func GetAttestationKey(eventNonce uint64, claimHash []byte) []byte {
 // validator X and validator y where making different claims about the same event nonce
 // Note that the claim hash does NOT include the claimer address and only identifies an event
 func GetAttestationKeyWithHash(eventNonce uint64, claimHash []byte) []byte {
-	key := make([]byte, len(OracleAttestationKey)+len(UInt64Bytes(0))+len(claimHash))
-	copy(key[0:], OracleAttestationKey)
-	copy(key[len(OracleAttestationKey):], UInt64Bytes(eventNonce))
-	copy(key[len(OracleAttestationKey)+len(UInt64Bytes(0)):], claimHash)
-	return key
+	// key := make([]byte, len(OracleAttestationKey)+len(UInt64Bytes(0))+len(claimHash))
+	// copy(key[0:], OracleAttestationKey)
+	// copy(key[len(OracleAttestationKey):], UInt64Bytes(eventNonce))
+	// copy(key[len(OracleAttestationKey)+len(UInt64Bytes(0)):], claimHash)
+	// return key
+	return append(sdk.Uint64ToBigEndian(eventNonce), claimHash...)
 }
 
 // GetOutgoingTxPoolKey returns the following key format
@@ -251,11 +237,12 @@ func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte 
 // prefix              cosmos-validator
 // [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 func GetLastEventNonceByValidatorKey(validator sdk.ValAddress) []byte {
-	buf := make([]byte, 0, len(LastEventNonceByValidatorKey)+len(validator))
-	buf = append(buf, LastEventNonceByValidatorKey...)
-	buf = append(buf, validator.Bytes()...)
+	// buf := make([]byte, 0, len(LastEventNonceByValidatorKey)+len(validator))
+	// buf = append(buf, LastEventNonceByValidatorKey...)
+	// buf = append(buf, validator.Bytes()...)
 
-	return buf
+	// return buf
+	return validator.Bytes()
 }
 
 // GetLastEventByValidatorKey indexes lateset event by validator
@@ -263,11 +250,12 @@ func GetLastEventNonceByValidatorKey(validator sdk.ValAddress) []byte {
 // prefix              cosmos-validator
 // [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 func GetLastEventByValidatorKey(validator sdk.ValAddress) []byte {
-	buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator))
-	buf = append(buf, LastEventByValidatorKey...)
-	buf = append(buf, validator.Bytes()...)
+	// buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator))
+	// buf = append(buf, LastEventByValidatorKey...)
+	// buf = append(buf, validator.Bytes()...)
 
-	return buf
+	// return buf
+	return validator.Bytes()
 }
 
 func GetCosmosDenomToERC20Key(denom string) []byte {
