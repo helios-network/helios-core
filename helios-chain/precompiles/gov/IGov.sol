@@ -199,4 +199,21 @@ interface IGov {
         string[] memory denoms,
         uint256 initialDepositAmount
     ) external returns (uint64 proposalId);
+
+    /**
+     * @dev Submits a proposal to update consensus parameters.
+     * @param title The title of the proposal
+     * @param description The description of the proposal
+     * @param maxGas The new maximum gas limit per block
+     * @param maxBytes The new maximum block size
+     * @param initialDepositAmount The initial deposit amount in ahelios
+     * @return proposalId The ID of the created proposal
+     */
+    function updateBlockParamsProposal(
+        string memory title,
+        string memory description,
+        int64 maxGas,
+        int64 maxBytes,
+        uint256 initialDepositAmount
+    ) external payable returns (uint64 proposalId);
 }
