@@ -60,6 +60,50 @@
       ],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "chainId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "abiCall",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "callbackSelector",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxCallbackGas",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "bridgeFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "requestData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "taskId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
     }
   ],
   "bytecode": "0x",

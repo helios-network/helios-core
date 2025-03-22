@@ -11,6 +11,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
@@ -27,6 +28,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	hyperionKeeper hyperionkeeper.Keeper
+	bankKeeper     bankkeeper.Keeper
 }
 
 // LoadABI loads the gov ABI from the embedded abi.json file
@@ -38,6 +40,7 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	hyperionKeeper hyperionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	bankKeeper bankkeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -53,6 +56,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		hyperionKeeper: hyperionKeeper,
+		bankKeeper:     bankKeeper,
 	}
 
 	// SetAddress defines the address of the gov precompiled contract.
@@ -91,8 +95,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		return nil, err
 	}
 
-	ctx.Logger().Info("AJAJAJAJSSHSHSHHSHSHSHSHSHHS", method.Name)
-
 	switch method.Name {
 	case AddCounterpartyChainParamsMethod:
 		bz, err = p.AddCounterpartyChainParams(ctx, evm.Origin, contract, stateDB, method, args)
@@ -100,6 +102,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.SendToChain(ctx, evm.Origin, contract, stateDB, method, args)
 	case SetOrchestratorAddressesMethod:
 		bz, err = p.SetOrchestratorAddresses(ctx, evm.Origin, contract, stateDB, method, args)
+	// ask for external chain datas
+	case RequestDataHyperion:
+		bz, err = p.RequestData(ctx, evm.Origin, contract, stateDB, method, args)
+
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
@@ -128,6 +134,8 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 	case SendToChainMethod:
 		return true
 	case SetOrchestratorAddressesMethod:
+		return true
+	case RequestDataHyperion:
 		return true
 	default:
 		return false

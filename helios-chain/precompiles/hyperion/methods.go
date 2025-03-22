@@ -21,6 +21,7 @@ const (
 	AddCounterpartyChainParamsMethod = "addCounterpartyChainParams"
 	SetOrchestratorAddressesMethod   = "setOrchestratorAddresses"
 	SendToChainMethod                = "sendToChain"
+	RequestDataHyperion              = "requestData"
 )
 
 func (p Precompile) AddCounterpartyChainParams(
@@ -196,4 +197,95 @@ func (p Precompile) SendToChain(
 	// }
 
 	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) RequestData(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+
+	// taskId := big.NewInt(123)
+	// return method.Outputs.Pack(taskId)
+	// Pack the taskId as a bytes32 output
+
+	// Vérification du nombre d'arguments
+	if len(args) != 6 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 6, len(args))
+	}
+
+	// Extraction des paramètres
+	// chainId, ok := args[0].(*big.Int)
+	// if !ok {
+	// 	return nil, fmt.Errorf("invalid chainId type")
+	// }
+
+	// sourceContract, ok := args[1].(common.Address)
+	// if !ok {
+	// 	return nil, fmt.Errorf("invalid sourceContract type")
+	// }
+
+	// abiCallData, ok := args[2].([]byte)
+	// if !ok {
+	// 	return nil, fmt.Errorf("invalid abiCallData type")
+	// }
+
+	// callbackSelector, ok := args[3].([4]byte)
+	// if !ok {
+	// 	return nil, fmt.Errorf("invalid callbackSelector type")
+	// }
+
+	maxCallbackGas, ok := args[4].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid maxCallbackGas type")
+	}
+
+	bridgeFee, ok := args[5].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid bridgeFee type")
+	}
+
+	// Vérification des fonds
+	totalFee := new(big.Int).Add(maxCallbackGas, bridgeFee)
+	if contract.Value().Cmp(totalFee) < 0 {
+		return nil, fmt.Errorf("insufficient funds for bridge operation")
+	}
+
+	// Création du message pour le module Hyperion
+	//TODO: send msg to hyperion for processing cron request data request callback
+	// msg := &hyperiontypes.MsgRequestExternalData{
+	// 	Requester:         cmn.AccAddressFromHexAddress(origin).String(),
+	// 	ChainId:           chainId.Uint64(),
+	// 	SourceContract:    sourceContract.Hex(),
+	// 	AbiCallData:       abiCallData,
+	// 	CallbackSelector:  callbackSelector[:],
+	// 	MaxCallbackGas:    maxCallbackGas.Uint64(),
+	// 	BridgeFee:         cosmosmath.NewIntFromBigInt(bridgeFee),
+	// 	InitiatorContract: cmn.AccAddressFromHexAddress(origin).String(),
+	// }
+
+	// // Envoi du message via le serveur de messages
+	// msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)
+	// resp, err := msgSrv.RequestExternalData(ctx, msg)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// Transfert des fonds au module Hyperion
+	feeCoins := sdk.NewCoins(sdk.NewCoin("ahelios", cosmosmath.NewIntFromBigInt(totalFee)))
+	if err := p.bankKeeper.SendCoinsFromAccountToModule(
+		ctx,
+		cmn.AccAddressFromHexAddress(origin),
+		hyperiontypes.ModuleName,
+		feeCoins,
+	); err != nil {
+		return nil, err
+	}
+
+	// Retourne l'ID de la tâche créée
+	// return method.Outputs.Pack(resp.TaskId)
+	return method.Outputs.Pack(0)
 }

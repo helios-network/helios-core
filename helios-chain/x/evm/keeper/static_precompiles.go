@@ -68,7 +68,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}
 
-	hyperionPrecompile, err := hyperion.NewPrecompile(hyperionKeeper, authzKeeper)
+	hyperionPrecompile, err := hyperion.NewPrecompile(hyperionKeeper, authzKeeper, bankKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}
