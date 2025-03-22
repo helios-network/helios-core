@@ -26,6 +26,7 @@ const (
 	prefixCronBlockTransactionHashsKey                // 8
 	prefixCronTransactionHashToNonceKey               // 9
 	prefixCronTransactionResultByCronIdKey            // 10
+	prefixCronCallBackDataKey                         // 11
 )
 
 var (
@@ -58,6 +59,8 @@ var (
 
 	// CronTransactionResultByCronIdKey it the key for storing the multiple cron tx results on CronIdKey
 	CronTransactionResultByCronIdKey = []byte{prefixCronTransactionResultByCronIdKey}
+
+	CronCallBackDataKey = []byte{prefixCronCallBackDataKey}
 )
 
 // GetCronKey returns the key for a specific cron by name

@@ -627,8 +627,41 @@ async function getEvents() {
   });
 }
 
+async function createCronCallBackData() {
+  console.log("wallet : ", wallet.address)
+  try {
+    console.log('createCronCallBackData en cours...');
+
+    // let x = await wallet.sendTransaction({
+    //   value: ethers.parseEther("500"),
+    //   to: wallet2.address
+    // });
+    // await x.wait();
+
+    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
+    const tx = await contract.createCallbackConditionedCron(
+      "0x6E85bfd36946631d93e0D4a8d6eef2d88e4F4803",
+      "callBack", // methodName
+      0, // expirationBlock
+      400000, // gasLimit
+      ethers.parseUnits("2", "gwei"), // maxGasPrice
+      ethers.parseEther("1")
+    );
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log(receipt);
+  } catch (error) {
+    console.error('Erreur lors de la createCron :', error);
+  }
+}
+
 async function main() {
-  await createCron();
+  await createCronCallBackData();
+  // await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();

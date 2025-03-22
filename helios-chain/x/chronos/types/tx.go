@@ -60,6 +60,22 @@ func (msg *MsgCreateCron) Validate() error {
 	return nil
 }
 
+func (msg *MsgCreateCallBackConditionedCron) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(msg.OwnerAddress); err != nil {
+		return errors.Wrap(err, "owner_address is invalid")
+	}
+
+	if !strings.HasPrefix(msg.ContractAddress, "0x") || len(msg.ContractAddress) != 42 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "contract_address is invalid")
+	}
+
+	if msg.MethodName == "" {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "method_name cannot be empty")
+	}
+
+	return nil
+}
+
 //----------------------------------------------------------------
 
 var _ sdk.Msg = &MsgUpdateCron{}

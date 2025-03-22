@@ -13,6 +13,7 @@ service Msg {
   option (cosmos.msg.v1.service) = true;
 
   rpc CreateCron(MsgCreateCron) returns (MsgCreateCronResponse);
+  rpc CreateCallBackConditionedCron(MsgCreateCallBackConditionedCron) returns (MsgCreateCallBackConditionedCronResponse);
   rpc UpdateCron(MsgUpdateCron) returns (MsgUpdateCronResponse);
   rpc CancelCron(MsgCancelCron) returns (MsgCancelCronResponse);
 }
@@ -34,6 +35,27 @@ message MsgCreateCron {
 }
 
 message MsgCreateCronResponse {
+  uint64 cron_id = 1;
+  string cron_address = 2; // Address of cron
+}
+
+message MsgCreateCallBackConditionedCron {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string owner_address = 1; // User wallet scheduling the call
+  string contract_address = 2; // Target EVM smart contract address
+  string method_name = 4; // Method to call
+  
+  // cb(bytes memory data, bytes memory error)
+
+  uint64 expiration_block = 7; // Optional expiration block height
+  uint64 gas_limit = 8; // Maximum gas allowed for execution
+  string max_gas_price = 9 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Maximum gas price accepted
+  string sender = 10; // Add this field for the Cosmos SDK signer
+  string amount_to_deposit = 11 [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // Amount to deposit for pay Cron runs
+}
+
+message MsgCreateCallBackConditionedCronResponse {
   uint64 cron_id = 1;
   string cron_address = 2; // Address of cron
 }

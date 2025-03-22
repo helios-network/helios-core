@@ -6,6 +6,11 @@ import "ethermint/evm/v1/evm.proto";
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
+message CronCallBackData {
+  bytes data = 1;
+  bytes error = 2;
+}
+
 message CronTransactionResult {
   bytes tx = 1;
   bytes result = 2;

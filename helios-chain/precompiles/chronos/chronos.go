@@ -99,6 +99,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.UpdateCron(ctx, evm.Origin, contract, stateDB, method, args)
 	case CancelCronMethod:
 		bz, err = p.CancelCron(ctx, evm.Origin, contract, stateDB, method, args)
+	case CreateCallbackConditionedCronMethod:
+		bz, err = p.CreateCallbackConditionedCron(ctx, evm.Origin, contract, stateDB, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
@@ -127,6 +129,8 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 	case UpdateCronMethod:
 		return true
 	case CancelCronMethod:
+		return true
+	case CreateCallbackConditionedCronMethod:
 		return true
 	default:
 		return false
