@@ -126,7 +126,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	// Iterate through remaining batches
 	k.IterateOutgoingTXBatches(ctx, func(key []byte, iter_batch *types.OutgoingTxBatch) bool {
 		// If the iterated batches nonce is lower than the one that was just executed, cancel it
-		if iter_batch.BatchNonce < b.BatchNonce && common.HexToAddress(iter_batch.TokenContract) == tokenContract {
+		if iter_batch.HyperionId == hyperionId && iter_batch.BatchNonce < b.BatchNonce && common.HexToAddress(iter_batch.TokenContract) == tokenContract {
 			err := k.CancelOutgoingTXBatch(ctx, tokenContract, iter_batch.BatchNonce, iter_batch.HyperionId)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
