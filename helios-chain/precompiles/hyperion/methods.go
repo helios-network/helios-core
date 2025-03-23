@@ -308,7 +308,7 @@ func (p Precompile) RequestData(
 
 	//TODO: instead call Hyperion with Task ID to execute with chain_id and abiCall and source(contract hash to call)
 
-	ctx.Logger().Info("Created conditional cron job",
+	ctx.Logger().Debug("Created conditional cron job",
 		"taskId", taskId.String(),
 		"origin", origin.String(),
 		"callerAddress", contract.CallerAddress.String(),
