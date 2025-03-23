@@ -235,23 +235,18 @@ func (p Precompile) RequestData(
 	// 	return nil, fmt.Errorf("invalid abiCall type")
 	// }
 
-	callbackAddress, ok := args[3].(common.Address)
-	if !ok {
-		return nil, fmt.Errorf("invalid callbackSelector function name")
-	}
-
 	//TODO: check if callbackSelector exist
-	callbackSelector, ok := args[4].(string)
+	callbackSelector, ok := args[3].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid callbackSelector function name")
 	}
 
-	maxCallbackGas, ok := args[5].(*big.Int)
+	maxCallbackGas, ok := args[4].(*big.Int)
 	if !ok {
 		return nil, fmt.Errorf("invalid maxCallbackGas type")
 	}
 
-	gasLimit, ok := args[6].(*big.Int)
+	gasLimit, ok := args[5].(*big.Int)
 	if !ok {
 		return nil, fmt.Errorf("invalid gasLimit type")
 	}
@@ -279,7 +274,7 @@ func (p Precompile) RequestData(
 	// Create the chronos message
 	msg := &chronostypes.MsgCreateCallBackConditionedCron{
 		OwnerAddress:    cmn.AccAddressFromHexAddress(origin).String(),
-		ContractAddress: callbackAddress.String(),
+		ContractAddress: contract.CallerAddress.String(),
 		MethodName:      callbackSelector,
 		ExpirationBlock: uint64(expirationBlock),
 		GasLimit:        gasLimit.Uint64(),
@@ -316,6 +311,8 @@ func (p Precompile) RequestData(
 	ctx.Logger().Info("Created conditional cron job",
 		"taskId", taskId.String(),
 		"origin", origin.String(),
+		"callerAddress", contract.CallerAddress.String(),
+		"contract.Address()", contract.Address().String(),
 		"cronId", response.CronId,
 		"source", source.Hex(),
 		"methodName", callbackSelector)

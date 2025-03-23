@@ -79,11 +79,6 @@
           "type": "bytes"
         },
         {
-          "internalType": "address",
-          "name": "callbackAddress",
-          "type": "address"
-        },
-        {
           "internalType": "string",
           "name": "callbackSelector",
           "type": "string"
