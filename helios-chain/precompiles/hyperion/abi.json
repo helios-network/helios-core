@@ -79,9 +79,9 @@
           "type": "bytes"
         },
         {
-          "internalType": "bytes4",
+          "internalType": "string",
           "name": "callbackSelector",
-          "type": "bytes4"
+          "type": "string"
         },
         {
           "internalType": "uint256",
@@ -90,7 +90,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "bridgeFee",
+          "name": "gasLimit",
           "type": "uint256"
         }
       ],

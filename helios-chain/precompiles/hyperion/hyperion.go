@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	cmn "helios-core/helios-chain/precompiles/common"
+	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
 	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	hyperionkeeper "helios-core/helios-chain/x/hyperion/keeper"
@@ -29,6 +30,7 @@ type Precompile struct {
 	cmn.Precompile
 	hyperionKeeper hyperionkeeper.Keeper
 	bankKeeper     bankkeeper.Keeper
+	chronosKeeper  chronoskeeper.Keeper
 }
 
 // LoadABI loads the gov ABI from the embedded abi.json file
@@ -41,6 +43,7 @@ func NewPrecompile(
 	hyperionKeeper hyperionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
+	chronosKeeper chronoskeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -57,6 +60,7 @@ func NewPrecompile(
 		},
 		hyperionKeeper: hyperionKeeper,
 		bankKeeper:     bankKeeper,
+		chronosKeeper:  chronosKeeper,
 	}
 
 	// SetAddress defines the address of the gov precompiled contract.

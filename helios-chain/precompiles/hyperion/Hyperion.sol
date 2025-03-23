@@ -31,15 +31,15 @@ interface HyperionI {
     /// @param abiCall The ABI-encoded function call
     /// @param callbackSelector The selector of the callback function
     /// @param maxCallbackGas Maximum gas allowed for the callback
-    /// @param bridgeFee Fee for bridging the request
+    /// @param gasLimit Maximum gas limit
     /// @return taskId A unique identifier for the data request
     function requestData(
         uint64 chainId,
         address source,
         bytes calldata abiCall,
-        bytes4 callbackSelector,
+        string memory callbackSelector,
         uint256 maxCallbackGas,
-        uint256 bridgeFee
+        uint256 gasLimit
     ) external payable returns (uint256 taskId);
 
 }
