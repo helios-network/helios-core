@@ -226,14 +226,34 @@ func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) er
 		}
 	}
 
-	k.StoreRemoveCron(ctx, id)
+	k.StoreArchiveCron(ctx, cron)
 	k.StoreChangeTotalCount(ctx, -1)
 
 	return nil
 }
 
+func (k *Keeper) GetCronOrArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
+	cron, ok := k.GetCron(ctx, id)
+	if ok {
+		return cron, true
+	}
+	return k.GetArchivedCron(ctx, id)
+}
+
 func (k *Keeper) GetCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
+	bz := store.Get(GetCronIDBytes(id))
+	if bz == nil {
+		return types.Cron{}, false
+	}
+
+	var cron types.Cron
+	k.cdc.MustUnmarshal(bz, &cron)
+	return cron, true
+}
+
+func (k *Keeper) GetArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
 	bz := store.Get(GetCronIDBytes(id))
 	if bz == nil {
 		return types.Cron{}, false
@@ -1229,6 +1249,14 @@ func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, 
 func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	store.Delete(GetCronIDBytes(id))
+}
+
+func (k *Keeper) StoreArchiveCron(ctx sdk.Context, cron types.Cron) {
+	k.StoreRemoveCron(ctx, cron.Id)
+	cron.Archived = true
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
+	bz := k.cdc.MustMarshal(&cron)
+	store.Set(GetCronIDBytes(cron.Id), bz)
 }
 
 func (k *Keeper) StoreCronExists(ctx sdk.Context, id uint64) bool {

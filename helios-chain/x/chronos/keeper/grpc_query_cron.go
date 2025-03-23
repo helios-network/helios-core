@@ -21,7 +21,7 @@ func (k Keeper) QueryGetCron(c context.Context, req *types.QueryGetCronRequest) 
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	cron, ok := k.GetCron(ctx, req.Id)
+	cron, ok := k.GetCronOrArchivedCron(ctx, req.Id)
 
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "cron with ID %d not found", req.Id)
@@ -44,7 +44,7 @@ func (k Keeper) QueryGetCronByAddress(c context.Context, req *types.QueryGetCron
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "cron with Address %s not found", req.Address)
 	}
-	cron, ok := k.GetCron(ctx, id)
+	cron, ok := k.GetCronOrArchivedCron(ctx, id)
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "cron with Address %s And Id %d Cancelled", req.Address, id)
 	}

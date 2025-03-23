@@ -27,6 +27,7 @@ const (
 	prefixCronTransactionHashToNonceKey               // 9
 	prefixCronTransactionResultByCronIdKey            // 10
 	prefixCronCallBackDataKey                         // 11
+	prefixCronArchivedKey                             // 12
 )
 
 var (
@@ -61,6 +62,8 @@ var (
 	CronTransactionResultByCronIdKey = []byte{prefixCronTransactionResultByCronIdKey}
 
 	CronCallBackDataKey = []byte{prefixCronCallBackDataKey}
+
+	CronArchivedKey = []byte{prefixCronArchivedKey}
 )
 
 // GetCronKey returns the key for a specific cron by name
