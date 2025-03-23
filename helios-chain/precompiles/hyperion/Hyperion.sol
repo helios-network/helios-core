@@ -37,6 +37,7 @@ interface HyperionI {
         uint64 chainId,
         address source,
         bytes calldata abiCall,
+        address callbackAddress,
         string memory callbackSelector,
         uint256 maxCallbackGas,
         uint256 gasLimit
