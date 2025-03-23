@@ -817,6 +817,7 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 		Nonce:       nonce,
 		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
 		CronId:      cron.Id,
+		CronAddress: cmn.AnyToHexAddress(cron.Address).String(),
 	}
 
 	// Update the next execution block after successful execution
@@ -930,6 +931,7 @@ func (k *Keeper) emitCronCancelledEvent(ctx sdk.Context, cron types.Cron) error 
 		Nonce:       nonce,
 		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
 		CronId:      cron.Id,
+		CronAddress: cmn.AnyToHexAddress(cron.Address).String(),
 	}
 
 	k.StoreCronTransactionResult(ctx, cron, cronTxResult)
@@ -990,6 +992,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 		V:                "0x1",
 		Value:            hexutil.EncodeBig(txToRPC.Value.ToInt()),
 		CronId:           txResult.CronId,
+		CronAddress:      txResult.CronAddress,
 	}
 	return rpcTxMap, nil
 }
@@ -1077,9 +1080,10 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 		Type: hexutil.Uint(uint64(2)).String(),
 
 		// returns data
-		Ret:     hexutil.Encode(castedResponse.Ret), // Ret is the bytes of call return
-		VmError: castedResponse.VmError,
-		CronId:  txResult.CronId,
+		Ret:         hexutil.Encode(castedResponse.Ret), // Ret is the bytes of call return
+		VmError:     castedResponse.VmError,
+		CronId:      txResult.CronId,
+		CronAddress: txResult.CronAddress,
 	}
 
 	// If the ContractAddress is 20 0x0 bytes, assume it is not a contract creation
