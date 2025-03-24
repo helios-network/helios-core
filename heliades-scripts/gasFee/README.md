@@ -23,3 +23,9 @@ node ./contracts/precompile/create.js
 ```shell
 npx hardhat test test/gas-analysis-helios.test.js --network helios 
 ```
+# Test block base fee adjustment
+
+```shell
+npx hardhat test test/base-fee-adjustment.test.js --network helios
+```
+
