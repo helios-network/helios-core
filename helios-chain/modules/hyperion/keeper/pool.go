@@ -57,7 +57,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	}
 
 	// get next tx id from keeper
-	nextID := k.AutoIncrementID(ctx, types.KeyLastTXPoolID)
+	nextID := k.AutoIncrementID(ctx, types.GetKeyLastOutgoingBatchID(hyperionId))
 	erc20Fee := types.NewSDKIntERC20Token(fee.Amount, tokenContract)
 
 	// construct outgoing tx, as part of this process we represent
@@ -460,12 +460,12 @@ func (k *Keeper) AutoIncrementID(ctx sdk.Context, idKey []byte) uint64 {
 	return id
 }
 
-func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context, hyperionID uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastOutgoingBatchID
+	key := types.GetKeyLastOutgoingBatchID(hyperionID)
 	var id uint64
 	bz := store.Get(key)
 	if bz != nil {
@@ -474,7 +474,7 @@ func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context) uint64 {
 	return id
 }
 
-func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, lastOutgoingBatchID uint64) {
+func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, hyperionID uint64, lastOutgoingBatchID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -484,12 +484,12 @@ func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, lastOutgoingBatchID uin
 	store.Set(key, bz)
 }
 
-func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context, hyperionID uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastTXPoolID
+	key := types.GetKeyLastTXPoolID(hyperionID)
 	var id uint64
 	bz := store.Get(key)
 	if bz != nil {
@@ -498,12 +498,12 @@ func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context) uint64 {
 	return id
 }
 
-func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, lastOutgoingPoolID uint64) {
+func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, hyperionID uint64, lastOutgoingPoolID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastTXPoolID
+	key := types.GetKeyLastTXPoolID(hyperionID)
 	bz := sdk.Uint64ToBigEndian(lastOutgoingPoolID)
 	store.Set(key, bz)
 }

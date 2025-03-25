@@ -544,8 +544,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 	))
 
 	k.SetParams(ctx, TestingHyperionParams)
-	k.SetLastOutgoingBatchID(ctx, uint64(0))
-	k.SetLastOutgoingPoolID(ctx, uint64(0))
+	k.SetLastOutgoingBatchID(ctx, uint64(0), uint64(0))
+	k.SetLastOutgoingPoolID(ctx, uint64(0), uint64(0))
 
 	return TestInput{
 		HyperionKeeper: k,

@@ -425,7 +425,7 @@ func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyC
 	//
 	// Only prune valsets after the signed valsets window has passed
 	// so that slashing can occur the block before we remove them
-	lastObserved := h.k.GetLastObservedValset(ctx)
+	lastObserved := h.k.GetLastObservedValset(ctx, params.HyperionId)
 	currentBlock := uint64(ctx.BlockHeight())
 	tooEarly := currentBlock < params.SignedValsetsWindow
 	if lastObserved != nil && !tooEarly {

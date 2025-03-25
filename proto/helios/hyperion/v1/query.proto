@@ -157,7 +157,7 @@ message QueryValsetConfirmsByNonceResponse {
 message QueryLastValsetRequestsRequest { uint64 hyperion_id = 1; }
 message QueryLastValsetRequestsResponse { repeated Valset valsets = 1; }
 
-message QueryLastPendingValsetRequestByAddrRequest { string address = 1; }
+message QueryLastPendingValsetRequestByAddrRequest { string address = 1; uint64 hyperion_id = 2; }
 message QueryLastPendingValsetRequestByAddrResponse {
   repeated Valset valsets = 1;
 }

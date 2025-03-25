@@ -7,6 +7,7 @@ import (
 
 	accountsabi "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -33,16 +34,15 @@ func (b OutgoingTxBatch) GetCheckpoint(hyperionID uint64) common.Hash {
 		txFees[i] = tx.Erc20Fee.Amount.BigInt()
 	}
 
-	hyperionIDBytes := []uint8("checkpoint")
-	var tHyperionID [32]uint8
-	copy(tHyperionID[:], hyperionIDBytes)
+	hyperionIDHash := gethcommon.BigToHash(big.NewInt(int64(hyperionID)))
+	hyperionIDHashBytes := [32]uint8(hyperionIDHash.Bytes())
 
 	// the methodName needs to be the same as the 'name' above in the checkpointAbiJson
 	// but other than that it's a constant that has no impact on the output. This is because
 	// it gets encoded as a function name which we must then discard.
 	// TODO: hyperionID is bytes32 NOT uint64
 	abiEncodedBatch, err := abi.Pack("submitBatch",
-		tHyperionID,
+		hyperionIDHashBytes,
 		batchMethodName,
 		txAmounts,
 		txDestinations,

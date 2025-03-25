@@ -398,12 +398,12 @@ func (k *Keeper) IterateAttestations(ctx sdk.Context, cb func(k []byte, v *types
 // WARNING: This value is not an up to date validator set on Ethereum, it is a validator set
 // that AT ONE POINT was the one in the Gravity bridge on Ethereum. If you assume that it's up
 // to date you may break the bridge
-func (k *Keeper) GetLastObservedValset(ctx sdk.Context) *types.Valset {
+func (k *Keeper) GetLastObservedValset(ctx sdk.Context, hyperionID uint64) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastObservedValsetKey)
+	bytes := store.Get(types.GetLastObservedValsetKey(hyperionID))
 
 	if len(bytes) == 0 {
 		return nil
@@ -416,12 +416,13 @@ func (k *Keeper) GetLastObservedValset(ctx sdk.Context) *types.Valset {
 }
 
 // SetLastObservedValset updates the last observed validator set in the store
-func (k *Keeper) SetLastObservedValset(ctx sdk.Context, valset types.Valset) {
+func (k *Keeper) SetLastObservedValset(ctx sdk.Context, valset types.Valset, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastObservedValsetKey, k.cdc.MustMarshal(&valset))
+	key := types.GetLastObservedValsetKey(hyperionID)
+	store.Set(key, k.cdc.MustMarshal(&valset))
 }
 
 // GetLastObservedEventNonceForHyperionID returns the latest observed event nonce
@@ -501,6 +502,7 @@ func (k *Keeper) setLastObservedEventNonce(ctx sdk.Context, nonce uint64) {
 }
 
 func (k *Keeper) setLastObservedEventNonceForHyperionID(ctx sdk.Context, nonce uint64, hyperionID uint64) {
+	fmt.Println("setLastObservedEventNonceForHyperionID - nonce: ", nonce, "hyperionID: ", hyperionID)
 
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

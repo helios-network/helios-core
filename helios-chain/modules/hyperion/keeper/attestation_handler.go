@@ -238,7 +238,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			Members:      claim.Members,
 			RewardAmount: claim.RewardAmount,
 			RewardToken:  claim.RewardToken,
-		})
+		}, claim.HyperionId)
 	default:
 		metrics.ReportFuncError(a.svcTags)
 		panic(fmt.Sprintf("Invalid event type for attestations %s", claim.GetType()))

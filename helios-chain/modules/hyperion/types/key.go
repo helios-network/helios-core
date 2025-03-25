@@ -115,6 +115,18 @@ var (
 	EthereumBlacklistKey = []byte{0x1c}
 )
 
+func GetKeyLastTXPoolID(hyperionID uint64) []byte {
+	return append(KeyLastTXPoolID, UInt64Bytes(hyperionID)...)
+}
+
+func GetKeyLastOutgoingBatchID(hyperionID uint64) []byte {
+	return append(KeyLastOutgoingBatchID, UInt64Bytes(hyperionID)...)
+}
+
+func GetLastObservedValsetKey(hyperionID uint64) []byte {
+	return append(LastObservedValsetKey, UInt64Bytes(hyperionID)...)
+}
+
 func GetLastObservedEventNonceForHyperionIDKey(hyperionID uint64) []byte {
 	return append(LastObservedEventNonceKey, UInt64Bytes(hyperionID)...)
 }

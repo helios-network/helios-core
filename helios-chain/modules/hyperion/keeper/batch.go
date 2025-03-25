@@ -59,7 +59,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		return nil, err
 	}
 
-	nextID := k.AutoIncrementID(ctx, types.KeyLastOutgoingBatchID)
+	nextID := k.AutoIncrementID(ctx, types.GetKeyLastOutgoingBatchID(hyperionId))
 	batch := &types.OutgoingTxBatch{
 		BatchNonce:    nextID,
 		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
@@ -67,6 +67,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		TokenContract: contractAddress.Hex(),
 		HyperionId:    hyperionId,
 	}
+	fmt.Println("request batch - batch: ", batch)
 	k.StoreBatch(ctx, batch)
 
 	// Get the checkpoint and store it as a legit past batch
@@ -100,7 +101,7 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint6
 	// place on top of our projection of the current Ethereum block height.
 	blocksToAdd := counterpartyChainParams.TargetBatchTimeout / counterpartyChainParams.AverageCounterpartyBlockTime
 
-	return projectedCurrentEthereumHeight + blocksToAdd
+	return projectedCurrentEthereumHeight + blocksToAdd + 100000000000000 // TODO: remove this
 }
 
 // OutgoingTxBatchExecuted is run when the Cosmos chain detects that a batch has been executed on Ethereum
