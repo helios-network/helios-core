@@ -65,25 +65,36 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 	for _, subState := range data.SubStates {
 
 		for _, valset := range subState.Valsets {
-			k.StoreValsetUnsafe(ctx, valset)
+
+			if valset.HyperionId == subState.HyperionId {
+				k.StoreValsetUnsafe(ctx, valset)
+			}
 		}
 
 		for _, valsetConfirm := range subState.ValsetConfirms {
-			k.SetValsetConfirm(ctx, valsetConfirm)
+			if valsetConfirm.HyperionId == subState.HyperionId {
+				k.SetValsetConfirm(ctx, valsetConfirm)
+			}
 		}
 
 		for _, batch := range subState.Batches {
-			k.StoreBatchUnsafe(ctx, batch)
+			if batch.HyperionId == subState.HyperionId {
+				k.StoreBatchUnsafe(ctx, batch)
+			}
 		}
 
 		for _, batchConfirm := range subState.BatchConfirms {
-			k.SetBatchConfirm(ctx, batchConfirm)
+			if batchConfirm.HyperionId == subState.HyperionId {
+				k.SetBatchConfirm(ctx, batchConfirm)
+			}
 		}
 
 		// reset pool transactions in state
 		for _, tx := range subState.UnbatchedTransfers {
-			if err := k.setPoolEntry(ctx, tx); err != nil {
-				panic(err)
+			if tx.HyperionId == subState.HyperionId {
+				if err := k.setPoolEntry(ctx, tx); err != nil {
+					panic(err)
+				}
 			}
 		}
 
@@ -169,28 +180,28 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 	for _, param := range p.CounterpartyChainParams {
 		// param.HyperionId
 		var (
-			batches                         = k.GetOutgoingTxBatches(ctx)
-			valsets                         = k.GetValsets(ctx)
+			batches                         = k.GetOutgoingTxBatches(ctx, param.HyperionId)
+			valsets                         = k.GetValsets(ctx, param.HyperionId)
 			attmap                          = k.GetAttestationMapping(ctx, param.HyperionId)
 			vsconfs                         = []*types.MsgValsetConfirm{}
 			batchconfs                      = []*types.MsgConfirmBatch{}
 			attestations                    = []*types.Attestation{}
-			orchestratorAddresses           = k.GetOrchestratorAddresses(ctx)
+			orchestratorAddresses           = k.GetOrchestratorAddresses(ctx) // same for all
 			lastObservedEventNonce          = k.GetLastObservedEventNonce(ctx, param.HyperionId)
 			lastObservedEthereumBlockHeight = k.GetLastObservedEthereumBlockHeight(ctx, param.HyperionId)
 			erc20ToDenoms                   = []*types.ERC20ToDenom{}
-			unbatchedTransfers              = k.GetPoolTransactions(ctx)
-			ethereumBlacklistAddresses      = k.GetAllEthereumBlacklistAddresses(ctx)
+			unbatchedTransfers              = k.GetPoolTransactions(ctx, param.HyperionId)
+			ethereumBlacklistAddresses      = k.GetAllEthereumBlacklistAddresses(ctx) // same for all
 		)
 
 		// export valset confirmations from state
 		for _, vs := range valsets {
-			vsconfs = append(vsconfs, k.GetValsetConfirms(ctx, vs.Nonce)...)
+			vsconfs = append(vsconfs, k.GetValsetConfirms(ctx, vs.HyperionId, vs.Nonce)...)
 		}
 
 		// export batch confirmations from state
 		for _, batch := range batches {
-			batchconfs = append(batchconfs, k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.BatchNonce, common.HexToAddress(batch.TokenContract))...)
+			batchconfs = append(batchconfs, k.GetBatchConfirmByNonceAndTokenContract(ctx, param.HyperionId, batch.BatchNonce, common.HexToAddress(batch.TokenContract))...)
 		}
 
 		// sort attestation map keys since map iteration is non-deterministic

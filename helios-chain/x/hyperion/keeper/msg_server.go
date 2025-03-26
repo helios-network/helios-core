@@ -133,7 +133,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	valset := k.Keeper.GetValset(ctx, msg.Nonce)
+	valset := k.Keeper.GetValset(ctx, msg.HyperionId, msg.Nonce)
 	if valset == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find valset")
@@ -170,7 +170,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	}
 
 	// persist signature
-	if k.Keeper.GetValsetConfirm(ctx, msg.Nonce, orchaddr) != nil {
+	if k.Keeper.GetValsetConfirm(ctx, msg.HyperionId, msg.Nonce, orchaddr) != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrDuplicate, "signature duplicate")
 	}
@@ -310,7 +310,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	}
 
 	// check if we already have this confirm
-	if k.Keeper.GetBatchConfirm(ctx, msg.Nonce, tokenContract, orchaddr) != nil {
+	if k.Keeper.GetBatchConfirm(ctx, msg.HyperionId, msg.Nonce, tokenContract, orchaddr) != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrDuplicate, "duplicate signature")
 	}

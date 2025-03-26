@@ -147,13 +147,13 @@ func (b BridgeValidators) ValidateBasic() error {
 }
 
 // NewValset returns a new valset
-func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdkmath.Int, rewardToken gethcommon.Address) *Valset {
+func NewValset(hyperionId, nonce, height uint64, members BridgeValidators, rewardAmount sdkmath.Int, rewardToken gethcommon.Address) *Valset {
 	members.Sort()
 	mem := make([]*BridgeValidator, 0)
 	for _, val := range members {
 		mem = append(mem, val)
 	}
-	return &Valset{Nonce: nonce, Members: mem, Height: height, RewardAmount: rewardAmount, RewardToken: rewardToken.Hex()}
+	return &Valset{HyperionId: hyperionId, Nonce: nonce, Members: mem, Height: height, RewardAmount: rewardAmount, RewardToken: rewardToken.Hex()}
 }
 
 // GetCheckpoint returns the checkpoint hash

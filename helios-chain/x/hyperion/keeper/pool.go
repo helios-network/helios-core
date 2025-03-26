@@ -120,7 +120,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 	}
 
 	found := false
-	poolTx := k.GetPoolTransactions(ctx)
+	poolTx := k.GetAllPoolTransactions(ctx)
 	for _, pTx := range poolTx {
 		if pTx.Id == txId {
 			found = true
@@ -303,7 +303,38 @@ func (k *Keeper) removePoolEntry(ctx sdk.Context, id uint64) {
 
 // GetPoolTransactions, grabs all transactions from the tx pool, useful for queries or genesis save/load
 // this does not include all transactions in batches, because it iterates using the second index key
-func (k *Keeper) GetPoolTransactions(ctx sdk.Context) []*types.OutgoingTransferTx {
+func (k *Keeper) GetPoolTransactions(ctx sdk.Context, hyperionId uint64) []*types.OutgoingTransferTx {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	prefixStore := ctx.KVStore(k.storeKey)
+	// we must use the second index key here because transactions are left in the store, but removed
+	// from the tx sorting key, while in batches
+	iter := prefixStore.ReverseIterator(PrefixRange(types.SecondIndexOutgoingTXFeeKey))
+
+	var ret []*types.OutgoingTransferTx
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		var ids types.IDSet
+		k.cdc.MustUnmarshal(iter.Value(), &ids)
+		for _, id := range ids.Ids {
+			tx, err := k.getPoolEntry(ctx, id)
+			if tx.HyperionId != hyperionId {
+				continue
+			}
+			if err != nil {
+				metrics.ReportFuncError(k.svcTags)
+				panic("Invalid id in tx index!")
+			}
+			ret = append(ret, tx)
+		}
+	}
+
+	return ret
+}
+
+func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransferTx {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 

@@ -42,7 +42,7 @@ func (k *Keeper) ValsetRequest(c context.Context, req *types.QueryValsetRequestR
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.Nonce)}, nil
+	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.HyperionId, req.Nonce)}, nil
 }
 
 // ValsetConfirm queries the ValsetConfirm of the hyperion module
@@ -55,7 +55,7 @@ func (k *Keeper) ValsetConfirm(c context.Context, req *types.QueryValsetConfirmR
 		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, "address invalid")
 	}
 
-	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.Nonce, addr)}, nil
+	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.HyperionId, req.Nonce, addr)}, nil
 }
 
 // ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the hyperion module
@@ -65,7 +65,7 @@ func (k *Keeper) ValsetConfirmsByNonce(c context.Context, req *types.QueryValset
 
 	confirms := make([]*types.MsgValsetConfirm, 0)
 
-	k.IterateValsetConfirmByNonce(sdk.UnwrapSDKContext(c), req.Nonce, func(_ []byte, valset *types.MsgValsetConfirm) (stop bool) {
+	k.IterateValsetConfirmByNonce(sdk.UnwrapSDKContext(c), req.HyperionId, req.Nonce, func(_ []byte, valset *types.MsgValsetConfirm) (stop bool) {
 		confirms = append(confirms, valset)
 
 		return false
@@ -79,7 +79,7 @@ func (k *Keeper) LastValsetRequests(c context.Context, req *types.QueryLastValse
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	valReq := k.GetValsets(sdk.UnwrapSDKContext(c))
+	valReq := k.GetValsets(sdk.UnwrapSDKContext(c), req.HyperionId)
 	valReqLen := len(valReq)
 	retLen := 0
 
@@ -105,8 +105,12 @@ func (k *Keeper) LastPendingValsetRequestByAddr(c context.Context, req *types.Qu
 
 	pendingValsetReq := make([]*types.Valset, 0)
 	k.IterateValsets(sdk.UnwrapSDKContext(c), func(_ []byte, val *types.Valset) bool {
+		if val.HyperionId != req.HyperionId {
+			// return false to continue the loop
+			return false
+		}
 		// foundConfirm is true if the operatorAddr has signed the valset we are currently looking at
-		foundConfirm := k.GetValsetConfirm(sdk.UnwrapSDKContext(c), val.Nonce, addr) != nil
+		foundConfirm := k.GetValsetConfirm(sdk.UnwrapSDKContext(c), val.HyperionId, val.Nonce, addr) != nil
 		// if this valset has NOT been signed by operatorAddr, store it in pendingValsetReq
 		// and exit the loop
 		if !foundConfirm {
@@ -144,8 +148,8 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 	}
 
 	var pendingBatchReq *types.OutgoingTxBatch
-	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), func(_ []byte, batch *types.OutgoingTxBatch) (stop bool) {
-		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr) != nil
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) (stop bool) {
+		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.HyperionId, batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr) != nil
 		if !foundConfirm {
 			pendingBatchReq = batch
 			return true
@@ -163,7 +167,7 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	defer doneFn()
 
 	batches := make([]*types.OutgoingTxBatch, 0)
-	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), func(_ []byte, batch *types.OutgoingTxBatch) bool {
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) bool {
 		batches = append(batches, batch)
 		return len(batches) == MaxResults
 	})
@@ -196,7 +200,7 @@ func (k *Keeper) BatchConfirms(c context.Context, req *types.QueryBatchConfirmsR
 	defer doneFn()
 
 	confirms := make([]*types.MsgConfirmBatch, 0)
-	k.IterateBatchConfirmByNonceAndTokenContract(sdk.UnwrapSDKContext(c), req.Nonce, common.HexToAddress(req.ContractAddress),
+	k.IterateBatchConfirmByNonceAndTokenContract(sdk.UnwrapSDKContext(c), req.HyperionId, req.Nonce, common.HexToAddress(req.ContractAddress),
 		func(_ []byte, batch *types.MsgConfirmBatch) (stop bool) {
 			confirms = append(confirms, batch)
 			return false
@@ -360,8 +364,8 @@ func (k *Keeper) GetPendingSendToChain(c context.Context, req *types.QueryPendin
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	batches := k.GetOutgoingTxBatches(ctx)
-	unbatchedTx := k.GetPoolTransactions(ctx)
+	batches := k.GetOutgoingTxBatches(ctx, req.HyperionId)
+	unbatchedTx := k.GetPoolTransactions(ctx, req.HyperionId)
 	senderAddress := req.SenderAddress
 
 	res := &types.QueryPendingSendToChainResponse{}
@@ -391,8 +395,8 @@ func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAll
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	batches := k.GetOutgoingTxBatches(ctx)
-	unbatchedTx := k.GetPoolTransactions(ctx)
+	batches := k.GetAllOutgoingTxBatches(ctx)
+	unbatchedTx := k.GetAllPoolTransactions(ctx)
 
 	res := &types.QueryAllPendingSendToChainResponse{}
 	res.TransfersInBatches = make([]*types.OutgoingTransferTx, 0)

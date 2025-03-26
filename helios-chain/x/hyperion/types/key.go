@@ -141,18 +141,60 @@ func GetValidatorByEthAddressKey(ethAddress common.Address) []byte {
 }
 
 // GetValsetKey returns the following key format
-// prefix    nonce
-// [0x0][0 0 0 0 0 0 0 1]
-func GetValsetKey(nonce uint64) []byte {
-	return append(ValsetRequestKey, UInt64Bytes(nonce)...)
+// prefix   hyperionId      nonce
+// [0x0][0 0 0 0 0 0 0 1][0 0 0 0 0 0 0 1]
+func GetValsetKey(hyperionId uint64, nonce uint64) []byte {
+	buf := make([]byte, 0, len(ValsetRequestKey)+8+8)
+	buf = append(buf, ValsetRequestKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+
+	return buf
+}
+
+func GetLatestValsetKey(hyperionId uint64) []byte {
+	return append(LatestValsetNonce, UInt64Bytes(hyperionId)...)
+}
+
+func GetLastSlashedBatchBlockKey(hyperionId uint64) []byte {
+	return append(LastSlashedBatchBlock, UInt64Bytes(hyperionId)...)
 }
 
 // GetValsetConfirmKey returns the following key format
-// prefix   nonce                    validator-address
-// [0x0][0 0 0 0 0 0 0 1][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
+// prefix    hyperionId       nonce                    validator-address
+// [0x0][0 0 0 0 0 0 0 1][0 0 0 0 0 0 0 1][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 // MARK finish-batches: this is where the key is created in the old (presumed working) code
-func GetValsetConfirmKey(nonce uint64, validator sdk.AccAddress) []byte {
-	return append(ValsetConfirmKey, append(UInt64Bytes(nonce), validator.Bytes()...)...)
+func GetValsetConfirmKey(hyperionId uint64, nonce uint64, validator sdk.AccAddress) []byte {
+	buf := make([]byte, 0, len(ValsetConfirmKey)+8+8+len(validator))
+	buf = append(buf, ValsetConfirmKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+	buf = append(buf, validator.Bytes()...)
+
+	return buf
+}
+
+// for iterate on ValsetConfirmKeys
+func GetValsetConfirmPrefixKey(hyperionId uint64, nonce uint64) []byte {
+	buf := make([]byte, 0, len(ValsetConfirmKey)+8+8)
+	buf = append(buf, ValsetConfirmKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+
+	return buf
+}
+
+func GetLastUnbondingBlockHeightKey() []byte {
+	buf := make([]byte, 0, len(LastUnbondingBlockHeight))
+	buf = append(buf, LastUnbondingBlockHeight...)
+	return buf
+}
+
+func GetLastSlashedValsetNonceKey(hyperionId uint64) []byte {
+	buf := make([]byte, 0, len(LastSlashedValsetNonce)+8)
+	buf = append(buf, LastSlashedValsetNonce...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	return buf
 }
 
 // GetAttestationKeyWithHash returns the following key format
@@ -196,19 +238,24 @@ func GetOutgoingTxBatchKey(tokenContract common.Address, nonce uint64, hyperionI
 }
 
 // GetOutgoingTxBatchBlockKey returns the following key format
-// prefix     blockheight
-// [0xb][0 0 0 0 2 1 4 3]
-func GetOutgoingTxBatchBlockKey(block uint64) []byte {
-	return append(OutgoingTXBatchBlockKey, UInt64Bytes(block)...)
+// prefix  hyperionId   blockheight
+// [0xb][0 0 0 0 0 0 0 1][0 0 0 0 2 1 4 3]
+func GetOutgoingTxBatchBlockKey(hyperionId uint64, block uint64) []byte {
+	buf := make([]byte, 0, len(OutgoingTXBatchBlockKey)+8+8)
+	buf = append(buf, OutgoingTXBatchBlockKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(block)...)
+	return buf
 }
 
 // GetBatchConfirmKey returns the following key format
-// prefix           eth-contract-address                BatchNonce                       Validator-address
-// [0xe1][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 1][cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn]
+// prefix    hyperionId       eth-contract-address                BatchNonce                       Validator-address
+// [0xe1][0 0 0 0 0 0 0 1][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 1][cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 // TODO this should be a sdk.ValAddress
-func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validator sdk.AccAddress) []byte {
-	buf := make([]byte, 0, len(BatchConfirmKey)+ETHContractAddressLen+8+len(validator))
+func GetBatchConfirmKey(hyperionId uint64, tokenContract common.Address, batchNonce uint64, validator sdk.AccAddress) []byte {
+	buf := make([]byte, 0, len(BatchConfirmKey)+8+ETHContractAddressLen+8+len(validator))
 	buf = append(buf, BatchConfirmKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, tokenContract.Bytes()...)
 	buf = append(buf, UInt64Bytes(batchNonce)...)
 	buf = append(buf, validator.Bytes()...)

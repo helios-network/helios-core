@@ -61,7 +61,7 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 	// 3. If power change between validators of CurrentValset and latest valset request is > 5%
 
 	// get the last valsets to compare against
-	latestValset := h.k.GetLatestValset(ctx)
+	latestValset := h.k.GetLatestValset(ctx, params.HyperionId)
 	lastUnbondingHeight := h.k.GetLastUnbondingBlockHeight(ctx)
 
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) ||
@@ -204,7 +204,7 @@ func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
 		hyperionId := counterParty.HyperionId
 
 		ethereumHeight := h.k.GetLastObservedEthereumBlockHeight(ctx, hyperionId).EthereumBlockHeight
-		batches := h.k.GetOutgoingTxBatches(ctx)
+		batches := h.k.GetOutgoingTxBatches(ctx, hyperionId)
 
 		for _, batch := range batches {
 			if batch.BatchTimeout < ethereumHeight {
@@ -231,11 +231,11 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 		return
 	}
 
-	unslashedValsets := h.k.GetUnslashedValsets(ctx, maxHeight)
+	unslashedValsets := h.k.GetUnslashedValsets(ctx, params.HyperionId, maxHeight)
 
 	// unslashedValsets are sorted by nonce in ASC order
 	for _, vs := range unslashedValsets {
-		confirms := h.k.GetValsetConfirms(ctx, vs.Nonce)
+		confirms := h.k.GetValsetConfirms(ctx, vs.HyperionId, vs.Nonce)
 
 		// SLASH BONDED VALIDATORS who didn't attest valset request
 		currentBondedSet, _ := h.k.StakingKeeper.GetBondedValidatorsByPower(ctx)
@@ -348,7 +348,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 		}
 
 		// then we set the latest slashed valset  nonce
-		h.k.SetLastSlashedValsetNonce(ctx, vs.Nonce)
+		h.k.SetLastSlashedValsetNonce(ctx, vs.HyperionId, vs.Nonce)
 	}
 }
 
@@ -369,12 +369,12 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 		return
 	}
 
-	unslashedBatches := h.k.GetUnslashedBatches(ctx, maxHeight)
+	unslashedBatches := h.k.GetUnslashedBatches(ctx, params.HyperionId, maxHeight)
 
 	for _, batch := range unslashedBatches {
 		// SLASH BONDED VALIDTORS who didn't attest batch requests
 		currentBondedSet, _ := h.k.StakingKeeper.GetBondedValidatorsByPower(ctx)
-		confirms := h.k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.BatchNonce, common.HexToAddress(batch.TokenContract))
+		confirms := h.k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.HyperionId, batch.BatchNonce, common.HexToAddress(batch.TokenContract))
 		for i := range currentBondedSet {
 			// Don't slash validators who joined after batch is created
 			consAddr, _ := currentBondedSet[i].GetConsAddr()
@@ -419,7 +419,7 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 		}
 
 		// then we set the latest slashed batch block
-		h.k.SetLastSlashedBatchBlock(ctx, batch.Block)
+		h.k.SetLastSlashedBatchBlock(ctx, params.HyperionId, batch.Block)
 	}
 }
 
@@ -440,11 +440,11 @@ func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyC
 		tooEarly := currentBlock < params.SignedValsetsWindow
 		if lastObserved != nil && !tooEarly {
 			earliestToPrune := currentBlock - params.SignedValsetsWindow
-			sets := h.k.GetValsets(ctx)
+			sets := h.k.GetValsets(ctx, hyperionId)
 
 			for _, set := range sets {
 				if set.Nonce < lastObserved.Nonce && set.Height < earliestToPrune {
-					h.k.DeleteValset(ctx, set.Nonce)
+					h.k.DeleteValset(ctx, set.HyperionId, set.Nonce)
 				}
 			}
 		}

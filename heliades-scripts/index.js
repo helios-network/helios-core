@@ -670,8 +670,8 @@ async function main() {
 
   // await getRewards();
 
-  // await sendToChain();
-  await setOrchestratorAddresses();
+  await sendToChain();
+  // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   
 }
