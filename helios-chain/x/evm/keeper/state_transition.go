@@ -352,6 +352,32 @@ func (k *Keeper) ApplyMessageWithConfig(
 		if err := stateDB.Commit(); err != nil {
 			return nil, errorsmod.Wrap(err, "failed to commit stateDB")
 		}
+
+		// call hooks after transaction execution
+		if k.hooks != nil {
+			// Create a cache context to revert state when tx hooks fails,
+			// the cache context is only committed when all post processing txs pass.
+			cacheCtx, commit := ctx.CacheContext()
+			logs := stateDB.Logs()
+			bloom := ethtypes.Bloom{}
+			for _, log := range logs {
+				bloom.Add(log.Address.Bytes())
+				for _, topic := range log.Topics {
+					bloom.Add(topic.Bytes())
+				}
+			}
+			if err := k.hooks.PostTxProcessing(cacheCtx, msg, &ethtypes.Receipt{
+				Status:          ethtypes.ReceiptStatusSuccessful,
+				Bloom:           bloom,
+				Logs:            logs,
+				TxHash:          txConfig.TxHash,
+				ContractAddress: common.Address{},
+				GasUsed:         temporaryGasUsed,
+			}); err != nil {
+				return nil, errorsmod.Wrap(err, "post tx processing failed")
+			}
+			commit()
+		}
 	}
 
 	// calculate a minimum amount of gas to be charged to sender if GasLimit

@@ -60,6 +60,9 @@ type Keeper struct {
 	// Legacy subspace
 	ss paramstypes.Subspace
 
+	// EVM Hooks for tx post-processing
+	hooks types.EvmHooks
+
 	// precompiles defines the map of all available precompiled smart contracts.
 	// Some of these precompiled contracts might not be active depending on the EVM
 	// parameters.
@@ -322,4 +325,22 @@ func (k Keeper) AddTransientGasUsed(ctx sdk.Context, gasUsed uint64) (uint64, er
 
 func (k *Keeper) SetErc20Keeper(erc20Keeper types.Erc20Keeper) {
 	k.erc20Keeper = erc20Keeper
+}
+
+// SetHooks sets the hooks for the EVM module
+// It should be called only once during initialization, it panic if called more than once.
+func (k *Keeper) SetHooks(eh types.EvmHooks) *Keeper {
+	if k.hooks != nil {
+		panic("cannot set evm hooks twice")
+	}
+
+	k.hooks = eh
+	return k
+}
+
+// CleanHooks resets the hooks for the EVM module
+// NOTE: Should only be used for testing purposes
+func (k *Keeper) CleanHooks() *Keeper {
+	k.hooks = nil
+	return k
 }

@@ -8,6 +8,8 @@ import (
 	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"helios-core/helios-chain/x/evm/core/vm"
 
@@ -17,6 +19,12 @@ import (
 
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
 )
+
+// EvmHooks defines the hooks interface for the EVM module.
+type EvmHooks interface {
+	// PostTxProcessing is called after each successful transaction execution.
+	PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error
+}
 
 // AccountKeeper defines the expected account keeper interface
 type AccountKeeper interface {
