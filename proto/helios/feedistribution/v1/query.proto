@@ -1,0 +1,183 @@
+syntax = "proto3";
+package helios.feedistribution.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "helios/feedistribution/v1/params.proto";
+import "helios/feedistribution/v1/contract.proto";
+import "helios/feedistribution/v1/revenue.proto";
+
+option go_package = "helios-core/helios-chain/x/feedistribution/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Params returns the total set of fee distribution parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/params";
+  }
+
+  // BlockFees returns the accumulated fees for the current block.
+  rpc BlockFees(QueryBlockFeesRequest) returns (QueryBlockFeesResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/block_fees";
+  }
+
+  // ContractInfo returns the deployer information for a given contract address.
+  rpc ContractInfo(QueryContractInfoRequest)
+      returns (QueryContractInfoResponse) {
+    option (google.api.http).get =
+        "/helios/feedistribution/v1/contracts/{contract_address}";
+  }
+
+  // Contracts returns the list of all registered contracts and their deployers.
+  rpc Contracts(QueryContractsRequest) returns (QueryContractsResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/contracts";
+  }
+
+  // DeployerContracts returns all contracts deployed by a given address.
+  rpc DeployerContracts(QueryDeployerContractsRequest)
+      returns (QueryDeployerContractsResponse) {
+    option (google.api.http).get =
+        "/helios/feedistribution/v1/deployer/{deployer_address}/contracts";
+  }
+
+  // Revenues returns all active fee distribution contracts.
+  rpc Revenues(QueryRevenuesRequest) returns (QueryRevenuesResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/revenues";
+  }
+
+  // Revenue returns the revenue configuration for a given contract.
+  rpc Revenue(QueryRevenueRequest) returns (QueryRevenueResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/revenues/{contract_address}";
+  }
+
+  // DeployerRevenues returns all active fee distribution contracts for a given deployer.
+  rpc DeployerRevenues(QueryDeployerRevenuesRequest) returns (QueryDeployerRevenuesResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/revenues/deployer/{deployer_address}";
+  }
+
+  // WithdrawerRevenues returns all active fee distribution contracts for a given withdrawer.
+  rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest) returns (QueryWithdrawerRevenuesResponse) {
+    option (google.api.http).get = "/helios/feedistribution/v1/revenues/withdrawer/{withdrawer_address}";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryBlockFeesRequest is the request type for the Query/BlockFees RPC method.
+message QueryBlockFeesRequest {}
+
+// QueryBlockFeesResponse is the response type for the Query/BlockFees RPC
+// method.
+message QueryBlockFeesResponse {
+  repeated BlockFees block_fees = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryContractInfoRequest is the request type for the Query/ContractInfo RPC
+// method.
+message QueryContractInfoRequest { string contract_address = 1; }
+
+// QueryContractInfoResponse is the response type for the Query/ContractInfo RPC
+// method.
+message QueryContractInfoResponse {
+  ContractInfo contract_info = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryContractsRequest is the request type for the Query/Contracts RPC method.
+message QueryContractsRequest {
+  // offset is the starting point for pagination
+  uint64 offset = 1;
+  // limit is the maximum number of items to return
+  uint64 limit = 2;
+}
+
+// QueryContractsResponse is the response type for the Query/Contracts RPC
+// method.
+message QueryContractsResponse {
+  repeated ContractInfo contracts = 1 [ (gogoproto.nullable) = false ];
+  // total is the total number of items available
+  uint64 total = 2;
+}
+
+// QueryDeployerContractsRequest is the request type for the
+// Query/DeployerContracts RPC method.
+message QueryDeployerContractsRequest {
+  // deployer_address is the bech32 address of the deployer
+  string deployer_address = 1;
+  // offset is the starting point for pagination
+  uint64 offset = 2;
+  // limit is the maximum number of items to return
+  uint64 limit = 3;
+}
+
+// QueryDeployerContractsResponse is the response type for the
+// Query/DeployerContracts RPC method.
+message QueryDeployerContractsResponse {
+  repeated ContractInfo contracts = 1 [ (gogoproto.nullable) = false ];
+  // total is the total number of items available
+  uint64 total = 2;
+}
+
+// QueryRevenuesRequest is the request type for the Query/Revenues RPC method.
+message QueryRevenuesRequest {
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryRevenuesResponse is the response type for the Query/Revenues RPC method.
+message QueryRevenuesResponse {
+  // revenues is a list of all registered contracts for fee distribution
+  repeated Revenue revenues = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryRevenueRequest is the request type for the Query/Revenue RPC method.
+message QueryRevenueRequest {
+  // contract_address is the hex address of the smart contract
+  string contract_address = 1;
+}
+
+// QueryRevenueResponse is the response type for the Query/Revenue RPC method.
+message QueryRevenueResponse {
+  // revenue is the revenue for the queried contract
+  Revenue revenue = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryDeployerRevenuesRequest is the request type for the Query/DeployerRevenues RPC method.
+message QueryDeployerRevenuesRequest {
+  // deployer_address is the bech32 address of the deployer
+  string deployer_address = 1;
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryDeployerRevenuesResponse is the response type for the Query/DeployerRevenues RPC method.
+message QueryDeployerRevenuesResponse {
+  // revenues is a list of all registered contracts for fee distribution by the deployer
+  repeated Revenue revenues = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryWithdrawerRevenuesRequest is the request type for the Query/WithdrawerRevenues RPC method.
+message QueryWithdrawerRevenuesRequest {
+  // withdrawer_address is the bech32 address of the withdrawer
+  string withdrawer_address = 1;
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryWithdrawerRevenuesResponse is the response type for the Query/WithdrawerRevenues RPC method.
+message QueryWithdrawerRevenuesResponse {
+  // revenues is a list of all registered contracts for fee distribution by the withdrawer
+  repeated Revenue revenues = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

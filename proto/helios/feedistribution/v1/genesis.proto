@@ -1,0 +1,20 @@
+syntax = "proto3";
+package helios.feedistribution.v1;
+
+import "gogoproto/gogo.proto";
+import "helios/feedistribution/v1/params.proto";
+import "helios/feedistribution/v1/contract.proto";
+
+option go_package = "helios-core/helios-chain/x/feedistribution/types";
+
+// GenesisState defines the feedistribution module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+
+  // block_fees stores the accumulated fees for the current block
+  repeated BlockFees block_fees = 2 [ (gogoproto.nullable) = false ];
+
+  // contracts stores the list of registered smart contracts and their deployers
+  repeated ContractInfo contracts = 3 [ (gogoproto.nullable) = false ];
+}

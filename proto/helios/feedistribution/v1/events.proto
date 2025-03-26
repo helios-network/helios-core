@@ -1,0 +1,45 @@
+syntax = "proto3";
+package helios.feedistribution.v1;
+
+option go_package = "helios-core/helios-chain/x/feedistribution/types";
+
+// EventDistributeFees is emitted when fees are distributed at the end of a
+// block
+message EventDistributeFees {
+  // block_height is the height at which the distribution occurred
+  int64 block_height = 1;
+
+  // contract_address is the hex address of the smart contract
+  string contract_address = 2;
+
+  // deployer_address is the bech32 address receiving the fees
+  string deployer_address = 3;
+
+  // amount is the amount of fees distributed to the deployer
+  string amount = 4;
+
+  // total_block_fees is the total fees collected for this contract in the block
+  string total_block_fees = 5;
+}
+
+// EventContractDeployed is emitted when a new contract is deployed and starts
+// being tracked
+message EventContractDeployed {
+  // contract_address is the hex address of the smart contract
+  string contract_address = 1;
+
+  // deployer_address is the bech32 address of the contract deployer
+  string deployer_address = 2;
+
+  // deployment_height is the block height at which the contract was deployed
+  int64 deployment_height = 3;
+}
+
+// EventParamsUpdated is emitted when the module parameters are updated
+message EventParamsUpdated {
+  // new_developer_shares is the updated proportion of fees to distribute
+  string new_developer_shares = 1;
+
+  // enable_fee_distribution indicates if fee distribution is enabled/disabled
+  bool enable_fee_distribution = 2;
+}

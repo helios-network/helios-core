@@ -1,0 +1,25 @@
+syntax = "proto3";
+package helios.feedistribution.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "helios-core/helios-chain/x/feedistribution/types";
+
+// Revenue defines an instance that organizes fee distribution conditions for
+// contract deployers
+message Revenue {
+  option (gogoproto.equal) = true;
+
+  // contract_address is the hex address of the smart contract
+  string contract_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // deployer_address is the bech32 address of the contract deployer
+  string deployer_address = 2
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // withdrawer_address is the bech32 address of the account that can withdraw the fees
+  string withdrawer_address = 3
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+} 

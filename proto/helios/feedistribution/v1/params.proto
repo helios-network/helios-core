@@ -1,0 +1,16 @@
+syntax = "proto3";
+package helios.feedistribution.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "helios-core/helios-chain/x/feedistribution/types";
+
+// Params defines the parameters for the feedistribution module.
+message Params {
+  // enable_fee_distribution defines whether fee distribution is enabled.
+  bool enable_fee_distribution = 1;
+  
+  // developer_shares defines the percentage of fees that go to contract deployers.
+  string developer_shares = 2 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
+}
