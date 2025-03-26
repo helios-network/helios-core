@@ -132,6 +132,7 @@ message QueryParamsResponse {
 message QueryAttestationRequest {
   uint64 nonce = 1;
   bytes claim_hash = 2;
+  uint64 hyperion_id = 3;
 }
 
 message QueryAttestationResponse { Attestation attestation = 1; }
@@ -139,7 +140,7 @@ message QueryAttestationResponse { Attestation attestation = 1; }
 message QueryCurrentValsetRequest { uint64 hyperion_id = 1; }
 message QueryCurrentValsetResponse { Valset valset = 1; }
 
-message QueryValsetRequestRequest { uint64 nonce = 1; }
+message QueryValsetRequestRequest { uint64 nonce = 1; uint64 hyperion_id = 2; }
 message QueryValsetRequestResponse { Valset valset = 1; }
 
 message QueryValsetConfirmRequest {

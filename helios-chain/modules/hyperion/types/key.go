@@ -180,16 +180,25 @@ func GetValidatorByEthAddressKeyByHyperionID(ethAddress common.Address, hyperion
 // GetValsetKey returns the following key format
 // prefix    nonce
 // [0x0][0 0 0 0 0 0 0 1]
-func GetValsetKey(nonce uint64) []byte {
-	return append(ValsetRequestKey, UInt64Bytes(nonce)...)
+func GetValsetKey(nonce uint64, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(ValsetRequestKey)+len(UInt64Bytes(hyperionID))+len(UInt64Bytes(nonce)))
+	buf = append(buf, ValsetRequestKey...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+	return buf
 }
 
 // GetValsetConfirmKey returns the following key format
 // prefix   nonce                    validator-address
 // [0x0][0 0 0 0 0 0 0 1][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 // MARK finish-batches: this is where the key is created in the old (presumed working) code
-func GetValsetConfirmKey(nonce uint64, validator sdk.AccAddress) []byte {
-	return append(ValsetConfirmKey, append(UInt64Bytes(nonce), validator.Bytes()...)...)
+func GetValsetConfirmKey(nonce uint64, validator sdk.AccAddress, hyperionID uint64) []byte {
+	buf := make([]byte, 0, len(ValsetConfirmKey)+len(UInt64Bytes(hyperionID))+len(UInt64Bytes(nonce))+len(validator))
+	buf = append(buf, ValsetConfirmKey...)
+	buf = append(buf, UInt64Bytes(hyperionID)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+	buf = append(buf, validator.Bytes()...)
+	return buf
 }
 
 // GetAttestationKey returns the following key format

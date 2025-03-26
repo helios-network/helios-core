@@ -203,13 +203,13 @@ func (v Valset) GetCheckpoint(hyperionID uint64) gethcommon.Hash {
 			{ "internalType": "address",   "name": "_rewardToken", "type": "address"   }
 		],
 	*/
-	fmt.Println("tHyperionID: ", hyperionIDHash)
-	fmt.Println("checkpoint: ", checkpoint)
-	fmt.Println("v.Nonce: ", v.Nonce)
-	fmt.Println("memberAddresses: ", memberAddresses)
-	fmt.Println("convertedPowers: ", convertedPowers)
-	fmt.Println("rewardAmount: ", rewardAmount)
-	fmt.Println("rewardToken: ", rewardToken)
+	// fmt.Println("tHyperionID: ", hyperionIDHash)
+	// fmt.Println("checkpoint: ", checkpoint)
+	// fmt.Println("v.Nonce: ", v.Nonce)
+	// fmt.Println("memberAddresses: ", memberAddresses)
+	// fmt.Println("convertedPowers: ", convertedPowers)
+	// fmt.Println("rewardAmount: ", rewardAmount)
+	// fmt.Println("rewardToken: ", rewardToken)
 	bytes, packErr := contractAbi.Pack("checkpoint", hyperionIDHashBytes, checkpoint, big.NewInt(int64(v.Nonce)), memberAddresses, convertedPowers, rewardAmount, rewardToken)
 	// this should never happen outside of test since any case that could crash on encoding
 	// should be filtered above.

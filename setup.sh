@@ -175,6 +175,14 @@ done
 echo "Signing genesis transaction"
 # Register as Validator genesis account and delegate 1000000 ahelios
 heliades gentx genesis 1000000000000000000000ahelios --chain-id $CHAINID
+heliades gentx signer1 \
+    3000000000ahelios \
+    --account-number 0 --sequence 0 \
+    --chain-id $CHAINID \
+    --pubkey '{"@type":"/helios.crypto.v1beta1.ethsecp256k1.PubKey","key":"Ay5Yoencn+Jm13r2pKep6HA6GH2/8PNV8qrfHRb35q1D"}' \
+    --gas 1000000 \
+    --gas-prices 0.1helios \
+    --keyring-backend os
 
 echo "Collecting genesis transaction"
 # Collect genesis Validators tx

@@ -42,7 +42,7 @@ func (k *Keeper) ValsetRequest(c context.Context, req *types.QueryValsetRequestR
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.Nonce)}, nil
+	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.Nonce, req.HyperionId)}, nil
 }
 
 // ValsetConfirm queries the ValsetConfirm of the hyperion module
@@ -55,7 +55,7 @@ func (k *Keeper) ValsetConfirm(c context.Context, req *types.QueryValsetConfirmR
 		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, "address invalid")
 	}
 
-	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.Nonce, addr)}, nil
+	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.Nonce, addr, req.HyperionId)}, nil
 }
 
 // ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the hyperion module
@@ -79,7 +79,7 @@ func (k *Keeper) LastValsetRequests(c context.Context, req *types.QueryLastValse
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	valReq := k.GetValsets(sdk.UnwrapSDKContext(c))
+	valReq := k.GetValsets(sdk.UnwrapSDKContext(c), req.HyperionId)
 	valReqLen := len(valReq)
 	retLen := 0
 
@@ -104,9 +104,9 @@ func (k *Keeper) LastPendingValsetRequestByAddr(c context.Context, req *types.Qu
 	}
 
 	pendingValsetReq := make([]*types.Valset, 0)
-	k.IterateValsets(sdk.UnwrapSDKContext(c), func(_ []byte, val *types.Valset) bool {
+	k.IterateValsets(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, val *types.Valset) bool {
 		// foundConfirm is true if the operatorAddr has signed the valset we are currently looking at
-		foundConfirm := k.GetValsetConfirm(sdk.UnwrapSDKContext(c), val.Nonce, addr) != nil
+		foundConfirm := k.GetValsetConfirm(sdk.UnwrapSDKContext(c), val.Nonce, addr, req.HyperionId) != nil
 		// if this valset has NOT been signed by operatorAddr, store it in pendingValsetReq
 		// and exit the loop
 		if !foundConfirm {

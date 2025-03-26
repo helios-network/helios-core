@@ -1,0 +1,13 @@
+{
+  "pubkey": {"@type":"/helios.crypto.v1beta1.ethsecp256k1.PubKey","key":"Ay5Yoencn+Jm13r2pKep6HA6GH2/8PNV8qrfHRb35q1D"},
+  "amount": "1000000stake",
+  "moniker": "myvalidator",
+  "identity": "optional identity signature (ex. UPort or Keybase)",
+  "website": "validator's (optional) website",
+  "security": "validator's (optional) security contact email",
+  "details": "validator's (optional) details",
+  "commission-rate": "0.1",
+  "commission-max-rate": "0.2",
+  "commission-max-change-rate": "0.01",
+  "min-self-delegation": "1"
+}

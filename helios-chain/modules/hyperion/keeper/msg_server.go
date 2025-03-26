@@ -46,8 +46,9 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 
 	ctx := sdk.UnwrapSDKContext(c)
 	validatorAccountAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
+	log.Println("validatorAccountAddr: ", validatorAccountAddr)
 	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
-
+	log.Println("validatorAddr: ", validatorAddr)
 	// get orchestrator address if available. otherwise default to validator address.
 	var orchestratorAddr sdk.AccAddress
 	if msg.Orchestrator != "" {
@@ -100,7 +101,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	valset := k.GetValset(ctx, msg.Nonce)
+	valset := k.GetValset(ctx, msg.Nonce, msg.HyperionId)
 	if valset == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "couldn't find valset")
@@ -137,7 +138,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	}
 
 	// persist signature
-	if k.GetValsetConfirm(ctx, msg.Nonce, orchaddr) != nil {
+	if k.GetValsetConfirm(ctx, msg.Nonce, orchaddr, msg.HyperionId) != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrDuplicate, "signature duplicate")
 	}

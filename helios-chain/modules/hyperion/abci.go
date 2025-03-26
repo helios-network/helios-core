@@ -63,7 +63,7 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 	// 3. If power change between validators of CurrentValset and latest valset request is > 5%
 
 	// get the last valsets to compare against
-	latestValset := h.k.GetLatestValset(ctx)
+	latestValset := h.k.GetLatestValset(ctx, params.HyperionId)
 	lastUnbondingHeight := h.k.GetLastUnbondingBlockHeight(ctx)
 
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) ||
@@ -430,11 +430,11 @@ func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyC
 	tooEarly := currentBlock < params.SignedValsetsWindow
 	if lastObserved != nil && !tooEarly {
 		earliestToPrune := currentBlock - params.SignedValsetsWindow
-		sets := h.k.GetValsets(ctx)
+		sets := h.k.GetValsets(ctx, params.HyperionId)
 
 		for _, set := range sets {
 			if set.Nonce < lastObserved.Nonce && set.Height < earliestToPrune {
-				h.k.DeleteValset(ctx, set.Nonce)
+				h.k.DeleteValset(ctx, set.Nonce, params.HyperionId)
 			}
 		}
 	}

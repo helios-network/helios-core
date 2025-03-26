@@ -29,3 +29,17 @@ heliades keys add genesis --recover
 heliades tx staking delegate heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla 1000000000000000000ahelios --from genesis --chain-id 4242 --fees 500000000ahelios
 heliades query staking delegations $(heliades keys show genesis -a)
 heliades tx gov vote 1 yes --from genesis --chain-id 4242 --gas-prices 280000000ahelios
+
+heliades tx staking create-validator \
+  --amount=1000000000000000000ahelios \
+  --pubkey=$(heliades tendermint show-validator) \
+  --moniker=signer1 \
+  --chain-id=4242 \
+  --commission-rate="0.10" \
+  --commission-max-rate="0.20" \
+  --commission-max-change-rate="0.01" \
+  --min-self-delegation=1 \
+  --from=signer1 \
+  --gas=auto \
+  --gas-adjustment=1.5 \
+  --gas-prices="0.025ahelios"

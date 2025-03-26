@@ -418,6 +418,73 @@
           "signatures": [
             "iGmpt9P6WPzzaZf/pzVr9dVNkPhFTMeXl12iodrsqCw8weOtvg4vSmNG0GbXEapv6dk4tLRnkPeSZc3vgFd4PgA="
           ]
+        },
+        {
+          "body": {
+            "messages": [
+              {
+                "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+                "description": {
+                  "moniker": "helios-main-node",
+                  "identity": "",
+                  "website": "",
+                  "security_contact": "",
+                  "details": ""
+                },
+                "commission": {
+                  "rate": "0.100000000000000000",
+                  "max_rate": "0.200000000000000000",
+                  "max_change_rate": "0.010000000000000000"
+                },
+                "min_self_delegation": "1",
+                "delegator_address": "",
+                "validator_address": "heliosvaloper1q0d2nv8xpf9qy22djzgrkgrrcst9frcsxhlvyf",
+                "pubkey": {
+                  "@type": "/helios.crypto.v1beta1.ethsecp256k1.PubKey",
+                  "key": "Ay5Yoencn+Jm13r2pKep6HA6GH2/8PNV8qrfHRb35q1D"
+                },
+                "value": {
+                  "denom": "ahelios",
+                  "amount": "3000000000"
+                }
+              }
+            ],
+            "memo": "f6e7f40cbe2596761dfe529cf4d852a2e3e7433a@192.168.0.244:26656",
+            "timeout_height": "0",
+            "extension_options": [],
+            "non_critical_extension_options": []
+          },
+          "auth_info": {
+            "signer_infos": [
+              {
+                "public_key": {
+                  "@type": "/helios.crypto.v1beta1.ethsecp256k1.PubKey",
+                  "key": "Ay5Yoencn+Jm13r2pKep6HA6GH2/8PNV8qrfHRb35q1D"
+                },
+                "mode_info": {
+                  "single": {
+                    "mode": "SIGN_MODE_DIRECT"
+                  }
+                },
+                "sequence": "0"
+              }
+            ],
+            "fee": {
+              "amount": [
+                {
+                  "denom": "helios",
+                  "amount": "100000"
+                }
+              ],
+              "gas_limit": "1000000",
+              "payer": "",
+              "granter": ""
+            },
+            "tip": null
+          },
+          "signatures": [
+            "EHt37XHh9MfG0l4oIrFlTork6vy/yGPNaso0eM0RoqA9zsVl7S6XulaJCwq5aW2xC63JdRnTgv5lxR1aLveDRQA="
+          ]
         }
       ]
     },

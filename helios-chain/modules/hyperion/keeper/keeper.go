@@ -128,7 +128,7 @@ func (k *Keeper) StoreValset(ctx sdk.Context, valset *types.Valset) {
 
 	store := ctx.KVStore(k.storeKey)
 	valset.Height = uint64(ctx.BlockHeight())
-	store.Set(types.GetValsetKey(valset.Nonce), k.cdc.MustMarshal(valset))
+	store.Set(types.GetValsetKey(valset.Nonce, valset.HyperionId), k.cdc.MustMarshal(valset))
 	k.SetLatestValsetNonce(ctx, valset.Nonce)
 }
 
@@ -147,25 +147,25 @@ func (k *Keeper) StoreValsetUnsafe(ctx sdk.Context, valset *types.Valset) {
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValsetKey(valset.Nonce), k.cdc.MustMarshal(valset))
+	store.Set(types.GetValsetKey(valset.Nonce, valset.HyperionId), k.cdc.MustMarshal(valset))
 	k.SetLatestValsetNonce(ctx, valset.Nonce)
 }
 
 // HasValsetRequest returns true if a valset defined by a nonce exists
-func (k *Keeper) HasValsetRequest(ctx sdk.Context, nonce uint64) bool {
+func (k *Keeper) HasValsetRequest(ctx sdk.Context, nonce uint64, hyperionID uint64) bool {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.GetValsetKey(nonce))
+	return store.Has(types.GetValsetKey(nonce, hyperionID))
 }
 
 // DeleteValset deletes the valset at a given nonce from state
-func (k *Keeper) DeleteValset(ctx sdk.Context, nonce uint64) {
+func (k *Keeper) DeleteValset(ctx sdk.Context, nonce uint64, hyperionID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	ctx.KVStore(k.storeKey).Delete(types.GetValsetKey(nonce))
+	ctx.KVStore(k.storeKey).Delete(types.GetValsetKey(nonce, hyperionID))
 }
 
 // GetLatestValsetNonce returns the latest valset nonce
@@ -184,12 +184,12 @@ func (k *Keeper) GetLatestValsetNonce(ctx sdk.Context) uint64 {
 }
 
 // GetValset returns a valset by nonce
-func (k *Keeper) GetValset(ctx sdk.Context, nonce uint64) *types.Valset {
+func (k *Keeper) GetValset(ctx sdk.Context, nonce uint64, hyperionID uint64) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValsetKey(nonce))
+	bz := store.Get(types.GetValsetKey(nonce, hyperionID))
 	if bz == nil {
 		return nil
 	}
@@ -201,11 +201,12 @@ func (k *Keeper) GetValset(ctx sdk.Context, nonce uint64) *types.Valset {
 }
 
 // IterateValsets retruns all valsetRequests
-func (k *Keeper) IterateValsets(ctx sdk.Context, cb func(key []byte, val *types.Valset) bool) {
+func (k *Keeper) IterateValsets(ctx sdk.Context, hyperionID uint64, cb func(key []byte, val *types.Valset) bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValsetRequestKey)
+	prefixKey := append(types.ValsetRequestKey, types.UInt64Bytes(hyperionID)...)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixKey)
 	iter := prefixStore.ReverseIterator(nil, nil)
 	defer iter.Close()
 
@@ -220,11 +221,11 @@ func (k *Keeper) IterateValsets(ctx sdk.Context, cb func(key []byte, val *types.
 }
 
 // GetValsets returns all the validator sets in state
-func (k *Keeper) GetValsets(ctx sdk.Context) (out []*types.Valset) {
+func (k *Keeper) GetValsets(ctx sdk.Context, hyperionID uint64) (out []*types.Valset) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	k.IterateValsets(ctx, func(_ []byte, val *types.Valset) bool {
+	k.IterateValsets(ctx, hyperionID, func(_ []byte, val *types.Valset) bool {
 		out = append(out, val)
 		return false
 	})
@@ -235,12 +236,12 @@ func (k *Keeper) GetValsets(ctx sdk.Context) (out []*types.Valset) {
 }
 
 // GetLatestValset returns the latest validator set in state
-func (k *Keeper) GetLatestValset(ctx sdk.Context) (out *types.Valset) {
+func (k *Keeper) GetLatestValset(ctx sdk.Context, hyperionID uint64) (out *types.Valset) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	latestValsetNonce := k.GetLatestValsetNonce(ctx)
-	out = k.GetValset(ctx, latestValsetNonce)
+	out = k.GetValset(ctx, latestValsetNonce, hyperionID)
 
 	return
 }
@@ -339,12 +340,12 @@ func (k *Keeper) IterateValsetBySlashedValsetNonce(
 /////////////////////////////
 
 // GetValsetConfirm returns a valset confirmation by a nonce and validator address
-func (k *Keeper) GetValsetConfirm(ctx sdk.Context, nonce uint64, validator sdk.AccAddress) *types.MsgValsetConfirm {
+func (k *Keeper) GetValsetConfirm(ctx sdk.Context, nonce uint64, validator sdk.AccAddress, hyperionID uint64) *types.MsgValsetConfirm {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	entity := store.Get(types.GetValsetConfirmKey(nonce, validator))
+	entity := store.Get(types.GetValsetConfirmKey(nonce, validator, hyperionID))
 	if entity == nil {
 		return nil
 	}
@@ -367,7 +368,7 @@ func (k *Keeper) SetValsetConfirm(ctx sdk.Context, valset *types.MsgValsetConfir
 		panic(err)
 	}
 
-	key := types.GetValsetConfirmKey(valset.Nonce, addr)
+	key := types.GetValsetConfirmKey(valset.Nonce, addr, valset.HyperionId)
 	store.Set(key, k.cdc.MustMarshal(valset))
 
 	return key
