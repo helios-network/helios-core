@@ -4,7 +4,7 @@ package helios.tokenfactory.v1beta1;
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "helios-core/helios-chain/modules/tokenfactory/types";
+option go_package = "helios-core/helios-chain/x/tokenfactory/types";
 
 // DenomAuthorityMetadata specifies metadata for addresses that have specific
 // capabilities over a token factory denom. Right now there is only one Admin

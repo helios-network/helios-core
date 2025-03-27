@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package server
 
 import (
@@ -622,6 +620,8 @@ func startAPIServer(
 	if svrCfg.Telemetry.Enabled {
 		apiSrv.SetTelemetry(metrics)
 	}
+
+	setupGrpcSwagger(svrCtx, apiSrv.Router, svrCfg)
 
 	g.Go(func() error {
 		return apiSrv.Start(ctx, svrCfg)

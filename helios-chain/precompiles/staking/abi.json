@@ -166,6 +166,12 @@
           "internalType": "int256",
           "name": "minSelfDelegation",
           "type": "int256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "minDelegation",
+          "type": "uint256"
         }
       ],
       "name": "EditValidator",
@@ -330,9 +336,9 @@
           "type": "address"
         },
         {
-          "internalType": "string",
+          "internalType": "address",
           "name": "validatorAddress",
-          "type": "string"
+          "type": "address"
         },
         {
           "internalType": "uint256",
@@ -431,6 +437,11 @@
           "internalType": "uint256",
           "name": "value",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minDelegation",
+          "type": "uint256"
         }
       ],
       "name": "createValidator",
@@ -481,14 +492,19 @@
           "type": "address"
         },
         {
-          "internalType": "string",
+          "internalType": "address",
           "name": "validatorAddress",
-          "type": "string"
+          "type": "address"
         },
         {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         }
       ],
       "name": "delegate",
@@ -591,6 +607,11 @@
           "internalType": "int256",
           "name": "minSelfDelegation",
           "type": "int256"
+        },
+        {
+          "internalType": "bool",
+          "name": "delegateAuthorization",
+          "type": "bool"
         }
       ],
       "name": "editValidator",
@@ -641,19 +662,24 @@
           "type": "address"
         },
         {
-          "internalType": "string",
+          "internalType": "address",
           "name": "validatorSrcAddress",
-          "type": "string"
+          "type": "address"
         },
         {
-          "internalType": "string",
+          "internalType": "address",
           "name": "validatorDstAddress",
-          "type": "string"
+          "type": "address"
         },
         {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         }
       ],
       "name": "redelegate",
@@ -1013,14 +1039,19 @@
           "type": "address"
         },
         {
-          "internalType": "string",
+          "internalType": "address",
           "name": "validatorAddress",
-          "type": "string"
+          "type": "address"
         },
         {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         }
       ],
       "name": "undelegate",

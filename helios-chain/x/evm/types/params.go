@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
 import (
@@ -31,6 +29,8 @@ var (
 		BankPrecompileAddress,         // Bank precompile
 		GovPrecompileAddress,          // Gov precompile
 		Erc20CreatorPrecompileAddress, // Erc20Creator precompile
+		ChronosPrecompileAddress,      // Chronos precompile
+		HyperionPrecompileAddress,     // Hyperion precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled

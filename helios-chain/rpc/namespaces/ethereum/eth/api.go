@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package eth
 
 import (
@@ -19,6 +17,7 @@ import (
 
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/types"
+	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
@@ -38,6 +37,12 @@ type EthereumAPI interface {
 	GetBlockTransactionCountByHash(hash common.Hash) *hexutil.Uint
 	GetBlockTransactionCountByNumber(blockNum rpctypes.BlockNumber) *hexutil.Uint
 
+	GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
+
+	// GetProposalBy(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
+
 	// Reading Transactions
 	//
 	// Retrieves information on the state data for addresses regardless of whether
@@ -47,6 +52,7 @@ type EthereumAPI interface {
 	GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error)
 	GetTransactionByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNumber, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
+	GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
 	// eth_getBlockReceipts
 
 	// Writing Transactions
@@ -62,10 +68,17 @@ type EthereumAPI interface {
 	//
 	// Returns information regarding an address's stored on-chain data.
 	Accounts() ([]common.Address, error)
+	GetAccountType(address common.Address) (string, error)
+	GetHeliosAddress(address common.Address) (string, error)
+	GetHeliosValoperAddress(address common.Address) (string, error)
 	GetBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
 	GetStorageAt(address common.Address, key string, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetProof(address common.Address, storageKeys []string, blockNrOrHash rpctypes.BlockNumberOrHash) (*rpctypes.AccountResult, error)
+	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
+	GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
+	// experimental
+	GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error)
 
 	// EVM/Smart Contract Execution
 	//
@@ -82,6 +95,10 @@ type EthereumAPI interface {
 	FeeHistory(blockCount rpc.DecimalOrHex, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
 	MaxPriorityFeePerGas() (*hexutil.Big, error)
 	ChainId() (*hexutil.Big, error)
+	ChainSize() (*rpctypes.ChainSize, error)
+
+	// Tokens Information
+	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 
 	// Getting Uncles
 	//
@@ -112,6 +129,35 @@ type EthereumAPI interface {
 	// eth_getWork (on Ethereum.org)
 	// eth_submitWork (on Ethereum.org)
 	// eth_submitHashrate (on Ethereum.org)
+
+	// Staking
+	GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error)
+	GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error)
+	GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error)
+	GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error)
+	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
+	GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error)
+	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
+	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
+	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
+	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
+	// eth_getDelegations
+
+	// cron
+	GetCron(id uint64) (*chronostypes.Cron, error)
+	GetCronByAddress(address common.Address) (*chronostypes.Cron, error)
+	GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
+	GetAccountCronsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error)
+	GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error)
+	GetCronTransactionByHash(hash string) (*chronostypes.CronTransactionRPC, error)
+	GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionReceiptsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
+	GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
+	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -154,6 +200,23 @@ func (e *PublicAPI) GetBlockByNumber(ethBlockNum rpctypes.BlockNumber, fullTx bo
 func (e *PublicAPI) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]interface{}, error) {
 	e.logger.Debug("eth_getBlockByHash", "hash", hash.Hex(), "full", fullTx)
 	return e.backend.GetBlockByHash(hash, fullTx)
+}
+
+func (e *PublicAPI) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getLatestBlocks", "page", page, "size", size, "full", fullTx)
+	return e.backend.GetBlocksByPageAndSize(page, size, fullTx)
+}
+
+// Proposals
+
+func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getProposalsByPageAndSize", "page", page, "size", size, "full")
+	return e.backend.GetProposalsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetProposal(id hexutil.Uint64) (map[string]interface{}, error) {
+	e.logger.Debug("eth_getProposal", "id", id)
+	return e.backend.GetProposal(id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -207,6 +270,11 @@ func (e *PublicAPI) GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockN
 	return e.backend.GetTransactionByBlockNumberAndIndex(blockNum, idx)
 }
 
+func (e *PublicAPI) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
+	e.logger.Info("eth_getTransactionsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetTransactionsByPageAndSize(page, size)
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///                           Write Txs					                            ///
 ///////////////////////////////////////////////////////////////////////////////
@@ -231,6 +299,21 @@ func (e *PublicAPI) SendTransaction(args evmtypes.TransactionArgs) (common.Hash,
 func (e *PublicAPI) Accounts() ([]common.Address, error) {
 	e.logger.Debug("eth_accounts")
 	return e.backend.Accounts()
+}
+
+func (e *PublicAPI) GetAccountType(address common.Address) (string, error) {
+	e.logger.Debug("eth_getAccountType", "address", address.String())
+	return e.backend.GetAccountType(address)
+}
+
+func (e *PublicAPI) GetHeliosAddress(address common.Address) (string, error) {
+	e.logger.Debug("eth_getHeliosAddress", "address", address.String())
+	return e.backend.GetHeliosAddress(address)
+}
+
+func (e *PublicAPI) GetHeliosValoperAddress(address common.Address) (string, error) {
+	e.logger.Debug("eth_getHeliosValoperAddress", "address", address.String())
+	return e.backend.GetHeliosValoperAddress(address)
 }
 
 // GetBalance returns the provided account's balance up to the provided block number.
@@ -258,6 +341,21 @@ func (e *PublicAPI) GetProof(address common.Address,
 ) (*rpctypes.AccountResult, error) {
 	e.logger.Debug("eth_getProof", "address", address.Hex(), "keys", storageKeys, "block number or hash", blockNrOrHash)
 	return e.backend.GetProof(address, storageKeys, blockNrOrHash)
+}
+
+func (e *PublicAPI) GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
+	e.logger.Debug("eth_getProof", "address", address.Hex(), "page", page, "size", size)
+	return e.backend.GetAccountTransactionsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error) {
+	e.logger.Debug("eth_getTokenBalance", "address", address.String(), "tokenAddress", tokenAddress, "block number or hash", blockNrOrHash)
+	return e.backend.GetTokenBalance(address, tokenAddress, blockNrOrHash)
+}
+
+func (e *PublicAPI) GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error) {
+	e.logger.Debug("eth_getTokensBalance", "address", address.String(), "block number or hash", blockNrOrHash)
+	return e.backend.GetTokensBalance(address, blockNrOrHash)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -338,8 +436,22 @@ func (e *PublicAPI) ChainId() (*hexutil.Big, error) { //nolint
 	return e.backend.ChainID()
 }
 
+func (e *PublicAPI) ChainSize() (*rpctypes.ChainSize, error) {
+	e.logger.Debug("eth_chainSize")
+	return e.backend.ChainSize()
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-///                           Uncles															          ///
+///                           Tokens									    ///
+///////////////////////////////////////////////////////////////////////////////
+
+func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getTokensByPageAndSize", "page", page, "size", size)
+	return e.backend.GetTokensByPageAndSize(page, size)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///                           Uncles										///
 ///////////////////////////////////////////////////////////////////////////////
 
 // GetUncleByBlockHashAndIndex returns the uncle identified by hash and index. Always returns nil.
@@ -503,4 +615,124 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 	}
 
 	return result, nil
+}
+
+func (e *PublicAPI) GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error) {
+	e.logger.Debug("eth_getDelegations", "address", address.Hex())
+	return e.backend.GetDelegations(address)
+}
+
+func (e *PublicAPI) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error) {
+	e.logger.Debug("eth_getValidator", "address", address)
+	return e.backend.GetValidator(address)
+}
+
+func (e *PublicAPI) GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error) {
+	e.logger.Debug("eth_getValidatorAndHisDelegation", "address", address)
+	return e.backend.GetValidatorAndHisDelegation(address)
+}
+
+func (e *PublicAPI) GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error) {
+	e.logger.Debug("eth_getValidatorCommission", "address", address)
+	return e.backend.GetValidatorCommission(address)
+}
+
+func (e *PublicAPI) GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error) {
+	e.logger.Debug("eth_getValidatorOutStandingRewards", "address", address)
+	return e.backend.GetValidatorOutStandingRewards(address)
+}
+
+func (e *PublicAPI) GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error) {
+	e.logger.Debug("eth_getValidatorWithHisDelegationAndCommission", "address", address)
+	return e.backend.GetValidatorWithHisDelegationAndCommission(address)
+}
+
+func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {
+	e.logger.Debug("eth_getValidatorAndHisCommission", "address", address)
+	return e.backend.GetValidatorAndHisCommission(address)
+}
+
+func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error) {
+	e.logger.Debug("eth_getValidatorsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetValidatorsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
+	e.logger.Debug("eth_getDelegation", "address", address.Hex(), "validatorAddress", validatorAddress)
+	return e.backend.GetDelegation(address, validatorAddress)
+}
+
+func (e *PublicAPI) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error) {
+	e.logger.Debug("eth_getAllWhitelistedAssets")
+	return e.backend.GetAllWhitelistedAssets()
+}
+
+func (e *PublicAPI) GetCron(id uint64) (*chronostypes.Cron, error) {
+	e.logger.Debug("eth_getCron", "id", id)
+	return e.backend.GetCron(id)
+}
+
+func (e *PublicAPI) GetCronByAddress(address common.Address) (*chronostypes.Cron, error) {
+	e.logger.Debug("eth_getCronByAddress", "address", address.String())
+	return e.backend.GetCronByAddress(address)
+}
+
+func (e *PublicAPI) GetCronsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error) {
+	e.logger.Debug("eth_getCronsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetCronsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetAccountCronsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]chronostypes.Cron, error) {
+	e.logger.Debug("eth_getAccountCronsByPageAndSize", "address", address, "page", page, "size", size)
+	return e.backend.GetAccountCronsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetCronTransactionByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getCronTransactionByNonce", "nonce", nonce)
+	return e.backend.GetCronTransactionByNonce(nonce)
+}
+
+func (e *PublicAPI) GetCronTransactionByHash(hash string) (*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getCronTransactionByHash", "hash", hash)
+	return e.backend.GetCronTransactionByHash(hash)
+}
+
+func (e *PublicAPI) GetCronTransactionReceiptByNonce(nonce hexutil.Uint64) (*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptByNonce", "nonce", nonce)
+	return e.backend.GetCronTransactionReceiptByNonce(nonce)
+}
+
+func (e *PublicAPI) GetCronTransactionReceiptByHash(hash string) (*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptByHash", "hash", hash)
+	return e.backend.GetCronTransactionReceiptByHash(hash)
+}
+
+func (e *PublicAPI) GetCronTransactionReceiptsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getCronTransactionReceiptsByPageAndSize", "address", address, "page", page, "size", size)
+	return e.backend.GetCronTransactionReceiptsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetCronTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getCronTransactionsByPageAndSize", "address", address, "page", page, "size", size)
+	return e.backend.GetCronTransactionsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getAllCronTransactionReceiptsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetAllCronTransactionReceiptsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error) {
+	e.logger.Debug("eth_getAllCronTransactionsByPageAndSize", "page", page, "size", size)
+	return e.backend.GetAllCronTransactionsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error) {
+	e.logger.Debug("eth_getAllCronTransactionReceiptsByBlockNumber", "height", blockNum.Int64())
+	return e.backend.GetAllCronTransactionReceiptsByBlockNumber(blockNum)
+}
+
+func (e *PublicAPI) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error) {
+	e.logger.Debug("eth_getBlockCronLogs", "height", blockNum.Int64())
+	return e.backend.GetBlockCronLogs(blockNum)
 }

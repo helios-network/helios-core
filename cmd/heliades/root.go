@@ -1,5 +1,5 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/helios/helios/blob/main/LICENSE)
 
 package main
 
@@ -20,7 +20,7 @@ import (
 	cmtcli "github.com/cometbft/cometbft/libs/cli"
 	dbm "github.com/cosmos/cosmos-db"
 
-	evmostypes "helios-core/helios-chain/types"
+	heliostypes "helios-core/helios-chain/types"
 
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/snapshots"
@@ -53,14 +53,14 @@ import (
 	chainclient "helios-core/helios-chain/client"
 	"helios-core/helios-chain/client/block"
 	"helios-core/helios-chain/client/debug"
-	evmosserver "helios-core/helios-chain/server"
+	heliosserver "helios-core/helios-chain/server"
 	servercfg "helios-core/helios-chain/server/config"
 	srvflags "helios-core/helios-chain/server/flags"
 
 	"helios-core/helios-chain/crypto/hd"
 
 	"helios-core/helios-chain/app"
-	evmoskr "helios-core/helios-chain/crypto/keyring"
+	helioskr "helios-core/helios-chain/crypto/keyring"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmcli "github.com/CosmWasm/wasmd/x/wasm/client/cli"
@@ -100,7 +100,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(app.DefaultNodeHome).
-		WithKeyringOptions(evmoskr.Option()).
+		WithKeyringOptions(helioskr.Option()).
 		WithViper(EnvPrefix).
 		WithLedgerHasProtobuf(true)
 
@@ -167,7 +167,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	a := appCreator{encodingConfig}
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
-		// evmosclient.ValidateChainID(
+		// heliosclient.ValidateChainID(
 		// 	InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
 		// ),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
@@ -198,9 +198,9 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		rootCmd.AddCommand(changeSetCmd)
 	}
 
-	evmosserver.AddCommands(
+	heliosserver.AddCommands(
 		rootCmd,
-		evmosserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
+		heliosserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
 		a.appExport,
 		addModuleInitFlags,
 	)
@@ -212,7 +212,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		sdkserver.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		// evmosclient.KeyCommands(app.DefaultNodeHome),
+		// heliosclient.KeyCommands(app.DefaultNodeHome),
 		chainclient.KeyCommands(app.DefaultNodeHome),
 	)
 	rootCmd, err := srvflags.AddTxFlags(rootCmd)
@@ -299,7 +299,7 @@ func initAppConfig() (string, interface{}) {
 	if err != nil {
 		// NOTE: We need to provide a default base denom for the tempApp created by the RootCmd
 		// FIXME: if we remove the min gas price default config, this will no longer be needed
-		baseDenom = evmostypes.BaseDenom
+		baseDenom = heliostypes.BaseDenom
 	}
 	customAppTemplate, customAppConfig := servercfg.AppConfig(baseDenom)
 
@@ -371,7 +371,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		chainID = conf.ChainID
 	}
 
-	evmosApp := app.NewHeliosApp(
+	heliosApp := app.NewHeliosApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
@@ -388,7 +388,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		baseapp.SetChainID(chainID),
 	)
 
-	return evmosApp
+	return heliosApp
 }
 
 // appExport creates a new simapp (optionally at a given height)
@@ -403,23 +403,23 @@ func (a appCreator) appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var evmosApp *app.HeliosApp
+	var heliosApp *app.HeliosApp
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
 
 	if height != -1 {
-		evmosApp = app.NewHeliosApp(logger, db, traceStore, false, appOpts)
+		heliosApp = app.NewHeliosApp(logger, db, traceStore, false, appOpts)
 
-		if err := evmosApp.LoadHeight(height); err != nil {
+		if err := heliosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewHeliosApp(logger, db, traceStore, true, appOpts)
+		heliosApp = app.NewHeliosApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return heliosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
 // initTendermintConfig helps to override default Tendermint Config values.
@@ -436,7 +436,7 @@ func initTendermintConfig() *cmtcfg.Config {
 }
 
 func tempDir(defaultHome string) string {
-	dir, err := os.MkdirTemp("", "evmos")
+	dir, err := os.MkdirTemp("", "helios")
 	if err != nil {
 		dir = defaultHome
 	}

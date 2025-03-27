@@ -1,10 +1,11 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
 import (
 	"math/big"
+	"time"
 
+	cosmossdk_io_math "cosmossdk.io/math"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -12,6 +13,24 @@ import (
 
 // Copied the Account and StorageResult types since they are registered under an
 // internal pkg on geth.
+
+// TokenBalance représente la balance d'un token spécifique
+type TokenBalance struct {
+	Address     common.Address `json:"address"`
+	Denom       string         `json:"denom"`
+	Symbol      string         `json:"symbol"`
+	Balance     *hexutil.Big   `json:"balance"`
+	BalanceUI   string         `json:"balanceUI"`
+	Decimals    uint32         `json:"decimals"`
+	Description string         `json:"description"`
+}
+
+type ChainSize struct {
+	Bytes     int64 `json:"bytes"`
+	MegaBytes int64 `json:"megaBytes"`
+	GigaBytes int64 `json:"gigaBytes"`
+	Terabytes int64 `json:"terabytes"`
+}
 
 // AccountResult struct for account proof
 type AccountResult struct {
@@ -88,4 +107,79 @@ type OneFeeHistory struct {
 	BaseFee, NextBaseFee *big.Int   // base fee for each block
 	Reward               []*big.Int // each element of the array will have the tip provided to miners for the percentile given
 	GasUsedRatio         float64    // the ratio of gas used to the gas limit for each block
+}
+
+type DelegationAsset struct {
+	Denom          string                `json:"denom"`
+	BaseAmount     cosmossdk_io_math.Int `json:"baseAmount"`
+	Amount         cosmossdk_io_math.Int `json:"amount"`
+	WeightedAmount cosmossdk_io_math.Int `json:"weightedAmount"`
+}
+
+type DelegationRewardRPC struct {
+	Denom  string                `json:"denom"`
+	Amount cosmossdk_io_math.Int `json:"amount"`
+}
+
+type ValidatorCommissionRPC struct {
+	Denom  string                `json:"denom"`
+	Amount cosmossdk_io_math.Int `json:"amount"`
+}
+
+type ValidatorRewardRPC struct {
+	Denom  string                `json:"denom"`
+	Amount cosmossdk_io_math.Int `json:"amount"`
+}
+
+type DelegationRPC struct {
+	ValidatorAddress string              `json:"validatorAddress"`
+	Shares           string              `json:"shares"`
+	Assets           []DelegationAsset   `json:"assets"`
+	Rewards          DelegationRewardRPC `json:"rewards"`
+}
+
+type ValidatorRPC struct {
+	ValidatorAddress        string                   `json:"validatorAddress"`
+	Shares                  string                   `json:"shares"`
+	Moniker                 string                   `json:"moniker"`
+	Commission              stakingtypes.Commission  `json:"commision"`
+	Description             stakingtypes.Description `json:"description"`
+	Status                  stakingtypes.BondStatus  `json:"status"`
+	UnbondingHeight         int64                    `json:"unbondingHeight"`
+	UnbondingIds            []uint64                 `json:"unbondingIds"`
+	Jailed                  bool                     `json:"jailed"`
+	UnbondingOnHoldRefCount int64                    `json:"unbondingOnHoldRefCount"`
+	UnbondingTime           time.Time                `json:"unbondingTime"`
+	MinSelfDelegation       cosmossdk_io_math.Int    `json:"minSelfDelegation"`
+	Apr                     string                   `json:"apr"`
+	MinDelegation           cosmossdk_io_math.Int    `json:"minDelegation"`
+	DelegationAuthorization bool                     `json:"delegationAuthorization"`
+	TotalBoost              string                   `json:"totalBoost"`
+}
+
+type ValidatorWithDelegationRPC struct {
+	Validator  ValidatorRPC  `json:"validator"`
+	Delegation DelegationRPC `json:"delegation"`
+}
+
+type ValidatorWithCommissionRPC struct {
+	Validator  ValidatorRPC           `json:"validator"`
+	Commission ValidatorCommissionRPC `json:"commission"`
+}
+
+type ValidatorWithCommissionAndDelegationRPC struct {
+	Validator  ValidatorRPC           `json:"validator"`
+	Delegation DelegationRPC          `json:"delegation"`
+	Commission ValidatorCommissionRPC `json:"commission"`
+}
+
+type WhitelistedAssetRPC struct {
+	Denom                         string                `json:"denom"`
+	BaseWeight                    uint64                `json:"baseWeight"`
+	ChainId                       string                `json:"chainId"`
+	Decimals                      uint64                `json:"decimals"`
+	Metadata                      string                `json:"metadata"`
+	ContractAddress               string                `json:"oldestBlock"`
+	TotalShares                   cosmossdk_io_math.Int `json:"totalShares"`
+	NetworkPercentageSecurisation string                `json:"networkPercentageSecurisation"`
 }

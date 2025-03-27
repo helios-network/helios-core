@@ -12,14 +12,15 @@ heliades q staking validators
 heliades keys list
 
 #EXPORT KEYS TENDERMINT FORMAT
-heliades keys export NAME_WALLET
+heliades keys export signer2
 
 #EXPORT KEYS ETHER FORMAT
-heliades keys export NAME_WALLET --unarmored-hex --unsafe
+
+heliades keys export genesis --unarmored-hex --unsafe
 
 heliades query erc20 token-pairs --node http://localhost:26657
 
-heliades query bank balances heliosaddr --node http://localhost:26657
+
 
 heliades keys unsafe-export-eth-key NAME_WALLET --keyring-backend test
 
@@ -43,3 +44,17 @@ heliades tx staking create-validator \
   --gas=auto \
   --gas-adjustment=1.5 \
   --gas-prices="0.025ahelios"
+heliades q staking validators --chain-id 4242 --output json
+
+
+GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel"
+heliades keys add genesis --from-mnemonic "$GENESIS_VALIDATOR_MNEMONIC"
+
+heliades query bank balances helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf --node http://localhost:26657
+
+heliades query distribution rewards #addr
+
+heliades tendermint show-validator => to get the pubkey
+
+
+heliades keys list

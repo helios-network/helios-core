@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package post
 
 import (
@@ -12,8 +9,8 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 	"github.com/hashicorp/go-metrics"
+	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 var _ sdk.PostDecorator = &BurnDecorator{}

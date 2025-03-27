@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -9,11 +6,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"helios-core/helios-chain/contracts"
 	evmostypes "helios-core/helios-chain/types"
 
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/x/erc20/types"
 )
@@ -79,6 +78,37 @@ func (k Keeper) TokenPair(c context.Context, req *types.QueryTokenPairRequest) (
 	}
 
 	return &types.QueryTokenPairResponse{TokenPair: pair}, nil
+}
+
+// BalanceOf implements the Query/BalanceOf gRPC method
+func (k Keeper) ERC20BalanceOf(c context.Context, req *types.QueryERC20BalanceOfRequest) (*types.QueryERC20BalanceOfResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if err := evmostypes.ValidateAddress(req.Address); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid address")
+	}
+
+	if err := evmostypes.ValidateAddress(req.Token); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid token address")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	contract := common.HexToAddress(req.Token)
+	account := common.HexToAddress(req.Address)
+
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	balance := k.BalanceOf(ctx, erc20, contract, account)
+
+	if balance == nil {
+		return nil, status.Error(codes.Internal, "failed to get balance")
+	}
+
+	return &types.QueryERC20BalanceOfResponse{
+		Balance: balance.String(),
+	}, nil
 }
 
 // Params returns the params of the erc20 module

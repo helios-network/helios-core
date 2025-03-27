@@ -1,7 +1,9 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package types
+
+import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/common"
+)
 
 // constants
 const (
@@ -15,19 +17,9 @@ const (
 	RouterKey = ModuleName
 )
 
-// prefix bytes for the inflation persistent store
-const (
-	prefixPeriod = iota + 1
-	prefixEpochMintProvision
-	prefixEpochIdentifier
-	prefixEpochsPerPeriod
-	prefixSkippedEpochs
-)
+// ModuleAddress is the native module address for ERC-20
+var ModuleAddress common.Address
 
-// KVStore key prefixes
-var (
-	KeyPrefixPeriod          = []byte{prefixPeriod}
-	KeyPrefixEpochIdentifier = []byte{prefixEpochIdentifier}
-	KeyPrefixEpochsPerPeriod = []byte{prefixEpochsPerPeriod}
-	KeyPrefixSkippedEpochs   = []byte{prefixSkippedEpochs}
-)
+func init() {
+	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
+}

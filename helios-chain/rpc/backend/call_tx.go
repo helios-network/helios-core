@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package backend
 
 import (
@@ -8,6 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+
+	rpctypes "helios-core/helios-chain/rpc/types"
+	"helios-core/helios-chain/x/evm/core/vm"
+	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -18,9 +20,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	rpctypes "helios-core/helios-chain/rpc/types"
-	"helios-core/helios-chain/x/evm/core/vm"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // Resend accepts an existing transaction and a new gas price and limit. It will remove

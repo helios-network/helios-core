@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package types
 
 import (
@@ -64,6 +61,25 @@ func DecodeTransactionLogs(data []byte) (TransactionLogs, error) {
 		return TransactionLogs{}, err
 	}
 	return logs, nil
+}
+
+// UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx
+func UnwrapEthereumMsgTx(tx *sdk.Tx) (*MsgEthereumTx, error) {
+	if tx == nil {
+		return nil, fmt.Errorf("invalid tx: nil")
+	}
+
+	for _, msg := range (*tx).GetMsgs() {
+		ethMsg, ok := msg.(*MsgEthereumTx)
+		if !ok {
+			return nil, fmt.Errorf("invalid tx type: %T", tx)
+		}
+		txHash := ethMsg.AsTransaction().Hash()
+		ethMsg.Hash = txHash.Hex()
+		return ethMsg, nil
+	}
+
+	return nil, nil
 }
 
 // UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx

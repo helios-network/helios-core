@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package evm
 
 import (
@@ -135,11 +133,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	m := keeper.NewMigrator(*am.keeper, am.legacySubspace)
-
-	if err := cfg.RegisterMigration(types.ModuleName, 7, m.Migrate7to8); err != nil {
-		panic(err)
-	}
+	// m := keeper.NewMigrator(*am.keeper, am.legacySubspace)
 }
 
 // BeginBlock returns the begin block for the evm module.

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package staking
 
 import (
@@ -8,16 +5,18 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"helios-core/helios-chain/precompiles/authorization"
+	cmn "helios-core/helios-chain/precompiles/common"
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	"helios-core/helios-chain/x/evm/core/vm"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/authorization"
-	cmn "helios-core/helios-chain/precompiles/common"
-	"helios-core/helios-chain/x/evm/core/vm"
-	evmtypes "helios-core/helios-chain/x/evm/types"
-	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -31,6 +30,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	stakingKeeper stakingkeeper.Keeper
+	erc20Keeper   erc20keeper.Keeper
 }
 
 // LoadABI loads the staking ABI from the embedded abi.json file
@@ -44,6 +44,7 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -59,6 +60,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		stakingKeeper: stakingKeeper,
+		erc20Keeper:   erc20Keeper,
 	}
 	// SetAddress defines the address of the staking precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.StakingPrecompileAddress))
@@ -90,7 +92,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	if err != nil {
 		return nil, err
 	}
-
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
@@ -114,8 +115,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Delegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case UndelegateMethod:
 		bz, err = p.Undelegate(ctx, evm.Origin, contract, stateDB, method, args)
-	case RedelegateMethod:
-		bz, err = p.Redelegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case CancelUnbondingDelegationMethod:
 		bz, err = p.CancelUnbondingDelegation(ctx, evm.Origin, contract, stateDB, method, args)
 	// Staking queries
@@ -127,8 +126,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Validator(ctx, method, contract, args)
 	case ValidatorsMethod:
 		bz, err = p.Validators(ctx, method, contract, args)
-	case RedelegationMethod:
-		bz, err = p.Redelegation(ctx, method, contract, args)
+	/*case RedelegationMethod:
+	bz, err = p.Redelegation(ctx, method, contract, args)*/
 	case RedelegationsMethod:
 		bz, err = p.Redelegations(ctx, method, contract, args)
 	// Authorization queries

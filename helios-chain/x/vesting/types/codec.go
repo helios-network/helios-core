@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package types
 
 import (
@@ -12,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	migrationtypes "helios-core/helios-chain/x/vesting/migrations/types"
 )
 
 var (
@@ -26,11 +22,11 @@ var (
 
 const (
 	// Amino names
-	clawback                     = "evmos/MsgClawback"
-	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
-	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
-	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
-	fundVestingAccount           = "evmos/MsgFundVestingAccount"
+	clawback                     = "helios/MsgClawback"
+	createClawbackVestingAccount = "helios/MsgCreateClawbackVestingAccount"
+	updateVestingFunder          = "helios/MsgUpdateVestingFunder"
+	convertVestingAccount        = "helios/MsgConvertVestingAccount"
+	fundVestingAccount           = "helios/MsgFundVestingAccount"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -54,14 +50,11 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.AccountI)(nil),
 		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
-		&migrationtypes.ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
 		&sdkvesting.BaseVestingAccount{},
-		&ClawbackVestingAccount{},
-		&migrationtypes.ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(

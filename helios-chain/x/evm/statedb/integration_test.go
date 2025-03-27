@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package statedb_test
 
 import (
@@ -78,7 +75,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		deployer = keyring.GetKey(0)
 
 		var err error
-		stakingPrecompile, err = stakingprecompile.NewPrecompile(*network.App.StakingKeeper, network.App.AuthzKeeper)
+		stakingPrecompile, err = stakingprecompile.NewPrecompile(*network.App.StakingKeeper, network.App.AuthzKeeper, network.App.Erc20Keeper)
 		Expect(err).ToNot(HaveOccurred(), "failed to create staking precompile")
 
 		// Load the flash loan contract from the compiled JSON data.

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
+
 syntax = "proto3";
 package helios.erc20.v1;
 
@@ -33,6 +33,11 @@ service Query {
   rpc WhitelistedAssets(QueryWhitelistedAssetsRequest)
       returns (QueryWhitelistedAssetsResponse) {
     option (google.api.http).get = "/helios/erc20/v1/whitelisted_assets";
+  }
+
+  // BalanceOf queries the balance of an ERC20 token for a single account.
+  rpc ERC20BalanceOf(QueryERC20BalanceOfRequest) returns (QueryERC20BalanceOfResponse) {
+    option (google.api.http).get = "/helios/erc20/v1/balanceof/{address}/{token}";
   }
 }
 
@@ -94,4 +99,18 @@ message QueryWhitelistedAssetsResponse {
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryBalanceOfRequest is the request type for the Query/BalanceOf RPC method
+message QueryERC20BalanceOfRequest {
+  // address is the ethereum hex address to query the balance for.
+  string address = 1;
+  // token is the ethereum hex address of the ERC20 token.
+  string token = 2;
+}
+
+// QueryBalanceOfResponse is the response type for the Query/BalanceOf RPC method
+message QueryERC20BalanceOfResponse {
+  // balance is the balance of the ERC20 token for the address.
+  string balance = 1;
 }

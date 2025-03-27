@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package staking
 
 import (
@@ -8,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"helios-core/helios-chain/precompiles/authorization"
+	cmn "helios-core/helios-chain/precompiles/common"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/authorization"
-	cmn "helios-core/helios-chain/precompiles/common"
 
 	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -76,6 +74,7 @@ func (p Precompile) CreateValidator(
 		"validator_address", validatorHexAddr.String(),
 		"pubkey", msg.Pubkey.String(),
 		"value", msg.Value.Amount.String(),
+		"min_delegation", msg.MinDelegation.String(),
 	)
 
 	// ATM there's no authorization type for the MsgCreateValidator
@@ -127,6 +126,8 @@ func (p Precompile) EditValidator(
 		"validator_address", msg.ValidatorAddress,
 		"commission_rate", msg.CommissionRate,
 		"min_self_delegation", msg.MinSelfDelegation,
+		"min_delegation", msg.MinDelegation,
+		"delegate_authorization", msg.DelegateAuthorization,
 	)
 
 	// ATM there's no authorization type for the MsgCreateValidator
@@ -164,13 +165,14 @@ func (p *Precompile) Delegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+
+	msg, delegatorHexAddr, err := NewMsgDelegate(args)
 	if err != nil {
 		return nil, err
 	}
-	msg, delegatorHexAddr, err := NewMsgDelegate(args, bondDenom)
-	if err != nil {
-		return nil, err
+
+	if !p.erc20Keeper.IsAssetWhitelisted(ctx, msg.Amount.Denom) {
+		return nil, fmt.Errorf("denom %s is not whitelisted", msg.Amount.Denom)
 	}
 
 	p.Logger(ctx).Debug(
@@ -234,7 +236,7 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if !isCallerOrigin && msg.Amount.Denom == evmtypes.GetEVMCoinDenom() {
+	if !isCallerOrigin {
 		// get the delegator address from the message
 		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 		delHexAddr := common.BytesToAddress(delAccAddr)
@@ -260,13 +262,14 @@ func (p Precompile) Undelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+
+	msg, delegatorHexAddr, err := NewMsgUndelegate(args)
 	if err != nil {
 		return nil, err
 	}
-	msg, delegatorHexAddr, err := NewMsgUndelegate(args, bondDenom)
-	if err != nil {
-		return nil, err
+
+	if !p.erc20Keeper.IsAssetWhitelisted(ctx, msg.Amount.Denom) {
+		return nil, fmt.Errorf("denom %s is not whitelisted", msg.Amount.Denom)
 	}
 
 	p.Logger(ctx).Debug(
@@ -345,11 +348,7 @@ func (p Precompile) Redelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return nil, err
-	}
-	msg, delegatorHexAddr, err := NewMsgRedelegate(args, bondDenom)
+	msg, delegatorHexAddr, err := NewMsgRedelegate(args)
 	if err != nil {
 		return nil, err
 	}

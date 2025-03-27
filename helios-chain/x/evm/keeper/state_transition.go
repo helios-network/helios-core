@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package keeper
 
 import (
@@ -15,12 +13,13 @@ import (
 	"helios-core/helios-chain/x/evm/statedb"
 	"helios-core/helios-chain/x/evm/types"
 
+	evmoscore "helios-core/helios-chain/x/evm/core/core"
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	evmoscore "helios-core/helios-chain/x/evm/core/core"
-	"helios-core/helios-chain/x/evm/core/vm"
 )
 
 // NewEVM generates a go-ethereum VM from the provided Message fields and the chain parameters
@@ -312,6 +311,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 	}
 
 	if contractCreation {
+		// Creation of Smart Contract [Helios Precompiles]
 		// take over the nonce management from evm:
 		// - reset sender's nonce to msg.Nonce() before calling evm.
 		// - increase sender's nonce by one no matter the result.

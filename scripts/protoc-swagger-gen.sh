@@ -4,28 +4,31 @@ set -eo pipefail
 
 SWAGGER_TMP_DIR=tmp-swagger-gen
 SWAGGER_BUILD_DIR=tmp-swagger-build
-COSMOS_SDK_VERSION_TAG=v0.50.10-helios-1
+COSMOS_SDK_VERSION_TAG=v0.50.10-helios-64
 IBC_GO_VERSION_TAG=v8.50.10-helios-1
 WASMD_VERSION_TAG=v0.50.6-helios-3
+COMETBFT_VERSION_TAG=v0.50.10-helios-11
 rm -fr $SWAGGER_BUILD_DIR $SWAGGER_TMP_DIR
 mkdir -p $SWAGGER_BUILD_DIR $SWAGGER_TMP_DIR
 
 cd $SWAGGER_BUILD_DIR
 mkdir -p proto
 printf "version: v1\ndirectories:\n  - proto\n  - third_party" > buf.work.yaml
-printf "version: v1\nname: buf.build/Helios-Chain-Labs/helios-core\n" > proto/buf.yaml
+printf "version: v1\nname: buf.build/helios-network/helios-core\n" > proto/buf.yaml
 cp ../proto/buf.gen.swagger.yaml proto/buf.gen.swagger.yaml
 cp -r ../proto/helios proto/
+cp -r ../proto/ethermint proto/
 
 # Clone repositories
-git clone https://github.com/Helios-Chain-Labs/cosmos-sdk.git -b $COSMOS_SDK_VERSION_TAG --depth 1 --single-branch
-git clone https://github.com/Helios-Chain-Labs/ibc-go.git -b $IBC_GO_VERSION_TAG --depth 1 --single-branch
-git clone https://github.com/Helios-Chain-Labs/wasmd.git -b $WASMD_VERSION_TAG --depth 1 --single-branch
+git clone https://github.com/helios-network/cosmos-sdk.git -b $COSMOS_SDK_VERSION_TAG --depth 1 --single-branch
+git clone https://github.com/helios-network/ibc-go.git -b $IBC_GO_VERSION_TAG --depth 1 --single-branch
+git clone https://github.com/helios-network/wasmd.git -b $WASMD_VERSION_TAG --depth 1 --single-branch
+git clone https://github.com/helios-network/cometbft.git -b $COMETBFT_VERSION_TAG --depth 1 --single-branch
 
 buf export ./cosmos-sdk --output=third_party
 buf export ./ibc-go --exclude-imports --output=third_party
 buf export ./wasmd --exclude-imports --output=./third_party
-buf export https://github.com/cometbft/cometbft.git --exclude-imports --output=third_party
+buf export ./cometbft --exclude-imports --output=./third_party
 buf export https://github.com/cosmos/ics23.git --exclude-imports --output=./third_party
 
 # Modified IBC apps export and directory structure
@@ -67,3 +70,9 @@ swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger.ya
 echo "Cleaning up"
 
 rm -rf $SWAGGER_TMP_DIR $SWAGGER_BUILD_DIR
+
+echo "Convert swagger.yaml to openapi.json"
+
+swagger-cli bundle ./client/docs/swagger-ui/swagger.yaml --outfile ./client/docs/swagger-ui/openapi.json --type json
+
+cp ./client/docs/swagger-ui/openapi.json ./helios-chain/server/grpc-openapi.json

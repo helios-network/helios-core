@@ -1,0 +1,66 @@
+syntax = "proto3";
+package helios.chronos.v1;
+
+import "gogoproto/gogo.proto";
+import "ethermint/evm/v1/evm.proto";
+
+option go_package = "helios-core/helios-chain/x/chronos/types";
+
+message CronTransactionResult {
+  bytes tx = 1;
+  bytes result = 2;
+  uint64 nonce = 3;
+  string from = 4;
+  uint64 block_number = 5 [(gogoproto.jsontag) = "blockNumber"];
+  string block_hash = 6 [(gogoproto.jsontag) = "blockHash"];
+  uint64 cron_id = 7 [(gogoproto.jsontag) = "cronId"];
+  string tx_hash = 8 [(gogoproto.jsontag) = "transactionHash"];
+}
+
+message CronTransactionReceiptRPC {
+  // Consensus fields
+  string status = 1 [(gogoproto.jsontag) = "status"];
+  string cumulative_gas_used = 2 [(gogoproto.jsontag) = "cumulativeGasUsed"];
+  string logs_bloom = 3 [(gogoproto.jsontag) = "logsBloom"];
+  repeated ethermint.evm.v1.Log logs = 4;
+
+  // Implementation fields
+  string transaction_hash = 5 [(gogoproto.jsontag) = "transactionHash"];
+  string contract_address = 6 [(gogoproto.jsontag) = "contractAddress"];
+  string gas_used = 7 [(gogoproto.jsontag) = "gasUsed"];
+
+  // Inclusion information
+  string block_hash = 8 [(gogoproto.jsontag) = "blockHash"];
+  string block_number = 9 [(gogoproto.jsontag) = "blockNumber"];
+  string transaction_index = 10 [(gogoproto.jsontag) = "transactionIndex"];
+
+  // Addresses
+  string from = 11;
+  string to = 12;
+  string type = 13;
+  // execution result
+  string result = 14;
+  string ret = 15;
+  string vm_error = 16 [(gogoproto.jsontag) = "vmError"];
+  uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
+}
+
+message CronTransactionRPC {
+  string block_hash = 1 [(gogoproto.jsontag) = "blockHash"];
+  string block_number = 2 [(gogoproto.jsontag) = "blockNumber"];
+  string chain_id = 3 [(gogoproto.jsontag) = "chainId"];
+  string from = 4;
+  string gas = 5;
+  string gas_price = 6 [(gogoproto.jsontag) = "gasPrice"];
+  string hash = 7;
+  string input = 8;
+  string nonce = 9;
+  string r = 10;
+  string s = 11;
+  string to = 12;
+  string transaction_index = 13 [(gogoproto.jsontag) = "transactionIndex"];
+  string type = 14;
+  string v = 15;
+  string value = 16;
+  uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
+}

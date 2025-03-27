@@ -131,37 +131,37 @@ import (
 
 	// "helios-core/client/docs" // removed
 	"helios-core/helios-chain/app/ante"
-	hyperion "helios-core/helios-chain/modules/hyperion"
-	hyperionKeeper "helios-core/helios-chain/modules/hyperion/keeper"
-	hyperiontypes "helios-core/helios-chain/modules/hyperion/types"
-	"helios-core/helios-chain/modules/ocr"
-	ocrkeeper "helios-core/helios-chain/modules/ocr/keeper"
-	ocrtypes "helios-core/helios-chain/modules/ocr/types"
-	"helios-core/helios-chain/modules/tokenfactory"
-	tokenfactorykeeper "helios-core/helios-chain/modules/tokenfactory/keeper"
-	tokenfactorytypes "helios-core/helios-chain/modules/tokenfactory/types"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
+	hyperion "helios-core/helios-chain/x/hyperion"
+	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
+	"helios-core/helios-chain/x/tokenfactory"
+	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
+	tokenfactorytypes "helios-core/helios-chain/x/tokenfactory/types"
 
 	epochskeeper "helios-core/helios-chain/x/epochs/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
+	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
+	chronostypes "helios-core/helios-chain/x/chronos/types"
+
 	"helios-core/helios-chain/x/evm"
 	evmkeeper "helios-core/helios-chain/x/evm/keeper"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
+	epochstypes "helios-core/helios-chain/x/epochs/types"
 	"helios-core/helios-chain/x/feemarket"
 	feemarketkeeper "helios-core/helios-chain/x/feemarket/keeper"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+
 	inflationkeeper "helios-core/helios-chain/x/inflation/v1/keeper"
 	inflationtypes "helios-core/helios-chain/x/inflation/v1/types"
 
-	epochstypes "helios-core/helios-chain/x/epochs/types"
-	inflation "helios-core/helios-chain/x/inflation/v1"
-
 	srvflags "helios-core/helios-chain/server/flags"
 
+	chronos "helios-core/helios-chain/x/chronos"
 	epochs "helios-core/helios-chain/x/epochs"
 	erc20 "helios-core/helios-chain/x/erc20"
 
@@ -243,9 +243,9 @@ var (
 		authzmodule.AppModuleBasic{},
 		packetforward.AppModuleBasic{},
 		hyperion.AppModuleBasic{},
-		ocr.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
+		chronos.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -256,13 +256,12 @@ var (
 		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		stakingtypes.BoostedPoolName:   {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		ibcfeetypes.ModuleName:         nil,
 		hyperiontypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		ocrtypes.ModuleName:            nil,
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		ratelimittypes.ModuleName:      nil,
@@ -272,7 +271,6 @@ var (
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
 		distrtypes.ModuleName:        true,
-		ocrtypes.ModuleName:          true,
 		hyperiontypes.ModuleName:     true,
 		tokenfactorytypes.ModuleName: true,
 	}
@@ -312,7 +310,6 @@ type HeliosApp struct {
 	// helios keepers
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 	HyperionKeeper     hyperionKeeper.Keeper
-	OcrKeeper          ocrkeeper.Keeper
 
 	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -340,11 +337,12 @@ type HeliosApp struct {
 	// ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
-
-	// Evmos keepers
 	InflationKeeper inflationkeeper.Keeper
-	Erc20Keeper     erc20keeper.Keeper
-	EpochsKeeper    epochskeeper.Keeper
+
+	// Helios keepers
+	Erc20Keeper   erc20keeper.Keeper
+	EpochsKeeper  epochskeeper.Keeper
+	ChronosKeeper chronoskeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
 }
@@ -391,7 +389,6 @@ func NewHeliosApp(
 	// load state streaming if enabled
 	if err := app.RegisterStreamingServices(appOpts, app.keys); err != nil {
 		panic("failed to load state streaming: " + err.Error())
-		os.Exit(1)
 	}
 
 	// initialize BaseApp
@@ -435,7 +432,6 @@ func NewHeliosApp(
 			tmos.Exit(err.Error())
 		}
 	}
-
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
 	app.CapabilityKeeper.Seal()
@@ -476,21 +472,20 @@ func initHeliosApp(
 			consensustypes.StoreKey, packetforwardtypes.StoreKey,
 			// Helios keys
 			hyperiontypes.StoreKey,
-			ocrtypes.StoreKey,
 			tokenfactorytypes.StoreKey,
 			epochstypes.StoreKey,
+			inflationtypes.StoreKey,
 			// Add missing EVM-related keys
 			evmtypes.StoreKey,
 			feemarkettypes.StoreKey,
 			erc20types.StoreKey,
-			inflationtypes.StoreKey,
 			ratelimittypes.StoreKey,
+			chronostypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
 			paramstypes.TStoreKey,
 			banktypes.TStoreKey,
-			ocrtypes.TStoreKey,
 			// Add missing EVM-related transient keys
 			evmtypes.TransientKey,
 			feemarkettypes.TransientKey,
@@ -900,19 +895,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
-	app.OcrKeeper = ocrkeeper.NewKeeper(
-		app.codec,
-		app.keys[ocrtypes.StoreKey],
-		app.tKeys[ocrtypes.TStoreKey],
-		app.BankKeeper,
-		authority,
-		app.AccountKeeper,
-	)
-
-	app.OcrKeeper.SetHooks(ocrtypes.NewMultiOcrHooks(
-		nil,
-	))
-
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		app.codec,
 		runtime.NewKVStoreService(app.keys[feegrant.StoreKey]),
@@ -924,11 +906,11 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.keys[hyperiontypes.StoreKey],
 		app.StakingKeeper,
 		app.BankKeeper,
-		&app.Erc20Keeper,
 		app.SlashingKeeper,
 		app.DistrKeeper,
 		authority,
 		app.AccountKeeper,
+		app.Erc20Keeper,
 	)
 
 	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
@@ -938,12 +920,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.DistrKeeper,
 		authority,
 	)
-
-	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
-		app.DistrKeeper.Hooks(),
-		app.SlashingKeeper.Hooks(),
-		app.HyperionKeeper.Hooks(),
-	))
 
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		app.codec,
@@ -1044,13 +1020,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	// ALL EVM
 
-	// Evmos Keeper
-	app.InflationKeeper = inflationkeeper.NewKeeper(
-		app.keys[inflationtypes.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper,
-		authtypes.FeeCollectorName,
-	)
-
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
@@ -1058,6 +1027,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.tKeys[feemarkettypes.TransientKey],
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
+
+	app.InflationKeeper = *inflationkeeper.NewKeeper(app.codec, app.keys[inflationtypes.StoreKey])
 
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
@@ -1071,6 +1042,15 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	)
 	app.EvmKeeper = evmKeeper
 
+	app.ChronosKeeper = *chronoskeeper.NewKeeper(
+		app.codec,
+		app.keys[chronostypes.StoreKey],
+		app.keys[chronostypes.MemStoreKey],
+		app.AccountKeeper,
+		app.EvmKeeper,
+		app.BankKeeper,
+	)
+
 	erc20Keeper := erc20keeper.NewKeeper(
 		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
@@ -1080,12 +1060,32 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
 	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
+	// app.HyperionKeeper.SetErc20Keeper(app.Erc20Keeper)
+
+	app.HyperionKeeper = hyperionKeeper.NewKeeper(
+		app.codec,
+		app.keys[hyperiontypes.StoreKey],
+		app.StakingKeeper,
+		app.BankKeeper,
+		app.SlashingKeeper,
+		app.DistrKeeper,
+		authority,
+		app.AccountKeeper,
+		app.Erc20Keeper,
+	)
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
+
+	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
+		app.DistrKeeper.Hooks(),
+		app.SlashingKeeper.Hooks(),
+		app.HyperionKeeper.Hooks(),
+	))
+
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
-			// insert epoch hooks receivers here
-			app.InflationKeeper.Hooks(),
+		// insert epoch hooks receivers here
+		//app.InflationKeeper.Hooks(),
 		),
 	)
 
@@ -1099,6 +1099,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
 			app.GovKeeper,
+			app.ChronosKeeper,
+			app.HyperionKeeper,
 		),
 	)
 
@@ -1107,8 +1109,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
-		AddRoute(ocrtypes.RouterKey, ocr.NewOcrProposalHandler(app.OcrKeeper)).
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper))
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
+		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
 }
@@ -1167,13 +1169,11 @@ func (app *HeliosApp) initManagers() {
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Helios app modules
 		hyperion.NewAppModule(app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
-		ocr.NewAppModule(app.OcrKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(ocrtypes.ModuleName)),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
-			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
+		chronos.NewAppModule(app.codec, app.ChronosKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1239,7 +1239,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	// helios subspaces
 	paramsKeeper.Subspace(hyperiontypes.ModuleName)
-	paramsKeeper.Subspace(ocrtypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 
 	// FIX: do we need a keytable?
@@ -1248,8 +1247,8 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
-	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
+	paramsKeeper.Subspace(chronostypes.ModuleName)
 
 	return paramsKeeper
 }
@@ -1292,11 +1291,11 @@ func initGenesisOrder() []string {
 		// Helios modules
 		tokenfactorytypes.ModuleName,
 		hyperiontypes.ModuleName,
-		ocrtypes.ModuleName,
-		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,
+		chronostypes.ModuleName,
+
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	}
@@ -1314,6 +1313,7 @@ func beginBlockerOrder() []string {
 		epochstypes.ModuleName,
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
+		chronostypes.ModuleName,
 		genutiltypes.ModuleName,
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
@@ -1335,7 +1335,6 @@ func beginBlockerOrder() []string {
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		ocrtypes.ModuleName,
 		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
 	}
@@ -1365,9 +1364,9 @@ func endBlockerOrder() []string {
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
+		chronostypes.ModuleName,
 		feemarkettypes.ModuleName,
 		hyperiontypes.ModuleName,
-		ocrtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		banktypes.ModuleName,

@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package filters
 
 import (
@@ -8,10 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"helios-core/helios-chain/rpc/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
+
 	"cosmossdk.io/log"
+
+	rpctypes "helios-core/helios-chain/rpc/types"
 
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
@@ -46,6 +47,7 @@ type Backend interface {
 	GetLogs(blockHash common.Hash) ([][]*ethtypes.Log, error)
 	GetLogsByHeight(*int64) ([][]*ethtypes.Log, error)
 	BlockBloom(blockRes *coretypes.ResultBlockResults) (ethtypes.Bloom, error)
+	GetBlockCronLogs(blockNumber rpctypes.BlockNumber) ([]*ethtypes.Log, error)
 
 	BloomStatus() (uint64, uint64)
 

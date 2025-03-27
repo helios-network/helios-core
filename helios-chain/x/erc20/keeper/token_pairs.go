@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -116,7 +113,16 @@ func (k Keeper) GetERC20Map(ctx sdk.Context, erc20 common.Address) []byte {
 
 // GetDenomMap returns the token pair id for the given denomination.
 func (k Keeper) GetDenomMap(ctx sdk.Context, denom string) []byte {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
+	kvStore := ctx.KVStore(k.storeKey)
+
+	if kvStore == nil {
+		k.Logger(ctx).Info("KV store is not initialized")
+	}
+
+	k.Logger(ctx).Info("KV store is initialized", "denom", denom)
+
+	store := prefix.NewStore(kvStore, types.KeyPrefixTokenPairByDenom)
+
 	return store.Get([]byte(denom))
 }
 

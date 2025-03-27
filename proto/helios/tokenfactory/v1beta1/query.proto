@@ -8,7 +8,7 @@ import "helios/tokenfactory/v1beta1/authorityMetadata.proto";
 import "helios/tokenfactory/v1beta1/params.proto";
 import "helios/tokenfactory/v1beta1/genesis.proto";
 
-option go_package = "helios-core/helios-chain/modules/tokenfactory/types";
+option go_package = "helios-core/helios-chain/x/tokenfactory/types";
 
 // Query defines the gRPC querier service.
 service Query {

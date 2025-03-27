@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "helios/hyperion/v1/attestation.proto";
 import "helios/hyperion/v1/types.proto";
 
-option go_package = "helios-core/helios-chain/modules/hyperion/types";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
 
 message EventAttestationObserved {
   ClaimType attestation_type = 1;
@@ -52,6 +52,7 @@ message EventSetOrchestratorAddresses {
   string validator_address = 1;
   string orchestrator_address = 2;
   string operator_eth_address = 3;
+  uint64 hyperion_id = 4;
 }
 
 message EventValsetConfirm {

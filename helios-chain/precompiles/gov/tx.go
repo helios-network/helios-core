@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package gov
 
 import (
@@ -115,6 +112,13 @@ func (p *Precompile) AddNewAssetProposal(
 		return nil, fmt.Errorf("failed to parse addNewAssetProposal arguments: %w", err)
 	}
 
+	// check if baseWeight is well superior of zero
+	for _, asset := range addNewAssetProposalReq.Assets {
+		if asset.BaseWeight == uint64(0) {
+			return nil, fmt.Errorf("failed criterial BaseWeight of %s can't be equals to zero.", asset.Denom)
+		}
+	}
+
 	proposer := sdk.AccAddress(origin.Bytes())
 
 	proposalContent := &types.AddNewAssetConsensusProposal{
@@ -154,6 +158,7 @@ func (p *Precompile) AddNewAssetProposal(
 	}
 
 	fmt.Println("proposalId: ", proposal.ProposalId)
+	//TODO: update weight erc20
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)
 }
@@ -210,7 +215,9 @@ func (p *Precompile) UpdateAssetProposal(
 		fmt.Printf("Failed to submit proposal: %v\n", err)
 		return nil, err
 	}
-
+	// YAMI -> :
+	//TODO: check denom is whitelisted
+	//TODO: check BaseWeight not equals to 1 if direction is down (Already checked in simulation but should be better to have also here).
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)
 }
@@ -268,6 +275,8 @@ func (p *Precompile) RemoveAssetProposal(
 		fmt.Printf("Failed to submit proposal: %v\n", err)
 		return nil, err
 	}
+
+	//TODO: update weight erc20
 
 	// Pack and return a success response with the proposal ID
 	return method.Outputs.Pack(proposal.ProposalId)

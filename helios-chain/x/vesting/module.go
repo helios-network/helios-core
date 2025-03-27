@@ -1,12 +1,8 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package vesting
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -123,15 +119,15 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	migrator := keeper.NewMigrator(am.keeper)
+	// migrator := keeper.NewMigrator(am.keeper)
 
-	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
-		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
-	}
+	// if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+	// 	panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+	// }
 
-	if err := cfg.RegisterMigration(types.ModuleName, 2, migrator.Migrate2to3); err != nil {
-		panic(fmt.Errorf("failed to migrate %s to v3: %w", types.ModuleName, err))
-	}
+	// if err := cfg.RegisterMigration(types.ModuleName, 2, migrator.Migrate2to3); err != nil {
+	// 	panic(fmt.Errorf("failed to migrate %s to v3: %w", types.ModuleName, err))
+	// }
 }
 
 // ExportGenesis is always empty, as InitGenesis does nothing either.

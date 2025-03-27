@@ -1,7 +1,7 @@
 syntax = "proto3";
 package helios.hyperion.v1;
 import "gogoproto/gogo.proto";
-option go_package = "helios-core/helios-chain/modules/hyperion/types";
+option go_package = "helios-core/helios-chain/x/hyperion/types";
 
 // BridgeValidator represents a validator's ETH address and its power
 message BridgeValidator {
@@ -49,4 +49,15 @@ message ERC20ToDenom {
   string chain_id = 1;
   string erc20 = 2;
   string denom = 3;
+}
+
+message TokenMetadata {
+  string symbol = 1;
+  string name = 2;
+  uint64 decimals = 3;
+}
+
+message ClaimData {
+  TokenMetadata metadata = 1;
+  string data = 2;
 }

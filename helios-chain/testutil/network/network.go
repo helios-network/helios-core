@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package network
 
 import (
@@ -116,8 +113,8 @@ func DefaultConfig() Config {
 		InterfaceRegistry: app.InterfaceRegistry(),
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor:    NewAppConstructor(chainID),
-		//GenesisState:      app.DefaultGenesis(),
-		GenesisState:    nil, //TODO: Fix diffs and set back default
+		GenesisState:      app.DefaultGenesis(),
+		// GenesisState:    nil, //TODO: Fix diffs and set back default
 		TimeoutCommit:   3 * time.Second,
 		ChainID:         chainID,
 		NumValidators:   2,
@@ -134,7 +131,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// NewAppConstructor returns a new Evmos AppConstructor
+// NewAppConstructor returns a new Helios AppConstructor
 func NewAppConstructor(chainID string) AppConstructor {
 	return func(val Validator) servertypes.Application {
 		return app.NewHeliosApp(
@@ -328,7 +325,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 
 		nodeDirName := fmt.Sprintf("node%d", i)
 		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "heliades")
-		clientDir := filepath.Join(network.BaseDir, nodeDirName, "evmoscli")
+		clientDir := filepath.Join(network.BaseDir, nodeDirName, "heliadescli")
 		gentxsDir := filepath.Join(network.BaseDir, "gentxs")
 
 		err := os.MkdirAll(filepath.Join(nodeDir, "config"), 0o750)

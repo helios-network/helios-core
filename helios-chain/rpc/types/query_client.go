@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
 import (
@@ -7,13 +5,22 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/tx"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/proto/tendermint/crypto"
 
 	"github.com/cosmos/cosmos-sdk/client"
 
+	chronostypes "helios-core/helios-chain/x/chronos/types"
+	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // QueryClient defines a gRPC Client used for:
@@ -23,7 +30,14 @@ import (
 type QueryClient struct {
 	tx.ServiceClient
 	evmtypes.QueryClient
-	FeeMarket feemarkettypes.QueryClient
+	FeeMarket    feemarkettypes.QueryClient
+	Gov          govtypes.QueryClient
+	Erc20        erc20types.QueryClient
+	Bank         banktypes.QueryClient
+	Staking      stakingtypes.QueryClient
+	Mint         minttypes.QueryClient
+	Distribution distributiontypes.QueryClient
+	Chronos      chronostypes.QueryClient
 }
 
 // NewQueryClient creates a new gRPC query client
@@ -32,6 +46,13 @@ func NewQueryClient(clientCtx client.Context) *QueryClient {
 		ServiceClient: tx.NewServiceClient(clientCtx),
 		QueryClient:   evmtypes.NewQueryClient(clientCtx),
 		FeeMarket:     feemarkettypes.NewQueryClient(clientCtx),
+		Gov:           govtypes.NewQueryClient(clientCtx),
+		Erc20:         erc20types.NewQueryClient(clientCtx),
+		Bank:          banktypes.NewQueryClient(clientCtx),
+		Staking:       stakingtypes.NewQueryClient(clientCtx),
+		Mint:          minttypes.NewQueryClient(clientCtx),
+		Distribution:  distributiontypes.NewQueryClient(clientCtx),
+		Chronos:       chronostypes.NewQueryClient(clientCtx),
 	}
 }
 
