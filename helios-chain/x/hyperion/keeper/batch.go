@@ -40,7 +40,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 	if lastBatch != nil {
 		// this traverses the current tx pool for this token type and determines what
 		// fees a hypothetical batch would have if created
-		currentFees := k.GetBatchFeesByTokenType(ctx, contractAddress)
+		currentFees := k.GetBatchFeesByTokenType(ctx, hyperionId, contractAddress)
 		if currentFees == nil {
 			metrics.ReportFuncError(k.svcTags)
 			return nil, errors.Wrap(types.ErrInvalid, "error getting fees from tx pool")
@@ -195,13 +195,11 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 	selectedTx := make([]*types.OutgoingTransferTx, 0)
 	var err error
 
-	k.IterateOutgoingPoolByFee(ctx, contractAddress, func(txID uint64, tx *types.OutgoingTransferTx) bool {
+	k.IterateOutgoingPoolByFee(ctx, hyperionId, contractAddress, func(txID uint64, tx *types.OutgoingTransferTx) bool {
 		fmt.Println("pickUnbatchedTX - tx: ", tx)
 		if tx != nil && tx.Erc20Fee != nil {
-			if tx.HyperionId == hyperionId {
-				selectedTx = append(selectedTx, tx)
-				err = k.removeFromUnbatchedTXIndex(ctx, contractAddress, tx.Erc20Fee, txID)
-			}
+			selectedTx = append(selectedTx, tx)
+			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, contractAddress, tx.Erc20Fee, txID)
 			return err != nil || len(selectedTx) == maxElements
 		} else {
 			// we found a nil, exit
@@ -253,7 +251,7 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 
 	for _, tx := range batch.Transactions {
 		tx.Erc20Fee.Contract = tokenContract.Hex()
-		k.prependToUnbatchedTXIndex(ctx, tokenContract, tx.Erc20Fee, tx.Id)
+		k.prependToUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Erc20Fee, tx.Id)
 	}
 
 	// Delete batch since it is finished
