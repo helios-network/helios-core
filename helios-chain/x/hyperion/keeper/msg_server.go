@@ -95,7 +95,16 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 
 }
 
-// [Not Used In Hyperion]
+// [Not Used In Hyperion] AddCounterpartyChainParams msgServer allows adding connectivity for a new blockchain.
+// -------------
+// MsgAddCounterpartyChainParams
+// For this, a new HyperionId and a new BridgeChainId are required.
+// The function validates the counterparty chain parameters provided in the message,
+// checks that the HyperionId and BridgeChainId are not already in use to avoid duplicates,
+// and if the validations are successful, it adds the new counterparty chain parameters
+// to the existing parameters and saves them.
+// TODO: using it via proposal and check it well approved before adds.
+// -------------
 func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgAddCounterpartyChainParams) (*types.MsgAddCounterpartyChainParamsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
