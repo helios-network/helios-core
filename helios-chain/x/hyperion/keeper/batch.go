@@ -275,18 +275,17 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, hyperionId uint64, cb
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.OutgoingTXBatchKey)
-	iter := prefixStore.ReverseIterator(nil, nil)
+	iter := prefixStore.ReverseIterator(PrefixRange(types.UInt64Bytes(hyperionId)))
+	// iterate over [OutgoingTXBatchKey][hyperionId]
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
 		var batch types.OutgoingTxBatch
 		k.cdc.MustUnmarshal(iter.Value(), &batch)
 
-		if batch.HyperionId == hyperionId {
-			fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
-			// cb returns true to stop early
-			if cb(iter.Key(), &batch) {
-				break
-			}
+		k.Logger(ctx).Info("IterateOutgoingTXBatches", "batch", batch, "hyperionId", hyperionId)
+		// cb returns true to stop early
+		if cb(iter.Key(), &batch) {
+			break
 		}
 	}
 }

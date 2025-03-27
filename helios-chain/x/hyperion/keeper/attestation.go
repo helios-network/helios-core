@@ -554,9 +554,9 @@ func (k *Keeper) setLastEventByValidatorAndHyperionId(ctx sdk.Context, hyperionI
 		EthereumEventHeight: blockHeight,
 	}
 
-	k.Logger(ctx).Info("setLastEventByValidatorAndHyperionId", "hyperionId", hyperionId, "key", hexutil.Encode(types.GetLastEventByValidatorKey(validator)))
+	k.Logger(ctx).Info("setLastEventByValidatorAndHyperionId", "hyperionId", hyperionId, "key", hexutil.Encode(types.GetLastEventByValidatorKey(hyperionId, validator)))
 
-	store.Set(types.GetLastEventByValidatorKey(validator), k.cdc.MustMarshal(&lastClaimEvent))
+	store.Set(types.GetLastEventByValidatorKey(hyperionId, validator), k.cdc.MustMarshal(&lastClaimEvent))
 
 }
 
@@ -567,9 +567,9 @@ func (k *Keeper) GetLastEventByValidatorAndHyperionId(ctx sdk.Context, hyperionI
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.LastEventByValidatorKey, sdk.Uint64ToBigEndian(hyperionId)...))
 
-	k.Logger(ctx).Info("GetLastEventByValidatorAndHyperionId", "hyperionId", hyperionId, "key", hexutil.Encode(types.GetLastEventByValidatorKey(validator)))
+	k.Logger(ctx).Info("GetLastEventByValidatorAndHyperionId", "hyperionId", hyperionId, "key", hexutil.Encode(types.GetLastEventByValidatorKey(hyperionId, validator)))
 
-	rawEvent := store.Get(types.GetLastEventByValidatorKey(validator))
+	rawEvent := store.Get(types.GetLastEventByValidatorKey(hyperionId, validator))
 	if len(rawEvent) == 0 {
 		return types.LastClaimEvent{}
 	}

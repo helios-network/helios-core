@@ -489,12 +489,12 @@ func (k *Keeper) AutoIncrementID(ctx sdk.Context, idKey []byte) uint64 {
 	return id
 }
 
-func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastOutgoingBatchID
+	key := types.GetLastOutgoingBatchIDKey(hyperionId)
 	var id uint64
 	bz := store.Get(key)
 	if bz != nil {
@@ -503,22 +503,22 @@ func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context) uint64 {
 	return id
 }
 
-func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, lastOutgoingBatchID uint64) {
+func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, hyperionId uint64, lastOutgoingBatchID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastOutgoingBatchID
+	key := types.GetLastOutgoingBatchIDKey(hyperionId)
 	bz := sdk.Uint64ToBigEndian(lastOutgoingBatchID)
 	store.Set(key, bz)
 }
 
-func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastTXPoolID
+	key := types.GetLastTXPoolIDKey(hyperionId)
 	var id uint64
 	bz := store.Get(key)
 	if bz != nil {
@@ -527,12 +527,12 @@ func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context) uint64 {
 	return id
 }
 
-func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, lastOutgoingPoolID uint64) {
+func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, hyperionId uint64, lastOutgoingPoolID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastTXPoolID
+	key := types.GetLastTXPoolIDKey(hyperionId)
 	bz := sdk.Uint64ToBigEndian(lastOutgoingPoolID)
 	store.Set(key, bz)
 }

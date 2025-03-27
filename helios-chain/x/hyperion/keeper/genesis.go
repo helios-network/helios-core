@@ -109,8 +109,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		}
 		k.setLastObservedEventNonce(ctx, subState.HyperionId, subState.LastObservedNonce)
 		k.SetLastObservedEthereumBlockHeight(ctx, subState.HyperionId, subState.LastObservedEthereumHeight)
-		k.SetLastOutgoingBatchID(ctx, subState.LastOutgoingBatchId)
-		k.SetLastOutgoingPoolID(ctx, subState.LastOutgoingPoolId)
+		k.SetLastOutgoingBatchID(ctx, subState.HyperionId, subState.LastOutgoingBatchId)
+		k.SetLastOutgoingPoolID(ctx, subState.HyperionId, subState.LastOutgoingPoolId)
 		k.SetLastObservedValset(ctx, subState.HyperionId, subState.LastObservedValset)
 
 		for _, attestation := range subState.Attestations {
@@ -217,8 +217,8 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 			attestations = append(attestations, attmap[height]...)
 		}
 
-		lastOutgoingBatchID := k.GetLastOutgoingBatchID(ctx)
-		lastOutgoingPoolID := k.GetLastOutgoingPoolID(ctx)
+		lastOutgoingBatchID := k.GetLastOutgoingBatchID(ctx, param.HyperionId)
+		lastOutgoingPoolID := k.GetLastOutgoingPoolID(ctx, param.HyperionId)
 		lastObservedValset := k.GetLastObservedValset(ctx, param.HyperionId)
 
 		subStates = append(subStates, &types.GenesisHyperionState{

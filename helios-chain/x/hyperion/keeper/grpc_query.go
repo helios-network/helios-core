@@ -21,7 +21,7 @@ var _ types.QueryServer = &Keeper{}
 const maxValsetRequestsReturned = 5
 const MaxResults = 100 // todo: impl pagination
 
-// Params queries the params of the hyperion module
+// [Used In Hyperion] Params queries the params of the hyperion module
 func (k *Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -29,7 +29,7 @@ func (k *Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.
 	return &types.QueryParamsResponse{Params: *k.GetParams(sdk.UnwrapSDKContext(c))}, nil
 }
 
-// CurrentValset queries the CurrentValset of the hyperion module
+// [Used In Hyperion] CurrentValset queries the CurrentValset of the hyperion module
 func (k *Keeper) CurrentValset(c context.Context, req *types.QueryCurrentValsetRequest) (*types.QueryCurrentValsetResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -37,7 +37,7 @@ func (k *Keeper) CurrentValset(c context.Context, req *types.QueryCurrentValsetR
 	return &types.QueryCurrentValsetResponse{Valset: k.GetCurrentValset(sdk.UnwrapSDKContext(c), req.HyperionId)}, nil
 }
 
-// ValsetRequest queries the ValsetRequest of the hyperion module
+// [Used In Hyperion] ValsetRequest queries the ValsetRequest of the hyperion module
 func (k *Keeper) ValsetRequest(c context.Context, req *types.QueryValsetRequestRequest) (*types.QueryValsetRequestResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -45,7 +45,7 @@ func (k *Keeper) ValsetRequest(c context.Context, req *types.QueryValsetRequestR
 	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.HyperionId, req.Nonce)}, nil
 }
 
-// ValsetConfirm queries the ValsetConfirm of the hyperion module
+// [Not Used In Hyperion] ValsetConfirm queries the ValsetConfirm of the hyperion module
 func (k *Keeper) ValsetConfirm(c context.Context, req *types.QueryValsetConfirmRequest) (*types.QueryValsetConfirmResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -58,7 +58,7 @@ func (k *Keeper) ValsetConfirm(c context.Context, req *types.QueryValsetConfirmR
 	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.HyperionId, req.Nonce, addr)}, nil
 }
 
-// ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the hyperion module
+// [Used In Hyperion] ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the hyperion module
 func (k *Keeper) ValsetConfirmsByNonce(c context.Context, req *types.QueryValsetConfirmsByNonceRequest) (*types.QueryValsetConfirmsByNonceResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -74,7 +74,7 @@ func (k *Keeper) ValsetConfirmsByNonce(c context.Context, req *types.QueryValset
 	return &types.QueryValsetConfirmsByNonceResponse{Confirms: confirms}, nil
 }
 
-// LastValsetRequests queries the LastValsetRequests of the hyperion module
+// [Used In Hyperion] LastValsetRequests queries the LastValsetRequests of the hyperion module
 func (k *Keeper) LastValsetRequests(c context.Context, req *types.QueryLastValsetRequestsRequest) (*types.QueryLastValsetRequestsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -92,7 +92,7 @@ func (k *Keeper) LastValsetRequests(c context.Context, req *types.QueryLastValse
 	return &types.QueryLastValsetRequestsResponse{Valsets: valReq[0:retLen]}, nil
 }
 
-// LastPendingValsetRequestByAddr queries the LastPendingValsetRequestByAddr of the hyperion module
+// [Used In Hyperion] LastPendingValsetRequestByAddr queries the LastPendingValsetRequestByAddr of the hyperion module
 func (k *Keeper) LastPendingValsetRequestByAddr(c context.Context, req *types.QueryLastPendingValsetRequestByAddrRequest) (*types.QueryLastPendingValsetRequestByAddrResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -128,7 +128,7 @@ func (k *Keeper) LastPendingValsetRequestByAddr(c context.Context, req *types.Qu
 	return &types.QueryLastPendingValsetRequestByAddrResponse{Valsets: pendingValsetReq}, nil
 }
 
-// BatchFees queries the batch fees from unbatched pool
+// [Used In Hyperion] BatchFees queries the batch fees from unbatched pool
 func (k *Keeper) BatchFees(c context.Context, req *types.QueryBatchFeeRequest) (*types.QueryBatchFeeResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -136,7 +136,7 @@ func (k *Keeper) BatchFees(c context.Context, req *types.QueryBatchFeeRequest) (
 	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), req.HyperionId)}, nil
 }
 
-// LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the hyperion module
+// [Used In Hyperion] LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the hyperion module
 func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.QueryLastPendingBatchRequestByAddrRequest) (*types.QueryLastPendingBatchRequestByAddrResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -161,7 +161,7 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 	return &types.QueryLastPendingBatchRequestByAddrResponse{Batch: pendingBatchReq}, nil
 }
 
-// OutgoingTxBatches queries the OutgoingTxBatches of the hyperion module
+// [Used In Hyperion] OutgoingTxBatches queries the OutgoingTxBatches of the hyperion module
 func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTxBatchesRequest) (*types.QueryOutgoingTxBatchesResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -175,7 +175,7 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	return &types.QueryOutgoingTxBatchesResponse{Batches: batches}, nil
 }
 
-// BatchRequestByNonce queries the BatchRequestByNonce of the hyperion module
+// [Not Used In Hyperion] BatchRequestByNonce queries the BatchRequestByNonce of the hyperion module
 func (k *Keeper) BatchRequestByNonce(c context.Context, req *types.QueryBatchRequestByNonceRequest) (*types.QueryBatchRequestByNonceResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -194,7 +194,7 @@ func (k *Keeper) BatchRequestByNonce(c context.Context, req *types.QueryBatchReq
 	return &types.QueryBatchRequestByNonceResponse{Batch: foundBatch}, nil
 }
 
-// BatchConfirms returns the batch confirmations by nonce and token contract
+// [Used In Hyperion] BatchConfirms returns the batch confirmations by nonce and token contract
 func (k *Keeper) BatchConfirms(c context.Context, req *types.QueryBatchConfirmsRequest) (*types.QueryBatchConfirmsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -209,7 +209,7 @@ func (k *Keeper) BatchConfirms(c context.Context, req *types.QueryBatchConfirmsR
 	return &types.QueryBatchConfirmsResponse{Confirms: confirms}, nil
 }
 
-// LastEventByAddr returns the last event for the given validator address, this allows eth oracles to figure out where they left off
+// [Used In Hyperion] LastEventByAddr returns the last event for the given validator address, this allows eth oracles to figure out where they left off
 func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByAddrRequest) (*types.QueryLastEventByAddrResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -252,7 +252,7 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 	return &ret, nil
 }
 
-// DenomToERC20 queries the Cosmos Denom that maps to an Ethereum ERC20
+// [Not Used In Hyperion] DenomToERC20 queries the Cosmos Denom that maps to an Ethereum ERC20
 func (k *Keeper) DenomToERC20(c context.Context, req *types.QueryDenomToERC20Request) (*types.QueryDenomToERC20Response, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -267,7 +267,7 @@ func (k *Keeper) DenomToERC20(c context.Context, req *types.QueryDenomToERC20Req
 	return &ret, err
 }
 
-// ERC20ToDenom queries the ERC20 contract that maps to an Ethereum ERC20 if any
+// [Not Used In Hyperion] ERC20ToDenom queries the ERC20 contract that maps to an Ethereum ERC20 if any
 func (k *Keeper) ERC20ToDenom(c context.Context, req *types.QueryERC20ToDenomRequest) (*types.QueryERC20ToDenomResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -282,6 +282,7 @@ func (k *Keeper) ERC20ToDenom(c context.Context, req *types.QueryERC20ToDenomReq
 	return &ret, nil
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) GetDelegateKeyByValidator(c context.Context, req *types.QueryDelegateKeysByValidatorAddress) (*types.QueryDelegateKeysByValidatorAddressResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -312,6 +313,7 @@ func (k *Keeper) GetDelegateKeyByValidator(c context.Context, req *types.QueryDe
 	return nil, errors.Wrap(types.ErrInvalid, "No validator")
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) GetDelegateKeyByOrchestrator(c context.Context, req *types.QueryDelegateKeysByOrchestratorAddress) (*types.QueryDelegateKeysByOrchestratorAddressResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -335,6 +337,7 @@ func (k *Keeper) GetDelegateKeyByOrchestrator(c context.Context, req *types.Quer
 	return nil, errors.Wrap(types.ErrInvalid, "No validator")
 }
 
+// [Used In Hyperion]
 func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegateKeysByEthAddress) (*types.QueryDelegateKeysByEthAddressResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -359,6 +362,7 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 	return nil, errors.Wrap(types.ErrInvalid, "No validator")
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) GetPendingSendToChain(c context.Context, req *types.QueryPendingSendToChain) (*types.QueryPendingSendToChainResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -390,6 +394,7 @@ func (k *Keeper) GetPendingSendToChain(c context.Context, req *types.QueryPendin
 	return res, nil
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAllPendingSendToChainRequest) (*types.QueryAllPendingSendToChainResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -410,6 +415,7 @@ func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAll
 	return res, nil
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) HyperionModuleState(c context.Context, req *types.QueryModuleStateRequest) (*types.QueryModuleStateResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -424,6 +430,7 @@ func (k *Keeper) HyperionModuleState(c context.Context, req *types.QueryModuleSt
 	return res, nil
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) MissingHyperionNonces(
 	c context.Context,
 	req *types.MissingNoncesRequest,
@@ -447,6 +454,7 @@ func (k *Keeper) MissingHyperionNonces(
 	return &types.MissingNoncesResponse{OperatorAddresses: res}, nil
 }
 
+// [Not Used In Hyperion]
 func (k *Keeper) GetHyperionIdFromChainId(c context.Context, req *types.QueryGetHyperionIdFromChainIdRequest) (*types.QueryGetHyperionIdFromChainIdResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)

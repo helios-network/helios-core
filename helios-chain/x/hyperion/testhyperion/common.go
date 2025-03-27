@@ -346,6 +346,8 @@ func AddAnotherValidator(t *testing.T, input TestInput, valInfo ValidatorInfo) T
 func CreateTestEnv(t *testing.T) TestInput {
 	t.Helper()
 
+	hyperionId := uint64(21)
+
 	logger := log.NewNopLogger()
 
 	config := sdk.GetConfig()
@@ -548,8 +550,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 	))
 
 	k.SetParams(ctx, TestingHyperionParams)
-	k.SetLastOutgoingBatchID(ctx, uint64(0))
-	k.SetLastOutgoingPoolID(ctx, uint64(0))
+	k.SetLastOutgoingBatchID(ctx, hyperionId, uint64(0))
+	k.SetLastOutgoingPoolID(ctx, hyperionId, uint64(0))
 
 	return TestInput{
 		HyperionKeeper: k,

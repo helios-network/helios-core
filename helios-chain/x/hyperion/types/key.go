@@ -300,30 +300,17 @@ func GetPrefixRangeForGetFeeSecondIndexKey(hyperionId uint64) []byte {
 	return UInt64Bytes(hyperionId)
 }
 
-// GetLastEventNonceByValidatorKey indexes lateset event nonce by validator
-// GetLastEventNonceByValidatorKey returns the following key format
-// prefix              cosmos-validator
-// [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
-func GetLastEventNonceByValidatorKey(validator sdk.ValAddress) []byte {
-	// buf := make([]byte, 0, len(LastEventNonceByValidatorKey)+len(validator))
-	// buf = append(buf, LastEventNonceByValidatorKey...)
-	// buf = append(buf, validator.Bytes()...)
-
-	// return buf
-	return validator.Bytes()
-}
-
 // GetLastEventByValidatorKey indexes lateset event by validator
 // GetLastEventByValidatorKey returns the following key format
-// prefix              cosmos-validator
-// [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
-func GetLastEventByValidatorKey(validator sdk.ValAddress) []byte {
-	// buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator))
-	// buf = append(buf, LastEventByValidatorKey...)
-	// buf = append(buf, validator.Bytes()...)
+// prefix    hyperionId        cosmos-validator
+// [0x0][0,0,0,0,0,0,0,1][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
+func GetLastEventByValidatorKey(hyperionId uint64, validator sdk.ValAddress) []byte {
+	buf := make([]byte, 0, len(LastEventByValidatorKey)+8+len(validator))
+	buf = append(buf, LastEventByValidatorKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, validator.Bytes()...)
 
-	// return buf
-	return validator.Bytes()
+	return buf
 }
 
 func GetCosmosDenomToERC20Key(hyperionId uint64, denom string) []byte {
@@ -349,4 +336,12 @@ func GetERC20ToCosmosDenomKey(hyperionId uint64, tokenContract common.Address) [
 // [0x0][ checkpoint bytes ]
 func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
 	return append(PastEthSignatureCheckpointKey, checkpoint[:]...)
+}
+
+func GetLastOutgoingBatchIDKey(hyperionId uint64) []byte {
+	return append(KeyLastOutgoingBatchID, UInt64Bytes(hyperionId)...)
+}
+
+func GetLastTXPoolIDKey(hyperionId uint64) []byte {
+	return append(KeyLastTXPoolID, UInt64Bytes(hyperionId)...)
 }
