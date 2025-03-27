@@ -360,13 +360,14 @@ func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransf
 	return ret
 }
 
-// IterateOutgoingPoolByFee itetates over the outgoing pool which is sorted by fee
-func (k *Keeper) IterateOutgoingPoolByFee(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, cb func(uint64, *types.OutgoingTransferTx) bool) {
+// IterateOnSpecificalTokenContractOutgoingPoolByFee itetates over the outgoing pool which is sorted by fee
+func (k *Keeper) IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, cb func(uint64, *types.OutgoingTransferTx) bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
-	iter := prefixStore.ReverseIterator(PrefixRange(append(tokenContract.Bytes(), types.UInt64Bytes(hyperionId)...)))
+	iter := prefixStore.ReverseIterator(PrefixRange(types.GetPrefixRangeForGetFeeSecondIndexKeyOnSpecificalTokenContract(hyperionId, tokenContract)))
+	// iterate over all [SecondIndexOutgoingTXFeeKey][hyperionId][tokenContract] prefixed []bytes
 
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -425,7 +426,8 @@ func (k *Keeper) createBatchFees(ctx sdk.Context, hyperionId uint64) map[common.
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
-	iter := prefixStore.Iterator(nil, nil)
+	iter := prefixStore.Iterator(PrefixRange(types.GetPrefixRangeForGetFeeSecondIndexKey(hyperionId)))
+	// iterate over [SecondIndexOutgoingTXFeeKey][hyperionId] prefixes
 	defer iter.Close()
 
 	batchFeesMap := make(map[common.Address]*types.BatchFees)

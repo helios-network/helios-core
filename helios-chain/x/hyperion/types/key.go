@@ -292,6 +292,14 @@ func GetFeeSecondIndexKey(hyperionId uint64, tokenContract common.Address, fee *
 	return buf
 }
 
+func GetPrefixRangeForGetFeeSecondIndexKeyOnSpecificalTokenContract(hyperionId uint64, tokenContract common.Address) []byte {
+	return append(UInt64Bytes(hyperionId), tokenContract.Bytes()...)
+}
+
+func GetPrefixRangeForGetFeeSecondIndexKey(hyperionId uint64) []byte {
+	return UInt64Bytes(hyperionId)
+}
+
 // GetLastEventNonceByValidatorKey indexes lateset event nonce by validator
 // GetLastEventNonceByValidatorKey returns the following key format
 // prefix              cosmos-validator

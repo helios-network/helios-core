@@ -23,7 +23,7 @@ const OutgoingTxBatchSize = 100
 //   - select available transactions from the outgoing transaction pool sorted by fee desc
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
-func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
+func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
 	fmt.Println("BuildOutgoingTXBatch for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -33,14 +33,14 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		return nil, errors.Wrap(types.ErrInvalid, "max elements value")
 	}
 
-	lastBatch := k.GetLastOutgoingBatchByTokenType(ctx, hyperionId, contractAddress)
+	lastBatch := k.GetLastOutgoingBatchByTokenType(ctx, hyperionId, tokenContract)
 
 	// lastBatch may be nil if there are no existing batches, we only need
 	// to perform this check if a previous batch exists
 	if lastBatch != nil {
 		// this traverses the current tx pool for this token type and determines what
 		// fees a hypothetical batch would have if created
-		currentFees := k.GetBatchFeesByTokenType(ctx, hyperionId, contractAddress)
+		currentFees := k.GetBatchFeesByTokenType(ctx, hyperionId, tokenContract)
 		if currentFees == nil {
 			metrics.ReportFuncError(k.svcTags)
 			return nil, errors.Wrap(types.ErrInvalid, "error getting fees from tx pool")
@@ -53,7 +53,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		}
 	}
 
-	selectedTx, err := k.pickUnbatchedTX(ctx, contractAddress, maxElements, hyperionId)
+	selectedTx, err := k.pickUnbatchedTX(ctx, tokenContract, maxElements, hyperionId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
@@ -64,7 +64,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		BatchNonce:    nextID,
 		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
 		Transactions:  selectedTx,
-		TokenContract: contractAddress.Hex(),
+		TokenContract: tokenContract.Hex(),
 		HyperionId:    hyperionId,
 	}
 	k.StoreBatch(ctx, batch)
@@ -187,7 +187,7 @@ func (k *Keeper) DeleteBatch(ctx sdk.Context, batch types.OutgoingTxBatch) {
 }
 
 // pickUnbatchedTX find TX in pool and remove from "available" second index
-func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
+func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
 	fmt.Println("pickUnbatchedTX for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -195,11 +195,11 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 	selectedTx := make([]*types.OutgoingTransferTx, 0)
 	var err error
 
-	k.IterateOutgoingPoolByFee(ctx, hyperionId, contractAddress, func(txID uint64, tx *types.OutgoingTransferTx) bool {
+	k.IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx, hyperionId, tokenContract, func(txID uint64, tx *types.OutgoingTransferTx) bool {
 		fmt.Println("pickUnbatchedTX - tx: ", tx)
 		if tx != nil && tx.Erc20Fee != nil {
 			selectedTx = append(selectedTx, tx)
-			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, contractAddress, tx.Erc20Fee, txID)
+			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Erc20Fee, txID)
 			return err != nil || len(selectedTx) == maxElements
 		} else {
 			// we found a nil, exit
