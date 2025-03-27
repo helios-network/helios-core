@@ -279,7 +279,7 @@ func SetupFiveValChain(t *testing.T) (TestInput, sdk.Context) {
 
 	// Register eth addresses for each validator
 	for i, addr := range ValAddrs {
-		input.HyperionKeeper.SetEthAddressForValidator(input.Context, addr, EthAddrs[i])
+		input.HyperionKeeper.SetEthAddressForValidator(input.Context, hyperionId, addr, EthAddrs[i])
 	}
 
 	// Return the test input
@@ -536,6 +536,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 		distKeeper,
 		authority,
 		accountKeeper,
+		erc20Keeper,
 	)
 
 	stakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
