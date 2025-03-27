@@ -446,3 +446,18 @@ func (k *Keeper) MissingHyperionNonces(
 
 	return &types.MissingNoncesResponse{OperatorAddresses: res}, nil
 }
+
+func (k *Keeper) GetHyperionIdFromChainId(c context.Context, req *types.QueryGetHyperionIdFromChainIdRequest) (*types.QueryGetHyperionIdFromChainIdResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == req.ChainId {
+			return &types.QueryGetHyperionIdFromChainIdResponse{
+				HyperionId: counterpartyChainParam.HyperionId,
+			}, nil
+		}
+	}
+
+	return nil, errors.Wrap(types.ErrDuplicate, "BridgeChainId not found")
+}
