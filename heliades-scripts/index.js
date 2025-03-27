@@ -508,7 +508,7 @@ async function sendToChain() {
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', chronosAbi, wallet);
     const tx = await contract.sendToChain( // I'm validator and
-      21,
+      80002, // chainId
       "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
       "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address
       ethers.parseEther("10"),

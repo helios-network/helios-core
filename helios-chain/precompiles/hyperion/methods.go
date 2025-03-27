@@ -158,9 +158,9 @@ func (p Precompile) SendToChain(
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
-	hyperionId, ok := args[0].(uint64)
+	chainId, ok := args[0].(uint64)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint64 hyperionId")
+		return nil, fmt.Errorf("invalid uint64 chainId")
 	}
 
 	dest, ok := args[1].(string)
@@ -192,6 +192,15 @@ func (p Precompile) SendToChain(
 	amountV := cosmosmath.NewIntFromBigInt(amount)
 	bridgeFeeV := cosmosmath.NewIntFromBigInt(bridgeFee)
 
+	// get hyperionId from chainId
+	response, err := p.hyperionKeeper.GetHyperionIdFromChainId(ctx, &hyperiontypes.QueryGetHyperionIdFromChainIdRequest{
+		ChainId: chainId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	hyperionId := response.HyperionId
+
 	tokenPair, ok := p.erc20Keeper.GetTokenPair(ctx, p.erc20Keeper.GetTokenPairID(ctx, contractAddress.String()))
 
 	if !ok {
@@ -208,7 +217,7 @@ func (p Precompile) SendToChain(
 	}
 
 	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)
-	_, err := msgSrv.SendToChain(ctx, msg)
+	_, err = msgSrv.SendToChain(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

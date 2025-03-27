@@ -65,7 +65,7 @@
       "inputs": [
         {
           "internalType": "uint64",
-          "name": "hyperionId",
+          "name": "chainId",
           "type": "uint64"
         },
         {
