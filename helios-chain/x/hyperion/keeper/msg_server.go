@@ -39,6 +39,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
+// [Used In Hyperion]
 func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSetOrchestratorAddresses) (*types.MsgSetOrchestratorAddressesResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
@@ -94,6 +95,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 
 }
 
+// [Not Used In Hyperion]
 func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgAddCounterpartyChainParams) (*types.MsgAddCounterpartyChainParamsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
@@ -131,7 +133,23 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
 }
 
-// ValsetConfirm handles MsgValsetConfirm
+// [Used In Hyperion] ValsetConfirm handles MsgValsetConfirm
+// -------------
+// MsgValsetConfirm
+// this is the message sent by the validators when they wish to submit their
+// signatures over the validator set at a given block height. A validator must
+// first call MsgSetEthAddress to set their Ethereum address to be used for
+// signing. Then someone (anyone) must make a ValsetRequest the request is
+// essentially a messaging mechanism to determine which block all validators
+// should submit signatures over. Finally validators sign the validator set,
+// powers, and Ethereum addresses of the entire validator set at the height of a
+// ValsetRequest and submit that signature with this message.
+//
+// If a sufficient number of validators (66% of voting power) (A) have set
+// Ethereum addresses and (B) submit ValsetConfirm messages with their
+// signatures it is then possible for anyone to view these signatures in the
+// chain store and submit them to Ethereum to update the validator set
+// -------------
 func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm) (*types.MsgValsetConfirmResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
@@ -190,7 +208,21 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	return &types.MsgValsetConfirmResponse{}, nil
 }
 
-// SendToChain handles MsgSendToChain
+// [Used In Hyperion (present in the client but not used)] SendToChain handles MsgSendToChain
+// -------------
+// MsgSendToChain
+// This is the message that a user calls when they want to bridge an asset
+// it will later be removed when it is included in a batch and successfully
+// submitted tokens are removed from the users balance immediately
+// -------
+// AMOUNT:
+// the coin to send across the bridge, note the restriction that this is a
+// single coin not a set of coins that is normal in other Cosmos messages
+// FEE:
+// the fee paid for the bridge, distinct from the fee paid to the chain to
+// actually send this message in the first place. So a successful send has
+// two layers of fees for the user
+// -------------
 func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*types.MsgSendToChainResponse, error) {
 	fmt.Println("SendToChain for hyperionId: ", msg.DestHyperionId)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
@@ -225,7 +257,17 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	return &types.MsgSendToChainResponse{}, nil
 }
 
-// RequestBatch handles MsgRequestBatch
+// [Used In Hyperion]  RequestBatch handles MsgRequestBatch
+// -------------
+// MsgRequestBatch
+// this is a message anyone can send that requests a batch of transactions to
+// send across the bridge be created for whatever block height this message is
+// included in. This acts as a coordination point, the handler for this message
+// looks at the AddToOutgoingPool tx's in the store and generates a batch, also
+// available in the store tied to this message. The validators then grab this
+// batch, sign it, submit the signatures with a MsgConfirmBatch before a relayer
+// can finally submit the batch
+// -------------
 func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (*types.MsgRequestBatchResponse, error) {
 	fmt.Println("RequestBatch, got msg request batch from hyperion - msg: ", msg)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
@@ -265,7 +307,16 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 	return &types.MsgRequestBatchResponse{}, nil
 }
 
-// ConfirmBatch handles MsgConfirmBatch
+// [Used In Hyperion] ConfirmBatch handles MsgConfirmBatch
+// -------------
+// MsgConfirmBatch
+// When validators observe a MsgRequestBatch they form a batch by ordering
+// transactions currently in the txqueue in order of highest to lowest fee,
+// cutting off when the batch either reaches a hardcoded maximum size (to be
+// decided, probably around 100) or when transactions stop being profitable
+// (TODO determine this without nondeterminism) This message includes the batch
+// as well as an Ethereum signature over this batch by the validator
+// -------------
 func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (*types.MsgConfirmBatchResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
@@ -330,13 +381,16 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	return nil, nil
 }
 
-// DepositClaim handles MsgDepositClaim
-// TODO it is possible to submit an old msgDepositClaim (old defined as covering an event nonce that has already been
-// executed aka 'observed' and had it's slashing window expire) that will never be cleaned up in the endblocker. This
-// should not be a security risk as 'old' events can never execute but it does store spam in the chain.
+// [Used In Hyperion] DepositClaim handles MsgDepositClaim
+// -------------
+// MsgDepositClaim
+// When more than 66% of the active validator set has
+// claimed to have seen the deposit enter the source blockchain coins are
+// issued to the Cosmos address in question
+// -------------
 func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (*types.MsgDepositClaimResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
@@ -397,13 +451,14 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 	return &types.MsgDepositClaimResponse{}, nil
 }
 
-// WithdrawClaim handles MsgWithdrawClaim
-// TODO it is possible to submit an old msgWithdrawClaim (old defined as covering an event nonce that has already been
-// executed aka 'observed' and had it's slashing window expire) that will never be cleaned up in the endblocker. This
-// should not be a security risk as 'old' events can never execute but it does store spam in the chain.
+// [Used In Hyperion] WithdrawClaim handles MsgWithdrawClaim
+// -------------
+// WithdrawClaim claims that a batch of withdrawal
+// operations on the bridge contract was executed.
+// -------------
 func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim) (*types.MsgWithdrawClaimResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
@@ -443,10 +498,15 @@ func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim)
 	return &types.MsgWithdrawClaimResponse{}, nil
 }
 
-// ERC20DeployedClaim handles MsgERC20Deployed
+// [Used In Hyperion] ERC20DeployedClaim handles MsgERC20Deployed
+// -------------
+// MsgERC20DeployedClaim claims that new erc20 token
+// was deployed on the source blockchain and will be linked
+// as ERC20 to cosmosDenom in hyperion Module on HyperionId
+// -------------
 func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20DeployedClaim) (*types.MsgERC20DeployedClaimResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
@@ -486,10 +546,15 @@ func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20Depl
 	return &types.MsgERC20DeployedClaimResponse{}, nil
 }
 
-// ValsetUpdateClaim handles claims for executing a validator set update on Ethereum
+// [Used In Hyperion] ValsetUpdateClaim handles claims for executing a validator set update on Ethereum
+// -------------
+// MsgValsetUpdatedClaim this message permit to share to
+// hyperion module the valset was updated on source blockchain
+// this permit to insure the power is well share on both side.
+// -------------
 func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpdatedClaim) (*types.MsgValsetUpdatedClaimResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 
@@ -529,6 +594,11 @@ func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpda
 	return &types.MsgValsetUpdatedClaimResponse{}, nil
 }
 
+// [Not Used In Hyperion] CancelSendToChain
+// -------------
+// MsgCancelSendToChain permit to cancel send
+// to chain if the sendtochain is always in the tx pool.
+// -------------
 func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSendToChain) (*types.MsgCancelSendToChainResponse, error) {
 	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	// defer doneFn()
@@ -554,12 +624,19 @@ func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSend
 	return &types.MsgCancelSendToChainResponse{}, nil
 }
 
+// [Not Used In Hyperion] SubmitBadSignatureEvidence
+// -------------
+// MsgSubmitBadSignatureEvidence
+// This call allows anyone to submit evidence
+// that a validator has signed a valset, batch,
+// or logic call that never existed. Subject
+// contains the batch, valset, or logic call.
+// -------------
 func (k msgServer) SubmitBadSignatureEvidence(c context.Context, msg *types.MsgSubmitBadSignatureEvidence) (*types.MsgSubmitBadSignatureEvidenceResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-
 	err := k.Keeper.CheckBadSignatureEvidence(ctx, msg)
 
 	// nolint:errcheck //ignored on purpose
@@ -575,9 +652,15 @@ func (k msgServer) SubmitBadSignatureEvidence(c context.Context, msg *types.MsgS
 	return &types.MsgSubmitBadSignatureEvidenceResponse{}, err
 }
 
+// [Not Used In Hyperion] UpdateParams
+// -------------
+// MsgUpdateParams
+// This call permit to change in one time all the params.
+// TODO: remove this call not good to have an authority who can touch alone the params.
+// -------------
 func (k msgServer) UpdateParams(c context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	if msg.Authority != k.Keeper.authority {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority: expected %s, got %s", k.Keeper.authority, msg.Authority)
@@ -593,8 +676,14 @@ func (k msgServer) UpdateParams(c context.Context, msg *types.MsgUpdateParams) (
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
+// [Not Used In Hyperion] BlacklistEthereumAddresses
+// -------------
+// MsgBlacklistEthereumAddresses
+// Defines the message used to add Ethereum addresses to all hyperion blacklists.
+// TODO: adding this call on proposals and remove authority
+// -------------
 func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.MsgBlacklistEthereumAddresses) (*types.MsgBlacklistEthereumAddressesResponse, error) {
-	// defer metrics.ReportFuncCallAndTiming(k.svcTags)()
+	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
 	sdkContext := sdk.UnwrapSDKContext(ctx)
 
@@ -614,8 +703,14 @@ func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.Ms
 	return &types.MsgBlacklistEthereumAddressesResponse{}, nil
 }
 
+// [Not Used In Hyperion] RevokeEthereumBlacklist
+// -------------
+// MsgRevokeEthereumBlacklist
+// Defines the message used to remove Ethereum addresses from hyperion blacklist.
+// TODO: adding this call on proposals and remove authority
+// -------------
 func (k msgServer) RevokeEthereumBlacklist(ctx context.Context, msg *types.MsgRevokeEthereumBlacklist) (*types.MsgRevokeEthereumBlacklistResponse, error) {
-	// defer metrics.ReportFuncCallAndTiming(k.svcTags)()
+	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
 	sdkContext := sdk.UnwrapSDKContext(ctx)
 
