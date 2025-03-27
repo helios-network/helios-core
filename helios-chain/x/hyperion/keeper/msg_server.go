@@ -39,7 +39,14 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// [Used In Hyperion]
+// [Used In Hyperion] SetOrchestratorAddresses handles the setting of orchestrator and Ethereum addresses for a validator.
+// -------------
+// MsgSetOrchestratorAddresses
+// This function ensures that the validator exists and that the orchestrator and Ethereum addresses are not already set.
+// If the validator is valid and bonded and the addresses are not already associated with another validator, it sets the orchestrator
+// and Ethereum addresses for the given validator. It then emits an event with the new addresses to signal the successful
+// update of the orchestrator and Ethereum addresses.
+// -------------
 func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSetOrchestratorAddresses) (*types.MsgSetOrchestratorAddressesResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
