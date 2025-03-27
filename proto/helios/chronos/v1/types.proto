@@ -6,6 +6,11 @@ import "ethermint/evm/v1/evm.proto";
 
 option go_package = "helios-core/helios-chain/x/chronos/types";
 
+message CronCallBackData {
+  bytes data = 1;
+  bytes error = 2;
+}
+
 message CronTransactionResult {
   bytes tx = 1;
   bytes result = 2;
@@ -14,7 +19,8 @@ message CronTransactionResult {
   uint64 block_number = 5 [(gogoproto.jsontag) = "blockNumber"];
   string block_hash = 6 [(gogoproto.jsontag) = "blockHash"];
   uint64 cron_id = 7 [(gogoproto.jsontag) = "cronId"];
-  string tx_hash = 8 [(gogoproto.jsontag) = "transactionHash"];
+  string cron_address = 8 [(gogoproto.jsontag) = "cronAddress"];
+  string tx_hash = 9 [(gogoproto.jsontag) = "transactionHash"];
 }
 
 message CronTransactionReceiptRPC {
@@ -43,6 +49,7 @@ message CronTransactionReceiptRPC {
   string ret = 15;
   string vm_error = 16 [(gogoproto.jsontag) = "vmError"];
   uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
+  string cron_address = 18 [(gogoproto.jsontag) = "cronAddress"];
 }
 
 message CronTransactionRPC {
@@ -63,4 +70,5 @@ message CronTransactionRPC {
   string v = 15;
   string value = 16;
   uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
+  string cron_address = 18 [(gogoproto.jsontag) = "cronAddress"];
 }

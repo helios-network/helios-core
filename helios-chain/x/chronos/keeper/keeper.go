@@ -123,6 +123,12 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 		balance := k.CronBalance(ctx, cron)
 		cost := tx.Cost()
 
+		if cron.ExpirationBlock != 0 && cron.ExpirationBlock <= uint64(ctx.BlockHeight()) {
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+
 		if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
@@ -220,14 +226,34 @@ func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) er
 		}
 	}
 
-	k.StoreRemoveCron(ctx, id)
+	k.StoreArchiveCron(ctx, cron)
 	k.StoreChangeTotalCount(ctx, -1)
 
 	return nil
 }
 
+func (k *Keeper) GetCronOrArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
+	cron, ok := k.GetCron(ctx, id)
+	if ok {
+		return cron, true
+	}
+	return k.GetArchivedCron(ctx, id)
+}
+
 func (k *Keeper) GetCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
+	bz := store.Get(GetCronIDBytes(id))
+	if bz == nil {
+		return types.Cron{}, false
+	}
+
+	var cron types.Cron
+	k.cdc.MustUnmarshal(bz, &cron)
+	return cron, true
+}
+
+func (k *Keeper) GetArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
 	bz := store.Get(GetCronIDBytes(id))
 	if bz == nil {
 		return types.Cron{}, false
@@ -421,6 +447,8 @@ func ParseABIParam(typ abi.Type, param string) (interface{}, error) {
 		return bigInt, nil
 	case abi.BoolTy:
 		return strconv.ParseBool(param)
+	case abi.BytesTy:
+		return hexutil.Decode(param)
 	default:
 		return nil, fmt.Errorf("unsupported ABI type: %s", typ.String())
 	}
@@ -492,6 +520,7 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 		return nil, fmt.Errorf("failed to parse params: %w", err)
 	}
 
+	k.Logger(ctx).Info("ABI packing", "cron_id", cron.Id, "cron.MethodName", cron.MethodName, "parsedParams", parsedParams)
 	// Pack the call data
 	callData, err := contractABI.Pack(cron.MethodName, parsedParams...)
 	if err != nil {
@@ -722,6 +751,23 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 	nonce := k.StoreGetNonce(ctx)
 
+	if cron.CronType == types.CALLBACK_CONDITIONED_CRON {
+		callBackData, ok := k.GetCronCallBackData(ctx, cron.Id)
+
+		if !ok { // all ok
+			k.Logger(ctx).Info("CRON ", "type", types.CALLBACK_CONDITIONED_CRON, "a", "Not ready")
+			return nil
+		}
+		k.Logger(ctx).Info("CRON ", "type", types.CALLBACK_CONDITIONED_CRON, "callBackData", callBackData)
+		// setup params and go to execution
+		cron.Params = []string{
+			hexutil.Encode(callBackData.Data),
+			hexutil.Encode(callBackData.Error),
+		}
+		// set new expiration
+		cron.ExpirationBlock = uint64(ctx.BlockHeight())
+	}
+
 	tx, err := k.GetCronTransaction(ctx, cron, nonce)
 	if err != nil {
 		return err
@@ -771,6 +817,7 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 		Nonce:       nonce,
 		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
 		CronId:      cron.Id,
+		CronAddress: cmn.AnyToHexAddress(cron.Address).String(),
 	}
 
 	// Update the next execution block after successful execution
@@ -884,6 +931,7 @@ func (k *Keeper) emitCronCancelledEvent(ctx sdk.Context, cron types.Cron) error 
 		Nonce:       nonce,
 		From:        cmn.AnyToHexAddress(cron.OwnerAddress).String(),
 		CronId:      cron.Id,
+		CronAddress: cmn.AnyToHexAddress(cron.Address).String(),
 	}
 
 	k.StoreCronTransactionResult(ctx, cron, cronTxResult)
@@ -944,6 +992,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 		V:                "0x1",
 		Value:            hexutil.EncodeBig(txToRPC.Value.ToInt()),
 		CronId:           txResult.CronId,
+		CronAddress:      txResult.CronAddress,
 	}
 	return rpcTxMap, nil
 }
@@ -1031,9 +1080,10 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 		Type: hexutil.Uint(uint64(2)).String(),
 
 		// returns data
-		Ret:     hexutil.Encode(castedResponse.Ret), // Ret is the bytes of call return
-		VmError: castedResponse.VmError,
-		CronId:  txResult.CronId,
+		Ret:         hexutil.Encode(castedResponse.Ret), // Ret is the bytes of call return
+		VmError:     castedResponse.VmError,
+		CronId:      txResult.CronId,
+		CronAddress: txResult.CronAddress,
 	}
 
 	// If the ContractAddress is 20 0x0 bytes, assume it is not a contract creation
@@ -1129,6 +1179,25 @@ func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx
 	storeByCronId.Set(GetTxIDBytes(tx.Nonce), []byte{}) // pas besoin de valeur car on récupère la donnée via le nonce dans le store principal
 }
 
+func (k *Keeper) StoreCronCallBackData(ctx sdk.Context, cronId uint64, callbackData *types.CronCallBackData) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronCallBackDataKey)
+	bz := k.cdc.MustMarshal(callbackData)
+	store.Set(sdk.Uint64ToBigEndian(cronId), bz)
+}
+
+func (k *Keeper) GetCronCallBackData(ctx sdk.Context, cronId uint64) (*types.CronCallBackData, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronCallBackDataKey)
+	bz := store.Get(sdk.Uint64ToBigEndian(cronId))
+	if bz == nil {
+		k.Logger(ctx).Info("GetCronCallBackData", "bz", bz)
+		return nil, false
+	}
+
+	var cronCallBackData types.CronCallBackData
+	k.cdc.MustUnmarshal(bz, &cronCallBackData)
+	return &cronCallBackData, true
+}
+
 func (k *Keeper) GetCronIdByAddress(ctx sdk.Context, address string) (uint64, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronAddressKey)
 	bz := store.Get([]byte(address))
@@ -1184,6 +1253,14 @@ func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, 
 func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	store.Delete(GetCronIDBytes(id))
+}
+
+func (k *Keeper) StoreArchiveCron(ctx sdk.Context, cron types.Cron) {
+	k.StoreRemoveCron(ctx, cron.Id)
+	cron.Archived = true
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
+	bz := k.cdc.MustMarshal(&cron)
+	store.Set(GetCronIDBytes(cron.Id), bz)
 }
 
 func (k *Keeper) StoreCronExists(ctx sdk.Context, id uint64) bool {

@@ -18,9 +18,10 @@ import (
 )
 
 const (
-	CreateCronMethod = "createCron"
-	UpdateCronMethod = "updateCron"
-	CancelCronMethod = "cancelCron"
+	CreateCronMethod                    = "createCron"
+	UpdateCronMethod                    = "updateCron"
+	CancelCronMethod                    = "cancelCron"
+	CreateCallbackConditionedCronMethod = "createCallbackConditionedCron"
 )
 
 func (p Precompile) CreateCron(
@@ -264,6 +265,92 @@ func (p Precompile) CancelCron(
 	if err := p.EmitCronCanceledEvent(ctx, stateDB, origin, p.Address(), cronId, resp.Success); err != nil {
 		return nil, err
 	}
+
+	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) CreateCallbackConditionedCron(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+
+	if len(args) != 6 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 6, len(args))
+	}
+
+	contractAddress, ok := args[0].(common.Address)
+	if !ok {
+		return nil, fmt.Errorf("invalid hex address")
+	}
+
+	methodName, ok := args[1].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for newFrequency")
+	}
+
+	expirationBlock, ok := args[2].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for ExpirationBlock")
+	}
+
+	gasLimit, ok := args[3].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for GasLimit")
+	}
+	if gasLimit == 0 {
+		return nil, fmt.Errorf("invalid zero GasLimit")
+	}
+
+	maxGasPrice, ok := args[4].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for MaxGasPrice")
+	}
+	if maxGasPrice.Cmp(big.NewInt(0)) <= 0 {
+		return nil, fmt.Errorf("invalid zero MaxGasPrice")
+	}
+
+	amountToDeposit, ok := args[5].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 for AmountToDeposit")
+	}
+	if amountToDeposit.Cmp(big.NewInt(0)) <= 0 {
+		return nil, fmt.Errorf("invalid zero AmountToDeposit")
+	}
+
+	maxGasPriceV := cosmosmath.NewIntFromBigInt(maxGasPrice)
+	amountToDepositV := cosmosmath.NewIntFromBigInt(amountToDeposit)
+
+	msg := &chronostypes.MsgCreateCallBackConditionedCron{
+		OwnerAddress:    cmn.AccAddressFromHexAddress(origin).String(),
+		ContractAddress: contractAddress.String(),
+		MethodName:      methodName,
+		ExpirationBlock: expirationBlock,
+		GasLimit:        gasLimit,
+		MaxGasPrice:     &maxGasPriceV,
+		Sender:          cmn.AccAddressFromHexAddress(origin).String(),
+		AmountToDeposit: &amountToDepositV,
+	}
+
+	msgSrv := chronoskeeper.NewMsgServerImpl(p.chronosKeeper)
+	resp, err := msgSrv.CreateCallBackConditionedCron(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.EmitCronCreatedEvent(ctx, stateDB, origin, p.Address(), resp.CronId); err != nil {
+		return nil, err
+	}
+
+	// exemple test envoi d'une valeur de uint256(1000) dans data et []byte{} vide dans error
+
+	p.chronosKeeper.StoreCronCallBackData(ctx, resp.CronId, &chronostypes.CronCallBackData{
+		Data:  common.BigToHash(big.NewInt(1000)).Bytes(),
+		Error: []byte{},
+	})
 
 	return method.Outputs.Pack(true)
 }

@@ -647,3 +647,54 @@ func (tro *TallyResultOutput) FromResponse(res *govv1.QueryTallyResultResponse) 
 	}
 	return tro
 }
+
+// UpdateParamsProposalArgs holds the arguments for the UpdateParamsProposal method
+type UpdateParamsProposalArgs struct {
+	Title          string
+	Description    string
+	MaxGas         int64
+	MaxBytes       int64
+	InitialDeposit *big.Int
+}
+
+// parseUpdateParamsProposalArgs parses the arguments for the UpdateParamsProposal method
+func (p *Precompile) parseUpdateBlockParamsArgs(args []interface{}) (*UpdateParamsProposalArgs, error) {
+	if len(args) != 5 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+	}
+
+	// Extract the title argument and ensure it is a non-empty string.
+	title, ok := args[0].(string)
+	if !ok || title == "" {
+		return nil, fmt.Errorf("invalid title argument: %v", args[0])
+	}
+
+	// Extract the description argument and ensure it is a non-empty string.
+	description, ok := args[1].(string)
+	if !ok || description == "" {
+		return nil, fmt.Errorf("invalid description argument: %v", args[1])
+	}
+
+	maxGas, ok := args[2].(int64)
+	if !ok || maxGas < 0 {
+		return nil, fmt.Errorf("invalid maxGas: %v", maxGas)
+	}
+
+	maxBytes, ok := args[3].(int64)
+	if !ok || maxBytes < 0 {
+		return nil, fmt.Errorf("invalid maxBytes: %v", maxBytes)
+	}
+
+	initialDeposit, ok := args[4].(*big.Int)
+	if !ok || initialDeposit == nil || initialDeposit.Sign() < 0 {
+		return nil, fmt.Errorf("invalid or missing initialDeposit argument: %v", args[4])
+	}
+
+	return &UpdateParamsProposalArgs{
+		Title:          title,
+		Description:    description,
+		MaxGas:         maxGas,
+		MaxBytes:       maxBytes,
+		InitialDeposit: initialDeposit,
+	}, nil
+}

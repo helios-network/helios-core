@@ -19,6 +19,21 @@
     },
     {
       "inputs": [
+        { "name": "title", "type": "string" },
+        { "name": "description", "type": "string" },
+        { "name": "maxGas", "type": "int64" },
+        { "name": "maxBytes", "type": "int64" },
+        { "name": "initialDepositAmount", "type": "uint256" }
+      ],
+      "name": "updateBlockParamsProposal",
+      "outputs": [
+        { "name": "proposalId", "type": "uint64" }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
           "internalType": "string",
           "name": "title",

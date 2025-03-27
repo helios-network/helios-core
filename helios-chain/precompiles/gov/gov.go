@@ -129,6 +129,14 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 			evm.Origin,
 			p.govKeeper,
 			ctx, method, contract, args)
+	case UpdateBlockParamsProposalMethod:
+		bz, err = p.UpdateBlockParamsProposal(
+			ctx,
+			evm.Origin,
+			p.govKeeper,
+			contract,
+			method,
+			args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}

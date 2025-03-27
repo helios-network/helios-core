@@ -25,4 +25,21 @@ interface HyperionI {
         address orchestratorAddress
     ) external returns (bool success);
 
+    /// @notice Requests data from a cross-chain source
+    /// @param chainId The target chain ID
+    /// @param source The source address on the target chain
+    /// @param abiCall The ABI-encoded function call
+    /// @param callbackSelector The selector of the callback function
+    /// @param maxCallbackGas Maximum gas allowed for the callback
+    /// @param gasLimit Maximum gas limit
+    /// @return taskId A unique identifier for the data request
+    function requestData(
+        uint64 chainId,
+        address source,
+        bytes calldata abiCall,
+        string memory callbackSelector,
+        uint256 maxCallbackGas,
+        uint256 gasLimit
+    ) external payable returns (uint256 taskId);
+
 }

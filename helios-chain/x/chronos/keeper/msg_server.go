@@ -77,6 +77,7 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 		MaxGasPrice:               req.MaxGasPrice,
 		TotalExecutedTransactions: 0,
 		TotalFeesPaid:             &totalFeesPaid,
+		CronType:                  types.LEGACY_CRON,
 	}
 
 	if err := k.keeper.CronInTransfer(ctx, newCron, amount); err != nil {
@@ -142,4 +143,78 @@ func (k msgServer) CancelCron(goCtx context.Context, req *types.MsgCancelCron) (
 	}
 
 	return &types.MsgCancelCronResponse{Success: true}, nil
+}
+
+func (k msgServer) CreateCallBackConditionedCron(goCtx context.Context, req *types.MsgCreateCallBackConditionedCron) (*types.MsgCreateCallBackConditionedCronResponse, error) {
+	if err := req.Validate(); err != nil {
+		return nil, errors.Wrap(err, "invalid request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if req.OwnerAddress != req.Sender {
+		return nil, errors.Wrap(errortypes.ErrUnauthorized, fmt.Sprintf("only the owner can create a cron %s != %s", req.OwnerAddress, req.Sender))
+	}
+
+	newID := k.keeper.StoreGetNextCronID(ctx)
+
+	if k.keeper.StoreCronExists(ctx, newID) { // impossible
+		return nil, fmt.Errorf("cron already exists with id=%d", newID)
+	}
+
+	amount := req.AmountToDeposit.BigInt() // ahelios
+
+	// check Balance of OwnerAddress
+	account := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
+	balance := sdkmath.NewIntFromBigInt(account.Balance)
+
+	if balance.IsNegative() || balance.BigInt().Cmp(amount) < 0 {
+		return nil, errors.Wrapf(errortypes.ErrInsufficientFunds, fmt.Sprintf("Balance too low: %d (balance) < %d (amountToDeposit)", balance.BigInt(), amount))
+	}
+
+	cronAddress := sdk.AccAddress(crypto.AddressHash([]byte(fmt.Sprintf("cron_%d", newID)))) // Générer une adresse unique basée sur cronId
+	acc := k.keeper.accountKeeper.NewAccountWithAddress(ctx, cronAddress)
+	k.keeper.accountKeeper.SetAccount(ctx, acc)
+
+	// initiate value
+	totalFeesPaid := sdkmath.NewInt(0)
+
+	newCron := types.Cron{
+		Id:                        newID,
+		Address:                   cronAddress.String(),
+		OwnerAddress:              req.OwnerAddress,
+		ContractAddress:           req.ContractAddress,
+		AbiJson:                   `[ { "inputs": [ { "internalType": "bytes", "name": "data", "type": "bytes" }, { "internalType": "bytes", "name": "error", "type": "bytes" } ], "name": "` + req.MethodName + `", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" } ]`,
+		MethodName:                req.MethodName,
+		Params:                    []string{},
+		Frequency:                 0,
+		NextExecutionBlock:        uint64(ctx.BlockHeight()),
+		ExpirationBlock:           req.ExpirationBlock,
+		GasLimit:                  req.GasLimit,
+		MaxGasPrice:               req.MaxGasPrice,
+		TotalExecutedTransactions: 0,
+		TotalFeesPaid:             &totalFeesPaid,
+		CronType:                  types.CALLBACK_CONDITIONED_CRON,
+	}
+
+	if err := k.keeper.CronInTransfer(ctx, newCron, amount); err != nil {
+		return nil, fmt.Errorf("initial transfer failed amount=%s", hexutil.EncodeBig(amount))
+	}
+
+	k.keeper.AddCron(ctx, newCron)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			"CreateCron",
+			sdk.NewAttribute("cron_id", fmt.Sprintf("%d", newCron.Id)),
+			sdk.NewAttribute("owner_address", req.OwnerAddress),
+			sdk.NewAttribute("contract_address", req.ContractAddress),
+			sdk.NewAttribute("method_name", req.MethodName),
+		),
+	)
+
+	return &types.MsgCreateCallBackConditionedCronResponse{
+		CronId:      newCron.Id,
+		CronAddress: cmn.AnyToHexAddress(newCron.Address).String(),
+	}, nil
 }

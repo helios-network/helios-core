@@ -29,4 +29,6 @@ message Cron {
   string max_gas_price = 13 [(gogoproto.jsontag) = "maxGasPrice", (cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"]; // maximum gas price accepted
   uint64 total_executed_transactions = 14 [(gogoproto.jsontag) = "totalExecutedTransactions"];
   string total_fees_paid = 15 [(gogoproto.jsontag) = "totalFeesPaid", (cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  string cron_type = 16 [(gogoproto.jsontag) = "cronType"];
+  bool archived = 17; // Is archived cron
 }
