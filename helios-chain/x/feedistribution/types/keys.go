@@ -10,11 +10,16 @@ const (
 	prefixParams
 	prefixRevenue
 	prefixCodeHash
+	prefixDeployer
+	prefixWithdrawer
 )
 
 const (
 	// ModuleName defines the module name
 	ModuleName = "feedistribution"
+
+	// StoreKey defines the primary module store key
+	StoreKey = ModuleName
 )
 
 // prefix bytes for the feedistribution persistent store
@@ -33,6 +38,12 @@ var (
 
 	// KeyPrefixCodeHash is the prefix to retrieve all contract code hashes
 	KeyPrefixCodeHash = []byte{prefixCodeHash}
+
+	// KeyPrefixDeployer is the prefix to retrieve all deployer addresses
+	KeyPrefixDeployer = []byte{prefixDeployer}
+
+	// KeyPrefixWithdrawer is the prefix to retrieve all withdrawer addresses
+	KeyPrefixWithdrawer = []byte{prefixWithdrawer}
 )
 
 // GetBlockFeesKey returns the store key to retrieve block fees for a specific contract

@@ -188,6 +188,10 @@ import (
 	ethante "helios-core/helios-chain/app/ante/evm"
 
 	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
+
+	feedistribution "helios-core/helios-chain/x/feedistribution"
+	feedistributionkeeper "helios-core/helios-chain/x/feedistribution/keeper"
+	feedistributiontypes "helios-core/helios-chain/x/feedistribution/types"
 )
 
 func init() {
@@ -246,6 +250,7 @@ var (
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		chronos.AppModuleBasic{},
+		feedistribution.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -345,6 +350,8 @@ type HeliosApp struct {
 	ChronosKeeper chronoskeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
+
+	FeedistributionKeeper feedistributionkeeper.Keeper
 }
 
 // NewHeliosApp returns a reference to a new initialized Helios application.
@@ -481,6 +488,7 @@ func initHeliosApp(
 			erc20types.StoreKey,
 			ratelimittypes.StoreKey,
 			chronostypes.StoreKey,
+			feedistributiontypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
@@ -1098,6 +1106,13 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
+
+	app.FeedistributionKeeper = feedistributionkeeper.NewKeeper(
+		app.codec,
+		app.keys[feedistributiontypes.StoreKey],
+		app.BankKeeper,
+		app.EvmKeeper,
+	)
 }
 
 func (app *HeliosApp) setPostHandler() {
@@ -1159,6 +1174,7 @@ func (app *HeliosApp) initManagers() {
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
 		chronos.NewAppModule(app.codec, app.ChronosKeeper),
+		feedistribution.NewAppModule(app.FeedistributionKeeper, app.codec),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1234,6 +1250,7 @@ func initParamsKeeper(
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(chronostypes.ModuleName)
+	paramsKeeper.Subspace(feedistributiontypes.ModuleName)
 
 	return paramsKeeper
 }
@@ -1283,6 +1300,7 @@ func initGenesisOrder() []string {
 
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
+		feedistributiontypes.ModuleName,
 	}
 }
 
@@ -1322,6 +1340,7 @@ func beginBlockerOrder() []string {
 		packetforwardtypes.ModuleName,
 		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
+		feedistributiontypes.ModuleName,
 	}
 }
 

@@ -50,10 +50,13 @@ func (k Keeper) PostTxProcessing(
 		return nil
 	}
 
+	// !TODO: fix this
 	// Check if the address is a precompile
-	if k.evmKeeper.IsPrecompile(*contract) {
-		return nil
-	}
+	// evmParams := k.evmKeeper.GetParams(ctx)
+	// containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
+	// if containsPrecompile {
+	// 	return nil
+	// }
 
 	// Verify this is actually a contract
 	if !k.IsContract(ctx, *contract) {
@@ -74,7 +77,8 @@ func (k Keeper) PostTxProcessing(
 	// calculate fees to be paid
 	txFee := math.NewIntFromUint64(receipt.GasUsed).Mul(math.NewIntFromBigInt(msg.GasPrice()))
 	developerFee := (params.DeveloperShares).MulInt(txFee).TruncateInt()
-	fees := sdk.Coins{{Denom: k.evmKeeper.GetEvmDenom(ctx), Amount: developerFee}}
+	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
+	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
 	// distribute the fees to the contract deployer / withdraw address
 	err := k.bankKeeper.SendCoinsFromModuleToAccount(

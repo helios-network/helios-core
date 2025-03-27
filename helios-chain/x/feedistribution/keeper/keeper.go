@@ -10,21 +10,26 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	// paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/x/feedistribution/types"
 )
 
+const (
+	feeCollectorName = "fee_collector"
+)
+
 // Keeper of this module maintains collections of fees and contract registrations.
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         storetypes.StoreKey
-	memKey           storetypes.StoreKey
-	paramstore       paramtypes.Subspace
-	authority        sdk.AccAddress
-	accountKeeper    types.AccountKeeper
-	bankKeeper       types.BankKeeper
+	cdc      codec.BinaryCodec
+	storeKey storetypes.StoreKey
+	// paramstore       paramtypes.Subspace
+	// authority        sdk.AccAddress
+	bankKeeper       bankkeeper.Keeper
 	evmKeeper        types.EVMKeeper
 	feeCollectorName string
 }
@@ -32,32 +37,27 @@ type Keeper struct {
 // NewKeeper creates a new Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey,
-	memKey storetypes.StoreKey,
-	ps paramtypes.Subspace,
-	authority sdk.AccAddress,
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	storeKey storetypes.StoreKey,
+	// ps paramtypes.Subspace,
+	// authority sdk.AccAddress,
+	bankKeeper bankkeeper.Keeper,
 	evmKeeper types.EVMKeeper,
-	feeCollectorName string,
-) *Keeper {
+) Keeper {
 	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
-	}
+	// if !ps.HasKeyTable() {
+	// 	ps = ps.WithKeyTable(types.ParamKeyTable())
+	// }
 
-	// ensure gov module account is set and is not nil
-	if err := sdk.VerifyAddressFormat(authority); err != nil {
-		panic(err)
-	}
+	// // ensure gov module account is set and is not nil
+	// if err := sdk.VerifyAddressFormat(authority); err != nil {
+	// 	panic(err)
+	// }
 
-	return &Keeper{
-		cdc:              cdc,
-		storeKey:         storeKey,
-		memKey:           memKey,
-		paramstore:       ps,
-		authority:        authority,
-		accountKeeper:    accountKeeper,
+	return Keeper{
+		cdc:      cdc,
+		storeKey: storeKey,
+		// paramstore:       ps,
+		// authority:        authority,
 		bankKeeper:       bankKeeper,
 		evmKeeper:        evmKeeper,
 		feeCollectorName: feeCollectorName,

@@ -30,7 +30,7 @@ message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
-  string authority = 1;
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // params defines the x/feedistribution parameters to update.
   // NOTE: All parameters must be supplied.
@@ -53,7 +53,12 @@ message MsgRegisterRevenue {
 
   // withdrawer_address is the bech32 address of the account that can withdraw the revenue fees
   string withdrawer_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-}
+
+  // nonces is an array of nonces from the address path, where the last nonce is the nonce
+  // that determines the contract's address - it can be an EOA nonce or a
+  // factory contract nonce
+  repeated uint64 nonces = 4;
+}  
 
 // MsgRegisterRevenueResponse defines the response type for the RegisterRevenue RPC
 message MsgRegisterRevenueResponse {}
