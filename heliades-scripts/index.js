@@ -505,14 +505,14 @@ async function sendToChain() {
   try {
     console.log('sendToChain en cours...');
 
-    const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
-    const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', chronosAbi, wallet);
+    const hyperionAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
+    const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', hyperionAbi, wallet);
     const tx = await contract.sendToChain( // I'm validator and
       80002, // chainId
       "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
-      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address
-      ethers.parseEther("10"),
-      ethers.parseEther("1"),
+      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address (ex: USDT)
+      ethers.parseEther("10"), // amount to transfer (ex: 10 USDT)
+      ethers.parseEther("1"), // fee you want to pay (ex: 1 USDT)
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
