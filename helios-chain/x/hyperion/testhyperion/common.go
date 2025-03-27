@@ -245,6 +245,8 @@ func SetupFiveValChain(t *testing.T) (TestInput, sdk.Context) {
 	t.Helper()
 	input := CreateTestEnv(t)
 
+	hyperionId := uint64(21)
+
 	// Set the params for our modules
 	input.StakingKeeper.SetParams(input.Context, TestingStakeParams)
 
