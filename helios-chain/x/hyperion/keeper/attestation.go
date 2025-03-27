@@ -20,7 +20,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	// defer doneFn()
 
-	valAddr, found := k.GetOrchestratorValidator(ctx, claim.GetClaimer())
+	valAddr, found := k.GetOrchestratorValidator(ctx, claim.GetHyperionId(), claim.GetClaimer())
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		panic("Could not find ValAddr for delegate key, should be checked by now")

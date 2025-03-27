@@ -92,6 +92,7 @@ message MsgSetOrchestratorAddresses {
   string sender = 1;
   string orchestrator = 2;
   string eth_address = 3;
+  uint64 hyperion_id = 4;
 }
 
 message MsgSetOrchestratorAddressesResponse {}

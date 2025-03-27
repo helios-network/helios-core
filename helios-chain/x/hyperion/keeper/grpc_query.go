@@ -225,7 +225,7 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 		return nil, errors.Wrap(sdkerrors.ErrInvalidAddress, req.Address)
 	}
 
-	validator, found := k.GetOrchestratorValidator(ctx, addr)
+	validator, found := k.GetOrchestratorValidator(ctx, req.HyperionId, addr)
 	if !found {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrUnknown, "address")
@@ -295,7 +295,7 @@ func (k *Keeper) GetDelegateKeyByValidator(c context.Context, req *types.QueryDe
 	}
 
 	valAccountAddr := sdk.AccAddress(valAddress.Bytes())
-	keys := k.GetOrchestratorAddresses(ctx)
+	keys := k.GetOrchestratorAddresses(ctx, req.HyperionId)
 
 	for _, key := range keys {
 		senderAddr, err := sdk.AccAddressFromBech32(key.Sender)
@@ -317,7 +317,7 @@ func (k *Keeper) GetDelegateKeyByOrchestrator(c context.Context, req *types.Quer
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	keys := k.GetOrchestratorAddresses(ctx)
+	keys := k.GetOrchestratorAddresses(ctx, req.HyperionId)
 
 	_, err := sdk.AccAddressFromBech32(req.OrchestratorAddress)
 	if err != nil {
@@ -341,7 +341,7 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	keys := k.GetOrchestratorAddresses(ctx)
+	keys := k.GetOrchestratorAddresses(ctx, req.HyperionId)
 	fmt.Println("keys: ", keys)
 	if err := types.ValidateEthAddress(req.EthAddress); err != nil {
 		return nil, errors.Wrap(err, "invalid eth address")

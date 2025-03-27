@@ -151,15 +151,15 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 			orchestrator, _ := sdk.AccAddressFromBech32(keys.Orchestrator)
 
 			// set the orchestrator Cosmos address
-			k.SetOrchestratorValidator(ctx, valAddress, orchestrator)
+			k.SetOrchestratorValidator(ctx, keys.HyperionId, valAddress, orchestrator)
 
 			// set the orchestrator Ethereum address
-			k.SetEthAddressForValidator(ctx, valAddress, common.HexToAddress(keys.EthAddress))
+			k.SetEthAddressForValidator(ctx, keys.HyperionId, valAddress, common.HexToAddress(keys.EthAddress))
 		}
 
 		// populate state with cosmos originated denom-erc20 mapping
 		for _, item := range subState.Erc20ToDenoms {
-			k.SetCosmosOriginatedDenomToERC20(ctx, item.Denom, common.HexToAddress(item.Erc20))
+			k.SetCosmosOriginatedDenomToERC20(ctx, subState.HyperionId, item.Denom, common.HexToAddress(item.Erc20))
 		}
 
 		for _, blacklistAddress := range subState.EthereumBlacklist {
@@ -186,10 +186,10 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 			vsconfs                         = []*types.MsgValsetConfirm{}
 			batchconfs                      = []*types.MsgConfirmBatch{}
 			attestations                    = []*types.Attestation{}
-			orchestratorAddresses           = k.GetOrchestratorAddresses(ctx) // same for all
+			orchestratorAddresses           = k.GetOrchestratorAddresses(ctx, param.HyperionId)
 			lastObservedEventNonce          = k.GetLastObservedEventNonce(ctx, param.HyperionId)
 			lastObservedEthereumBlockHeight = k.GetLastObservedEthereumBlockHeight(ctx, param.HyperionId)
-			erc20ToDenoms                   = []*types.ERC20ToDenom{}
+			erc20ToDenoms                   = k.GetAllERC20ToDenom(ctx, param.HyperionId)
 			unbatchedTransfers              = k.GetPoolTransactions(ctx, param.HyperionId)
 			ethereumBlacklistAddresses      = k.GetAllEthereumBlacklistAddresses(ctx) // same for all
 		)
@@ -216,12 +216,6 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 		for _, height := range attestationHeights {
 			attestations = append(attestations, attmap[height]...)
 		}
-
-		// export erc20 to denom relations
-		k.IterateERC20ToDenom(ctx, func(_ []byte, erc20ToDenom *types.ERC20ToDenom) bool {
-			erc20ToDenoms = append(erc20ToDenoms, erc20ToDenom)
-			return false
-		})
 
 		lastOutgoingBatchID := k.GetLastOutgoingBatchID(ctx)
 		lastOutgoingPoolID := k.GetLastOutgoingPoolID(ctx)

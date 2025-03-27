@@ -14,13 +14,13 @@ import (
 	"helios-core/helios-chain/x/hyperion/types"
 )
 
-func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.Address) (string, bool) {
+func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, hyperionId uint64, tokenContract common.Address) (string, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetERC20ToCosmosDenomKey(tokenContract))
+	bz := store.Get(types.GetERC20ToCosmosDenomKey(hyperionId, tokenContract))
 	if bz == nil {
 		return "", false
 	}
@@ -28,13 +28,13 @@ func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.
 	return string(bz), true
 }
 
-func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, denom string) (common.Address, bool) {
+func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, hyperionId uint64, denom string) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetCosmosDenomToERC20Key(denom))
+	bz := store.Get(types.GetCosmosDenomToERC20Key(hyperionId, denom))
 	if bz == nil {
 		return common.Address{}, false
 	}
@@ -42,13 +42,13 @@ func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, denom string) (common
 	return common.BytesToAddress(bz), true
 }
 
-func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, denom string, tokenContract common.Address) {
+func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, hyperionId uint64, denom string, tokenContract common.Address) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetCosmosDenomToERC20Key(denom), tokenContract.Bytes())
-	store.Set(types.GetERC20ToCosmosDenomKey(tokenContract), []byte(denom))
+	store.Set(types.GetCosmosDenomToERC20Key(hyperionId, denom), tokenContract.Bytes())
+	store.Set(types.GetERC20ToCosmosDenomKey(hyperionId, tokenContract), []byte(denom))
 }
 
 // DenomToERC20 returns if an asset is native to Cosmos or Ethereum, and get its corresponding ERC20 address
@@ -75,7 +75,7 @@ func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId
 	}
 
 	// Look up ERC20 contract in index and error if it's not in there
-	tokenContract, exists := k.GetCosmosOriginatedERC20(ctx, denomStr)
+	tokenContract, exists := k.GetCosmosOriginatedERC20(ctx, hyperionId, denomStr)
 	if !exists {
 		err = errors.Errorf(
 			"denom (%s) not a hyperion voucher coin (parse error: %s), and also not in cosmos-originated ERC20 index",
@@ -185,7 +185,7 @@ func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Addres
 	defer doneFn()
 
 	// First try looking up tokenContract in index
-	denomStr, exists := k.GetCosmosOriginatedDenom(ctx, tokenContract)
+	denomStr, exists := k.GetCosmosOriginatedDenom(ctx, hyperionId, tokenContract)
 	if exists {
 		isCosmosOriginated = true
 		return isCosmosOriginated, denomStr
@@ -198,11 +198,12 @@ func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Addres
 }
 
 // IterateERC20ToDenom iterates over erc20 to denom relations
-func (k *Keeper) IterateERC20ToDenom(ctx sdk.Context, cb func(k []byte, v *types.ERC20ToDenom) (stop bool)) {
+func (k *Keeper) IterateERC20ToDenom(ctx sdk.Context, hyperionId uint64, cb func(k []byte, v *types.ERC20ToDenom) (stop bool)) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ERC20ToDenomKey)
+	prefixKey := append(types.ERC20ToDenomKey, types.UInt64Bytes(hyperionId)...)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixKey)
 	iter := prefixStore.Iterator(nil, nil)
 	defer iter.Close()
 
@@ -216,4 +217,15 @@ func (k *Keeper) IterateERC20ToDenom(ctx sdk.Context, cb func(k []byte, v *types
 			break
 		}
 	}
+}
+
+func (k *Keeper) GetAllERC20ToDenom(ctx sdk.Context, hyperionId uint64) []*types.ERC20ToDenom {
+	erc20ToDenoms := []*types.ERC20ToDenom{}
+
+	k.IterateERC20ToDenom(ctx, hyperionId, func(_ []byte, erc20ToDenom *types.ERC20ToDenom) bool {
+		erc20ToDenoms = append(erc20ToDenoms, erc20ToDenom)
+		return false
+	})
+
+	return erc20ToDenoms
 }
