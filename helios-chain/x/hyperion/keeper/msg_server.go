@@ -116,6 +116,9 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 		if counterpartyChainParam.HyperionId == msg.CounterpartyChainParams.HyperionId {
 			return nil, errors.Wrap(types.ErrDuplicate, "HyperionId already exists")
 		}
+		if counterpartyChainParam.BridgeChainId == msg.CounterpartyChainParams.BridgeChainId {
+			return nil, errors.Wrap(types.ErrDuplicate, "BridgeChainId already exists")
+		}
 	}
 
 	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 2")
