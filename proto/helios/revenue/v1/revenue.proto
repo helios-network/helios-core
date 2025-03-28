@@ -1,0 +1,21 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:LGPL-3.0-only
+syntax = "proto3";
+package helios.revenue.v1;
+
+option go_package = "helios-core/helios-chain/x/revenue/v1/types";
+
+import "cosmos_proto/cosmos.proto";
+
+// Revenue defines an instance that organizes fee distribution conditions for
+// the owner of a given smart contract
+message Revenue {
+  // contract_address is the hex address of a registered contract
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // deployer_address is the bech32 address of message sender. It must be the same as the origin EOA
+  // sending the transaction which deploys the contract
+  string deployer_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // withdrawer_address is the bech32 address of account receiving the transaction fees it defaults to
+  // deployer_address
+  string withdrawer_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}

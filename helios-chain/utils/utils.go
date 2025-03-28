@@ -28,6 +28,8 @@ const (
 	SixDecChainID = "heliosix_9000"
 	// ICSChainID defines the Evmos EIP155 chain ID with IBC uatom as denom with 6 decimals precision
 	ICSChainID = "heliosics_9000"
+	// BaseDenom is the base denomination of the chain
+	BaseDenom = "ahelios"
 )
 
 // EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
