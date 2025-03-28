@@ -66,8 +66,8 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 
 	if err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress); err != nil {
 		description := fmt.Sprintf(
-			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
-			ethAddress, msg.HyperionId, checkpoint.Hex(), msg.Signature,
+			"signature verification failed expected sig by %s with hyperion-id %d with checkpoint %s found %s",
+			ethAddress.String(), msg.HyperionId, checkpoint.Hex(), msg.Signature,
 		)
 
 		metrics.ReportFuncError(k.svcTags)
@@ -245,8 +245,8 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 	err = types.ValidateEthereumSignature(checkpoint, sigBytes, ethAddress)
 	if err != nil {
 		description := fmt.Sprintf(
-			"signature verification failed expected sig by %s with hyperion-id %s with checkpoint %s found %s",
-			ethAddress, msg.HyperionId, checkpoint.Hex(), msg.Signature,
+			"signature verification failed expected sig by %s with hyperion-id %d with checkpoint %s found %s",
+			ethAddress.String(), msg.HyperionId, checkpoint.Hex(), msg.Signature,
 		)
 
 		metrics.ReportFuncError(k.svcTags)

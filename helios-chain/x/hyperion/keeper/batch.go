@@ -82,20 +82,7 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint6
 	defer doneFn()
 
 	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
-	fmt.Println("counterpartyChainParams: ", counterpartyChainParams)
-	currentCosmosHeight := ctx.BlockHeight()
-	fmt.Println("currentCosmosHeight: ", currentCosmosHeight)
-	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
-	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
-	heights := k.GetLastObservedEthereumBlockHeight(ctx, hyperionId)
-	fmt.Println("heights: ", heights)
-	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
-		return 0
-	}
-	// we project how long it has been in milliseconds since the last Ethereum block height was observed
-	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
-	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
-	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
+	projectedCurrentEthereumHeight := k.GetProjectedCurrentEthereumHeight(ctx, hyperionId)
 	// we convert our target time for block timeouts (lets say 12 hours) into a number of blocks to
 	// place on top of our projection of the current Ethereum block height.
 	blocksToAdd := counterpartyChainParams.TargetBatchTimeout / counterpartyChainParams.AverageCounterpartyBlockTime

@@ -91,7 +91,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				}
 			}
 
-			tokenPair, ok := a.keeper.erc20Keeper.GetTokenPair(ctx, a.keeper.erc20Keeper.GetTokenPairID(ctx, denom))
+			_, ok := a.keeper.erc20Keeper.GetTokenPair(ctx, a.keeper.erc20Keeper.GetTokenPairID(ctx, denom))
 
 			// if pair doens't exists creation of the erc20 token and link it to denom
 			if !ok {
@@ -119,7 +119,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				}
 
 				a.keeper.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
-				tokenPair = erc20types.NewTokenPair(contractAddr, denom, erc20types.OWNER_MODULE)
+				tokenPair := erc20types.NewTokenPair(contractAddr, denom, erc20types.OWNER_MODULE)
 				a.keeper.erc20Keeper.SetToken(ctx, tokenPair)
 				a.keeper.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
 			}

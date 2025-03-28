@@ -1057,3 +1057,23 @@ func (k *Keeper) GetHyperionParamsFromChainId(ctx sdk.Context, chainId uint64) *
 
 	return nil
 }
+
+func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	currentCosmosHeight := ctx.BlockHeight()
+	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
+	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
+	heights := k.GetLastObservedEthereumBlockHeight(ctx, hyperionId)
+	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
+		return 0
+	}
+	// we project how long it has been in milliseconds since the last Ethereum block height was observed
+	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
+	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
+	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
+
+	return projectedCurrentEthereumHeight
+}

@@ -20,7 +20,7 @@ This bridge is fully governed by Helios Chain validators.
 ### Components
 
 1. **Hyperion Ethereum Smart contract**
-2. **Hyperion cosmos module**
+2. **Hyperion helios module**
 3. **Hyperion (hyperion orchestrator)**
     - **Oracle** (Observe events of Hyperion contract and send claims to Hyperion module)
     - **EthSigner** (Sign and send valset/Batch confirmations to Hyperion module)
@@ -96,11 +96,3 @@ Ethereum smart contract and Hyperion cosmos module.
 [comment]: <> (    - [Handlers]&#40;spec/docs/events.md#Service-Messages&#41;)
 
 [comment]: <> (8. **[Parameters]&#40;spec/08_params.md&#41;**)
-
-
-
-
-
-
-
-

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/json"
+	"reflect"
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
@@ -124,10 +125,6 @@ func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMet
 		return nil, errors.Errorf("undefined metadata")
 	}
 
-	if metadata.Decimals < 0 {
-		return nil, errors.Errorf("claim data is not a valid Decimals: %v", metadata.Decimals)
-	}
-
 	if metadata.Decimals > 18 {
 		return nil, errors.Errorf("claim data is not a valid Decimals: %v", metadata.Decimals)
 	}
@@ -170,12 +167,12 @@ func (k *Keeper) parseClaimData(ctx sdk.Context, claimData string) (*types.Token
 	return data.Metadata, &msg, nil
 }
 
-func (k *Keeper) handleValidateMsg(ctx sdk.Context, msg *sdk.Msg) (bool, error) {
+func (k *Keeper) handleValidateMsg(_ sdk.Context, msg *sdk.Msg) (bool, error) {
 	switch (*msg).(type) {
 	case *types.MsgSendToChain:
 		return true, nil
 	}
-	return false, errors.Errorf("Message %s not managed", msg)
+	return false, errors.Errorf("Message %s not managed", reflect.TypeOf(msg))
 }
 
 // ERC20ToDenom returns if an ERC20 address represents an asset is native to Cosmos or Ethereum,
