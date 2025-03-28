@@ -121,8 +121,8 @@ func (p Precompile) SetOrchestratorAddresses(
 	args []interface{},
 ) ([]byte, error) {
 
-	if len(args) != 1 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
+	if len(args) != 2 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
 	orchestratorAddress, ok := args[0].(common.Address)
@@ -130,10 +130,16 @@ func (p Precompile) SetOrchestratorAddresses(
 		return nil, fmt.Errorf("invalid hex address")
 	}
 
+	hyperionId, ok := args[1].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid hyperionId uint64")
+	}
+
 	msg := &hyperiontypes.MsgSetOrchestratorAddresses{
 		Sender:       cmn.AccAddressFromHexAddress(origin).String(),
 		Orchestrator: cmn.AccAddressFromHexAddress(orchestratorAddress).String(),
 		EthAddress:   orchestratorAddress.String(),
+		HyperionId:   hyperionId,
 	}
 
 	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)

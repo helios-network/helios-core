@@ -487,7 +487,8 @@ async function setOrchestratorAddresses() {
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', chronosAbi, wallet);
     const tx = await contract.setOrchestratorAddresses( // I'm validator and
-      "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab" // address of my hyperion Validator
+      "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // address of my hyperion Validator
+      21 // HyperionId
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
@@ -511,7 +512,7 @@ async function sendToChain() {
       80002, // chainId
       "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
       "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address (ex: USDT)
-      ethers.parseEther("10"), // amount to transfer (ex: 10 USDT)
+      ethers.parseEther("33"), // amount to transfer (ex: 10 USDT)
       ethers.parseEther("1"), // fee you want to pay (ex: 1 USDT)
     );
     console.log('Transaction envoyée, hash :', tx.hash);
@@ -685,7 +686,7 @@ async function createCronCallBackData() {
 }
 
 async function main() {
-  await createCronCallBackData();
+  // await createCronCallBackData();
   // await createCron();
   // await getEvents();
   // await getEventsCronCancelled();

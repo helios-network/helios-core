@@ -59,7 +59,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addr
 		return nil, err
 	}
 
-	nextID := k.AutoIncrementID(ctx, types.KeyLastOutgoingBatchID)
+	nextID := k.AutoIncrementID(ctx, types.GetLastOutgoingBatchIDKey(hyperionId))
 	batch := &types.OutgoingTxBatch{
 		BatchNonce:    nextID,
 		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),

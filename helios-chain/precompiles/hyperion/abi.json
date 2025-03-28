@@ -48,6 +48,11 @@
           "internalType": "address",
           "name": "orchestratorAddress",
           "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "hyperionId",
+          "type": "uint64"
         }
       ],
       "name": "setOrchestratorAddresses",
