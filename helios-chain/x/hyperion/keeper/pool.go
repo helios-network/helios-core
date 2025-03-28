@@ -70,6 +70,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		DestAddress: counterpartReceiver.Hex(),
 		Erc20Token:  types.NewSDKIntERC20Token(amount.Amount, tokenContract),
 		Erc20Fee:    erc20Fee,
+		TxTimeout:   k.GetOutgoingTxTimeoutHeight(ctx, hyperionId),
 	}
 
 	// set the outgoing tx in the pool index
@@ -90,12 +91,12 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 // - checks that the provided tx actually exists
 // - deletes the unbatched tx from the pool
 // - issues the tokens back to the sender
-func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, sender sdk.AccAddress) error {
+func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uint64, txId uint64, sender sdk.AccAddress) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	// check that we actually have a tx with that id and what it's details are
-	tx, err := k.getPoolEntry(ctx, txId)
+	tx, err := k.getPoolEntry(ctx, hyperionId, txId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return err
@@ -120,7 +121,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 	}
 
 	found := false
-	poolTx := k.GetAllPoolTransactions(ctx)
+	poolTx := k.GetPoolTransactions(ctx, tx.HyperionId)
 	for _, pTx := range poolTx {
 		if pTx.Id == txId {
 			found = true
@@ -137,7 +138,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
 	}
-	k.removePoolEntry(ctx, txId)
+	k.removePoolEntry(ctx, tx.HyperionId, txId)
 
 	// reissue the amount and the fee
 	var totalToRefundCoins sdk.Coins
@@ -262,20 +263,20 @@ func (k *Keeper) setPoolEntry(ctx sdk.Context, outgoingTransferTx *types.Outgoin
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetOutgoingTxPoolKey(outgoingTransferTx.Id), bz)
+	store.Set(types.GetOutgoingTxPoolKey(outgoingTransferTx.HyperionId, outgoingTransferTx.Id), bz)
 
 	return nil
 }
 
 // getPoolEntry grabs an entry from the tx pool, this *does* include transactions in batches
 // so check the UnbatchedTxIndex or call GetPoolTransactions for that purpose
-func (k *Keeper) getPoolEntry(ctx sdk.Context, id uint64) (*types.OutgoingTransferTx, error) {
+func (k *Keeper) getPoolEntry(ctx sdk.Context, hyperionId uint64, id uint64) (*types.OutgoingTransferTx, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetOutgoingTxPoolKey(id))
+	bz := store.Get(types.GetOutgoingTxPoolKey(hyperionId, id))
 	if bz == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, types.ErrUnknown
@@ -293,12 +294,12 @@ func (k *Keeper) getPoolEntry(ctx sdk.Context, id uint64) (*types.OutgoingTransf
 
 // removePoolEntry removes an entry from the tx pool, this *does* include transactions in batches
 // so you will need to run it when cleaning up after a executed batch
-func (k *Keeper) removePoolEntry(ctx sdk.Context, id uint64) {
+func (k *Keeper) removePoolEntry(ctx sdk.Context, hyperionId uint64, id uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetOutgoingTxPoolKey(id))
+	store.Delete(types.GetOutgoingTxPoolKey(hyperionId, id))
 }
 
 // GetPoolTransactions, grabs all transactions from the tx pool, useful for queries or genesis save/load
@@ -317,7 +318,7 @@ func (k *Keeper) GetPoolTransactions(ctx sdk.Context, hyperionId uint64) []*type
 		var ids types.IDSet
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, id)
+			tx, err := k.getPoolEntry(ctx, hyperionId, id)
 			if tx.HyperionId != hyperionId {
 				continue
 			}
@@ -348,7 +349,13 @@ func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransf
 		var ids types.IDSet
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, id)
+			key := iter.Key()
+			HyperionIDLen := 8
+			// 1. hyperionId (uint64)
+			hyperionIdBytes := key[:HyperionIDLen]
+			hyperionIdOfTheTx := binary.BigEndian.Uint64(hyperionIdBytes)
+
+			tx, err := k.getPoolEntry(ctx, hyperionIdOfTheTx, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
 				panic("Invalid id in tx index!")
@@ -375,7 +382,7 @@ func (k *Keeper) IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx sdk.Conte
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		// cb returns true to stop early
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, id)
+			tx, err := k.getPoolEntry(ctx, hyperionId, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
 				panic("Invalid id in tx index!")
@@ -552,4 +559,36 @@ func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, hyperionId uint64, lastO
 	key := types.GetLastTXPoolIDKey(hyperionId)
 	bz := sdk.Uint64ToBigEndian(lastOutgoingPoolID)
 	store.Set(key, bz)
+}
+
+func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	currentCosmosHeight := ctx.BlockHeight()
+	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
+	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
+	heights := k.GetLastObservedEthereumBlockHeight(ctx, hyperionId)
+	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
+		return 0
+	}
+	// we project how long it has been in milliseconds since the last Ethereum block height was observed
+	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
+	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
+	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
+
+	return projectedCurrentEthereumHeight
+}
+
+// / This gets the batch timeout height in the counterparty chain blocks.
+func (k *Keeper) GetOutgoingTxTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	projectedCurrentEthereumHeight := k.GetProjectedCurrentEthereumHeight(ctx, hyperionId)
+
+	blocksToAdd := counterpartyChainParams.TargetOutgoingTxTimeout / counterpartyChainParams.AverageCounterpartyBlockTime
+	return projectedCurrentEthereumHeight + blocksToAdd
 }

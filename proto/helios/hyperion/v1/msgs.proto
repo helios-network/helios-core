@@ -142,7 +142,7 @@ message MsgSendToChain {
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
-  uint64 dest_hyperion_id = 2;
+  uint64 dest_chain_id = 2;
   string dest = 3;
   cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin bridge_fee = 5 [ (gogoproto.nullable) = false ];
@@ -261,6 +261,7 @@ message MsgCancelSendToChain {
 
   uint64 transaction_id = 1;
   string sender = 2;
+  uint64 chain_id = 3;
 }
 
 message MsgCancelSendToChainResponse {}

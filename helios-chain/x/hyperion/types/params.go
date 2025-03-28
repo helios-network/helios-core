@@ -160,9 +160,10 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000,
-		AverageBlockTime:              2000,
-		AverageCounterpartyBlockTime:  15000,
+		TargetBatchTimeout:            43200000, // 12 hours
+		TargetOutgoingTxTimeout:       600000,   // 10 minutes
+		AverageBlockTime:              2000,     // 2 seconds
+		AverageCounterpartyBlockTime:  15000,    // chain blocktime 15seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),

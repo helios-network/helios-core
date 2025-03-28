@@ -107,7 +107,6 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 // two layers of fees for the user
 // -------------
 func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*types.MsgSendToChainResponse, error) {
-	fmt.Println("SendToChain for hyperionId: ", msg.DestHyperionId)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -122,14 +121,21 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination address is invalid or blacklisted")
 	}
 
-	txID, err := k.Keeper.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, msg.DestHyperionId)
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.DestChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination chainId doesn't exists")
+	}
+	hyperionId := hyperionParams.HyperionId
+
+	txID, err := k.Keeper.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, hyperionId)
 	if err != nil {
 		return nil, err
 	}
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSendToChain{
-		HyperionId:   msg.DestHyperionId,
+		HyperionId:   hyperionId,
 		OutgoingTxId: txID,
 		Sender:       sender.String(),
 		Receiver:     msg.Dest,

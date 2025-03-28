@@ -121,6 +121,9 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	params.CounterpartyChainParams = append(params.CounterpartyChainParams, msg.CounterpartyChainParams)
 	k.Keeper.SetParams(ctx, params)
 
+	// setup a default value LastObservedEthereumBlockHeight
+	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
+
 	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 3")
 
 	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
@@ -132,8 +135,8 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 // to chain if the sendtochain is always in the tx pool.
 // -------------
 func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSendToChain) (*types.MsgCancelSendToChainResponse, error) {
-	// c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
-	// defer doneFn()
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
@@ -142,7 +145,13 @@ func (k msgServer) CancelSendToChain(c context.Context, msg *types.MsgCancelSend
 		return nil, err
 	}
 
-	err = k.Keeper.RemoveFromOutgoingPoolAndRefund(ctx, msg.TransactionId, sender)
+	params := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+	if params == nil {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrDuplicate, "BridgeChainId not found")
+	}
+
+	err = k.Keeper.RemoveFromOutgoingPoolAndRefund(ctx, params.HyperionId, msg.TransactionId, sender)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err

@@ -1045,3 +1045,15 @@ func (k *Keeper) CreateModuleAccount(ctx sdk.Context) {
 func (k *Keeper) SetErc20Keeper(erc20Keeper erc20keeper.Keeper) {
 	k.erc20Keeper = erc20Keeper
 }
+
+func (k *Keeper) GetHyperionParamsFromChainId(ctx sdk.Context, chainId uint64) *types.CounterpartyChainParams {
+	params := k.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == chainId {
+			return counterpartyChainParam
+		}
+	}
+
+	return nil
+}

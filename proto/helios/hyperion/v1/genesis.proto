@@ -22,7 +22,7 @@ message GenesisHyperionState {
   repeated MsgSetOrchestratorAddresses orchestrator_addresses = 8;
   repeated ERC20ToDenom erc20_to_denoms = 9;
   repeated OutgoingTransferTx unbatched_transfers = 10;
-  uint64 last_observed_ethereum_height = 11;
+  LastObservedEthereumBlockHeight last_observed_ethereum_height = 11;
   uint64 last_outgoing_batch_id = 12;
   uint64 last_outgoing_pool_id = 13;
   Valset last_observed_valset = 14 [ (gogoproto.nullable) = false ];

@@ -204,7 +204,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 				// 	panic("attempting to apply events to state out of order")
 				// }
 				k.setLastObservedEventNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
-				k.SetLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
+				k.SetNewLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
 
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)
@@ -531,14 +531,18 @@ func (k *Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context, hyperionId 
 }
 
 // SetLastObservedEthereumBlockHeight sets the block height in the store.
-func (k *Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, hyperionId uint64, ethereumHeight uint64) {
+func (k *Keeper) SetNewLastObservedEthereumBlockHeight(ctx sdk.Context, hyperionId uint64, ethereumHeight uint64) {
+	k.SetLastObservedEthereumBlockHeight(ctx, hyperionId, ethereumHeight, uint64(ctx.BlockHeight()))
+}
+
+func (k *Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, hyperionId uint64, ethereumHeight uint64, heliosBlockHeight uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.LastObservedEthereumBlockHeightKey, sdk.Uint64ToBigEndian(hyperionId)...))
 	height := types.LastObservedEthereumBlockHeight{
 		EthereumBlockHeight: ethereumHeight,
-		CosmosBlockHeight:   uint64(ctx.BlockHeight()),
+		CosmosBlockHeight:   heliosBlockHeight,
 	}
 
 	store.Set(sdk.Uint64ToBigEndian(0), k.cdc.MustMarshal(&height))

@@ -226,11 +226,12 @@ func GetAttestationKeyWithHash(eventNonce uint64, claimHash []byte) []byte {
 }
 
 // GetOutgoingTxPoolKey returns the following key format
-// prefix     id
-// [0x6][0 0 0 0 0 0 0 1]
-func GetOutgoingTxPoolKey(id uint64) []byte {
-	buf := make([]byte, 0, len(OutgoingTXPoolKey)+8)
+// prefix  hyperionId        id
+// [0x6][0 0 0 0 0 0 0 1][0 0 0 0 0 0 0 1]
+func GetOutgoingTxPoolKey(hyperionId uint64, id uint64) []byte {
+	buf := make([]byte, 0, len(OutgoingTXPoolKey)+8+8)
 	buf = append(buf, OutgoingTXPoolKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, sdk.Uint64ToBigEndian(id)...)
 
 	return buf
@@ -238,7 +239,7 @@ func GetOutgoingTxPoolKey(id uint64) []byte {
 
 // GetOutgoingTxBatchKey returns the following key format
 // prefix      hyperionId                nonce                     eth-contract-address
-// [0xa][hyperion-ethereum-mainnet][0 0 0 0 0 0 0 1][0xc783df8a850f42e7F7e57013759C285caa701eB6]
+// [0xa][0 0 0 0 0 0 0 1][0 0 0 0 0 0 0 1][0xc783df8a850f42e7F7e57013759C285caa701eB6]
 func GetOutgoingTxBatchKey(tokenContract common.Address, nonce uint64, hyperionId uint64) []byte {
 	buf := make([]byte, 0, len(OutgoingTXBatchKey)+8+8+ETHContractAddressLen)
 	buf = append(buf, OutgoingTXBatchKey...)

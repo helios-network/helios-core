@@ -198,15 +198,6 @@ func (p Precompile) SendToChain(
 	amountV := cosmosmath.NewIntFromBigInt(amount)
 	bridgeFeeV := cosmosmath.NewIntFromBigInt(bridgeFee)
 
-	// get hyperionId from chainId
-	response, err := p.hyperionKeeper.GetHyperionIdFromChainId(ctx, &hyperiontypes.QueryGetHyperionIdFromChainIdRequest{
-		ChainId: chainId,
-	})
-	if err != nil {
-		return nil, err
-	}
-	hyperionId := response.HyperionId
-
 	tokenPair, ok := p.erc20Keeper.GetTokenPair(ctx, p.erc20Keeper.GetTokenPairID(ctx, contractAddress.String()))
 
 	if !ok {
@@ -215,15 +206,15 @@ func (p Precompile) SendToChain(
 	}
 
 	msg := &hyperiontypes.MsgSendToChain{
-		Sender:         cmn.AccAddressFromHexAddress(origin).String(),
-		DestHyperionId: hyperionId,
-		Dest:           dest,
-		Amount:         sdk.NewCoin(tokenPair.Denom, amountV),
-		BridgeFee:      sdk.NewCoin(tokenPair.Denom, bridgeFeeV),
+		Sender:      cmn.AccAddressFromHexAddress(origin).String(),
+		DestChainId: chainId,
+		Dest:        dest,
+		Amount:      sdk.NewCoin(tokenPair.Denom, amountV),
+		BridgeFee:   sdk.NewCoin(tokenPair.Denom, bridgeFeeV),
 	}
 
 	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)
-	_, err = msgSrv.SendToChain(ctx, msg)
+	_, err := msgSrv.SendToChain(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

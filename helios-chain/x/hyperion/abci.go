@@ -41,6 +41,7 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 	}
 	h.attestationTally(ctx)
 	h.cleanupTimedOutBatches(ctx)
+	h.cleanupTimedOutOutgoingTx(ctx)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		h.createValsets(ctx, counterpartyChainParams)
 		h.pruneValsets(ctx, counterpartyChainParams)
@@ -197,8 +198,8 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 //	project, if we do a slowdown on ethereum could cause a double spend. Instead timeouts will *only* occur after the timeout period
 //	AND any deposit or withdraw has occurred to update the Ethereum block height.
 func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
 		hyperionId := counterParty.HyperionId
@@ -211,6 +212,42 @@ func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context) {
 				err := h.k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
 				if err != nil {
 					ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
+				}
+			}
+		}
+	}
+}
+
+func (h *BlockHandler) cleanupTimedOutOutgoingTx(ctx sdk.Context) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
+
+	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
+		hyperionId := counterParty.HyperionId
+
+		projectedEthereumHeight := h.k.GetProjectedCurrentEthereumHeight(ctx, hyperionId)
+		txs := h.k.GetPoolTransactions(ctx, hyperionId)
+
+		for _, tx := range txs {
+			if tx.TxTimeout < projectedEthereumHeight {
+				alreadyInBatch := false
+
+				batches := h.k.GetOutgoingTxBatches(ctx, hyperionId)
+				for _, batch := range batches {
+					for _, batchTx := range batch.Transactions {
+						if batchTx.Id == tx.Id {
+							alreadyInBatch = true
+							break
+						}
+					}
+				}
+
+				if !alreadyInBatch { // we can process cancel
+					sender, _ := sdk.AccAddressFromBech32(tx.Sender)
+					err := h.k.RemoveFromOutgoingPoolAndRefund(ctx, tx.HyperionId, tx.Id, sender)
+					if err != nil {
+						ctx.Logger().Error("failed to cancel outgoing tx", "error", err, "txId", tx.Id, "sender", tx.Sender)
+					}
 				}
 			}
 		}

@@ -120,7 +120,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	// cleanup outgoing TX pool, while these transactions where hidden from GetPoolTransactions
 	// they still exist in the pool and need to be cleaned up.
 	for _, tx := range b.Transactions {
-		k.removePoolEntry(ctx, tx.Id)
+		k.removePoolEntry(ctx, tx.HyperionId, tx.Id)
 	}
 
 	// Iterate through remaining batches

@@ -108,7 +108,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 			k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), attestation)
 		}
 		k.setLastObservedEventNonce(ctx, subState.HyperionId, subState.LastObservedNonce)
-		k.SetLastObservedEthereumBlockHeight(ctx, subState.HyperionId, subState.LastObservedEthereumHeight)
+		k.SetLastObservedEthereumBlockHeight(ctx, subState.HyperionId, subState.LastObservedEthereumHeight.EthereumBlockHeight, subState.LastObservedEthereumHeight.CosmosBlockHeight)
 		k.SetLastOutgoingBatchID(ctx, subState.HyperionId, subState.LastOutgoingBatchId)
 		k.SetLastOutgoingPoolID(ctx, subState.HyperionId, subState.LastOutgoingPoolId)
 		k.SetLastObservedValset(ctx, subState.HyperionId, subState.LastObservedValset)
@@ -224,7 +224,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 		subStates = append(subStates, &types.GenesisHyperionState{
 			HyperionId:                 param.HyperionId,
 			LastObservedNonce:          lastObservedEventNonce,
-			LastObservedEthereumHeight: lastObservedEthereumBlockHeight.EthereumBlockHeight,
+			LastObservedEthereumHeight: &lastObservedEthereumBlockHeight,
 			Valsets:                    valsets,
 			ValsetConfirms:             vsconfs,
 			Batches:                    batches,

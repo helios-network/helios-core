@@ -501,7 +501,7 @@ async function setOrchestratorAddresses() {
   }
 }
 
-async function sendToChain() {
+async function sendToChain(amount) {
   console.log("wallet : ", wallet.address)
   try {
     console.log('sendToChain en cours...');
@@ -511,16 +511,16 @@ async function sendToChain() {
     const tx = await contract.sendToChain( // I'm validator and
       80002, // chainId
       "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
-      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address (ex: USDT)
-      ethers.parseEther("33"), // amount to transfer (ex: 10 USDT)
+      "0xd4949664cd82660aae99bedc034a0dea8a0bd517", // token address (ex: USDT)
+      ethers.parseEther(amount), // amount to transfer (ex: 10 USDT)
       ethers.parseEther("1"), // fee you want to pay (ex: 1 USDT)
     );
     console.log('Transaction envoyée, hash :', tx.hash);
 
-    const receipt = await tx.wait();
-    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+    // const receipt = await tx.wait();
+    // console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
 
-    console.log(receipt);
+    // console.log(receipt);
   } catch (error) {
     console.error('Erreur lors de la sendToChain :', error);
   }
@@ -704,7 +704,8 @@ async function main() {
 
   // await getRewards();
 
-  await sendToChain();
+  await sendToChain("5");
+  await sendToChain("10");
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   

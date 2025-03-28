@@ -226,14 +226,12 @@ func (k *Keeper) MissingHyperionNonces(c context.Context, req *types.MissingNonc
 // [Not Used In Hyperion]
 func (k *Keeper) GetHyperionIdFromChainId(c context.Context, req *types.QueryGetHyperionIdFromChainIdRequest) (*types.QueryGetHyperionIdFromChainIdResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.GetParams(ctx)
+	params := k.GetHyperionParamsFromChainId(ctx, req.ChainId)
 
-	for _, counterpartyChainParam := range params.CounterpartyChainParams {
-		if counterpartyChainParam.BridgeChainId == req.ChainId {
-			return &types.QueryGetHyperionIdFromChainIdResponse{
-				HyperionId: counterpartyChainParam.HyperionId,
-			}, nil
-		}
+	if params != nil {
+		return &types.QueryGetHyperionIdFromChainIdResponse{
+			HyperionId: params.HyperionId,
+		}, nil
 	}
 
 	return nil, errors.Wrap(types.ErrDuplicate, "BridgeChainId not found")
