@@ -7,7 +7,7 @@ killall heliades &>/dev/null || true
 rm -rf ~/.heliades
 
 # Define chain parameters
-CHAINID="4242"
+CHAINID="42000"
 MONIKER="helios-main-node"
 # Initialize the chain with a moniker and chain ID
 heliades init $MONIKER --chain-id $CHAINID
