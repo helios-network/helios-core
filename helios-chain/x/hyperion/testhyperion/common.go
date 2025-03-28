@@ -245,6 +245,8 @@ func SetupFiveValChain(t *testing.T) (TestInput, sdk.Context) {
 	t.Helper()
 	input := CreateTestEnv(t)
 
+	hyperionId := uint64(21)
+
 	// Set the params for our modules
 	input.StakingKeeper.SetParams(input.Context, TestingStakeParams)
 
@@ -279,7 +281,7 @@ func SetupFiveValChain(t *testing.T) (TestInput, sdk.Context) {
 
 	// Register eth addresses for each validator
 	for i, addr := range ValAddrs {
-		input.HyperionKeeper.SetEthAddressForValidator(input.Context, addr, EthAddrs[i])
+		input.HyperionKeeper.SetEthAddressForValidator(input.Context, hyperionId, addr, EthAddrs[i])
 	}
 
 	// Return the test input
@@ -343,6 +345,8 @@ func AddAnotherValidator(t *testing.T, input TestInput, valInfo ValidatorInfo) T
 // CreateTestEnv creates the keeper testing environment for hyperion
 func CreateTestEnv(t *testing.T) TestInput {
 	t.Helper()
+
+	hyperionId := uint64(21)
 
 	logger := log.NewNopLogger()
 
@@ -536,6 +540,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 		distKeeper,
 		authority,
 		accountKeeper,
+		erc20Keeper,
 	)
 
 	stakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
@@ -545,8 +550,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 	))
 
 	k.SetParams(ctx, TestingHyperionParams)
-	k.SetLastOutgoingBatchID(ctx, uint64(0))
-	k.SetLastOutgoingPoolID(ctx, uint64(0))
+	k.SetLastOutgoingBatchID(ctx, hyperionId, uint64(0))
+	k.SetLastOutgoingPoolID(ctx, hyperionId, uint64(0))
 
 	return TestInput{
 		HyperionKeeper: k,

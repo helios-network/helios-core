@@ -52,33 +52,45 @@ func (h Hooks) AfterValidatorBonded(ctx context.Context, _ sdk.ConsAddress, vali
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	ev := h.k.GetLastEventByValidator(sdkCtx, validator)
+	params := h.k.GetParams(sdkCtx)
 
-	isFirstTimeValidator := ev.EthereumEventHeight == 0 && ev.EthereumEventNonce == 0
-	if !isFirstTimeValidator {
-		// no need to do anything, not a first time validator
+	if params == nil {
 		return nil
 	}
 
-	lowestObservedNonce := h.k.GetLastObservedEventNonce(sdkCtx)
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 
-	// when the chain starts from genesis state, as there are no events broadcasted, lowest_observed_nonce will be zero.
-	// Bridge relayer has to scan the events from the height at which bridge contract is deployed on ethereum.
-	// So, if lowest_observed_nonce is zero, we don't need to do anything.
-	if lowestObservedNonce == 0 {
-		return nil
+		hyperionId := counterpartyChainParams.HyperionId
+
+		ev := h.k.GetLastEventByValidatorAndHyperionId(sdkCtx, hyperionId, validator)
+
+		isFirstTimeValidator := ev.EthereumEventHeight == 0 && ev.EthereumEventNonce == 0
+		if !isFirstTimeValidator {
+			// no need to do anything, not a first time validator
+			continue
+		}
+
+		lowestObservedNonce := h.k.GetLastObservedEventNonce(sdkCtx, hyperionId)
+
+		// when the chain starts from genesis state, as there are no events broadcasted, lowest_observed_nonce will be zero.
+		// Bridge relayer has to scan the events from the height at which bridge contract is deployed on ethereum.
+		// So, if lowest_observed_nonce is zero, we don't need to do anything.
+		if lowestObservedNonce == 0 {
+			continue
+		}
+
+		h.k.Logger(sdkCtx).Info(fmt.Sprintf("AfterValidatorBonded %s setLastEventByValidator", validator.String()))
+
+		// otherwise, set the last event to the current last observed event nonce and ethereum block height so the validator
+		// can begin attesting starting from the next event after the last observed event nonce.
+		h.k.setLastEventByValidatorAndHyperionId(
+			sdkCtx,
+			hyperionId,
+			validator,
+			lowestObservedNonce,
+			h.k.GetLastObservedEthereumBlockHeight(sdkCtx, hyperionId).EthereumBlockHeight,
+		)
 	}
-
-	h.k.Logger(sdkCtx).Info(fmt.Sprintf("AfterValidatorBonded %s setLastEventByValidator", validator.String()))
-
-	// otherwise, set the last event to the current last observed event nonce and ethereum block height so the validator
-	// can begin attesting starting from the next event after the last observed event nonce.
-	h.k.setLastEventByValidator(
-		sdkCtx,
-		validator,
-		lowestObservedNonce,
-		h.k.GetLastObservedEthereumBlockHeight(sdkCtx).EthereumBlockHeight,
-	)
 
 	return nil
 }

@@ -22,7 +22,8 @@ interface HyperionI {
     ) external returns (bool success);
 
     function setOrchestratorAddresses(
-        address orchestratorAddress
+        address orchestratorAddress,
+        uint64 hyperionId
     ) external returns (bool success);
 
     /// @notice Requests data from a cross-chain source

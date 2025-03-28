@@ -11,6 +11,8 @@ import (
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -274,12 +276,31 @@ func (b *Backend) GetTokensBalance(address common.Address, blockNrOrHash rpctype
 			continue
 		}
 
-		balances = append(balances, rpctypes.TokenBalance{
-			Address:   common.HexToAddress(token.Erc20Address),
-			Symbol:    token.Denom,
-			Balance:   (*hexutil.Big)(val.BigInt()),
-			BalanceUI: val.String(),
+		response, err := b.queryClient.Bank.DenomMetadata(b.ctx, &banktypes.QueryDenomMetadataRequest{
+			Denom: token.Denom,
 		})
+
+		if err != nil {
+			balances = append(balances, rpctypes.TokenBalance{
+				Address:   common.HexToAddress(token.Erc20Address),
+				Denom:     token.Denom,
+				Balance:   (*hexutil.Big)(val.BigInt()),
+				BalanceUI: val.String(),
+				Decimals:  6,
+			})
+			continue
+		}
+
+		balances = append(balances, rpctypes.TokenBalance{
+			Address:     common.HexToAddress(token.Erc20Address),
+			Denom:       token.Denom,
+			Symbol:      response.Metadata.Symbol,
+			Decimals:    response.Metadata.Decimals,
+			Balance:     (*hexutil.Big)(val.BigInt()),
+			BalanceUI:   val.String(),
+			Description: response.Metadata.Description,
+		})
+
 	}
 
 	return balances, nil

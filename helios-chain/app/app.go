@@ -901,17 +901,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		&app.AccountKeeper,
 	)
 
-	app.HyperionKeeper = hyperionKeeper.NewKeeper(
-		app.codec,
-		app.keys[hyperiontypes.StoreKey],
-		app.StakingKeeper,
-		app.BankKeeper,
-		app.SlashingKeeper,
-		app.DistrKeeper,
-		authority,
-		app.AccountKeeper,
-	)
-
 	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
 		app.keys[tokenfactorytypes.StoreKey],
 		app.AccountKeeper,
@@ -919,12 +908,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.DistrKeeper,
 		authority,
 	)
-
-	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
-		app.DistrKeeper.Hooks(),
-		app.SlashingKeeper.Hooks(),
-		app.HyperionKeeper.Hooks(),
-	))
 
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		app.codec,
@@ -1065,8 +1048,28 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
 	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
+	// app.HyperionKeeper.SetErc20Keeper(app.Erc20Keeper)
+
+	app.HyperionKeeper = hyperionKeeper.NewKeeper(
+		app.codec,
+		app.keys[hyperiontypes.StoreKey],
+		app.StakingKeeper,
+		app.BankKeeper,
+		app.SlashingKeeper,
+		app.DistrKeeper,
+		authority,
+		app.AccountKeeper,
+		app.Erc20Keeper,
+	)
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
+
+	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
+		app.DistrKeeper.Hooks(),
+		app.SlashingKeeper.Hooks(),
+		app.HyperionKeeper.Hooks(),
+	))
+
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
 		// insert epoch hooks receivers here

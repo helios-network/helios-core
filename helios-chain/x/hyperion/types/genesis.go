@@ -13,8 +13,11 @@ func (s GenesisState) ValidateBasic() error {
 
 // DefaultGenesisState returns empty genesis state
 func DefaultGenesisState() *GenesisState {
+	params := DefaultParams()
+
 	return &GenesisState{
-		Params: DefaultParams(),
-		Erc20ToDenoms: MockErc20ToDenoms(),
+		Params:    params,
+		SubStates: DefaultSubStates(params),
+		// Erc20ToDenoms: MockErc20ToDenoms(),
 	}
 }

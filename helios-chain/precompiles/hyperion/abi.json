@@ -48,6 +48,11 @@
           "internalType": "address",
           "name": "orchestratorAddress",
           "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "hyperionId",
+          "type": "uint64"
         }
       ],
       "name": "setOrchestratorAddresses",
@@ -69,40 +74,35 @@
           "type": "uint64"
         },
         {
-          "internalType": "address",
-          "name": "source",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "abiCall",
-          "type": "bytes"
-        },
-        {
           "internalType": "string",
-          "name": "callbackSelector",
+          "name": "destAddress",
           "type": "string"
         },
         {
+          "internalType": "address",
+          "name": "contractAddress",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
-          "name": "maxCallbackGas",
+          "name": "amount",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "gasLimit",
+          "name": "bridgeFee",
           "type": "uint256"
         }
       ],
-      "name": "requestData",
+      "name": "sendToChain",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "taskId",
-          "type": "uint256"
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],

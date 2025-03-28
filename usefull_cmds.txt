@@ -1,5 +1,5 @@
 #CLAIM NODE REWARDS
-heliades tx distribution withdraw-all-rewards --from genesis --chain-id 4242 --fees
+heliades tx distribution withdraw-all-rewards --from genesis --chain-id 42000 --fees
  20000helios
 
 #BALANCE CHECK
@@ -27,10 +27,10 @@ heliades keys unsafe-export-eth-key NAME_WALLET --keyring-backend test
 
 heliades keys export genesis --unarmored-hex --unsafe
 heliades keys add genesis --recover
-heliades tx staking delegate heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla 1000000000000000000ahelios --from genesis --chain-id 4242 --fees 500000000ahelios
+heliades tx staking delegate heliosvaloper1zun8av07cvqcfr2t29qwmh8ufz29gfat770rla 1000000000000000000ahelios --from genesis --chain-id 42000 --fees 500000000ahelios
 heliades query staking delegations $(heliades keys show genesis -a)
-heliades tx gov vote 1 yes --from genesis --chain-id 4242 --gas-prices 280000000ahelios
-heliades q staking validators --chain-id 4242 --output json
+heliades tx gov vote 1 yes --from genesis --chain-id 42000 --gas-prices 280000000ahelios
+heliades q staking validators --chain-id 42000 --output json
 
 
 GENESIS_VALIDATOR_MNEMONIC="web tail earth lesson domain feel slush bring amused repair lounge salt series stock fog remind ripple peace unknown sauce adjust blossom atom hotel"

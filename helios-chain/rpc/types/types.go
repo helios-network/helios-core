@@ -16,10 +16,13 @@ import (
 
 // TokenBalance représente la balance d'un token spécifique
 type TokenBalance struct {
-	Address   common.Address `json:"address"`
-	Symbol    string         `json:"symbol"`
-	Balance   *hexutil.Big   `json:"balance"`
-	BalanceUI string         `json:"balanceUI"`
+	Address     common.Address `json:"address"`
+	Denom       string         `json:"denom"`
+	Symbol      string         `json:"symbol"`
+	Balance     *hexutil.Big   `json:"balance"`
+	BalanceUI   string         `json:"balanceUI"`
+	Decimals    uint32         `json:"decimals"`
+	Description string         `json:"description"`
 }
 
 type ChainSize struct {

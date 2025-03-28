@@ -1,13 +1,14 @@
 package keeper
 
 import (
+	"helios-core/helios-chain/utils"
+	"helios-core/helios-chain/x/erc20/types"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/utils"
-	"helios-core/helios-chain/x/erc20/types"
 )
 
 // CreateNewTokenPair creates a new token pair and stores it in the state.
@@ -112,7 +113,16 @@ func (k Keeper) GetERC20Map(ctx sdk.Context, erc20 common.Address) []byte {
 
 // GetDenomMap returns the token pair id for the given denomination.
 func (k Keeper) GetDenomMap(ctx sdk.Context, denom string) []byte {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
+	kvStore := ctx.KVStore(k.storeKey)
+
+	if kvStore == nil {
+		k.Logger(ctx).Info("KV store is not initialized")
+	}
+
+	k.Logger(ctx).Info("KV store is initialized", "denom", denom)
+
+	store := prefix.NewStore(kvStore, types.KeyPrefixTokenPairByDenom)
+
 	return store.Get([]byte(denom))
 }
 

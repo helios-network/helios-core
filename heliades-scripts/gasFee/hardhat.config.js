@@ -10,7 +10,7 @@ module.exports = {
   networks: {
     helios: {
       url: "http://localhost:8545",
-      chainId: 4242,
+      chainId: 42000,
       accounts: [process.env.GENESIS_PRIVATE_KEY1],
     },
 	hardhat: {

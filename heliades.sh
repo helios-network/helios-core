@@ -1,5 +1,5 @@
 yes 12345678 | heliades start \
---chain-id 4242 \
+--chain-id 42000 \
 --log_level "info" \
 --rpc.laddr "tcp://0.0.0.0:26657" \
 --minimum-gas-prices "0.1ahelios" \

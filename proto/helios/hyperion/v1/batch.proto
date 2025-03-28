@@ -24,4 +24,5 @@ message OutgoingTransferTx {
   string dest_address = 4;
   ERC20Token erc20_token = 5;
   ERC20Token erc20_fee = 6;
+  uint64 tx_timeout = 7;
 }

@@ -23,7 +23,7 @@ const OutgoingTxBatchSize = 100
 //   - select available transactions from the outgoing transaction pool sorted by fee desc
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
-func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
+func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
 	fmt.Println("BuildOutgoingTXBatch for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -33,14 +33,14 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		return nil, errors.Wrap(types.ErrInvalid, "max elements value")
 	}
 
-	lastBatch := k.GetLastOutgoingBatchByTokenType(ctx, contractAddress)
+	lastBatch := k.GetLastOutgoingBatchByTokenType(ctx, hyperionId, tokenContract)
 
 	// lastBatch may be nil if there are no existing batches, we only need
 	// to perform this check if a previous batch exists
 	if lastBatch != nil {
 		// this traverses the current tx pool for this token type and determines what
 		// fees a hypothetical batch would have if created
-		currentFees := k.GetBatchFeesByTokenType(ctx, contractAddress)
+		currentFees := k.GetBatchFeesByTokenType(ctx, hyperionId, tokenContract)
 		if currentFees == nil {
 			metrics.ReportFuncError(k.svcTags)
 			return nil, errors.Wrap(types.ErrInvalid, "error getting fees from tx pool")
@@ -53,18 +53,18 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, contractAddress common.Ad
 		}
 	}
 
-	selectedTx, err := k.pickUnbatchedTX(ctx, contractAddress, maxElements, hyperionId)
+	selectedTx, err := k.pickUnbatchedTX(ctx, tokenContract, maxElements, hyperionId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, err
 	}
 
-	nextID := k.AutoIncrementID(ctx, types.KeyLastOutgoingBatchID)
+	nextID := k.AutoIncrementID(ctx, types.GetLastOutgoingBatchIDKey(hyperionId))
 	batch := &types.OutgoingTxBatch{
 		BatchNonce:    nextID,
 		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
 		Transactions:  selectedTx,
-		TokenContract: contractAddress.Hex(),
+		TokenContract: tokenContract.Hex(),
 		HyperionId:    hyperionId,
 	}
 	k.StoreBatch(ctx, batch)
@@ -82,20 +82,7 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint6
 	defer doneFn()
 
 	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
-	fmt.Println("counterpartyChainParams: ", counterpartyChainParams)
-	currentCosmosHeight := ctx.BlockHeight()
-	fmt.Println("currentCosmosHeight: ", currentCosmosHeight)
-	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
-	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
-	heights := k.GetLastObservedEthereumBlockHeight(ctx)
-	fmt.Println("heights: ", heights)
-	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
-		return 0
-	}
-	// we project how long it has been in milliseconds since the last Ethereum block height was observed
-	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
-	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
-	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
+	projectedCurrentEthereumHeight := k.GetProjectedCurrentEthereumHeight(ctx, hyperionId)
 	// we convert our target time for block timeouts (lets say 12 hours) into a number of blocks to
 	// place on top of our projection of the current Ethereum block height.
 	blocksToAdd := counterpartyChainParams.TargetBatchTimeout / counterpartyChainParams.AverageCounterpartyBlockTime
@@ -120,13 +107,13 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	// cleanup outgoing TX pool, while these transactions where hidden from GetPoolTransactions
 	// they still exist in the pool and need to be cleaned up.
 	for _, tx := range b.Transactions {
-		k.removePoolEntry(ctx, tx.Id)
+		k.removePoolEntry(ctx, tx.HyperionId, tx.Id)
 	}
 
 	// Iterate through remaining batches
-	k.IterateOutgoingTXBatches(ctx, func(key []byte, iter_batch *types.OutgoingTxBatch) bool {
+	k.IterateOutgoingTXBatches(ctx, hyperionId, func(key []byte, iter_batch *types.OutgoingTxBatch) bool {
 		// If the iterated batches nonce is lower than the one that was just executed, cancel it
-		if iter_batch.BatchNonce < b.BatchNonce && common.HexToAddress(iter_batch.TokenContract) == tokenContract {
+		if iter_batch.HyperionId == hyperionId && iter_batch.BatchNonce < b.BatchNonce && common.HexToAddress(iter_batch.TokenContract) == tokenContract {
 			err := k.CancelOutgoingTXBatch(ctx, tokenContract, iter_batch.BatchNonce, iter_batch.HyperionId)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
@@ -152,7 +139,7 @@ func (k *Keeper) StoreBatch(ctx sdk.Context, batch *types.OutgoingTxBatch) {
 	fmt.Println("StoreBatch - key: ", key)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
-	blockKey := types.GetOutgoingTxBatchBlockKey(batch.Block)
+	blockKey := types.GetOutgoingTxBatchBlockKey(batch.HyperionId, batch.Block)
 	store.Set(blockKey, k.cdc.MustMarshal(batch))
 }
 
@@ -165,7 +152,7 @@ func (k *Keeper) StoreBatchUnsafe(ctx sdk.Context, batch *types.OutgoingTxBatch)
 	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
-	blockKey := types.GetOutgoingTxBatchBlockKey(batch.Block)
+	blockKey := types.GetOutgoingTxBatchBlockKey(batch.HyperionId, batch.Block)
 	store.Set(blockKey, k.cdc.MustMarshal(batch))
 
 	// make sure transactions are indexed with OutgoingTXPoolKey
@@ -183,11 +170,11 @@ func (k *Keeper) DeleteBatch(ctx sdk.Context, batch types.OutgoingTxBatch) {
 
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId))
-	store.Delete(types.GetOutgoingTxBatchBlockKey(batch.Block))
+	store.Delete(types.GetOutgoingTxBatchBlockKey(batch.HyperionId, batch.Block))
 }
 
 // pickUnbatchedTX find TX in pool and remove from "available" second index
-func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
+func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
 	fmt.Println("pickUnbatchedTX for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -195,13 +182,11 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, contractAddress common.Address
 	selectedTx := make([]*types.OutgoingTransferTx, 0)
 	var err error
 
-	k.IterateOutgoingPoolByFee(ctx, contractAddress, func(txID uint64, tx *types.OutgoingTransferTx) bool {
+	k.IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx, hyperionId, tokenContract, func(txID uint64, tx *types.OutgoingTransferTx) bool {
 		fmt.Println("pickUnbatchedTX - tx: ", tx)
 		if tx != nil && tx.Erc20Fee != nil {
-			if tx.HyperionId == hyperionId {
-				selectedTx = append(selectedTx, tx)
-				err = k.removeFromUnbatchedTXIndex(ctx, contractAddress, tx.Erc20Fee, txID)
-			}
+			selectedTx = append(selectedTx, tx)
+			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Erc20Fee, txID)
 			return err != nil || len(selectedTx) == maxElements
 		} else {
 			// we found a nil, exit
@@ -253,7 +238,7 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 
 	for _, tx := range batch.Transactions {
 		tx.Erc20Fee.Contract = tokenContract.Hex()
-		k.prependToUnbatchedTXIndex(ctx, tokenContract, tx.Erc20Fee, tx.Id)
+		k.prependToUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Erc20Fee, tx.Id)
 	}
 
 	// Delete batch since it is finished
@@ -272,7 +257,27 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 }
 
 // IterateOutgoingTXBatches iterates through all outgoing batches in DESC order.
-func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, batch *types.OutgoingTxBatch) bool) {
+func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, hyperionId uint64, cb func(key []byte, batch *types.OutgoingTxBatch) bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.OutgoingTXBatchKey)
+	iter := prefixStore.ReverseIterator(PrefixRange(types.UInt64Bytes(hyperionId)))
+	// iterate over [OutgoingTXBatchKey][hyperionId]
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		var batch types.OutgoingTxBatch
+		k.cdc.MustUnmarshal(iter.Value(), &batch)
+
+		k.Logger(ctx).Info("IterateOutgoingTXBatches", "batch", batch, "hyperionId", hyperionId)
+		// cb returns true to stop early
+		if cb(iter.Key(), &batch) {
+			break
+		}
+	}
+}
+
+func (k *Keeper) IterateAllOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, batch *types.OutgoingTxBatch) bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -282,6 +287,7 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, b
 	for ; iter.Valid(); iter.Next() {
 		var batch types.OutgoingTxBatch
 		k.cdc.MustUnmarshal(iter.Value(), &batch)
+
 		fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
 		// cb returns true to stop early
 		if cb(iter.Key(), &batch) {
@@ -291,11 +297,23 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, cb func(key []byte, b
 }
 
 // GetOutgoingTxBatches returns the outgoing tx batches
-func (k *Keeper) GetOutgoingTxBatches(ctx sdk.Context) (out []*types.OutgoingTxBatch) {
+func (k *Keeper) GetOutgoingTxBatches(ctx sdk.Context, hyperionId uint64) (out []*types.OutgoingTxBatch) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	k.IterateOutgoingTXBatches(ctx, func(_ []byte, batch *types.OutgoingTxBatch) bool {
+	k.IterateOutgoingTXBatches(ctx, hyperionId, func(_ []byte, batch *types.OutgoingTxBatch) bool {
+		out = append(out, batch)
+		return false
+	})
+
+	return
+}
+
+func (k *Keeper) GetAllOutgoingTxBatches(ctx sdk.Context) (out []*types.OutgoingTxBatch) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	k.IterateAllOutgoingTXBatches(ctx, func(_ []byte, batch *types.OutgoingTxBatch) bool {
 		out = append(out, batch)
 		return false
 	})
@@ -304,11 +322,11 @@ func (k *Keeper) GetOutgoingTxBatches(ctx sdk.Context) (out []*types.OutgoingTxB
 }
 
 // GetLastOutgoingBatchByTokenType gets the latest outgoing tx batch by token type
-func (k *Keeper) GetLastOutgoingBatchByTokenType(ctx sdk.Context, token common.Address) *types.OutgoingTxBatch {
+func (k *Keeper) GetLastOutgoingBatchByTokenType(ctx sdk.Context, hyperionId uint64, token common.Address) *types.OutgoingTxBatch {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	batches := k.GetOutgoingTxBatches(ctx)
+	batches := k.GetOutgoingTxBatches(ctx, hyperionId)
 	var lastBatch *types.OutgoingTxBatch = nil
 	lastNonce := uint64(0)
 
@@ -323,21 +341,21 @@ func (k *Keeper) GetLastOutgoingBatchByTokenType(ctx sdk.Context, token common.A
 }
 
 // SetLastSlashedBatchBlock sets the latest slashed Batch block height
-func (k *Keeper) SetLastSlashedBatchBlock(ctx sdk.Context, blockHeight uint64) {
+func (k *Keeper) SetLastSlashedBatchBlock(ctx sdk.Context, hyperionId uint64, blockHeight uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastSlashedBatchBlock, types.UInt64Bytes(blockHeight))
+	store.Set(types.GetLastSlashedBatchBlockKey(hyperionId), types.UInt64Bytes(blockHeight))
 }
 
 // GetLastSlashedBatchBlock returns the latest slashed Batch block
-func (k *Keeper) GetLastSlashedBatchBlock(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastSlashedBatchBlock(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	storedBytes := store.Get(types.LastSlashedBatchBlock)
+	storedBytes := store.Get(types.GetLastSlashedBatchBlockKey(hyperionId))
 
 	if len(storedBytes) == 0 {
 		return 0
@@ -347,11 +365,11 @@ func (k *Keeper) GetLastSlashedBatchBlock(ctx sdk.Context) uint64 {
 }
 
 // GetUnslashedBatches returns all the unslashed batches in state
-func (k *Keeper) GetUnslashedBatches(ctx sdk.Context, maxHeight uint64) (out []*types.OutgoingTxBatch) {
+func (k *Keeper) GetUnslashedBatches(ctx sdk.Context, hyperionId uint64, maxHeight uint64) (out []*types.OutgoingTxBatch) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	lastSlashedBatchBlock := k.GetLastSlashedBatchBlock(ctx)
+	lastSlashedBatchBlock := k.GetLastSlashedBatchBlock(ctx, hyperionId)
 	k.IterateBatchBySlashedBatchBlock(ctx, lastSlashedBatchBlock, maxHeight, func(_ []byte, batch *types.OutgoingTxBatch) bool {
 		if batch.Block > lastSlashedBatchBlock {
 			out = append(out, batch)

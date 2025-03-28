@@ -10,6 +10,8 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	hyperionkeeper "helios-core/helios-chain/x/hyperion/keeper"
 
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -29,6 +31,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	hyperionKeeper hyperionkeeper.Keeper
+	erc20Keeper    erc20keeper.Keeper
 	bankKeeper     bankkeeper.Keeper
 	chronosKeeper  chronoskeeper.Keeper
 }
@@ -42,6 +45,7 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	hyperionKeeper hyperionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	chronosKeeper chronoskeeper.Keeper,
 ) (*Precompile, error) {
@@ -59,6 +63,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		hyperionKeeper: hyperionKeeper,
+		erc20Keeper:    erc20Keeper,
 		bankKeeper:     bankKeeper,
 		chronosKeeper:  chronosKeeper,
 	}
