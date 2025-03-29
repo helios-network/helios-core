@@ -704,8 +704,26 @@ async function main() {
 
   // await getRewards();
 
-  await sendToChain("5");
-  await sendToChain("10");
+  let w1 = wallet2
+  let w2 = wallet
+
+  let nonce = await w1.getNonce();
+
+  console.log(w1.address, w2.address)
+  for (let i = 0; i < 10000; i++) {
+    let t = await w1.sendTransaction({
+      to: w2.address,
+      value: ethers.parseEther("0.0000001"),
+      gasLimit: 25000,
+      gasPrice: ethers.parseUnits('10', "gwei"),
+      nonce: nonce++
+    })
+    console.log(t.hash);
+    // await t.wait()
+  }
+
+  // await sendToChain("5");
+  // await sendToChain("10");
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   

@@ -142,7 +142,7 @@ type ValidatorRPC struct {
 	ValidatorAddress        string                   `json:"validatorAddress"`
 	Shares                  string                   `json:"shares"`
 	Moniker                 string                   `json:"moniker"`
-	Commission              stakingtypes.Commission  `json:"commision"`
+	Commission              stakingtypes.Commission  `json:"commission"`
 	Description             stakingtypes.Description `json:"description"`
 	Status                  stakingtypes.BondStatus  `json:"status"`
 	UnbondingHeight         int64                    `json:"unbondingHeight"`

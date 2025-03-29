@@ -208,8 +208,8 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		}
 
 		// calculate APR inline using the pre calculated common factors
-		commisionRate := validator.Commission.CommissionRates.Rate.MustFloat64()
-		apr := calculateAPR(inflation, communityTax, commisionRate, bondedRatio)
+		commissionRate := validator.Commission.CommissionRates.Rate.MustFloat64()
+		apr := calculateAPR(inflation, communityTax, commissionRate, bondedRatio)
 
 		validatorCosmosAddress := sdk.AccAddress(valAddr.Bytes())
 		validatorEVMAddress := common.BytesToAddress(validatorCosmosAddress.Bytes()).String()

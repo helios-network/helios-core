@@ -306,10 +306,11 @@ replace (
 
 	github.com/CosmWasm/wasmd => github.com/Helios-Chain-Labs/wasmd v0.50.10-helios-6
 	github.com/bandprotocol/bandchain-packet => github.com/Helios-Chain-Labs/bandchain-packet v0.50.10-helios-1
-	github.com/cometbft/cometbft => github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-11
+	github.com/cometbft/cometbft => github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-13
+	// github.com/cometbft/cometbft => ../cometbft
 
-	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-68
-	//github.com/cosmos/cosmos-sdk => ../cosmos-sdk
+	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-71
+	// github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/Helios-Chain-Labs/ibc-apps/modules/ibc-hooks/v8 v8.50.10-helios-1
 	github.com/cosmos/ibc-go/v8 => github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-37
 	// github.com/cosmos/ibc-go/v8 => ../ibc-go
