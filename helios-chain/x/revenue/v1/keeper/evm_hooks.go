@@ -79,9 +79,8 @@ func (k Keeper) PostTxProcessing(
 	// calculate fees to be paid
 	txFee := math.NewIntFromUint64(receipt.GasUsed).Mul(math.NewIntFromBigInt(msg.GasPrice()))
 	developerFee := (params.DeveloperShares).MulInt(txFee).TruncateInt()
-	//! FIXME
-	// evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
-	fees := sdk.Coins{{Denom: "ahelios", Amount: developerFee}}
+	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
+	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
 	// get available precompiles from evm params and check if contract is in the list
 	if containsPrecompile {
