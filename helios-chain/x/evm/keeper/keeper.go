@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
+	"os"
 
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/wrappers"
@@ -347,8 +349,15 @@ func (k *Keeper) CleanHooks() *Keeper {
 
 // PostTxProcessing delegate the call to the hooks. If no hook has been registered, this function returns with a `nil` error
 func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	logFile, _ := os.OpenFile("/tmp/helios-debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer logFile.Close()
+
+	fmt.Fprintf(logFile, "======> EVM Keeper: PostTxProcessing called with msg.To: %v\n", msg.To())
+	fmt.Fprintf(logFile, "======> EVM Keeper: Hooks type: %T\n", k.hooks)
 	if k.hooks == nil {
+		fmt.Fprintf(logFile, "======> EVM Keeper: No hooks registered\n")
 		return nil
 	}
+	fmt.Fprintf(logFile, "======> EVM Keeper: Calling hooks.PostTxProcessing with gas used: %d\n", receipt.GasUsed)
 	return k.hooks.PostTxProcessing(ctx, msg, receipt)
 }

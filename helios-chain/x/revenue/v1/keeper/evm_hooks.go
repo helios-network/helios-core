@@ -4,6 +4,9 @@
 package keeper
 
 import (
+	"fmt"
+	"os"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -43,10 +46,15 @@ func (k Keeper) PostTxProcessing(
 	msg core.Message,
 	receipt *ethtypes.Receipt,
 ) error {
+	logFile, _ := os.OpenFile("/tmp/helios-debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer logFile.Close()
+
+	fmt.Fprintf(logFile, "======> Revenue Hook: Starting PostTxProcessing\n")
 	contract := msg.To()
 	// when baseFee and minGasPrice in freemarker module are both 0
 	// the user may send a transaction with gasPrice of 0 to the precompiled contract
 	if contract == nil || msg.GasPrice().Sign() <= 0 {
+		fmt.Fprintf(logFile, "======> Revenue Hook: Skipping - nil contract or zero gas price\n")
 		return nil
 	}
 
@@ -54,6 +62,7 @@ func (k Keeper) PostTxProcessing(
 	// developer shares are set to zero
 	params := k.GetParams(ctx)
 	if !params.EnableRevenue || params.DeveloperShares.IsZero() {
+		fmt.Fprintf(logFile, "======> Revenue Hook: Skipping - revenue disabled or zero developer shares\n")
 		return nil
 	}
 
@@ -66,7 +75,9 @@ func (k Keeper) PostTxProcessing(
 	if !containsPrecompile {
 		// if the contract is not registered to receive fees, do nothing
 		revenue, found := k.GetRevenue(ctx, *contract)
+		fmt.Fprintf(logFile, "======> Revenue Hook: Found revenue for contract %s: %v\n", contract.String(), revenue)
 		if !found {
+			fmt.Fprintf(logFile, "======> Revenue Hook: Skipping - contract not registered\n")
 			return nil
 		}
 
@@ -74,6 +85,7 @@ func (k Keeper) PostTxProcessing(
 		if len(withdrawer) == 0 {
 			withdrawer = revenue.GetDeployerAddr()
 		}
+		fmt.Fprintf(logFile, "======> Revenue Hook: Withdrawer address: %s\n", withdrawer.String())
 	}
 
 	// calculate fees to be paid
@@ -82,6 +94,7 @@ func (k Keeper) PostTxProcessing(
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
+	//! FIXME: remove distribution from precompiles
 	// get available precompiles from evm params and check if contract is in the list
 	if containsPrecompile {
 		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {

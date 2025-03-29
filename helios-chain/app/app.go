@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 
 	// "io/fs"
@@ -1118,13 +1119,17 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	)
 	app.RevenueKeeper = revenueKeeper
 
+	logFile, _ := os.OpenFile("/tmp/helios-debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer logFile.Close()
+
 	// Register the revenue keeper's hooks with the EVM keeper
-	app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(
-			// ... existing hooks ...
-			app.RevenueKeeper.Hooks(),
-		),
+	fmt.Fprintf(logFile, "======> App: Creating MultiEvmHooks with RevenueKeeper.Hooks()\n")
+	multiEvmHooks := evmkeeper.NewMultiEvmHooks(
+		app.RevenueKeeper.Hooks(),
 	)
+	fmt.Fprintf(logFile, "======> App: Setting hooks on EvmKeeper: %T\n", multiEvmHooks)
+	app.EvmKeeper.SetHooks(multiEvmHooks)
+	fmt.Fprintf(logFile, "======> App: EVM hooks registration complete!\n")
 }
 
 func (app *HeliosApp) setPostHandler() {
