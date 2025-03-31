@@ -52,6 +52,7 @@ var (
 			AccessControlList: DefaultCreateAllowlistAddresses,
 		},
 	}
+	DefaultEVMDenom = "ahelios"
 )
 
 // NewParams creates a new Params instance
@@ -61,6 +62,7 @@ func NewParams(
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
+	evmDenom string,
 ) Params {
 	return Params{
 		AllowUnprotectedTxs:     allowUnprotectedTxs,
@@ -68,6 +70,7 @@ func NewParams(
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
+		EvmDenom:                evmDenom,
 	}
 }
 
@@ -79,6 +82,7 @@ func DefaultParams() Params {
 		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
+		EvmDenom:                DefaultEVMDenom,
 	}
 }
 
