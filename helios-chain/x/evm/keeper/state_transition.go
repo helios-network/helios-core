@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -146,7 +147,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 // For relevant discussion see: https://github.com/cosmos/cosmos-sdk/discussions/9072
 func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*types.MsgEthereumTxResponse, error) {
 	var bloom *big.Int
-
+	var bloomReceipt ethtypes.Bloom
 	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress))
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to load evm config")
@@ -180,10 +181,54 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 	if len(logs) > 0 {
 		bloom = k.GetBlockBloomTransient(ctx)
 		bloom.Or(bloom, big.NewInt(0).SetBytes(ethtypes.LogsBloom(logs)))
+		bloomReceipt = ethtypes.BytesToBloom(bloom.Bytes())
+	}
+
+	cumulativeGasUsed := res.GasUsed
+	if ctx.BlockGasMeter() != nil {
+		limit := ctx.BlockGasMeter().Limit()
+		cumulativeGasUsed += ctx.BlockGasMeter().GasConsumed()
+		if cumulativeGasUsed > limit {
+			cumulativeGasUsed = limit
+		}
+	}
+
+	var contractAddr common.Address
+	if msg.To() == nil {
+		contractAddr = crypto.CreateAddress(msg.From(), msg.Nonce())
+	}
+
+	receipt := &ethtypes.Receipt{
+		Type:              tx.Type(),
+		PostState:         nil, // TODO: intermediate state root
+		CumulativeGasUsed: cumulativeGasUsed,
+		Bloom:             bloomReceipt,
+		Logs:              logs,
+		TxHash:            txConfig.TxHash,
+		ContractAddress:   contractAddr,
+		GasUsed:           res.GasUsed,
+		BlockHash:         txConfig.BlockHash,
+		BlockNumber:       big.NewInt(ctx.BlockHeight()),
+		TransactionIndex:  txConfig.TxIndex,
 	}
 
 	if !res.Failed() {
-		commit()
+		receipt.Status = ethtypes.ReceiptStatusSuccessful
+		// Only call hooks if tx executed successfully.
+		if err = k.PostTxProcessing(tmpCtx, msg, receipt); err != nil {
+			// If hooks return error, revert the whole tx.
+			res.VmError = types.ErrPostTxProcessing.Error()
+			k.Logger(ctx).Error("tx post processing failed", "error", err)
+
+			// If the tx failed in post processing hooks, we should clear the logs
+			res.Logs = nil
+		} else if commit != nil {
+			// PostTxProcessing is successful, commit the tmpCtx
+			commit()
+			// Since the post-processing can alter the log, we need to update the result
+			res.Logs = types.NewLogsFromEth(receipt.Logs)
+			ctx.EventManager().EmitEvents(tmpCtx.EventManager().Events())
+		}
 	}
 
 	evmDenom := types.GetEVMCoinDenom()
