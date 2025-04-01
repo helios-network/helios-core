@@ -229,6 +229,24 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 	return validatorsResult, nil
 }
 
+func (b *Backend) GetActiveValidatorCount() (int, error) {
+	queryMsg := &stakingtypes.QueryValidatorsRequest{}
+	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get validators: %w", err)
+	}
+
+	validatorCount := 0
+
+	for _, validator := range validatorsResp.Validators {
+		if validator.Status == 3 {
+			validatorCount ++
+		}
+	}
+
+	return validatorCount, nil
+}
+
 // Helper function to calculate APR
 func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) string {
 	apr := (1 - communityTax) * (1 - commissionRate) * inflation / bondedRatio
