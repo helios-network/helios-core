@@ -145,7 +145,7 @@ type EVMBackend interface {
 	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
-	GetValidatorCount() (*hexutil.Uint64, error)
+	GetValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 
 	//cron

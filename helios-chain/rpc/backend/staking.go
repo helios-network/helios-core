@@ -229,19 +229,22 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 	return validatorsResult, nil
 }
 
-func (b *Backend) GetValidatorCount() (*hexutil.Uint64, error) {
-	n := hexutil.Uint64(0)
+func (b *Backend) GetValidatorCount() (int, error) {
 	queryMsg := &stakingtypes.QueryValidatorsRequest{}
 	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
 	if err != nil {
-		return &n, fmt.Errorf("failed to get validators: %w", err)
+		return 0, fmt.Errorf("failed to get validators: %w", err)
 	}
 
-	validatorsCount := len(validatorsResp.Validators)
+	validatorCount := 0
 
-	n = hexutil.Uint64(validatorsCount)
+	for _, validator := range validatorsResp.Validators {
+		if validator.Status == 3 {
+			validatorCount ++
+		}
+	}
 
-	return &n, nil
+	return validatorCount, nil
 }
 
 // Helper function to calculate APR
