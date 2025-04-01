@@ -229,7 +229,7 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 	return validatorsResult, nil
 }
 
-func (b *Backend) GetValidatorCount() (int, error) {
+func (b *Backend) GetActiveValidatorCount() (int, error) {
 	queryMsg := &stakingtypes.QueryValidatorsRequest{}
 	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
 	if err != nil {

@@ -140,7 +140,7 @@ type EthereumAPI interface {
 	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
-	GetValidatorCount() (int, error)
+	GetActiveValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	// eth_getDelegations
 
@@ -658,9 +658,9 @@ func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil
 	return e.backend.GetValidatorsByPageAndSize(page, size)
 }
 
-func (e *PublicAPI) GetValidatorCount() (int, error) {
-	e.logger.Debug("eth_GetValidatorCount")
-	return e.backend.GetValidatorCount()
+func (e *PublicAPI) GetActiveValidatorCount() (int, error) {
+	e.logger.Debug("eth_GetActiveValidatorCount")
+	return e.backend.GetActiveValidatorCount()
 }
 
 func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
