@@ -335,8 +335,12 @@ func GetERC20ToCosmosDenomKey(hyperionId uint64, tokenContract common.Address) [
 // GetPastEthSignatureCheckpointKey returns the following key format
 // prefix    checkpoint
 // [0x0][ checkpoint bytes ]
-func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
-	return append(PastEthSignatureCheckpointKey, checkpoint[:]...)
+func GetPastEthSignatureCheckpointKey(hyperionId uint64, checkpoint common.Hash) []byte {
+	buf := make([]byte, 0, len(PastEthSignatureCheckpointKey)+8+len(checkpoint))
+	buf = append(buf, PastEthSignatureCheckpointKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, checkpoint[:]...)
+	return buf
 }
 
 func GetLastOutgoingBatchIDKey(hyperionId uint64) []byte {

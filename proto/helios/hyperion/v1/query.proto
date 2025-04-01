@@ -224,6 +224,7 @@ message QueryERC20ToDenomResponse {
 message QueryDenomToERC20Request { 
   uint64 hyperion_id = 1;
   string denom = 2; 
+  
 }
 message QueryDenomToERC20Response {
   string erc20 = 1;
@@ -267,7 +268,9 @@ message QueryPendingSendToChainResponse {
   repeated OutgoingTransferTx unbatched_transfers = 2;
 }
 
-message QueryAllPendingSendToChainRequest {}
+message QueryAllPendingSendToChainRequest {
+  uint64 hyperion_id = 1;
+}
 message QueryAllPendingSendToChainResponse {
   repeated OutgoingTransferTx transfers_in_batches = 1;
   repeated OutgoingTransferTx unbatched_transfers = 2;

@@ -108,7 +108,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64) *types.Val
 	k.StoreValset(ctx, valset)
 	// Store the checkpoint as a legit past valset
 	checkpoint := valset.GetCheckpoint(hyperionId)
-	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
+	k.SetPastEthSignatureCheckpoint(ctx, hyperionId, checkpoint)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetUpdateRequest{

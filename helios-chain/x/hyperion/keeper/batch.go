@@ -71,7 +71,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addr
 
 	// Get the checkpoint and store it as a legit past batch
 	checkpoint := batch.GetCheckpoint(hyperionId)
-	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
+	k.SetPastEthSignatureCheckpoint(ctx, hyperionId, checkpoint)
 
 	return batch, nil
 }
