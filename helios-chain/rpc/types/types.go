@@ -25,6 +25,18 @@ type TokenBalance struct {
 	Description string         `json:"description"`
 }
 
+type TokenDetails struct {
+	Address       common.Address `json:"address"`
+	Denom         string         `json:"denom"`
+	Symbol        string         `json:"symbol"`
+	TotalSupply   *hexutil.Big   `json:"totalSupply"`
+	TotalSupplyUI string         `json:"totalSupplyUI"`
+	Decimals      uint32         `json:"decimals"`
+	Description   string         `json:"description"`
+	Logo          string         `json:"logo"`
+	Holders       uint64         `json:"holders"`
+}
+
 type ChainSize struct {
 	Bytes     int64 `json:"bytes"`
 	MegaBytes int64 `json:"megaBytes"`

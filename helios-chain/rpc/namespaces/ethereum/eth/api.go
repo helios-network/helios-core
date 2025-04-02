@@ -99,6 +99,7 @@ type EthereumAPI interface {
 
 	// Tokens Information
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error)
 
 	// Getting Uncles
 	//
@@ -449,6 +450,11 @@ func (e *PublicAPI) ChainSize() (*rpctypes.ChainSize, error) {
 func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
 	e.logger.Debug("eth_getTokensByPageAndSize", "page", page, "size", size)
 	return e.backend.GetTokensByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error) {
+	e.logger.Debug("eth_getTokenDetails", "tokenAddress", tokenAddress.String())
+	return e.backend.GetTokenDetails(tokenAddress)
 }
 
 ///////////////////////////////////////////////////////////////////////////////

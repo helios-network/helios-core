@@ -106,6 +106,7 @@ type EVMBackend interface {
 
 	// Tokens Info
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error)
 
 	// Tx Info
 	GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransaction, error)

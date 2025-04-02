@@ -2,6 +2,7 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
+// const RPC_URL = 'https://testnet1.helioschainlabs.org';
 const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
@@ -22,8 +23,10 @@ const abi = [
     "inputs": [
       { "internalType": "string", "name": "name", "type": "string" },
       { "internalType": "string", "name": "symbol", "type": "string" },
+      { "internalType": "string", "name": "denom", "type": "string" },
       { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
-      { "internalType": "uint8", "name": "decimals", "type": "uint8" }
+      { "internalType": "uint8", "name": "decimals", "type": "uint8" },
+      { "internalType": "string", "name": "logoBase64", "type": "string" }
     ],
     "name": "createErc20",
     "outputs": [
@@ -181,8 +184,10 @@ const withdrawDelegatorRewardsAbi = [
 
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
-const tokenName = 'BNBFDP1';
-const tokenSymbol = 'BNBFDP1';
+
+const tokenName = 'BNB';
+const tokenSymbol = 'BNB';
+const tokenDenom = 'uBNB'; // denomination of one unit of the token
 const tokenTotalSupply = ethers.parseUnits('100', 18);
 const tokenDecimals = 18;
 
@@ -190,7 +195,7 @@ async function create(){
   try {
     console.log('Création du token ERC20...');
     
-    const tx = await contract.createErc20(tokenName, tokenSymbol, tokenTotalSupply, tokenDecimals);
+    const tx = await contract.createErc20(tokenName, tokenSymbol, tokenDenom, tokenTotalSupply, tokenDecimals, "");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -692,7 +697,7 @@ async function main() {
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  // await create();
+  await create();
   //await fetch();
   //await delegate();
   //await addNewConsensusProposal();
@@ -703,24 +708,6 @@ async function main() {
   // await getEventsCronCreated();
 
   // await getRewards();
-
-  let w1 = wallet2
-  let w2 = wallet
-
-  let nonce = await w1.getNonce();
-
-  console.log(w1.address, w2.address)
-  for (let i = 0; i < 10000; i++) {
-    let t = await w1.sendTransaction({
-      to: w2.address,
-      value: ethers.parseEther("0.0000001"),
-      gasLimit: 25000,
-      gasPrice: ethers.parseUnits('10', "gwei"),
-      nonce: nonce++
-    })
-    console.log(t.hash);
-    // await t.wait()
-  }
 
   // await sendToChain("5");
   // await sendToChain("10");

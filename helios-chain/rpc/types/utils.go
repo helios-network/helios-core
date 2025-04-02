@@ -2,12 +2,23 @@ package types
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"math/big"
 	"strings"
 
+	"bytes"
+	"encoding/base64"
+	"image"
+	"image/color"
+	"image/png"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmttypes "github.com/cometbft/cometbft/types"
+	"golang.org/x/image/draw"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
@@ -352,4 +363,54 @@ func TxStateDBCommitError(res *abci.ExecTxResult) bool {
 // or if it failed with an ExceedBlockGasLimit error or TxStateDBCommitError error
 func TxSucessOrExpectedFailure(res *abci.ExecTxResult) bool {
 	return res.Code == 0 || TxExceedBlockGasLimit(res) || TxStateDBCommitError(res)
+}
+
+func GenerateTokenLogoBase64(symbol string) (string, error) {
+	const finalSize = 200
+	const charHeight = 13
+	const margin = 4
+
+	// Setup dummy drawer to measure string
+	face := basicfont.Face7x13
+	dummyImg := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	d := &font.Drawer{
+		Dst:  dummyImg,
+		Src:  image.NewUniform(color.Black),
+		Face: face,
+	}
+	textWidth := d.MeasureString(symbol).Round()
+	textHeight := charHeight
+
+	width := textWidth + 2*margin
+	height := textHeight + 2*margin
+
+	imgSize := width
+	if height > width {
+		imgSize = height
+	}
+
+	// Create image
+	baseImg := image.NewRGBA(image.Rect(0, 0, imgSize, imgSize))
+	draw.Draw(baseImg, baseImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+
+	// Draw actual text
+	d = &font.Drawer{
+		Dst:  baseImg,
+		Src:  image.NewUniform(color.Black),
+		Face: face,
+	}
+	x := (imgSize - textWidth) / 2
+	y := (imgSize + charHeight) / 2
+	d.Dot = fixed.P(x, y)
+	d.DrawString(symbol)
+
+	// Scale to 200x200
+	finalImg := image.NewRGBA(image.Rect(0, 0, finalSize, finalSize))
+	draw.NearestNeighbor.Scale(finalImg, finalImg.Bounds(), baseImg, baseImg.Bounds(), draw.Src, nil)
+
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, finalImg); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
