@@ -1,7 +1,6 @@
 package hyperion
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -32,8 +31,8 @@ func NewBlockHandler(k keeper.Keeper) *BlockHandler {
 
 // EndBlocker is called at the end of every block
 func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	params := h.k.GetParams(ctx)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
@@ -50,8 +49,8 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 }
 
 func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	// Auto ValsetRequest Creation.
 	// WARNING: do not use k.GetLastObservedValset in this function, it *will* result in losing control of the bridge
@@ -65,12 +64,10 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 	latestValset := h.k.GetLatestValset(ctx, params.HyperionId)
 	lastUnbondingHeight := h.k.GetLastUnbondingBlockHeight(ctx)
 
-	h.k.Logger(ctx).Info("createValsets")
-
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) ||
 		(types.BridgeValidators(h.k.GetCurrentValset(ctx, params.HyperionId).Members).PowerDiff(latestValset.Members) > 0.05) {
 		// if the conditions are true, put in a new validator set request to be signed and submitted to Ethereum
-		h.k.Logger(ctx).Info("SetValsetRequest", "hyperionId", params.HyperionId)
+		h.k.Logger(ctx).Info("HYPERION - ABCI.go - createValsets -> SetValsetRequest", "hyperionId", params.HyperionId)
 		h.k.SetValsetRequest(ctx, params.HyperionId)
 	}
 }
@@ -81,15 +78,15 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 // but (A) pruning keeps the iteration small in the first place and (B) there is
 // already enough nuance in the other handler that it's best not to complicate it further
 func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
 		hyperionId := counterParty.HyperionId
 
 		attmap := h.k.GetAttestationMapping(ctx, hyperionId)
 
-		h.k.Logger(ctx).Info("pruneAttestations", "attmap", len(attmap))
+		h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "attmap", len(attmap))
 
 		// We make a slice with all the event nonces that are in the attestation mapping
 		keys := make([]uint64, 0, len(attmap))
@@ -111,7 +108,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 				// we delete all attestations earlier than the current event nonce
 				// if nonce < lastObservedEventNonce {
 				if att.Observed {
-					h.k.Logger(ctx).Info("pruneAttestations", "pruning", att.HyperionId)
+					h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "pruning", att.HyperionId)
 					h.k.DeleteAttestation(ctx, att.HyperionId, att)
 				}
 				// }
@@ -122,8 +119,8 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 }
 
 func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	// Slash validator for not confirming valset requests, batch requests and not attesting claims rightfully
 	h.valsetSlashing(ctx, params)
@@ -139,15 +136,15 @@ func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChain
 // "Observe" those who have passed the threshold. Break the loop once we see
 // an attestation that has not passed the threshold
 func (h *BlockHandler) attestationTally(ctx sdk.Context) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
 		hyperionId := counterParty.HyperionId
 		attmap := h.k.GetAttestationMapping(ctx, hyperionId)
 		// We make a slice with all the event nonces that are in the attestation mapping
 		keys := make([]uint64, 0, len(attmap))
-		fmt.Println("attmap", len(attmap))
+		h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "attmap", len(attmap))
 		for k := range attmap {
 			keys = append(keys, k)
 		}
@@ -158,7 +155,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 		// a slice with one or more attestations at that event nonce. There can be multiple attestations
 		// at one event nonce when validators disagree about what event happened at that nonce.
 		for _, nonce := range keys {
-			fmt.Println("nonce", nonce)
+			h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "nonce", nonce)
 			// This iterates over all attestations at a particular event nonce.
 			// They are ordered by when the first attestation at the event nonce was received.
 			// This order is not important.
@@ -179,7 +176,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context) {
 				// we skip the other attestations and move on to the next nonce again.
 				// If no attestation becomes observed, when we get to the next nonce, every attestation in
 				// it will be skipped. The same will happen for every nonce after that.
-				fmt.Println("h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId))
+				h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId))
 				// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
 				h.k.TryAttestation(ctx, attestation)
 				// }
@@ -258,8 +255,8 @@ func (h *BlockHandler) cleanupTimedOutOutgoingTx(ctx sdk.Context) {
 }
 
 func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	maxHeight := uint64(0)
 
@@ -393,8 +390,8 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 }
 
 func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
 
 	// #2 condition
 	// We look through the full bonded set (not just the active set, include unbonding validators)
@@ -464,8 +461,10 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 }
 
 func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
-	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
-	// defer doneFn()
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
+
+	h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneValsets ->")
 
 	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
 		hyperionId := counterParty.HyperionId
