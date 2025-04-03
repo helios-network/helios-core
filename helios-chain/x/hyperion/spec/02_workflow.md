@@ -93,7 +93,7 @@ This completes the bootstrap of the Hyperion bridge and the chain can be started
 
 ### **Updating Helios Chain validator set on Ethereum**
 
-![img.png](./images/ValsetUpdate.png)
+![img.png](./images/UpdateValset.png)
 
 A validator set is a series of Ethereum addresses with attached normalized powers used to represent the Helios validator set (Valset) in the Hyperion contract on Ethereum. The Hyperion contract stays in sync with the Helios Chain validator set through the following mechanism: 
 
