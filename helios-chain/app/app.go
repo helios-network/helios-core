@@ -188,6 +188,10 @@ import (
 	ethante "helios-core/helios-chain/app/ante/evm"
 
 	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
+
+	revenue "helios-core/helios-chain/x/revenue/v1"
+	revenuekeeper "helios-core/helios-chain/x/revenue/v1/keeper"
+	revenuetypes "helios-core/helios-chain/x/revenue/v1/types"
 )
 
 func init() {
@@ -246,6 +250,7 @@ var (
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		chronos.AppModuleBasic{},
+		revenue.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -345,6 +350,7 @@ type HeliosApp struct {
 	ChronosKeeper chronoskeeper.Keeper
 
 	RateLimitKeeper ratelimitkeeper.Keeper
+	RevenueKeeper   revenuekeeper.Keeper
 }
 
 // NewHeliosApp returns a reference to a new initialized Helios application.
@@ -481,6 +487,7 @@ func initHeliosApp(
 			erc20types.StoreKey,
 			ratelimittypes.StoreKey,
 			chronostypes.StoreKey,
+			revenuetypes.StoreKey,
 		)
 
 		tKeys = storetypes.NewTransientStoreKeys(
@@ -1101,6 +1108,20 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
+
+	revenueKeeper := revenuekeeper.NewKeeper(
+		app.keys[revenuetypes.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.DistrKeeper, app.AccountKeeper, app.EvmKeeper,
+		authtypes.FeeCollectorName,
+	)
+	app.RevenueKeeper = revenueKeeper
+
+	// Register the revenue keeper's hooks with the EVM keeper
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.RevenueKeeper.Hooks(),
+		),
+	)
 }
 
 func (app *HeliosApp) setPostHandler() {
@@ -1162,6 +1183,9 @@ func (app *HeliosApp) initManagers() {
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
 		chronos.NewAppModule(app.codec, app.ChronosKeeper),
+
+		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
+			app.GetSubspace(revenuetypes.ModuleName)),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -1238,6 +1262,8 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(chronostypes.ModuleName)
 
+	paramsKeeper.Subspace(revenuetypes.ModuleName)
+
 	return paramsKeeper
 }
 
@@ -1284,6 +1310,7 @@ func initGenesisOrder() []string {
 		ratelimittypes.ModuleName,
 		chronostypes.ModuleName,
 
+		revenuetypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	}
@@ -1325,6 +1352,7 @@ func beginBlockerOrder() []string {
 		packetforwardtypes.ModuleName,
 		erc20types.ModuleName,
 		tokenfactorytypes.ModuleName,
+		revenuetypes.ModuleName,
 	}
 }
 
@@ -1358,6 +1386,7 @@ func endBlockerOrder() []string {
 		tokenfactorytypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		banktypes.ModuleName,
+		revenuetypes.ModuleName,
 	}
 }
 

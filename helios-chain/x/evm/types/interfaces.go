@@ -16,6 +16,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	feemarkettypes "helios-core/helios-chain/x/feemarket/types"
+
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // AccountKeeper defines the expected account keeper interface
@@ -76,4 +79,13 @@ type BankWrapper interface {
 
 	MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error
 	BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error
+}
+
+// EvmHooks event hooks for evm tx processing
+type EvmHooks interface {
+	// Must be called after tx is processed successfully, if return an error, the whole transaction is reverted.
+	PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error
+
+	// Must be called after contract creation, if return an error, the whole transaction is reverted.
+	PostContractCreation(ctx sdk.Context, contractAddress common.Address, deployerAddress sdk.AccAddress) error
 }
