@@ -7,6 +7,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"golang.org/x/exp/slices"
@@ -32,6 +33,10 @@ func (k Keeper) Hooks() Hooks {
 // the module keeper
 func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	return h.k.PostTxProcessing(ctx, msg, receipt)
+}
+
+func (h Hooks) PostContractCreation(ctx sdk.Context, contractAddress common.Address, deployerAddress sdk.AccAddress) error {
+	return h.k.PostContractCreation(ctx, contractAddress, deployerAddress)
 }
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
@@ -110,6 +115,35 @@ func (k Keeper) PostTxProcessing(
 			),
 		},
 	)
+
+	return nil
+}
+
+// PostContractCreation is a hook that is called after a contract is created in the EVM.
+// It automatically registers the contract for revenue distribution if revenue is enabled.
+// The contract is registered with the deployer address as both the deployer and withdrawer.
+// This allows for automatic fee distribution to the contract deployer without requiring
+// a separate registration transaction.
+func (k Keeper) PostContractCreation(
+	ctx sdk.Context,
+	contractAddress common.Address,
+	deployerAddress sdk.AccAddress,
+) error {
+
+	// check if the fees are globally enabled or if the
+	// developer shares are set to zero
+	params := k.GetParams(ctx)
+	if !params.EnableRevenue || params.DeveloperShares.IsZero() {
+		return nil
+	}
+	if k.IsRevenueRegistered(ctx, contractAddress) {
+		return nil
+	}
+
+	// prevent storing the same address for deployer and withdrawer
+	revenue := types.NewRevenue(contractAddress, deployerAddress, deployerAddress)
+	k.SetRevenue(ctx, revenue)
+	k.SetDeployerMap(ctx, deployerAddress, contractAddress)
 
 	return nil
 }
