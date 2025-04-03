@@ -1,4 +1,8 @@
-# Testing the fee distribution 'revenue' module
+# Testing the Helios Revenue and Auto-Registration Features
+
+This directory contains scripts and instructions for testing two key features:
+1. Fee Distribution (Revenue Module)
+2. Automatic Contract Registration
 
 ## Prerequisites
 
@@ -12,10 +16,12 @@ npm install
 make full-install
 ```
 
-## 1. Deploying the counter contract
+# Test 1: Manual Revenue Registration and Distribution
+
+## 1. Deploying the counter contract for revenue testing
 
 ```bash
-node deploy-counter-contract.js
+node deploy-contract-revenue.js
 ```
 
 - Expected output:
@@ -202,3 +208,39 @@ Expected Revenue (10% of fees): 0.007575 HELIOS
 Actual Revenue: 0.007575 HELIOS
 Percentage of Fees Received: 10 %
 ```
+
+# Test 2: Automatic Contract Registration
+
+## 1. Deploying a contract to test auto-registration
+
+```bash
+node deploy-contract-auto.js
+```
+
+## 2. Verify automatic registration
+
+```sh
+heliades query revenue contract <CONTRACT_ADDRESS>
+```
+
+- Expected output:
+```sh
+revenue:
+  contract_address: <CONTRACT_ADDRESS>
+  deployer_address: <DEPLOYER_ADDRESS>
+  withdrawer_address: ""
+```
+
+## 3. Run the auto-registration test script
+
+```bash
+node test-auto-registration.js
+```
+
+This script will:
+1. Deploy a new contract
+2. Verify it was automatically registered
+3. Execute transactions to generate fees
+4. Verify revenue distribution is working
+
+For detailed events and transaction monitoring, check the logs in the terminal.
