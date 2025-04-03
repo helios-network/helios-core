@@ -8,6 +8,7 @@ import (
 
 	"github.com/cometbft/cometbft/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	"helios-core/helios-chain/x/chronos/types"
@@ -49,6 +50,13 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 
 	// check Balance of OwnerAddress
 	account := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
+
+	contractAccount := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.ContractAddress))
+	contractCode := k.keeper.evmKeeper.GetCode(ctx, common.BytesToHash(contractAccount.CodeHash))
+	if len(contractCode) == 0 {
+		return nil, errors.Wrap(errortypes.ErrInvalidRequest, "The specified address is not a smart contract")
+	}
+
 	balance := sdkmath.NewIntFromBigInt(account.Balance)
 
 	if balance.IsNegative() || balance.BigInt().Cmp(amount) < 0 {
