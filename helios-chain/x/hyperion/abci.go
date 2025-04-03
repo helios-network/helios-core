@@ -65,9 +65,12 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 	latestValset := h.k.GetLatestValset(ctx, params.HyperionId)
 	lastUnbondingHeight := h.k.GetLastUnbondingBlockHeight(ctx)
 
+	h.k.Logger(ctx).Info("createValsets")
+
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) ||
 		(types.BridgeValidators(h.k.GetCurrentValset(ctx, params.HyperionId).Members).PowerDiff(latestValset.Members) > 0.05) {
 		// if the conditions are true, put in a new validator set request to be signed and submitted to Ethereum
+		h.k.Logger(ctx).Info("SetValsetRequest", "hyperionId", params.HyperionId)
 		h.k.SetValsetRequest(ctx, params.HyperionId)
 	}
 }

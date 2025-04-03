@@ -697,7 +697,7 @@ async function main() {
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  await create();
+  // await create();
   //await fetch();
   //await delegate();
   //await addNewConsensusProposal();
@@ -711,7 +711,7 @@ async function main() {
 
   // await sendToChain("5");
   // await sendToChain("10");
-  // await setOrchestratorAddresses();
+  await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   
 }

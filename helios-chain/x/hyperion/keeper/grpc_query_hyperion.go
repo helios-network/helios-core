@@ -242,3 +242,16 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 	metrics.ReportFuncError(k.svcTags)
 	return nil, errors.Wrap(types.ErrInvalid, "No validator")
 }
+
+func (k *Keeper) QueryGetLastObservedEthereumBlockHeight(c context.Context, req *types.QueryGetLastObservedEthereumBlockHeightRequest) (*types.QueryGetLastObservedEthereumBlockHeightResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	lastObservedHeight := k.GetLastObservedEthereumBlockHeight(ctx, req.HyperionId)
+
+	return &types.QueryGetLastObservedEthereumBlockHeightResponse{
+		LastObservedHeight: &lastObservedHeight,
+	}, nil
+}

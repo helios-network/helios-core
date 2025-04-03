@@ -188,8 +188,7 @@ func GetValsetConfirmKey(hyperionId uint64, nonce uint64, validator sdk.AccAddre
 
 // for iterate on ValsetConfirmKeys
 func GetValsetConfirmPrefixKey(hyperionId uint64, nonce uint64) []byte {
-	buf := make([]byte, 0, len(ValsetConfirmKey)+8+8)
-	buf = append(buf, ValsetConfirmKey...)
+	buf := make([]byte, 0, 8+8)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(nonce)...)
 

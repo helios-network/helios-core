@@ -31,11 +31,11 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	// but checking it here gives individual eth signers a chance to retry,
 	// and prevents validators from submitting two claims with the same nonce
 	lastEvent := k.GetLastEventByValidatorAndHyperionId(ctx, claim.GetHyperionId(), valAddr)
+	blockHeight := k.GetLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId()).EthereumBlockHeight
 
 	if lastEvent.EthereumEventNonce == 0 && lastEvent.EthereumEventHeight == 0 {
 		// if hyperion happens to query too early without a bonded validator even existing setup the base event
 		lowestObservedNonce := k.GetLastObservedEventNonce(ctx, claim.GetHyperionId())
-		blockHeight := k.GetLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId()).EthereumBlockHeight
 
 		k.setLastEventByValidatorAndHyperionId(
 			ctx,
@@ -47,7 +47,17 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 		lastEvent = k.GetLastEventByValidatorAndHyperionId(ctx, claim.GetHyperionId(), valAddr)
 	}
 
-	if claim.GetEventNonce() != lastEvent.EthereumEventNonce+1 {
+	if claim.GetBlockHeight() < blockHeight {
+		// test
+		// 3 april 2025
+		// maybe exclude claim.GetBlockHeight() < GetLastObservedEthereumBlockHeight for increase security
+		// not sure if we have some number of tx detected can stuck some hyperions
+		metrics.ReportFuncError(k.svcTags)
+		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d , ethHeight=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce(), blockHeight))
+		return nil, errors.Wrap(types.ErrNonContiguousEthEventBlockHeight, fmt.Sprintf("ErrNonContiguousEthEventBlockHeight %d < %d for Validator=%s", claim.GetBlockHeight(), blockHeight, valAddr.String()))
+	}
+
+	if claim.GetEventNonce() < lastEvent.EthereumEventNonce+1 { // accept superior and same
 		metrics.ReportFuncError(k.svcTags)
 		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
 		return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))

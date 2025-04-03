@@ -404,7 +404,8 @@ func (k *Keeper) IterateValsetConfirmByNonce(ctx sdk.Context, hyperionId uint64,
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValsetConfirmKey)
-	iter := prefixStore.Iterator(PrefixRange(types.GetValsetConfirmPrefixKey(hyperionId, nonce)))
+	start, end := PrefixRange(types.GetValsetConfirmPrefixKey(hyperionId, nonce))
+	iter := prefixStore.Iterator(start, end)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
