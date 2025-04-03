@@ -363,6 +363,13 @@ func (k *Keeper) ApplyMessageWithConfig(
 		stateDB.SetNonce(sender.Address(), msg.Nonce())
 		ret, _, leftoverGas, vmErr = evm.Create(sender, msg.Data(), leftoverGas, msg.Value())
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
+		// hook to register contract for revenue distribution
+		if vmErr == nil {
+			contractAddress := crypto.CreateAddress(sender.Address(), msg.Nonce())
+			if err := k.hooks.PostContractCreation(ctx, contractAddress, sdk.AccAddress(sender.Address().Bytes())); err != nil {
+				return nil, errorsmod.Wrap(err, "failed to register contract for revenue distribution")
+			}
+		}
 	} else {
 		ret, leftoverGas, vmErr = evm.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value())
 	}

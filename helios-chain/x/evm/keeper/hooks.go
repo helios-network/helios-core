@@ -7,6 +7,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -26,6 +27,15 @@ func (mh MultiEvmHooks) PostTxProcessing(ctx sdk.Context, msg core.Message, rece
 
 	for i := range mh {
 		if err := mh[i].PostTxProcessing(ctx, msg, receipt); err != nil {
+			return errorsmod.Wrapf(err, "EVM hook %T failed", mh[i])
+		}
+	}
+	return nil
+}
+
+func (mh MultiEvmHooks) PostContractCreation(ctx sdk.Context, contractAddress common.Address, deployerAddress sdk.AccAddress) error {
+	for i := range mh {
+		if err := mh[i].PostContractCreation(ctx, contractAddress, deployerAddress); err != nil {
 			return errorsmod.Wrapf(err, "EVM hook %T failed", mh[i])
 		}
 	}
