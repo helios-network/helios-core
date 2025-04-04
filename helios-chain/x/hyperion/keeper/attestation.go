@@ -206,13 +206,13 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			// If the power of all the validators that have voted on the attestation is higher or equal to the threshold,
 			// process the attestation, set Observed to true, and break
 			if true || attestationPower.GTE(requiredPower) {
-				// lastEventNonce := k.GetLastObservedEventNonce(ctx)
+				lastEventNonce := k.GetLastObservedEventNonce(ctx, claim.GetHyperionId())
 				// this check is performed at the next level up so this should never panic
 				// outside of programmer error.
-				// if claim.GetEventNonce() != lastEventNonce+1 {
-				// 	metrics.ReportFuncError(k.svcTags)
-				// 	panic("attempting to apply events to state out of order")
-				// }
+				if claim.GetEventNonce() != lastEventNonce+1 {
+					metrics.ReportFuncError(k.svcTags)
+					panic("attempting to apply events to state out of order")
+				}
 				k.setLastObservedEventNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
 				k.SetNewLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
 

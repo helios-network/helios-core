@@ -96,7 +96,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 		// Then we sort it
 		sort.SliceStable(keys, func(i, j int) bool { return keys[i] < keys[j] })
 
-		// lastObservedEventNonce := h.k.GetLastObservedEventNonce(ctx)
+		lastObservedEventNonce := h.k.GetLastObservedEventNonce(ctx, hyperionId)
 		// This iterates over all keys (event nonces) in the attestation mapping. Each value contains
 		// a slice with one or more attestations at that event nonce. There can be multiple attestations
 		// at one event nonce when validators disagree about what event happened at that nonce.
@@ -106,12 +106,12 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 			// This order is not important.
 			for _, att := range attmap[nonce] {
 				// we delete all attestations earlier than the current event nonce
-				// if nonce < lastObservedEventNonce {
-				if att.Observed {
-					h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "pruning", att.HyperionId)
-					h.k.DeleteAttestation(ctx, att.HyperionId, att)
+				if nonce < lastObservedEventNonce {
+					if att.Observed {
+						h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "pruning", att.HyperionId)
+						h.k.DeleteAttestation(ctx, att.HyperionId, att)
+					}
 				}
-				// }
 			}
 		}
 
