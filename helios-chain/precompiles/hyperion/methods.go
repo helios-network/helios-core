@@ -7,7 +7,6 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 
 	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
-	"helios-core/helios-chain/x/chronos/types"
 	"helios-core/helios-chain/x/evm/core/vm"
 	hyperionkeeper "helios-core/helios-chain/x/hyperion/keeper"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
@@ -322,7 +321,7 @@ func (p Precompile) RequestData(
 
 	// Convert price to bytes (as uint256)
 	priceBytes := common.BigToHash(ethPrice).Bytes()
-	p.chronosKeeper.StoreCronCallBackData(ctx, response.CronId, &types.CronCallBackData{
+	p.chronosKeeper.StoreCronCallBackData(ctx, response.CronId, &chronostypes.CronCallBackData{
 		Data:  priceBytes,
 		Error: []byte{}, //[]byte(fmt.Sprintf("JSON parse error: %v", err)),
 	})

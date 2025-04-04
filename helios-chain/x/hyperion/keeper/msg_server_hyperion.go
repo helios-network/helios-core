@@ -5,7 +5,10 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	"cosmossdk.io/errors"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -116,6 +119,22 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 		return nil, err
 	}
 
+	txHash := ""
+	decodedTx, err := k.Keeper.txDecoder(ctx.TxBytes())
+	if err == nil {
+		for _, msg := range decodedTx.GetMsgs() {
+			ethMessage, ok := msg.(*evmtypes.MsgEthereumTx)
+			if !ok {
+				// Just considers Ethereum transactions
+				continue
+			}
+			txHash = ethMessage.AsTransaction().Hash().Hex()
+		}
+	}
+	if txHash == "" { // it's a pure cosmos tx
+		txHash = fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	}
+
 	dest := common.HexToAddress(msg.Dest)
 	if k.Keeper.InvalidSendToChainAddress(ctx, dest) {
 		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination address is invalid or blacklisted")
@@ -128,7 +147,7 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	}
 	hyperionId := hyperionParams.HyperionId
 
-	txID, err := k.Keeper.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, hyperionId)
+	txID, err := k.Keeper.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, hyperionId, txHash)
 	if err != nil {
 		return nil, err
 	}

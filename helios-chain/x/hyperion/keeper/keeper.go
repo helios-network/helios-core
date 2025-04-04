@@ -4,9 +4,11 @@ import (
 	gomath "math"
 	"sort"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
@@ -46,6 +48,8 @@ type Keeper struct {
 	// address authorized to execute MsgUpdateParams. Default: gov module
 	authority     string
 	accountKeeper keeper.AccountKeeper
+
+	txDecoder sdk.TxDecoder
 }
 
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
@@ -65,6 +69,11 @@ func NewKeeper(
 	erc20Keeper erc20keeper.Keeper,
 ) Keeper {
 
+	txConfig, err := authtx.NewTxConfigWithOptions(cdc, authtx.ConfigOptions{})
+	if err != nil {
+		panic("failed to update app tx config: " + err.Error())
+	}
+
 	k := Keeper{
 		cdc:            cdc,
 		storeKey:       storeKey,
@@ -81,6 +90,7 @@ func NewKeeper(
 		},
 		accountKeeper: accountKeeper,
 		erc20Keeper:   erc20Keeper,
+		txDecoder:     txConfig.TxDecoder(),
 	}
 
 	k.AttestationHandler = NewAttestationHandler(bankKeeper, k)
@@ -1077,4 +1087,55 @@ func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId u
 	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
 
 	return projectedCurrentEthereumHeight
+}
+
+func (k *Keeper) SearchAttestationsByEthereumAddress(ctx sdk.Context, hyperionId uint64, ethereumAddress string) ([]*types.Attestation, error) {
+	attestations := k.GetAttestationMapping(ctx, hyperionId) // Assuming hyperionId is known or passed as a parameter
+	var matchingAttestations []*types.Attestation
+
+	for _, attestationList := range attestations {
+		for _, attestation := range attestationList {
+			claim, err := k.UnpackAttestationClaim(attestation)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to unpack attestation claim")
+			}
+
+			// Check if the claim contains the specified Ethereum address
+			switch claim := claim.(type) {
+			case *types.MsgDepositClaim:
+				if claim.EthereumSender == ethereumAddress {
+					matchingAttestations = append(matchingAttestations, attestation)
+				}
+			}
+		}
+	}
+
+	return matchingAttestations, nil
+}
+
+func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.HyperionId, tx.Id), k.cdc.MustMarshal(tx))
+	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.HyperionId, tx.Id), k.cdc.MustMarshal(tx))
+}
+
+func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*types.TransferTx, error) {
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	iter := finalizedTxStore.Iterator(PrefixRange(types.GetFinalizedTxAddressPrefixKey(addr)))
+	defer iter.Close()
+
+	txs := make([]*types.TransferTx, 0)
+
+	for ; iter.Valid(); iter.Next() {
+		var tx types.TransferTx
+		k.cdc.MustUnmarshal(iter.Value(), &tx)
+		txs = append(txs, &tx)
+	}
+
+	return txs, nil
 }

@@ -113,6 +113,8 @@ var (
 	PastEthSignatureCheckpointKey = []byte{0x1b}
 
 	EthereumBlacklistKey = []byte{0x1c}
+
+	FinalizedTxKey = []byte{0x1d}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
@@ -348,4 +350,25 @@ func GetLastOutgoingBatchIDKey(hyperionId uint64) []byte {
 
 func GetLastTXPoolIDKey(hyperionId uint64) []byte {
 	return append(KeyLastTXPoolID, UInt64Bytes(hyperionId)...)
+}
+
+func GetFinalizedTxKey(ethereumAddress common.Address, hyperionId uint64, txId uint64) []byte {
+	buf := make([]byte, 0, ETHContractAddressLen+8+8)
+	buf = append(buf, ethereumAddress.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(txId)...)
+	return buf
+}
+
+func GetFinalizedTxAddressAndHyperionIdPrefixKey(ethereumAddress common.Address, hyperionId uint64) []byte {
+	buf := make([]byte, 0, ETHContractAddressLen+8)
+	buf = append(buf, ethereumAddress.Bytes()...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	return buf
+}
+
+func GetFinalizedTxAddressPrefixKey(ethereumAddress common.Address) []byte {
+	buf := make([]byte, 0, ETHContractAddressLen)
+	buf = append(buf, ethereumAddress.Bytes()...)
+	return buf
 }

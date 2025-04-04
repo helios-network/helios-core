@@ -161,7 +161,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		// withdraw in this context means a withdraw from the Ethereum side of the bridge
 	case *types.MsgWithdrawClaim:
 		tokenContract := common.HexToAddress(claim.TokenContract)
-		a.keeper.OutgoingTxBatchExecuted(ctx, tokenContract, claim.BatchNonce, claim.HyperionId)
+		a.keeper.OutgoingTxBatchExecuted(ctx, tokenContract, claim.BatchNonce, claim.HyperionId, claim)
 		return nil
 	case *types.MsgERC20DeployedClaim:
 		// Check if it already exists

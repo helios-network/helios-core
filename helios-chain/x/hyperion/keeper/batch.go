@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/x/hyperion/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
@@ -93,7 +94,7 @@ func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint6
 // OutgoingTxBatchExecuted is run when the Cosmos chain detects that a batch has been executed on Ethereum
 // It frees all the transactions in the batch, then cancels all earlier batches, this function panics instead
 // of returning errors because any failure will cause a double spend.
-func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64) {
+func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64, claim *types.MsgWithdrawClaim) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -125,6 +126,26 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 
 	// Delete batch since it is finished
 	k.DeleteBatch(ctx, *b)
+
+	for _, tx := range b.Transactions {
+		k.StoreFinalizedTx(ctx, &types.TransferTx{
+			HyperionId:  tx.HyperionId,
+			Id:          tx.Id,
+			Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
+			DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
+			Erc20Token:  tx.Erc20Token,
+			Erc20Fee:    tx.Erc20Fee,
+			Status:      "BRIDGED",
+			Direction:   "OUT",
+			ChainId:     k.GetBridgeChainID(ctx)[tx.HyperionId],
+			Height:      claim.BlockHeight,
+			TxHash:      tx.TxHash,
+			Proof: &types.Proof{
+				Orchestrators: cmn.AnyToHexAddress(claim.Orchestrator).String(),
+				Hashs:         claim.TxHash,
+			},
+		})
+	}
 }
 
 // StoreBatch stores a transaction batch

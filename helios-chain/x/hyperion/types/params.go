@@ -54,108 +54,10 @@ func MockErc20ToDenoms() []*ERC20ToDenom {
 	return []*ERC20ToDenom{}
 }
 
-// DefaultEthereumChainParams returns a copy of the default counterparty chain params for Ethereum
-func DefaultEthereumChainParams() *CounterpartyChainParams {
-	return &CounterpartyChainParams{
-		HyperionId:                    0,
-		BridgeCounterpartyAddress:     common.HexToAddress("0x648d15cba34705B0e863502d23B31416Aed2Dc22").Hex(),
-		BridgeChainId:                 1,
-		SignedValsetsWindow:           25000,
-		SignedBatchesWindow:           25000,
-		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000,
-		AverageBlockTime:              2000,
-		AverageCounterpartyBlockTime:  15000,
-		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		CosmosCoinDenom:               "helios",
-		CosmosCoinErc20Contract:       "",
-		UnbondSlashingValsetsWindow:   25000,
-		ClaimSlashingEnabled:          false,
-		ValsetReward:                  sdktypes.Coin{Denom: "helios", Amount: math.NewInt(0)},
-	}
-}
-
-// DefaultEthereumChainParams returns a copy of the default counterparty chain params for Polygon Amoy
-func DefaultPolygonAmoyTestnetChainParams() *CounterpartyChainParams {
-	return &CounterpartyChainParams{
-		HyperionId:                    1,
-		BridgeCounterpartyAddress:     common.HexToAddress("0x56678AE170Db83887F14d166B269095817e52928").Hex(),
-		BridgeChainId:                 80002,
-		SignedValsetsWindow:           25000,
-		SignedBatchesWindow:           25000,
-		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000,
-		AverageBlockTime:              2000,
-		AverageCounterpartyBlockTime:  15000,
-		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		CosmosCoinDenom:               "ahelios",
-		CosmosCoinErc20Contract:       "",
-		UnbondSlashingValsetsWindow:   25000,
-		ClaimSlashingEnabled:          false,
-		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
-	}
-}
-
-func DefaultPolygonAmoyTestnet02ChainParams() *CounterpartyChainParams {
-	return &CounterpartyChainParams{
-		HyperionId:                    2,
-		BridgeCounterpartyAddress:     common.HexToAddress("0x316E330807488e168c526A694C03a494Ba714910").Hex(),
-		BridgeChainId:                 80002,
-		SignedValsetsWindow:           25000,
-		SignedBatchesWindow:           25000,
-		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000,
-		AverageBlockTime:              2000,
-		AverageCounterpartyBlockTime:  15000,
-		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		CosmosCoinDenom:               "ahelios",
-		CosmosCoinErc20Contract:       "",
-		UnbondSlashingValsetsWindow:   25000,
-		ClaimSlashingEnabled:          false,
-		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
-	}
-}
-
-func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
-	return &CounterpartyChainParams{
-		HyperionId:                    3,
-		BridgeCounterpartyAddress:     common.HexToAddress("0x14D54db992A639A8A3fB8BC51760e705C1aE7466").Hex(),
-		BridgeChainId:                 80002,
-		SignedValsetsWindow:           25000,
-		SignedBatchesWindow:           25000,
-		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000,
-		AverageBlockTime:              2000,
-		AverageCounterpartyBlockTime:  15000,
-		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
-		CosmosCoinDenom:               "ahelios",
-		CosmosCoinErc20Contract:       "",
-		UnbondSlashingValsetsWindow:   25000,
-		ClaimSlashingEnabled:          false,
-		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
-	}
-}
-
 func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    21,
-		BridgeCounterpartyAddress:     common.HexToAddress("0xb0A773bd9f57D9eBD25d627eC3F36074A21863b2").Hex(),
+		BridgeCounterpartyAddress:     common.HexToAddress("0xba6CC5548f6203686172a60C9bE6972b135a22f9").Hex(),
 		BridgeChainId:                 80002,
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
@@ -173,7 +75,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		CosmosCoinErc20Contract:       "0xd4949664cd82660aae99bedc034a0dea8a0bd517",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		BridgeContractStartHeight:     20019171,
+		BridgeContractStartHeight:     20038836,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 	}
 }

@@ -2,8 +2,12 @@ package hyperion
 
 import (
 	"sort"
+	"strings"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
+
+	cmn "helios-core/helios-chain/precompiles/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -110,6 +114,47 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 					if att.Observed {
 						h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "pruning", att.HyperionId)
 						h.k.DeleteAttestation(ctx, att.HyperionId, att)
+
+						claim, err := h.k.UnpackAttestationClaim(att)
+						if err != nil {
+							h.k.Logger(ctx).Error("HYPERION - ABCI.go - pruneAttestations -> ", "error", err)
+							continue
+						}
+						// store finalized attestation if it's MsgDepositClaim
+						if claim, ok := claim.(*types.MsgDepositClaim); ok {
+
+							validators := []string{}
+							proofs := []string{}
+							for _, validator := range att.Votes {
+								validatorSplitted := strings.Split(validator, ":")
+								validators = append(validators, cmn.AnyToHexAddress(validatorSplitted[0]).String())
+								proofs = append(proofs, validatorSplitted[1])
+							}
+
+							h.k.StoreFinalizedTx(ctx, &types.TransferTx{
+								HyperionId:  claim.HyperionId,
+								Id:          claim.EventNonce,
+								Height:      claim.BlockHeight,
+								Sender:      cmn.AnyToHexAddress(claim.EthereumSender).String(),
+								DestAddress: cmn.AnyToHexAddress(claim.CosmosReceiver).String(),
+								Erc20Token: &types.ERC20Token{
+									Amount:   claim.Amount,
+									Contract: claim.TokenContract,
+								},
+								Erc20Fee: &types.ERC20Token{
+									Amount:   math.NewInt(0),
+									Contract: claim.TokenContract,
+								},
+								Status:    "BRIDGED",
+								Direction: "IN",
+								ChainId:   counterParty.BridgeChainId,
+								TxHash:    claim.TxHash,
+								Proof: &types.Proof{
+									Orchestrators: strings.Join(validators, ","),
+									Hashs:         strings.Join(proofs, ","),
+								},
+							})
+						}
 					}
 				}
 			}

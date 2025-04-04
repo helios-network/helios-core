@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"google.golang.org/grpc/codes"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/x/hyperion/types"
 )
 
@@ -252,5 +254,117 @@ func (k Keeper) Attestation(c context.Context, req *types.QueryAttestationReques
 
 	return &types.QueryAttestationResponse{
 		Attestation: att,
+	}, nil
+}
+
+func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types.QueryGetTransactionsByPageAndSizeRequest) (*types.QueryGetTransactionsByPageAndSizeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	batches := k.GetAllOutgoingTxBatches(ctx)
+	unbatchedTx := k.GetAllPoolTransactions(ctx)
+
+	outTransfersInBatches := make([]*types.OutgoingTransferTx, 0)
+	outUnbatchedTransfers := make([]*types.OutgoingTransferTx, 0)
+
+	for _, batch := range batches {
+		outTransfersInBatches = append(outTransfersInBatches, batch.Transactions...)
+	}
+	outUnbatchedTransfers = append(outUnbatchedTransfers, unbatchedTx...)
+
+	txs := make([]*types.TransferTx, 0)
+
+	// todo find tx's of the req.Address in outTransfersInBatches and outUnbatchedTransfers set attribute out
+	// todo find tx's of the req.Address provided by lasts claims and set attribute in
+
+	allOuts := append(outTransfersInBatches, outUnbatchedTransfers...)
+
+	for _, tx := range allOuts {
+		if tx.Sender == req.Address {
+			txs = append(txs, &types.TransferTx{
+				HyperionId:  tx.HyperionId,
+				Id:          tx.Id,
+				Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
+				DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
+				Erc20Token:  tx.Erc20Token,
+				Erc20Fee:    tx.Erc20Fee,
+				Status:      "PROGRESS",
+				Direction:   "OUT",
+				ChainId:     k.GetBridgeChainID(ctx)[tx.HyperionId],
+				Height:      uint64(ctx.BlockHeight()),
+				Proof:       &types.Proof{},
+				TxHash:      tx.TxHash,
+			})
+		}
+	}
+
+	params := k.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		attestations, err := k.SearchAttestationsByEthereumAddress(ctx, counterpartyChainParam.HyperionId, req.Address)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to search attestations by Ethereum address")
+		}
+		for _, attestation := range attestations {
+			claim, err := k.UnpackAttestationClaim(attestation)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to unpack attestation claim")
+			}
+
+			switch claim := claim.(type) {
+			case *types.MsgDepositClaim:
+				status := "PROGRESS"
+				proof := &types.Proof{}
+				if attestation.Observed {
+					status = "BRIDGED"
+
+					validators := []string{}
+					proofs := []string{}
+					for _, validator := range attestation.Votes {
+						validatorSplitted := strings.Split(validator, ":")
+						validators = append(validators, cmn.AnyToHexAddress(validatorSplitted[0]).String())
+						proofs = append(proofs, validatorSplitted[1])
+					}
+					proof = &types.Proof{
+						Orchestrators: strings.Join(validators, ","),
+						Hashs:         strings.Join(proofs, ","),
+					}
+				}
+
+				txs = append(txs, &types.TransferTx{
+					HyperionId:  claim.HyperionId,
+					Id:          claim.EventNonce,
+					Height:      claim.BlockHeight,
+					Sender:      cmn.AnyToHexAddress(claim.EthereumSender).String(),
+					DestAddress: cmn.AnyToHexAddress(claim.CosmosReceiver).String(),
+					Erc20Token: &types.ERC20Token{
+						Amount:   claim.Amount,
+						Contract: claim.TokenContract,
+					},
+					Erc20Fee: &types.ERC20Token{
+						Amount:   math.NewInt(0),
+						Contract: claim.TokenContract,
+					},
+					Status:    status,
+					Direction: "IN",
+					ChainId:   counterpartyChainParam.BridgeChainId,
+					Proof:     proof,
+					TxHash:    claim.TxHash,
+				})
+			}
+		}
+	}
+
+	finalizedTxs, err := k.FindFinalizedTxs(ctx, common.HexToAddress(req.Address))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find finalized txs")
+	}
+
+	txs = append(txs, finalizedTxs...)
+
+	return &types.QueryGetTransactionsByPageAndSizeResponse{
+		Txs: txs,
 	}, nil
 }

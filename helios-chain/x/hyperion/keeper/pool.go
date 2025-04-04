@@ -21,7 +21,7 @@ import (
 // - burns the voucher for transfer amount and fees
 // - persists an OutgoingTx
 // - adds the TX to the `available` TX pool via a second index
-func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, counterpartReceiver common.Address, amount, fee sdk.Coin, hyperionId uint64) (uint64, error) {
+func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, counterpartReceiver common.Address, amount, fee sdk.Coin, hyperionId uint64, txHash string) (uint64, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -71,6 +71,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		Erc20Token:  types.NewSDKIntERC20Token(amount.Amount, tokenContract),
 		Erc20Fee:    erc20Fee,
 		TxTimeout:   k.GetOutgoingTxTimeoutHeight(ctx, hyperionId),
+		TxHash:      txHash,
 	}
 
 	// set the outgoing tx in the pool index
@@ -324,7 +325,7 @@ func (k *Keeper) GetPoolTransactions(ctx sdk.Context, hyperionId uint64) []*type
 			}
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
-				panic("Invalid id in tx index!")
+				continue
 			}
 			ret = append(ret, tx)
 		}
@@ -358,7 +359,7 @@ func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransf
 			tx, err := k.getPoolEntry(ctx, hyperionIdOfTheTx, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
-				panic("Invalid id in tx index!")
+				continue
 			}
 			ret = append(ret, tx)
 		}
@@ -385,7 +386,7 @@ func (k *Keeper) IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx sdk.Conte
 			tx, err := k.getPoolEntry(ctx, hyperionId, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
-				panic("Invalid id in tx index!")
+				continue
 			}
 			if cb(id, tx) {
 				return

@@ -212,6 +212,7 @@ message MsgDepositClaim {
   string cosmos_receiver = 7;
   string orchestrator = 8;
   string data = 9;
+  string tx_hash = 10;
 }
 
 message MsgDepositClaimResponse {}
@@ -228,6 +229,7 @@ message MsgWithdrawClaim {
   uint64 batch_nonce = 4;
   string token_contract = 5;
   string orchestrator = 6;
+  string tx_hash = 7;
 }
 
 message MsgWithdrawClaimResponse {}

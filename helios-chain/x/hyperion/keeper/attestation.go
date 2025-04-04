@@ -2,12 +2,14 @@ package keeper
 
 import (
 	"fmt"
+	"strings"
 
 	// "cosmossdk.io/errors"
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	"github.com/Helios-Chain-Labs/metrics"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -79,7 +81,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	}
 
 	// Add the validator's vote to this attestation
-	att.Votes = append(att.Votes, valAddr.String())
+	att.Votes = append(att.Votes, valAddr.String()+":"+fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes())))
 
 	k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)
 
@@ -190,7 +192,10 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 		}
 		requiredPower := getRequiredPower(totalPower)
 		attestationPower := math.ZeroInt()
-		for _, validator := range att.Votes {
+		for _, validatorAndTxProof := range att.Votes {
+			validatorAndTxProofSplitted := strings.Split(validatorAndTxProof, ":")
+			validator := validatorAndTxProofSplitted[0]
+
 			val, err := sdk.ValAddressFromBech32(validator)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
