@@ -127,6 +127,11 @@ service Query {
       returns (QueryGetLastObservedEthereumBlockHeightResponse) {
     option (google.api.http).get = "/hyperion/v1/query_hyperion_last_observed_ethereum_block_height";
   }
+
+  rpc QueryGetLastObservedEventNonce(QueryGetLastObservedEventNonceRequest)
+      returns (QueryGetLastObservedEventNonceResponse) {
+    option (google.api.http).get = "/hyperion/v1/query_hyperion_last_observed_event_nonce";
+  }
 }
 
 message QueryParamsRequest {}
@@ -309,4 +314,12 @@ message QueryGetLastObservedEthereumBlockHeightRequest {
 
 message QueryGetLastObservedEthereumBlockHeightResponse {
   LastObservedEthereumBlockHeight last_observed_height = 1;
+}
+
+message QueryGetLastObservedEventNonceRequest {
+  uint64 hyperion_id = 1;
+}
+
+message QueryGetLastObservedEventNonceResponse {
+  uint64 last_observed_event_nonce = 1;
 }

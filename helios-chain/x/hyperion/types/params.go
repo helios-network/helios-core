@@ -155,7 +155,7 @@ func DefaultPolygonAmoyTestnet03ChainParams() *CounterpartyChainParams {
 func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    21,
-		BridgeCounterpartyAddress:     common.HexToAddress("0xBbB51024be8DD1fC2207F2B7B5506B1fd36FC4Cf").Hex(),
+		BridgeCounterpartyAddress:     common.HexToAddress("0xb0A773bd9f57D9eBD25d627eC3F36074A21863b2").Hex(),
 		BridgeChainId:                 80002,
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
@@ -173,7 +173,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		CosmosCoinErc20Contract:       "0xd4949664cd82660aae99bedc034a0dea8a0bd517",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		BridgeContractStartHeight:     19978949,
+		BridgeContractStartHeight:     20019171,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 	}
 }

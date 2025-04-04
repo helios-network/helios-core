@@ -255,3 +255,16 @@ func (k *Keeper) QueryGetLastObservedEthereumBlockHeight(c context.Context, req 
 		LastObservedHeight: &lastObservedHeight,
 	}, nil
 }
+
+func (k *Keeper) QueryGetLastObservedEventNonce(c context.Context, req *types.QueryGetLastObservedEventNonceRequest) (*types.QueryGetLastObservedEventNonceResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	lastObservedEventNonce := k.GetLastObservedEventNonce(ctx, req.HyperionId)
+
+	return &types.QueryGetLastObservedEventNonceResponse{
+		LastObservedEventNonce: lastObservedEventNonce,
+	}, nil
+}
