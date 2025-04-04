@@ -198,3 +198,34 @@ func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error 
 
 	return nil
 }
+
+// TotalSupply queries the total supply for a given ERC20 contract
+func (k Keeper) TotalSupply(
+	ctx sdk.Context,
+	contract common.Address,
+) (*big.Int, error) {
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	res, err := k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "totalSupply")
+	if err != nil {
+		return nil, err
+	}
+
+	unpacked, err := erc20.Unpack("totalSupply", res.Ret)
+	if err != nil {
+		return nil, errorsmod.Wrapf(
+			types.ErrABIUnpack, "failed to unpack totalSupply: %s", err.Error(),
+		)
+	}
+
+	if len(unpacked) == 0 {
+		return nil, errorsmod.Wrap(types.ErrABIUnpack, "empty response")
+	}
+
+	totalSupply, ok := unpacked[0].(*big.Int)
+	if !ok {
+		return nil, errorsmod.Wrap(types.ErrABIUnpack, "invalid response type")
+	}
+
+	return totalSupply, nil
+}
