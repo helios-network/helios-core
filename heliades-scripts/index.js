@@ -516,7 +516,7 @@ async function sendToChain(amount) {
     const tx = await contract.sendToChain( // I'm validator and
       80002, // chainId
       "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
-      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address (ex: USDT)
+      "0xd4949664cd82660aae99bedc034a0dea8a0bd517", // token address (ex: USDT)
       ethers.parseEther(amount), // amount to transfer (ex: 10 USDT)
       ethers.parseEther("1"), // fee you want to pay (ex: 1 USDT)
       {
@@ -713,8 +713,8 @@ async function main() {
   // await getRewards();
 
   // await sendToChain("5");
-  // await sendToChain("5");
-  await setOrchestratorAddresses();
+  await sendToChain("5");
+  // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   
 }

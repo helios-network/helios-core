@@ -262,7 +262,6 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-
 	batches := k.GetAllOutgoingTxBatches(ctx)
 	unbatchedTx := k.GetAllPoolTransactions(ctx)
 
@@ -282,7 +281,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	allOuts := append(outTransfersInBatches, outUnbatchedTransfers...)
 
 	for _, tx := range allOuts {
-		if tx.Sender == req.Address {
+		if cmn.AnyToHexAddress(tx.Sender).String() == req.Address {
 			txs = append(txs, &types.TransferTx{
 				HyperionId:  tx.HyperionId,
 				Id:          tx.Id,

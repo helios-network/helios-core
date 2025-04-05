@@ -338,10 +338,10 @@ func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransf
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	prefixStore := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
 	// we must use the second index key here because transactions are left in the store, but removed
 	// from the tx sorting key, while in batches
-	iter := prefixStore.ReverseIterator(PrefixRange(types.SecondIndexOutgoingTXFeeKey))
+	iter := prefixStore.ReverseIterator(nil, nil)
 
 	var ret []*types.OutgoingTransferTx
 	defer iter.Close()

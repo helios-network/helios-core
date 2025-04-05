@@ -23,35 +23,10 @@ const (
 func DefaultParams() *Params {
 	return &Params{
 		CounterpartyChainParams: []*CounterpartyChainParams{
-			// DefaultEthereumChainParams(),
-			// DefaultPolygonAmoyTestnetChainParams(),
-			// DefaultPolygonAmoyTestnet02ChainParams(),
 			DefaultPolygonAmoyTestnet21ChainParams(),
 		},
 		Admins: []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
-}
-
-func MockErc20ToDenoms() []*ERC20ToDenom {
-	// "erc20_to_denoms": [
-	// 	{
-	// 		"denom": "hyperion0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-	// 		"erc20": "0xE41d2489571d322189246DaFA5ebDe1F4699F498"
-	// 	},
-	// 	{
-	// 		"denom": "hyperion0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8",
-	// 		"erc20": "0x1ae1cf7d011589e552e26f7f34a7716a4b4b6ff8"
-	// 	},
-	// 	{
-	// 		"denom": "ahelios",
-	// 		"erc20": "0x77d1b28912dbd3a21474d2dd24475c751bf2f045"
-	// 	},
-	// 	{
-	// 		"denom": "hyperion0xa2512e1f33020d34915124218edbec20901755b2",
-	// 		"erc20": "0xa2512e1f33020d34915124218edbec20901755b2"
-	// 	}
-	// ],
-	return []*ERC20ToDenom{}
 }
 
 func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
@@ -79,6 +54,16 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		ClaimSlashingEnabled:          false,
 		BridgeContractStartHeight:     20065004,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
+		DefaultErc20ToDenoms: []*ERC20ToDenom{
+			{
+				Denom: "helios",
+				Erc20: "0x926248D556af09c85df513A7300B084388B95639",
+			},
+			{
+				Denom: "ahelios",
+				Erc20: "0x926248D556af09c85df513A7300B084388B95639",
+			},
+		},
 	}
 }
 

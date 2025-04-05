@@ -18,6 +18,5 @@ func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params:    params,
 		SubStates: DefaultSubStates(params),
-		// Erc20ToDenoms: MockErc20ToDenoms(),
 	}
 }

@@ -4,6 +4,7 @@ package helios.hyperion.v1;
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "amino/amino.proto";
+import "helios/hyperion/v1/types.proto";
 
 option go_package = "helios-core/helios-chain/x/hyperion/types";
 
@@ -146,4 +147,6 @@ message CounterpartyChainParams {
   uint64 bridge_contract_start_height = 23;
 
   cosmos.base.v1beta1.Coin valset_reward = 24 [ (gogoproto.nullable) = false ];
+
+  repeated ERC20ToDenom default_erc20_to_denoms = 25;
 }
