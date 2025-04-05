@@ -57,25 +57,27 @@ func MockErc20ToDenoms() []*ERC20ToDenom {
 func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    21,
-		BridgeCounterpartyAddress:     common.HexToAddress("0xba6CC5548f6203686172a60C9bE6972b135a22f9").Hex(),
+		BridgeCounterpartyAddress:     common.HexToAddress("0xfb0E70f73AC69B1b9cfc1103709eb7E2549Ce6C0").Hex(),
 		BridgeChainId:                 80002,
+		BridgeChainName:               "Polygon Amoy Testnet",
+		BridgeChainLogo:               "",
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
 		TargetBatchTimeout:            43200000, // 12 hours
 		TargetOutgoingTxTimeout:       600000,   // 10 minutes
 		AverageBlockTime:              2000,     // 2 seconds
-		AverageCounterpartyBlockTime:  15000,    // chain blocktime 15seconds
+		AverageCounterpartyBlockTime:  2000,     // chain blocktime 2seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		CosmosCoinDenom:               "ahelios",
-		CosmosCoinErc20Contract:       "0xd4949664cd82660aae99bedc034a0dea8a0bd517",
+		CosmosCoinErc20Contract:       "0x926248D556af09c85df513A7300B084388B95639",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		BridgeContractStartHeight:     20038836,
+		BridgeContractStartHeight:     20065004,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 	}
 }

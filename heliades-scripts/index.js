@@ -713,8 +713,8 @@ async function main() {
   // await getRewards();
 
   // await sendToChain("5");
-  await sendToChain("5");
-  // await setOrchestratorAddresses();
+  // await sendToChain("5");
+  await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   
 }
