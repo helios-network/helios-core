@@ -240,7 +240,7 @@ func (b *Backend) GetActiveValidatorCount() (int, error) {
 
 	for _, validator := range validatorsResp.Validators {
 		if validator.Status == 3 {
-			validatorCount ++
+			validatorCount++
 		}
 	}
 
@@ -316,6 +316,10 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 	}
 
 	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+	if err != nil {
+		b.logger.Error("GetDelegations", "err", err)
+		return delegations, nil
+	}
 
 	for _, delegation := range res.Delegations {
 		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
@@ -384,6 +388,11 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	delegation := res.DelegationResponse.Delegation
 
 	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+
+	if err != nil {
+		b.logger.Error("GetDelegation", "err", err)
+		return nil, nil
+	}
 
 	assets := make([]rpctypes.DelegationAsset, 0)
 	for _, asset := range delegation.AssetWeights {

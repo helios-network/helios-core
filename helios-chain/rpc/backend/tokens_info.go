@@ -3,8 +3,6 @@
 package backend
 
 import (
-	"helios-core/helios-chain/x/erc20/types"
-
 	rpctypes "helios-core/helios-chain/rpc/types"
 
 	erc20types "helios-core/helios-chain/x/erc20/types"
@@ -27,7 +25,7 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 	}
 
 	// Create the query request
-	req := &types.QueryTokenPairsRequest{
+	req := &erc20types.QueryTokenPairsRequest{
 		Pagination: pageReq,
 	}
 
