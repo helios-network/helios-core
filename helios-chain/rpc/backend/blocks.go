@@ -6,11 +6,15 @@ import (
 	"math"
 	"math/big"
 	"strconv"
+	"strings"
 	"time"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	rpctypes "helios-core/helios-chain/rpc/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
@@ -330,6 +334,89 @@ func (b *Backend) EthMsgsFromTendermintBlock(
 		for _, msg := range tx.GetMsgs() {
 			ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
 			if !ok {
+				// Non-Ethereum message, let's extract information and create a synthetic EthereumTx
+
+				// 1. Get the signer (first address in signers)
+				legacyMsg, ok := msg.(sdk.LegacyMsg)
+				if !ok {
+					b.logger.Debug("message is not a legacy message", "type", sdk.MsgTypeURL(msg))
+					continue
+				}
+
+				signers := legacyMsg.GetSigners()
+
+				if len(signers) == 0 {
+					b.logger.Debug("message has no signers", "type", sdk.MsgTypeURL(msg))
+					continue
+				}
+
+				signerAddr := signers[0]
+
+				// 2. Get module and message type
+				msgTypeURL := sdk.MsgTypeURL(msg)
+				moduleName := strings.Split(msgTypeURL, ".")[0] // Simplistic extraction
+
+				// 3. Create a new MsgEthereumTx with minimal data
+				// You need to create transaction data based on the message type
+				// This is a simplified example - real implementation would map specific fields
+
+				// Create a dummy transaction that represents this cosmos message
+				var txData evmtypes.TxData
+				nonce := uint64(0) // You might want to retrieve the actual nonce if available
+
+				// Destination depends on the module
+				var to *common.Address
+				moduleAddr := common.BytesToAddress([]byte(moduleName))
+				to = &moduleAddr
+
+				b.logger.Info("moduleName", "moduleName", msgTypeURL)
+
+				// Create appropriate transaction based on network configuration
+				// This example creates a legacy transaction, but you may want to use access list or dynamic fee
+				value := big.NewInt(0)
+				gasLimit := uint64(100000)         // You might want to set this based on the message type
+				gasPrice := big.NewInt(1000000000) // Or derive from network state
+
+				// Message data could be the serialized original message or specific fields
+				data, err := b.clientCtx.Codec.MarshalJSON(msg)
+				if err != nil {
+					b.logger.Debug("failed to marshal message data", "error", err.Error())
+					continue
+				}
+
+				gasPriceInt := sdkmath.NewIntFromBigInt(gasPrice)
+				amountInt := sdkmath.NewIntFromBigInt(value)
+				// Create a legacy transaction
+				legacyTx := &evmtypes.LegacyTx{
+					Nonce:    nonce,
+					To:       to.Hex(),
+					GasPrice: &gasPriceInt,
+					GasLimit: gasLimit,
+					Amount:   &amountInt,
+					Data:     data,
+				}
+
+				// Create an ethereum transaction from the data
+				txData = legacyTx
+
+				// Create synthetic MsgEthereumTx
+				synthMsg := &evmtypes.MsgEthereumTx{}
+
+				// Pack the transaction data
+				txDataAny, err := evmtypes.PackTxData(txData)
+				if err != nil {
+					b.logger.Debug("failed to pack tx data", "error", err.Error())
+					continue
+				}
+
+				b.logger.Info("signerAddr", "signerAddr", signerAddr.String(), "hex", cmn.AnyToHexAddress(signerAddr.String()).String())
+
+				synthMsg.Data = txDataAny
+				synthMsg.From = cmn.AnyToHexAddress(signerAddr.String()).String()
+				synthMsg.Hash = common.BytesToHash(tmhash.Sum(data)).Hex()
+
+				b.logger.Info("From", "From", synthMsg.From)
+				result = append(result, synthMsg)
 				continue
 			}
 
