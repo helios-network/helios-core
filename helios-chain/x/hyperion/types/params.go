@@ -32,7 +32,7 @@ func DefaultParams() *Params {
 func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 	return &CounterpartyChainParams{
 		HyperionId:                    21,
-		BridgeCounterpartyAddress:     common.HexToAddress("0xfb0E70f73AC69B1b9cfc1103709eb7E2549Ce6C0").Hex(),
+		BridgeCounterpartyAddress:     common.HexToAddress("0x87180495C8393C810fBD0882265B4C3b1EF2431e").Hex(),
 		BridgeChainId:                 80002,
 		BridgeChainName:               "Polygon Amoy Testnet",
 		BridgeChainLogo:               "",
@@ -52,8 +52,9 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		CosmosCoinErc20Contract:       "0x926248D556af09c85df513A7300B084388B95639",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
-		BridgeContractStartHeight:     20065004,
+		BridgeContractStartHeight:     20101217,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
+		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
 		DefaultErc20ToDenoms: []*ERC20ToDenom{
 			{
 				Denom: "helios",

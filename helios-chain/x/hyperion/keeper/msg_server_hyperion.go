@@ -501,3 +501,26 @@ func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpda
 
 	return &types.MsgValsetUpdatedClaimResponse{}, nil
 }
+
+func (k msgServer) ForceSetValsetAndLastObservedEventNonce(c context.Context, msg *types.MsgForceSetValsetAndLastObservedEventNonce) (*types.MsgForceSetValsetAndLastObservedEventNonceResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	hyperionParams := k.Keeper.GetCounterpartyChainParams(ctx)[msg.HyperionId]
+
+	if hyperionParams.Initializer != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	valset := k.Keeper.GetValset(ctx, msg.HyperionId, msg.Valset.Nonce)
+	if valset == nil {
+		k.Keeper.SetLastObservedValset(ctx, msg.HyperionId, *msg.Valset)
+	}
+
+	k.Keeper.setLastObservedEventNonce(ctx, msg.HyperionId, msg.LastObservedEventNonce)
+	k.Keeper.SetLastObservedEthereumBlockHeight(ctx, msg.HyperionId, msg.LastObservedEthereumBlockHeight, uint64(ctx.BlockHeight()))
+
+	return &types.MsgForceSetValsetAndLastObservedEventNonceResponse{}, nil
+}
