@@ -19,6 +19,7 @@ import (
 	"helios-core/helios-chain/types"
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 )
 
 // The Ethereum API allows applications to connect to an Evmos node that is
@@ -160,6 +161,10 @@ type EthereumAPI interface {
 	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
 	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
+
+	// hyperion
+	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
+	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -747,4 +752,14 @@ func (e *PublicAPI) GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes
 func (e *PublicAPI) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error) {
 	e.logger.Debug("eth_getBlockCronLogs", "height", blockNum.Int64())
 	return e.backend.GetBlockCronLogs(blockNum)
+}
+
+func (e *PublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+	e.logger.Debug("eth_getHyperionAccountTransferTxsByPageAndSize", "address", address, "page", page, "size", size)
+	return e.backend.GetHyperionAccountTransferTxsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
+	e.logger.Debug("eth_getHyperionChains")
+	return e.backend.GetHyperionChains()
 }

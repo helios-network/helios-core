@@ -28,10 +28,11 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 	vm "helios-core/helios-chain/x/evm/core/vm"
+
+	logoskeeper "helios-core/helios-chain/x/logos/keeper"
 
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
@@ -63,9 +64,10 @@ type Precompile struct {
 	abi.ABI
 	erc20Keeper erc20keeper.Keeper
 	bankKeeper  bankkeeper.Keeper
+	logosKeeper logoskeeper.Keeper
 }
 
-func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper) (*Precompile, error) {
+func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper, logosKeeper logoskeeper.Keeper) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load ABI for ERC20 creator precompile: %w", err)
@@ -79,6 +81,7 @@ func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper)
 		},
 		erc20Keeper: erc20Keeper,
 		bankKeeper:  bankKeeper,
+		logosKeeper: logosKeeper,
 	}
 
 	p.SetAddress(common.HexToAddress(evmtypes.Erc20CreatorPrecompileAddress))
@@ -105,12 +108,17 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	decimals, okDecimals := args[4].(uint8)
 	logoBase64, okLogo := args[5].(string)
 
-	if !okName || !okSymbol || !okSupply || !okDecimals || !okDenom {
+	if !okName || !okSymbol || !okSupply || !okDecimals || !okDenom || !okLogo {
 		return nil, fmt.Errorf("invalid argument types")
 	}
 
-	if !okLogo { // default logo nothing
-		logoBase64 = ""
+	logoHash := ""
+
+	if logoBase64 != "" {
+		logoHash, err = p.logosKeeper.StoreLogo(ctx, logoBase64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to store logo: %w", err)
+		}
 	}
 
 	// Validate arguments
@@ -150,7 +158,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 				Exponent: uint32(decimals),
 			},
 		},
-		Logo: logoBase64,
+		Logo: logoHash,
 	}
 
 	// validate metadata
@@ -169,8 +177,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		return nil, fmt.Errorf("failed to mint ERC20 tokens: %w", err)
 	}
 
-	recipient := sdk.AccAddress(evm.Origin.Bytes())
-	coins := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(supply)))
+	recipient := sdktypes.AccAddress(evm.Origin.Bytes())
+	coins := sdktypes.NewCoins(sdktypes.NewCoin(denom, sdkmath.NewIntFromBigInt(supply)))
 
 	p.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
 

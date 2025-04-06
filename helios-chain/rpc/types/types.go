@@ -195,3 +195,12 @@ type WhitelistedAssetRPC struct {
 	TotalShares                   cosmossdk_io_math.Int `json:"totalShares"`
 	NetworkPercentageSecurisation string                `json:"networkPercentageSecurisation"`
 }
+
+type HyperionChainRPC struct {
+	HyperionContractAddress string `json:"hyperionContractAddress"`
+	ChainId                 uint64 `json:"chainId"`
+	Name                    string `json:"name"`
+	ChainType               string `json:"chainType"`
+	Logo                    string `json:"logo"`
+	HyperionId              uint64 `json:"hyperionId"`
+}

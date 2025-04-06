@@ -128,6 +128,13 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	k.DeleteBatch(ctx, *b)
 
 	for _, tx := range b.Transactions {
+
+		index, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.Sender))
+		if err != nil {
+			k.Logger(ctx).Error("HYPERION - batch.go - OutgoingTxBatchExecuted -> ", "error", err)
+			continue
+		}
+
 		k.StoreFinalizedTx(ctx, &types.TransferTx{
 			HyperionId:  tx.HyperionId,
 			Id:          tx.Id,
@@ -144,6 +151,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 				Orchestrators: cmn.AnyToHexAddress(claim.Orchestrator).String(),
 				Hashs:         claim.TxHash,
 			},
+			Index: index + 1,
 		})
 	}
 }

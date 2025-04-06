@@ -13,7 +13,7 @@ func DefaultSubStates(params *Params) []*GenesisHyperionState {
 			BatchConfirms:         make([]*MsgConfirmBatch, 0),
 			Attestations:          make([]*Attestation, 0),
 			OrchestratorAddresses: make([]*MsgSetOrchestratorAddresses, 0),
-			Erc20ToDenoms:         counterParty.DefaultErc20ToDenoms,
+			Erc20ToDenoms:         counterParty.Erc20ToDenoms,
 			UnbatchedTransfers:    make([]*OutgoingTransferTx, 0),
 			LastObservedEthereumHeight: &LastObservedEthereumBlockHeight{
 				CosmosBlockHeight:   1, // set to 1 by default

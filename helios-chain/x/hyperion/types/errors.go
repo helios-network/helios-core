@@ -21,4 +21,6 @@ var (
 	ErrInvalidEthDestination            = errors.Register(ModuleName, 14, "invalid ethereum destination")
 	ErrNoLastClaimForValidator          = errors.Register(ModuleName, 15, "missing previous claim for validator")
 	ErrNonContiguousEthEventBlockHeight = errors.Register(ModuleName, 16, "non contiguous eth event nonce height")
+	ErrInvalidHyperionId                = errors.Register(ModuleName, 17, "invalid hyperion id")
+	ErrInvalidSigner                    = errors.Register(ModuleName, 18, "invalid signer")
 )

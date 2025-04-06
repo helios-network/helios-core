@@ -2851,6 +2851,9 @@
                       "tx_timeout": {
                         "type": "string",
                         "format": "uint64"
+                      },
+                      "tx_hash": {
+                        "type": "string"
                       }
                     },
                     "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -2902,6 +2905,9 @@
                       "tx_timeout": {
                         "type": "string",
                         "format": "uint64"
+                      },
+                      "tx_hash": {
+                        "type": "string"
                       }
                     },
                     "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -3148,6 +3154,9 @@
                           "tx_timeout": {
                             "type": "string",
                             "format": "uint64"
+                          },
+                          "tx_hash": {
+                            "type": "string"
                           }
                         },
                         "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -3405,6 +3414,9 @@
                           "tx_timeout": {
                             "type": "string",
                             "format": "uint64"
+                          },
+                          "tx_hash": {
+                            "type": "string"
                           }
                         },
                         "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -3552,6 +3564,9 @@
                             "tx_timeout": {
                               "type": "string",
                               "format": "uint64"
+                            },
+                            "tx_hash": {
+                              "type": "string"
                             }
                           },
                           "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -3945,6 +3960,195 @@
         ]
       }
     },
+    "/hyperion/v1/counterparty_chain_params_by_chain_id/{chain_id}": {
+      "get": {
+        "operationId": "QueryGetCounterpartyChainParamsByChainId",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "counterparty_chain_params": {
+                  "type": "object",
+                  "properties": {
+                    "hyperion_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "contract_source_hash": {
+                      "type": "string"
+                    },
+                    "bridge_counterparty_address": {
+                      "type": "string"
+                    },
+                    "bridge_chain_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "bridge_chain_name": {
+                      "type": "string"
+                    },
+                    "bridge_chain_logo": {
+                      "type": "string"
+                    },
+                    "bridge_chain_type": {
+                      "type": "string"
+                    },
+                    "signed_valsets_window": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "signed_batches_window": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "signed_claims_window": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "target_batch_timeout": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "target_outgoing_tx_timeout": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "average_block_time": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "average_counterparty_block_time": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "slash_fraction_valset": {
+                      "type": "string",
+                      "format": "byte"
+                    },
+                    "slash_fraction_batch": {
+                      "type": "string",
+                      "format": "byte"
+                    },
+                    "slash_fraction_claim": {
+                      "type": "string",
+                      "format": "byte"
+                    },
+                    "slash_fraction_conflicting_claim": {
+                      "type": "string",
+                      "format": "byte"
+                    },
+                    "unbond_slashing_valsets_window": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "slash_fraction_bad_eth_signature": {
+                      "type": "string",
+                      "format": "byte"
+                    },
+                    "cosmos_coin_denom": {
+                      "type": "string"
+                    },
+                    "cosmos_coin_erc20_contract": {
+                      "type": "string"
+                    },
+                    "claim_slashing_enabled": {
+                      "type": "boolean"
+                    },
+                    "bridge_contract_start_height": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "valset_reward": {
+                      "type": "object",
+                      "properties": {
+                        "denom": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        }
+                      },
+                      "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                    },
+                    "erc20_to_denoms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chain_id": {
+                            "type": "string"
+                          },
+                          "erc20": {
+                            "type": "string"
+                          },
+                          "denom": {
+                            "type": "string"
+                          }
+                        },
+                        "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                      }
+                    },
+                    "initializer": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "chain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/missing_nonces": {
       "get": {
         "operationId": "MissingHyperionNonces",
@@ -4049,6 +4253,15 @@
                                 "type": "string",
                                 "format": "uint64"
                               },
+                              "bridge_chain_name": {
+                                "type": "string"
+                              },
+                              "bridge_chain_logo": {
+                                "type": "string"
+                              },
+                              "bridge_chain_type": {
+                                "type": "string"
+                              },
                               "signed_valsets_window": {
                                 "type": "string",
                                 "format": "uint64"
@@ -4125,6 +4338,27 @@
                                   }
                                 },
                                 "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                              },
+                              "erc20_to_denoms": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "chain_id": {
+                                      "type": "string"
+                                    },
+                                    "erc20": {
+                                      "type": "string"
+                                    },
+                                    "denom": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                                }
+                              },
+                              "initializer": {
+                                "type": "string"
                               }
                             }
                           }
@@ -4283,6 +4517,9 @@
                                       "tx_timeout": {
                                         "type": "string",
                                         "format": "uint64"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
                                       }
                                     },
                                     "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -4456,6 +4693,9 @@
                                 "tx_timeout": {
                                   "type": "string",
                                   "format": "uint64"
+                                },
+                                "tx_hash": {
+                                  "type": "string"
                                 }
                               },
                               "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -4701,6 +4941,15 @@
                             "type": "string",
                             "format": "uint64"
                           },
+                          "bridge_chain_name": {
+                            "type": "string"
+                          },
+                          "bridge_chain_logo": {
+                            "type": "string"
+                          },
+                          "bridge_chain_type": {
+                            "type": "string"
+                          },
                           "signed_valsets_window": {
                             "type": "string",
                             "format": "uint64"
@@ -4777,6 +5026,27 @@
                               }
                             },
                             "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                          },
+                          "erc20_to_denoms": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "chain_id": {
+                                  "type": "string"
+                                },
+                                "erc20": {
+                                  "type": "string"
+                                },
+                                "denom": {
+                                  "type": "string"
+                                }
+                              },
+                              "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                            }
+                          },
+                          "initializer": {
+                            "type": "string"
                           }
                         }
                       }
@@ -4890,6 +5160,9 @@
                       "tx_timeout": {
                         "type": "string",
                         "format": "uint64"
+                      },
+                      "tx_hash": {
+                        "type": "string"
                       }
                     },
                     "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -4941,6 +5214,9 @@
                       "tx_timeout": {
                         "type": "string",
                         "format": "uint64"
+                      },
+                      "tx_hash": {
+                        "type": "string"
                       }
                     },
                     "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -5507,6 +5783,24 @@
                       "chain_id": {
                         "type": "string",
                         "format": "uint64"
+                      },
+                      "proof": {
+                        "type": "object",
+                        "properties": {
+                          "orchestrators": {
+                            "type": "string"
+                          },
+                          "hashs": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "tx_hash": {
+                        "type": "string"
+                      },
+                      "index": {
+                        "type": "string",
+                        "format": "uint64"
                       }
                     }
                   }
@@ -5557,6 +5851,44 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "pagination.reverse",
+            "description": "reverse is set to true if results are to be returned in the descending order.\n\nSince: cosmos-sdk 0.43",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -28601,6 +28933,15 @@
           "type": "string",
           "format": "uint64"
         },
+        "bridge_chain_name": {
+          "type": "string"
+        },
+        "bridge_chain_logo": {
+          "type": "string"
+        },
+        "bridge_chain_type": {
+          "type": "string"
+        },
         "signed_valsets_window": {
           "type": "string",
           "format": "uint64"
@@ -28677,6 +29018,27 @@
             }
           },
           "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+        },
+        "erc20_to_denoms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chain_id": {
+                "type": "string"
+              },
+              "erc20": {
+                "type": "string"
+              },
+              "denom": {
+                "type": "string"
+              }
+            },
+            "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+          }
+        },
+        "initializer": {
+          "type": "string"
         }
       }
     },
@@ -28851,6 +29213,9 @@
                     "tx_timeout": {
                       "type": "string",
                       "format": "uint64"
+                    },
+                    "tx_hash": {
+                      "type": "string"
                     }
                   },
                   "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -29024,6 +29389,9 @@
               "tx_timeout": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "tx_hash": {
+                "type": "string"
               }
             },
             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -29125,6 +29493,15 @@
                     "type": "string",
                     "format": "uint64"
                   },
+                  "bridge_chain_name": {
+                    "type": "string"
+                  },
+                  "bridge_chain_logo": {
+                    "type": "string"
+                  },
+                  "bridge_chain_type": {
+                    "type": "string"
+                  },
                   "signed_valsets_window": {
                     "type": "string",
                     "format": "uint64"
@@ -29201,6 +29578,27 @@
                       }
                     },
                     "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                  },
+                  "erc20_to_denoms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chain_id": {
+                          "type": "string"
+                        },
+                        "erc20": {
+                          "type": "string"
+                        },
+                        "denom": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                    }
+                  },
+                  "initializer": {
+                    "type": "string"
                   }
                 }
               }
@@ -29359,6 +29757,9 @@
                           "tx_timeout": {
                             "type": "string",
                             "format": "uint64"
+                          },
+                          "tx_hash": {
+                            "type": "string"
                           }
                         },
                         "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -29532,6 +29933,9 @@
                     "tx_timeout": {
                       "type": "string",
                       "format": "uint64"
+                    },
+                    "tx_hash": {
+                      "type": "string"
                     }
                   },
                   "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -29766,6 +30170,9 @@
         "tx_timeout": {
           "type": "string",
           "format": "uint64"
+        },
+        "tx_hash": {
+          "type": "string"
         }
       },
       "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -29831,6 +30238,9 @@
               "tx_timeout": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "tx_hash": {
+                "type": "string"
               }
             },
             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -29867,6 +30277,15 @@
               "bridge_chain_id": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "bridge_chain_name": {
+                "type": "string"
+              },
+              "bridge_chain_logo": {
+                "type": "string"
+              },
+              "bridge_chain_type": {
+                "type": "string"
               },
               "signed_valsets_window": {
                 "type": "string",
@@ -29944,6 +30363,27 @@
                   }
                 },
                 "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+              },
+              "erc20_to_denoms": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "chain_id": {
+                      "type": "string"
+                    },
+                    "erc20": {
+                      "type": "string"
+                    },
+                    "denom": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                }
+              },
+              "initializer": {
+                "type": "string"
               }
             }
           }
@@ -29953,6 +30393,17 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "helios.hyperion.v1.Proof": {
+      "type": "object",
+      "properties": {
+        "orchestrators": {
+          "type": "string"
+        },
+        "hashs": {
+          "type": "string"
         }
       }
     },
@@ -30005,6 +30456,9 @@
               "tx_timeout": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "tx_hash": {
+                "type": "string"
               }
             },
             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -30056,6 +30510,9 @@
               "tx_timeout": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "tx_hash": {
+                "type": "string"
               }
             },
             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -30224,6 +30681,9 @@
                   "tx_timeout": {
                     "type": "string",
                     "format": "uint64"
+                  },
+                  "tx_hash": {
+                    "type": "string"
                   }
                 },
                 "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -30342,6 +30802,137 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryGetCounterpartyChainParamsByChainIdResponse": {
+      "type": "object",
+      "properties": {
+        "counterparty_chain_params": {
+          "type": "object",
+          "properties": {
+            "hyperion_id": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "contract_source_hash": {
+              "type": "string"
+            },
+            "bridge_counterparty_address": {
+              "type": "string"
+            },
+            "bridge_chain_id": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "bridge_chain_name": {
+              "type": "string"
+            },
+            "bridge_chain_logo": {
+              "type": "string"
+            },
+            "bridge_chain_type": {
+              "type": "string"
+            },
+            "signed_valsets_window": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "signed_batches_window": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "signed_claims_window": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "target_batch_timeout": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "target_outgoing_tx_timeout": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "average_block_time": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "average_counterparty_block_time": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "slash_fraction_valset": {
+              "type": "string",
+              "format": "byte"
+            },
+            "slash_fraction_batch": {
+              "type": "string",
+              "format": "byte"
+            },
+            "slash_fraction_claim": {
+              "type": "string",
+              "format": "byte"
+            },
+            "slash_fraction_conflicting_claim": {
+              "type": "string",
+              "format": "byte"
+            },
+            "unbond_slashing_valsets_window": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "slash_fraction_bad_eth_signature": {
+              "type": "string",
+              "format": "byte"
+            },
+            "cosmos_coin_denom": {
+              "type": "string"
+            },
+            "cosmos_coin_erc20_contract": {
+              "type": "string"
+            },
+            "claim_slashing_enabled": {
+              "type": "boolean"
+            },
+            "bridge_contract_start_height": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "valset_reward": {
+              "type": "object",
+              "properties": {
+                "denom": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "string"
+                }
+              },
+              "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+            },
+            "erc20_to_denoms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "chain_id": {
+                    "type": "string"
+                  },
+                  "erc20": {
+                    "type": "string"
+                  },
+                  "denom": {
+                    "type": "string"
+                  }
+                },
+                "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+              }
+            },
+            "initializer": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "helios.hyperion.v1.QueryGetHyperionIdFromChainIdResponse": {
       "type": "object",
       "properties": {
@@ -30438,6 +31029,24 @@
               "chain_id": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "proof": {
+                "type": "object",
+                "properties": {
+                  "orchestrators": {
+                    "type": "string"
+                  },
+                  "hashs": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tx_hash": {
+                "type": "string"
+              },
+              "index": {
+                "type": "string",
+                "format": "uint64"
               }
             }
           }
@@ -30530,6 +31139,9 @@
                   "tx_timeout": {
                     "type": "string",
                     "format": "uint64"
+                  },
+                  "tx_hash": {
+                    "type": "string"
                   }
                 },
                 "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -30673,6 +31285,15 @@
                         "type": "string",
                         "format": "uint64"
                       },
+                      "bridge_chain_name": {
+                        "type": "string"
+                      },
+                      "bridge_chain_logo": {
+                        "type": "string"
+                      },
+                      "bridge_chain_type": {
+                        "type": "string"
+                      },
                       "signed_valsets_window": {
                         "type": "string",
                         "format": "uint64"
@@ -30749,6 +31370,27 @@
                           }
                         },
                         "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                      },
+                      "erc20_to_denoms": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "chain_id": {
+                              "type": "string"
+                            },
+                            "erc20": {
+                              "type": "string"
+                            },
+                            "denom": {
+                              "type": "string"
+                            }
+                          },
+                          "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                        }
+                      },
+                      "initializer": {
+                        "type": "string"
                       }
                     }
                   }
@@ -30907,6 +31549,9 @@
                               "tx_timeout": {
                                 "type": "string",
                                 "format": "uint64"
+                              },
+                              "tx_hash": {
+                                "type": "string"
                               }
                             },
                             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -31080,6 +31725,9 @@
                         "tx_timeout": {
                           "type": "string",
                           "format": "uint64"
+                        },
+                        "tx_hash": {
+                          "type": "string"
                         }
                       },
                       "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -31229,6 +31877,9 @@
                     "tx_timeout": {
                       "type": "string",
                       "format": "uint64"
+                    },
+                    "tx_hash": {
+                      "type": "string"
                     }
                   },
                   "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -31271,6 +31922,15 @@
                   "bridge_chain_id": {
                     "type": "string",
                     "format": "uint64"
+                  },
+                  "bridge_chain_name": {
+                    "type": "string"
+                  },
+                  "bridge_chain_logo": {
+                    "type": "string"
+                  },
+                  "bridge_chain_type": {
+                    "type": "string"
                   },
                   "signed_valsets_window": {
                     "type": "string",
@@ -31348,6 +32008,27 @@
                       }
                     },
                     "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                  },
+                  "erc20_to_denoms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chain_id": {
+                          "type": "string"
+                        },
+                        "erc20": {
+                          "type": "string"
+                        },
+                        "denom": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                    }
+                  },
+                  "initializer": {
+                    "type": "string"
                   }
                 }
               }
@@ -31411,6 +32092,9 @@
               "tx_timeout": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "tx_hash": {
+                "type": "string"
               }
             },
             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -31462,6 +32146,9 @@
               "tx_timeout": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "tx_hash": {
+                "type": "string"
               }
             },
             "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
@@ -31626,6 +32313,24 @@
           "type": "string"
         },
         "chain_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "proof": {
+          "type": "object",
+          "properties": {
+            "orchestrators": {
+              "type": "string"
+            },
+            "hashs": {
+              "type": "string"
+            }
+          }
+        },
+        "tx_hash": {
+          "type": "string"
+        },
+        "index": {
           "type": "string",
           "format": "uint64"
         }

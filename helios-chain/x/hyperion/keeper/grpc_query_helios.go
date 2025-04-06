@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"context"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -262,50 +264,29 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	batches := k.GetAllOutgoingTxBatches(ctx)
-	unbatchedTx := k.GetAllPoolTransactions(ctx)
 
-	outTransfersInBatches := make([]*types.OutgoingTransferTx, 0)
-	outUnbatchedTransfers := make([]*types.OutgoingTransferTx, 0)
-
-	for _, batch := range batches {
-		outTransfersInBatches = append(outTransfersInBatches, batch.Transactions...)
+	// Validate pagination parameters
+	if req.Pagination == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "pagination is required")
 	}
-	outUnbatchedTransfers = append(outUnbatchedTransfers, unbatchedTx...)
 
+	startIndex := req.Pagination.Offset
+	endIndex := req.Pagination.Offset + req.Pagination.Limit
 	txs := make([]*types.TransferTx, 0)
+	currentCount := uint64(0) // Track how many transactions we've counted
 
-	// todo find tx's of the req.Address in outTransfersInBatches and outUnbatchedTransfers set attribute out
-	// todo find tx's of the req.Address provided by lasts claims and set attribute in
-
-	allOuts := append(outTransfersInBatches, outUnbatchedTransfers...)
-
-	for _, tx := range allOuts {
-		if cmn.AnyToHexAddress(tx.Sender).String() == req.Address {
-			txs = append(txs, &types.TransferTx{
-				HyperionId:  tx.HyperionId,
-				Id:          tx.Id,
-				Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
-				DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
-				Erc20Token:  tx.Erc20Token,
-				Erc20Fee:    tx.Erc20Fee,
-				Status:      "PROGRESS",
-				Direction:   "OUT",
-				ChainId:     k.GetBridgeChainID(ctx)[tx.HyperionId],
-				Height:      uint64(ctx.BlockHeight()),
-				Proof:       &types.Proof{},
-				TxHash:      tx.TxHash,
-			})
-		}
-	}
-
+	// 1. HIGHEST PRIORITY: Process incoming transactions from attestations
 	params := k.GetParams(ctx)
+
+	// Collect all incoming transactions first (to process newest first)
+	incomingTxs := make([]*types.TransferTx, 0)
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		attestations, err := k.SearchAttestationsByEthereumAddress(ctx, counterpartyChainParam.HyperionId, req.Address)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to search attestations by Ethereum address")
 		}
+
 		for _, attestation := range attestations {
 			claim, err := k.UnpackAttestationClaim(attestation)
 			if err != nil {
@@ -332,7 +313,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 					}
 				}
 
-				txs = append(txs, &types.TransferTx{
+				incomingTxs = append(incomingTxs, &types.TransferTx{
 					HyperionId:  claim.HyperionId,
 					Id:          claim.EventNonce,
 					Height:      claim.BlockHeight,
@@ -356,14 +337,126 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		}
 	}
 
-	finalizedTxs, err := k.FindFinalizedTxs(ctx, common.HexToAddress(req.Address))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to find finalized txs")
+	// Sort incoming transactions by height (newest first)
+	sort.Slice(incomingTxs, func(i, j int) bool {
+		return incomingTxs[i].Height > incomingTxs[j].Height
+	})
+
+	// Add incoming transactions to result with pagination
+	for i, tx := range incomingTxs {
+		if uint64(i) >= startIndex && uint64(i) < endIndex {
+			txs = append(txs, tx)
+		}
+		currentCount++
+
+		// If we've filled our page, return early
+		if uint64(len(txs)) >= req.Pagination.Limit {
+			return &types.QueryGetTransactionsByPageAndSizeResponse{
+				Txs: txs,
+			}, nil
+		}
 	}
 
-	txs = append(txs, finalizedTxs...)
+	// 2. SECOND PRIORITY: Process outgoing transactions
+	// Adjust indices based on incoming transactions
+	remainingSlots := req.Pagination.Limit - uint64(len(txs))
+	if remainingSlots > 0 {
+		// Get outgoing transactions
+		batches := k.GetAllOutgoingTxBatches(ctx)
+		unbatchedTx := k.GetAllPoolTransactions(ctx)
+
+		outTransfersInBatches := make([]*types.OutgoingTransferTx, 0)
+		for _, batch := range batches {
+			outTransfersInBatches = append(outTransfersInBatches, batch.Transactions...)
+		}
+		allOuts := append(outTransfersInBatches, unbatchedTx...)
+
+		// Filter by address and convert to TransferTx
+		outgoingTxs := make([]*types.TransferTx, 0)
+		for _, tx := range allOuts {
+			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address {
+				outgoingTxs = append(outgoingTxs, &types.TransferTx{
+					HyperionId:  tx.HyperionId,
+					Id:          tx.Id,
+					Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
+					DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
+					Erc20Token:  tx.Erc20Token,
+					Erc20Fee:    tx.Erc20Fee,
+					Status:      "PROGRESS",
+					Direction:   "OUT",
+					ChainId:     k.GetBridgeChainID(ctx)[tx.HyperionId],
+					Height:      uint64(ctx.BlockHeight()),
+					Proof:       &types.Proof{},
+					TxHash:      tx.TxHash,
+				})
+			}
+		}
+
+		// Sort outgoing transactions by ID (newest first)
+		sort.Slice(outgoingTxs, func(i, j int) bool {
+			return outgoingTxs[i].Id > outgoingTxs[j].Id
+		})
+
+		// Calculate adjusted indices for outgoing transactions
+		outgoingStartIndex := uint64(0)
+		if startIndex > currentCount {
+			outgoingStartIndex = startIndex - currentCount
+		} else {
+			outgoingStartIndex = 0
+		}
+		outgoingEndIndex := outgoingStartIndex + remainingSlots
+
+		// Add outgoing transactions with pagination
+		for i, tx := range outgoingTxs {
+			if uint64(i) >= outgoingStartIndex && uint64(i) < outgoingEndIndex {
+				txs = append(txs, tx)
+			}
+			currentCount++
+
+			// If we've filled our page, break
+			if uint64(len(txs)) >= req.Pagination.Limit {
+				return &types.QueryGetTransactionsByPageAndSizeResponse{
+					Txs: txs,
+				}, nil
+			}
+		}
+	}
+
+	// 3. LOWEST PRIORITY: Get finalized transactions
+	// Adjust indices based on prior transactions
+	remainingSlots = req.Pagination.Limit - uint64(len(txs))
+	if remainingSlots > 0 {
+		// Calculate adjusted indices for finalized transactions
+		finalizedStartIndex := uint64(0)
+		if startIndex > currentCount {
+			finalizedStartIndex = startIndex - currentCount
+		} else {
+			finalizedStartIndex = 0
+		}
+		finalizedEndIndex := finalizedStartIndex + remainingSlots
+
+		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedStartIndex+1, finalizedEndIndex+1)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to find finalized txs")
+		}
+
+		txs = append(txs, finalizedTxs...)
+	}
 
 	return &types.QueryGetTransactionsByPageAndSizeResponse{
 		Txs: txs,
+	}, nil
+}
+
+func (k *Keeper) QueryGetCounterpartyChainParamsByChainId(c context.Context, req *types.QueryGetCounterpartyChainParamsByChainIdRequest) (*types.QueryGetCounterpartyChainParamsByChainIdResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetHyperionParamsFromChainId(ctx, req.ChainId)
+
+	if params == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "chainId not found "+strconv.FormatUint(req.ChainId, 10))
+	}
+
+	return &types.QueryGetCounterpartyChainParamsByChainIdResponse{
+		CounterpartyChainParams: params,
 	}, nil
 }

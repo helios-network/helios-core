@@ -13,6 +13,7 @@ import (
 	govprecompile "helios-core/helios-chain/precompiles/gov"
 	"helios-core/helios-chain/precompiles/hyperion"
 	ics20precompile "helios-core/helios-chain/precompiles/ics20"
+	"helios-core/helios-chain/precompiles/logos"
 	"helios-core/helios-chain/precompiles/p256"
 	stakingprecompile "helios-core/helios-chain/precompiles/staking"
 	chronosKeeper "helios-core/helios-chain/x/chronos/keeper"
@@ -21,6 +22,7 @@ import (
 	"helios-core/helios-chain/x/evm/types"
 	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
 	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
+	logosKeeper "helios-core/helios-chain/x/logos/keeper"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -46,6 +48,7 @@ func NewAvailableStaticPrecompiles(
 	govKeeper govkeeper.Keeper,
 	chronosKeeper chronosKeeper.Keeper,
 	hyperionKeeper hyperionKeeper.Keeper,
+	logosKeeper logosKeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -58,7 +61,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bech32 precompile: %w", err))
 	}
 
-	erc20CreatorPrecompile, err := erc20creator.NewPrecompile(erc20Keeper, bankKeeper)
+	erc20CreatorPrecompile, err := erc20creator.NewPrecompile(erc20Keeper, bankKeeper, logosKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate erc20Creator precompile: %w", err))
 	}
@@ -68,7 +71,12 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}
 
-	hyperionPrecompile, err := hyperion.NewPrecompile(hyperionKeeper, authzKeeper, erc20Keeper, bankKeeper, chronosKeeper)
+	logosPrecompile, err := logos.NewPrecompile(authzKeeper, logosKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate logos precompile: %w", err))
+	}
+
+	hyperionPrecompile, err := hyperion.NewPrecompile(hyperionKeeper, authzKeeper, erc20Keeper, bankKeeper, chronosKeeper, logosKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}
@@ -120,6 +128,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[chronosPrecompile.Address()] = chronosPrecompile
 	precompiles[hyperionPrecompile.Address()] = hyperionPrecompile
+	precompiles[logosPrecompile.Address()] = logosPrecompile
 	return precompiles
 }
 

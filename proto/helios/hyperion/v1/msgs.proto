@@ -60,6 +60,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/add_counterparty_chain_params";
   }
 
+  rpc UpdateCounterpartyChainInfosParams(MsgUpdateCounterpartyChainInfosParams)
+      returns (MsgUpdateCounterpartyChainInfosParamsResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_counterparty_chain_infos_params";
+  }
+
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
   // BlacklistEthereumAddresses adds Ethereum addresses to the hyperion blacklist.
@@ -376,3 +381,18 @@ message MsgForceSetValsetAndLastObservedEventNonce {
 }
 
 message MsgForceSetValsetAndLastObservedEventNonceResponse {}
+
+
+message MsgUpdateCounterpartyChainInfosParams {
+  option (amino.name) = "hyperion/MsgUpdateCounterpartyChainInfosParams";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 bridge_chain_id = 2;
+  string bridge_chain_logo = 3;
+  string bridge_chain_name = 4;
+}
+
+message MsgUpdateCounterpartyChainInfosParamsResponse {
+  bool updated = 1;
+}

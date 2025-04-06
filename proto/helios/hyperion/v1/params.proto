@@ -113,42 +113,43 @@ message CounterpartyChainParams {
   uint64 bridge_chain_id = 4;
   string bridge_chain_name = 5;
   string bridge_chain_logo = 6;
-  uint64 signed_valsets_window = 7;
-  uint64 signed_batches_window = 8;
-  uint64 signed_claims_window = 9;
-  uint64 target_batch_timeout = 10;
-  uint64 target_outgoing_tx_timeout = 11;
-  uint64 average_block_time = 12;
-  uint64 average_counterparty_block_time = 13;
-  bytes slash_fraction_valset = 14 [
+  string bridge_chain_type = 7;
+  uint64 signed_valsets_window = 8;
+  uint64 signed_batches_window = 9;
+  uint64 signed_claims_window = 10;
+  uint64 target_batch_timeout = 11;
+  uint64 target_outgoing_tx_timeout = 12;
+  uint64 average_block_time = 13;
+  uint64 average_counterparty_block_time = 14;
+  bytes slash_fraction_valset = 15 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  bytes slash_fraction_batch = 15 [
+  bytes slash_fraction_batch = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  bytes slash_fraction_claim = 16 [
+  bytes slash_fraction_claim = 17 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  bytes slash_fraction_conflicting_claim = 17 [
+  bytes slash_fraction_conflicting_claim = 18 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  uint64 unbond_slashing_valsets_window = 18;
-  bytes slash_fraction_bad_eth_signature = 19 [
+  uint64 unbond_slashing_valsets_window = 19;
+  bytes slash_fraction_bad_eth_signature = 20 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  string cosmos_coin_denom = 20;
-  string cosmos_coin_erc20_contract = 21;
-  bool claim_slashing_enabled = 22;
-  uint64 bridge_contract_start_height = 23;
+  string cosmos_coin_denom = 21;
+  string cosmos_coin_erc20_contract = 22;
+  bool claim_slashing_enabled = 23;
+  uint64 bridge_contract_start_height = 24;
 
-  cosmos.base.v1beta1.Coin valset_reward = 24 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin valset_reward = 25 [ (gogoproto.nullable) = false ];
 
-  repeated ERC20ToDenom default_erc20_to_denoms = 25;
+  repeated ERC20ToDenom erc20_to_denoms = 26;
 
-  string initializer = 26;
+  string initializer = 27;
 }

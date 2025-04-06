@@ -1,0 +1,53 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Logos",
+  "sourceName": "solidity/precompiles/logos/Logos.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "type": "string",
+          "name": "logoBase64"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "success"
+        }
+      ],
+      "type": "function",
+      "name": "uploadLogo",
+      "stateMutability": "nonpayable"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "fromAddress",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "toAddress",
+            "type": "address"
+          },
+          {
+              "indexed": false,
+              "internalType": "string",
+              "name": "hash",
+              "type": "string"
+          }
+      ],
+      "name": "LogoUploaded",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

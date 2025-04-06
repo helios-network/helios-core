@@ -1,0 +1,13 @@
+syntax = "proto3";
+package helios.logos.v1;
+
+import "gogoproto/gogo.proto";
+import "helios/logos/v1/types.proto";
+
+option go_package = "helios-core/helios-chain/x/logos/types";
+
+// GenesisState struct
+message GenesisState {
+  Params params = 1;
+  repeated Logo logos = 2;
+}

@@ -131,6 +131,12 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 								proofs = append(proofs, validatorSplitted[1])
 							}
 
+							index, err := h.k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(claim.EthereumSender))
+							if err != nil {
+								h.k.Logger(ctx).Error("HYPERION - ABCI.go - pruneAttestations -> ", "error", err)
+								continue
+							}
+
 							h.k.StoreFinalizedTx(ctx, &types.TransferTx{
 								HyperionId:  claim.HyperionId,
 								Id:          claim.EventNonce,
@@ -153,6 +159,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 									Orchestrators: strings.Join(validators, ","),
 									Hashs:         strings.Join(proofs, ","),
 								},
+								Index: index + 1,
 							})
 						}
 					}

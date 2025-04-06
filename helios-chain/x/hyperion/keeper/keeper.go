@@ -728,6 +728,7 @@ func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[uint64]*types.C
 	counterpartyChainParamsMap := make(map[uint64]*types.CounterpartyChainParams)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		counterpartyChainParamsMap[counterpartyChainParams.HyperionId] = counterpartyChainParams
+		counterpartyChainParamsMap[counterpartyChainParams.HyperionId].Erc20ToDenoms = k.GetAllERC20ToDenom(ctx, counterpartyChainParams.HyperionId)
 	}
 
 	return counterpartyChainParamsMap
@@ -1119,8 +1120,31 @@ func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
 
 	store := ctx.KVStore(k.storeKey)
 	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
-	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.HyperionId, tx.Id), k.cdc.MustMarshal(tx))
-	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.HyperionId, tx.Id), k.cdc.MustMarshal(tx))
+	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.Index), k.cdc.MustMarshal(tx))
+
+	if tx.DestAddress != tx.Sender {
+		lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.DestAddress))
+		if err != nil {
+			return
+		}
+		tx.Index = lastIndex + 1
+		finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index), k.cdc.MustMarshal(tx))
+	}
+}
+
+func (k *Keeper) FindLastFinalizedTxIndex(ctx sdk.Context, addr common.Address) (uint64, error) {
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	iter := finalizedTxStore.ReverseIterator(PrefixRange(types.GetFinalizedTxAddressPrefixKey(addr)))
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		var tx types.TransferTx
+		k.cdc.MustUnmarshal(iter.Value(), &tx)
+
+		return tx.Index, nil
+	}
+	return 0, nil
 }
 
 func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*types.TransferTx, error) {
@@ -1134,6 +1158,27 @@ func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*type
 	for ; iter.Valid(); iter.Next() {
 		var tx types.TransferTx
 		k.cdc.MustUnmarshal(iter.Value(), &tx)
+		txs = append(txs, &tx)
+	}
+
+	return txs, nil
+}
+
+func (k *Keeper) FindFinalizedTxsByIndexToIndex(ctx sdk.Context, addr common.Address, startIndex uint64, endIndex uint64) ([]*types.TransferTx, error) {
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	iter := finalizedTxStore.Iterator(PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, startIndex)))
+	defer iter.Close()
+
+	txs := make([]*types.TransferTx, 0)
+
+	for ; iter.Valid(); iter.Next() {
+		var tx types.TransferTx
+		k.cdc.MustUnmarshal(iter.Value(), &tx)
+
+		if tx.Index > endIndex {
+			break
+		}
 		txs = append(txs, &tx)
 	}
 

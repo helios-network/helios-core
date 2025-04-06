@@ -136,6 +136,9 @@ import (
 	hyperion "helios-core/helios-chain/x/hyperion"
 	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
+	logos "helios-core/helios-chain/x/logos"
+	logosKeeper "helios-core/helios-chain/x/logos/keeper"
+	logostypes "helios-core/helios-chain/x/logos/types"
 	"helios-core/helios-chain/x/tokenfactory"
 	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
 	tokenfactorytypes "helios-core/helios-chain/x/tokenfactory/types"
@@ -247,10 +250,12 @@ var (
 		authzmodule.AppModuleBasic{},
 		packetforward.AppModuleBasic{},
 		hyperion.AppModuleBasic{},
+		logos.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		chronos.AppModuleBasic{},
 		revenue.AppModuleBasic{},
+		logos.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -265,6 +270,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		ibcfeetypes.ModuleName:         nil,
+		logostypes.ModuleName:          nil,
 		hyperiontypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
@@ -315,6 +321,7 @@ type HeliosApp struct {
 	// helios keepers
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 	HyperionKeeper     hyperionKeeper.Keeper
+	LogosKeeper        logosKeeper.Keeper
 
 	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -478,6 +485,7 @@ func initHeliosApp(
 			consensustypes.StoreKey, packetforwardtypes.StoreKey,
 			// Helios keys
 			hyperiontypes.StoreKey,
+			logostypes.StoreKey,
 			tokenfactorytypes.StoreKey,
 			epochstypes.StoreKey,
 			inflationtypes.StoreKey,
@@ -1055,7 +1063,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
 	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
-	// app.HyperionKeeper.SetErc20Keeper(app.Erc20Keeper)
 
 	app.HyperionKeeper = hyperionKeeper.NewKeeper(
 		app.codec,
@@ -1067,6 +1074,12 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 		app.AccountKeeper,
 		app.Erc20Keeper,
+	)
+
+	app.LogosKeeper = *logosKeeper.NewKeeper(
+		app.codec,
+		app.keys[logostypes.StoreKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName),
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
@@ -1096,6 +1109,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.GovKeeper,
 			app.ChronosKeeper,
 			app.HyperionKeeper,
+			app.LogosKeeper,
 		),
 	)
 
@@ -1178,9 +1192,10 @@ func (app *HeliosApp) initManagers() {
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Helios app modules
 		hyperion.NewAppModule(app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
+		logos.NewAppModule(app.LogosKeeper, app.GetSubspace(logostypes.ModuleName)),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
-			app.GetSubspace(erc20types.ModuleName)),
+			app.GetSubspace(erc20types.ModuleName), app.BankKeeper),
 		epochs.NewAppModule(app.codec, app.EpochsKeeper),
 		chronos.NewAppModule(app.codec, app.ChronosKeeper),
 
@@ -1252,6 +1267,7 @@ func initParamsKeeper(
 	// helios subspaces
 	paramsKeeper.Subspace(hyperiontypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
+	paramsKeeper.Subspace(logostypes.ModuleName)
 
 	// FIX: do we need a keytable?
 	paramsKeeper.Subspace(ratelimittypes.ModuleName)
@@ -1305,6 +1321,7 @@ func initGenesisOrder() []string {
 		// Helios modules
 		tokenfactorytypes.ModuleName,
 		hyperiontypes.ModuleName,
+		logostypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,
@@ -1333,6 +1350,7 @@ func beginBlockerOrder() []string {
 		vestingtypes.ModuleName,
 		govtypes.ModuleName,
 		hyperiontypes.ModuleName,
+		logostypes.ModuleName,
 		paramstypes.ModuleName,
 		authtypes.ModuleName,
 		crisistypes.ModuleName,
@@ -1383,6 +1401,7 @@ func endBlockerOrder() []string {
 		chronostypes.ModuleName,
 		feemarkettypes.ModuleName,
 		hyperiontypes.ModuleName,
+		logostypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		banktypes.ModuleName,

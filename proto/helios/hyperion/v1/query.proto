@@ -1,6 +1,7 @@
 syntax = "proto3";
 package helios.hyperion.v1;
 
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "helios/hyperion/v1/attestation.proto";
 import "helios/hyperion/v1/genesis.proto";
 import "helios/hyperion/v1/params.proto";
@@ -136,6 +137,11 @@ service Query {
   rpc QueryGetTransactionsByPageAndSize(QueryGetTransactionsByPageAndSizeRequest)
       returns (QueryGetTransactionsByPageAndSizeResponse) {
     option (google.api.http).get = "/hyperion/v1/transactions/{address}";
+  }
+
+  rpc QueryGetCounterpartyChainParamsByChainId(QueryGetCounterpartyChainParamsByChainIdRequest)
+      returns (QueryGetCounterpartyChainParamsByChainIdResponse) {
+    option (google.api.http).get = "/hyperion/v1/counterparty_chain_params_by_chain_id/{chain_id}";
   }
 }
 
@@ -331,8 +337,17 @@ message QueryGetLastObservedEventNonceResponse {
 
 message QueryGetTransactionsByPageAndSizeRequest {
   string address = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 message QueryGetTransactionsByPageAndSizeResponse {
   repeated TransferTx txs = 1;
+}
+
+message QueryGetCounterpartyChainParamsByChainIdRequest {
+  uint64 chain_id = 1;
+}
+
+message QueryGetCounterpartyChainParamsByChainIdResponse {
+  CounterpartyChainParams counterparty_chain_params = 1;
 }

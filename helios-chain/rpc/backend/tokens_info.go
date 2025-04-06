@@ -80,13 +80,8 @@ func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenD
 
 	logo := bankRes.Metadata.Logo
 
-	if logo == "" {
-		// set default logo
-		logo, err = rpctypes.GenerateTokenLogoBase64(bankRes.Metadata.Symbol)
-
-		if err != nil {
-			logo = ""
-		}
+	if logo == "" && erc20Res.TokenPair.Denom == "ahelios" {
+		logo = "807ff0e6f9c51651b04710e61a15ded84be227d9afe812613b871a8d75ac0d4a"
 	}
 
 	return &rpctypes.TokenDetails{

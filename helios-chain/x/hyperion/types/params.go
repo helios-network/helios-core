@@ -24,6 +24,7 @@ func DefaultParams() *Params {
 	return &Params{
 		CounterpartyChainParams: []*CounterpartyChainParams{
 			DefaultPolygonAmoyTestnet21ChainParams(),
+			DefaultEthereumSepoliaTestnet22ChainParams(),
 		},
 		Admins: []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
@@ -35,7 +36,8 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		BridgeCounterpartyAddress:     common.HexToAddress("0x87180495C8393C810fBD0882265B4C3b1EF2431e").Hex(),
 		BridgeChainId:                 80002,
 		BridgeChainName:               "Polygon Amoy Testnet",
-		BridgeChainLogo:               "",
+		BridgeChainLogo:               "51ff5cb29b89cebe3bb8c9c3191fd5109122a5419c2c0bbebddd7a080b20a3b1",
+		BridgeChainType:               "evm",
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
@@ -49,20 +51,60 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		CosmosCoinDenom:               "ahelios",
-		CosmosCoinErc20Contract:       "0x926248D556af09c85df513A7300B084388B95639",
+		CosmosCoinErc20Contract:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
 		UnbondSlashingValsetsWindow:   25000,
 		ClaimSlashingEnabled:          false,
 		BridgeContractStartHeight:     20101217,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultErc20ToDenoms: []*ERC20ToDenom{
+		Erc20ToDenoms: []*ERC20ToDenom{
 			{
 				Denom: "helios",
-				Erc20: "0x926248D556af09c85df513A7300B084388B95639",
+				Erc20: "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
 			},
 			{
 				Denom: "ahelios",
-				Erc20: "0x926248D556af09c85df513A7300B084388B95639",
+				Erc20: "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
+			},
+		},
+	}
+}
+
+func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
+	return &CounterpartyChainParams{
+		HyperionId:                    22,
+		BridgeCounterpartyAddress:     common.HexToAddress("0xA2512e1f33020d34915124218EdbEC20901755b2").Hex(),
+		BridgeChainId:                 11155111,
+		BridgeChainName:               "Sepolia Testnet",
+		BridgeChainLogo:               "45fa0204dcbb461f9899168a8b56162ecc832919b0c8b81b85f7de2abba408aa",
+		BridgeChainType:               "evm",
+		SignedValsetsWindow:           25000,
+		SignedBatchesWindow:           25000,
+		SignedClaimsWindow:            25000,
+		TargetBatchTimeout:            43200000, // 12 hours
+		TargetOutgoingTxTimeout:       600000,   // 10 minutes
+		AverageBlockTime:              2000,     // 2 seconds
+		AverageCounterpartyBlockTime:  12000,    // chain blocktime 12seconds
+		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		CosmosCoinDenom:               "ahelios",
+		CosmosCoinErc20Contract:       "0x462D63407eb86531dce7f948F2145382bc269E7C",
+		UnbondSlashingValsetsWindow:   25000,
+		ClaimSlashingEnabled:          false,
+		BridgeContractStartHeight:     8062855,
+		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
+		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
+		Erc20ToDenoms: []*ERC20ToDenom{
+			{
+				Denom: "helios",
+				Erc20: "0x462D63407eb86531dce7f948F2145382bc269E7C",
+			},
+			{
+				Denom: "ahelios",
+				Erc20: "0x462D63407eb86531dce7f948F2145382bc269E7C",
 			},
 		},
 	}

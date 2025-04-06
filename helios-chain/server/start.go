@@ -489,6 +489,24 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	if err := startRosettaServer(svrCtx, clientCtx, g, config); err != nil {
 		return err
 	}
+
+	clientCtx, cdnHttpSrv, cdnHttpSrvDone, err := startCdnServer(svrCtx, clientCtx, g, config)
+	if cdnHttpSrv != nil {
+		defer func() {
+			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancelFn()
+			if err := httpSrv.Shutdown(shutdownCtx); err != nil {
+				logger.Error("HTTP server shutdown produced a warning", "error", err.Error())
+			} else {
+				logger.Info("HTTP server shut down, waiting 5 sec")
+				select {
+				case <-time.Tick(5 * time.Second):
+				case <-cdnHttpSrvDone:
+				}
+			}
+		}()
+	}
+
 	// wait for signal capture and gracefully return
 	// we are guaranteed to be waiting for the "ListenForQuitSignals" goroutine.
 	return g.Wait()
@@ -663,6 +681,20 @@ func startJSONRPCServer(
 		httpSrv, httpSrvDone, err = StartJSONRPC(svrCtx, clientCtx, cmtRPCAddr, cmtEndpoint, &config, idxer)
 		return err
 	})
+	return
+}
+
+func startCdnServer(svrCtx *server.Context, clientCtx client.Context, g *errgroup.Group, config config.Config) (ctx client.Context, httpSrv *http.Server, httpSrvDone chan struct{}, err error) {
+	ctx = clientCtx
+	if !config.Cdn.Enable {
+		return
+	}
+
+	g.Go(func() error {
+		httpSrv, httpSrvDone, err = StartCDNServer(svrCtx, clientCtx, g, config)
+		return err
+	})
+
 	return
 }
 

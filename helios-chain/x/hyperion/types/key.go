@@ -352,23 +352,22 @@ func GetLastTXPoolIDKey(hyperionId uint64) []byte {
 	return append(KeyLastTXPoolID, UInt64Bytes(hyperionId)...)
 }
 
-func GetFinalizedTxKey(ethereumAddress common.Address, hyperionId uint64, txId uint64) []byte {
-	buf := make([]byte, 0, ETHContractAddressLen+8+8)
-	buf = append(buf, ethereumAddress.Bytes()...)
-	buf = append(buf, UInt64Bytes(hyperionId)...)
-	buf = append(buf, UInt64Bytes(txId)...)
-	return buf
-}
-
-func GetFinalizedTxAddressAndHyperionIdPrefixKey(ethereumAddress common.Address, hyperionId uint64) []byte {
+func GetFinalizedTxKey(ethereumAddress common.Address, txIndex uint64) []byte {
 	buf := make([]byte, 0, ETHContractAddressLen+8)
 	buf = append(buf, ethereumAddress.Bytes()...)
-	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(txIndex)...)
 	return buf
 }
 
 func GetFinalizedTxAddressPrefixKey(ethereumAddress common.Address) []byte {
 	buf := make([]byte, 0, ETHContractAddressLen)
 	buf = append(buf, ethereumAddress.Bytes()...)
+	return buf
+}
+
+func GetFinalizedTxAddressAndTxIndexPrefixKey(ethereumAddress common.Address, txIndex uint64) []byte {
+	buf := make([]byte, 0, ETHContractAddressLen+8)
+	buf = append(buf, ethereumAddress.Bytes()...)
+	buf = append(buf, UInt64Bytes(txIndex)...)
 	return buf
 }

@@ -95,17 +95,17 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams -1")
 	// todo check msg.orchestrator funds and pay the cost of AddCounterpartyChain to the fundation
 
 	if err := msg.CounterpartyChainParams.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 0")
 	params := k.Keeper.GetParams(ctx)
 
-	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 1")
+	if msg.CounterpartyChainParams.HyperionId == 0 {
+		return nil, errors.Wrap(types.ErrInvalidHyperionId, "HyperionId cannot be 0")
+	}
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.HyperionId == msg.CounterpartyChainParams.HyperionId {
@@ -116,17 +116,55 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 		}
 	}
 
-	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 2")
-
 	params.CounterpartyChainParams = append(params.CounterpartyChainParams, msg.CounterpartyChainParams)
 	k.Keeper.SetParams(ctx, params)
 
 	// setup a default value LastObservedEthereumBlockHeight
 	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
 
-	k.Keeper.Logger(ctx).Info("AddCounterpartyChainParams 3")
-
 	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
+}
+
+func (k msgServer) UpdateCounterpartyChainInfosParams(c context.Context, msg *types.MsgUpdateCounterpartyChainInfosParams) (*types.MsgUpdateCounterpartyChainInfosParamsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	params := k.Keeper.GetParams(ctx)
+
+	if params == nil {
+		return nil, errors.Wrap(types.ErrEmpty, "BridgeChainId not found")
+	}
+
+	updated := false
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == msg.BridgeChainId {
+
+			if msg.Signer != counterpartyChainParam.Initializer {
+				return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the initializer")
+			}
+
+			counterpartyChainParam.BridgeChainLogo = msg.BridgeChainLogo
+			counterpartyChainParam.BridgeChainName = msg.BridgeChainName
+
+			// check if the counterparty chain param is valid
+			if err := counterpartyChainParam.ValidateBasic(); err != nil {
+				return nil, err
+			}
+			updated = true
+			break
+		}
+	}
+
+	if !updated {
+		return nil, errors.Wrap(types.ErrEmpty, "BridgeChainId not found")
+	}
+
+	k.Keeper.SetParams(ctx, params)
+
+	return &types.MsgUpdateCounterpartyChainInfosParamsResponse{}, nil
 }
 
 // [Not Used In Hyperion] CancelSendToChain

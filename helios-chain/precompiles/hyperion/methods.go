@@ -21,10 +21,11 @@ import (
 )
 
 const (
-	AddCounterpartyChainParamsMethod = "addCounterpartyChainParams"
-	SetOrchestratorAddressesMethod   = "setOrchestratorAddresses"
-	SendToChainMethod                = "sendToChain"
-	RequestDataHyperion              = "requestData"
+	AddCounterpartyChainParamsMethod         = "addCounterpartyChainParams"
+	UpdateCounterpartyChainInfosParamsMethod = "updateCounterpartyChainInfosParams"
+	SetOrchestratorAddressesMethod           = "setOrchestratorAddresses"
+	SendToChainMethod                        = "sendToChain"
+	RequestDataHyperion                      = "requestData"
 )
 
 func (p Precompile) AddCounterpartyChainParams(
@@ -36,40 +37,53 @@ func (p Precompile) AddCounterpartyChainParams(
 	args []interface{},
 ) ([]byte, error) {
 
-	ctx.Logger().Info("AddCounterpartyChainParams -10")
-
-	if len(args) != 5 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+	if len(args) != 7 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
-
-	ctx.Logger().Info("AddCounterpartyChainParams -9")
 
 	hyperionId, ok := args[0].(uint64)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 hyperionId")
 	}
 
-	contractSourceHash, ok := args[1].(string)
+	bridgeChainName, ok := args[1].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid string bridgeChainName")
+	}
+
+	contractSourceHash, ok := args[2].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid string contractSourceHash")
 	}
 
-	bridgeCounterpartyAddress, ok := args[2].(string)
+	bridgeCounterpartyAddress, ok := args[3].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid string bridgeCounterpartyAddress")
 	}
 
-	bridgeChainId, ok := args[3].(uint64)
+	bridgeChainId, ok := args[4].(uint64)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 bridgeChainId")
 	}
 
-	bridgeContractStartHeight, ok := args[4].(uint64)
+	bridgeContractStartHeight, ok := args[5].(uint64)
 	if !ok {
 		return nil, fmt.Errorf("invalid uint64 bridgeContractStartHeight")
 	}
 
-	ctx.Logger().Info("AddCounterpartyChainParams -8")
+	logoBase64, ok := args[6].(string)
+	err := fmt.Errorf("invalid string logoBase64")
+	if !ok {
+		return nil, err
+	}
+
+	logoHash := ""
+	if logoBase64 != "" {
+		logoHash, err = p.logosKeeper.StoreLogo(ctx, logoBase64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to store logo: %w", err)
+		}
+	}
 
 	msg := &hyperiontypes.MsgAddCounterpartyChainParams{
 		Orchestrator: cmn.AccAddressFromHexAddress(origin).String(),
@@ -78,6 +92,9 @@ func (p Precompile) AddCounterpartyChainParams(
 			ContractSourceHash:            contractSourceHash, // hash of the BridgeCounterparty Smart Contract
 			BridgeCounterpartyAddress:     bridgeCounterpartyAddress,
 			BridgeChainId:                 bridgeChainId,
+			BridgeChainLogo:               logoHash,
+			BridgeChainType:               "evm",
+			BridgeChainName:               bridgeChainName,
 			SignedValsetsWindow:           25000,
 			SignedBatchesWindow:           25000,
 			SignedClaimsWindow:            25000,
@@ -95,18 +112,15 @@ func (p Precompile) AddCounterpartyChainParams(
 			ClaimSlashingEnabled:          false,
 			BridgeContractStartHeight:     bridgeContractStartHeight,
 			ValsetReward:                  sdk.Coin{Denom: "ahelios", Amount: cosmosmath.NewInt(0)},
+			Initializer:                   cmn.AccAddressFromHexAddress(origin).String(),
 		},
 	}
 
-	ctx.Logger().Info("AddCounterpartyChainParams -7", "msg", msg)
-
 	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)
-	_, err := msgSrv.AddCounterpartyChainParams(ctx, msg)
+	_, err = msgSrv.AddCounterpartyChainParams(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
-
-	ctx.Logger().Info("AddCounterpartyChainParams -6")
 
 	return method.Outputs.Pack(true)
 }
@@ -341,4 +355,52 @@ func (p Precompile) RequestData(
 
 	// Return the task ID as uint256
 	return method.Outputs.Pack(taskId)
+}
+
+func (p Precompile) UpdateCounterpartyChainInfosParams(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+
+	if len(args) != 3 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	}
+
+	chainId, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 chainId")
+	}
+
+	logo, ok := args[1].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid string logo")
+	}
+
+	name, ok := args[2].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid string name")
+	}
+
+	msg := &hyperiontypes.MsgUpdateCounterpartyChainInfosParams{
+		Signer:          cmn.AccAddressFromHexAddress(origin).String(),
+		BridgeChainId:   chainId,
+		BridgeChainLogo: logo,
+		BridgeChainName: name,
+	}
+
+	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)
+	_, err := msgSrv.UpdateCounterpartyChainInfosParams(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// if err := p.EmitCronCreatedEvent(ctx, stateDB, origin, p.Address(), resp.CronId); err != nil {
+	// 	return nil, err
+	// }
+
+	return method.Outputs.Pack(true)
 }

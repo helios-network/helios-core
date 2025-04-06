@@ -18,6 +18,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
 	"helios-core/helios-chain/x/erc20/client/cli"
 	"helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
@@ -99,6 +101,7 @@ type AppModule struct {
 	ak     authkeeper.AccountKeeper
 	// legacySubspace is used solely for migration of x/params managed parameters
 	legacySubspace types.Subspace
+	bankKeeper     bankkeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule Object
@@ -106,12 +109,14 @@ func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
 	ss types.Subspace,
+	bankKeeper bankkeeper.Keeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
 		legacySubspace: ss,
+		bankKeeper:     bankKeeper,
 	}
 }
 
@@ -135,7 +140,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, am.ak, genesisState)
+	InitGenesis(ctx, am.keeper, am.ak, genesisState, am.bankKeeper)
 	return []abci.ValidatorUpdate{}
 }
 

@@ -155,7 +155,7 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 	}
 
 	for _, tc := range testGenCases {
-		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
+		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState, suite.app.BankKeeper)
 		suite.Require().NotPanics(func() {
 			genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
 			params := suite.app.Erc20Keeper.GetParams(suite.ctx)

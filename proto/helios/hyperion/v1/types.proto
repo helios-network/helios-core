@@ -81,4 +81,5 @@ message TransferTx {
   uint64 chain_id = 10 [(gogoproto.jsontag) = "chainId"];
   Proof proof = 11;
   string tx_hash = 12 [(gogoproto.jsontag) = "txHash"];
+  uint64 index = 13;
 }

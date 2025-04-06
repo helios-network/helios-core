@@ -514,6 +514,15 @@ func (k *Keeper) AutoIncrementID(ctx sdk.Context, idKey []byte) uint64 {
 	return id
 }
 
+func (k *Keeper) SetID(ctx sdk.Context, idKey []byte, id uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	bz := sdk.Uint64ToBigEndian(id)
+	store.Set(idKey, bz)
+}
+
 func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

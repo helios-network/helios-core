@@ -15,6 +15,7 @@ interface HyperionI {
 
     function addCounterpartyChainParams(
         uint64 hyperionId,
+        string memory bridgeChainName,
         string memory contractSourceHash,
         string memory bridgeCounterpartyAddress,
         uint64 bridgeChainId,
@@ -42,5 +43,11 @@ interface HyperionI {
         uint256 maxCallbackGas,
         uint256 gasLimit
     ) external payable returns (uint256 taskId);
+
+    function updateCounterpartyChainInfosParams(
+        uint64 bridgeChainId,
+        string memory bridgeChainLogo,
+        string memory bridgeChainName
+    ) external returns (bool success);
 
 }

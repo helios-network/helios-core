@@ -31,6 +31,7 @@ var (
 		Erc20CreatorPrecompileAddress, // Erc20Creator precompile
 		ChronosPrecompileAddress,      // Chronos precompile
 		HyperionPrecompileAddress,     // Hyperion precompile
+		LogosPrecompileAddress,        // Logos precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
