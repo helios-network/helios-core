@@ -725,9 +725,9 @@ async function redelegate() {
 
 
 async function main() {
-  // await create();
+  await create();
   // await fetch();
-  await delegate();
+  // await delegate();
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
