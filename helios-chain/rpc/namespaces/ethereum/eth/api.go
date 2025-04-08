@@ -54,6 +54,7 @@ type EthereumAPI interface {
 	GetTransactionByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNumber, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
+	GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.ParsedRPCTransaction, error)
 	// eth_getBlockReceipts
 
 	// Writing Transactions
@@ -280,6 +281,11 @@ func (e *PublicAPI) GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockN
 func (e *PublicAPI) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
 	e.logger.Info("eth_getTransactionsByPageAndSize", "page", page, "size", size)
 	return e.backend.GetTransactionsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.ParsedRPCTransaction, error) {
+	e.logger.Info("eth_getLastTransactionsInfo", "size", size)
+	return e.backend.GetLastTransactionsInfo(size)
 }
 
 ///////////////////////////////////////////////////////////////////////////////

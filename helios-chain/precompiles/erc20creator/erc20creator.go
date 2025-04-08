@@ -67,6 +67,10 @@ type Precompile struct {
 	logosKeeper logoskeeper.Keeper
 }
 
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
+}
+
 func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper, logosKeeper logoskeeper.Keeper) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {

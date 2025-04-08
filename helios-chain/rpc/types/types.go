@@ -85,6 +85,11 @@ type RPCTransaction struct {
 	S                *hexutil.Big         `json:"s"`
 }
 
+type ParsedRPCTransaction struct {
+	RawTransaction RPCTransaction         `json:rawTransaction`
+	ParsedInfo     map[string]interface{} `json:parsedInfo`
+}
+
 // StateOverride is the collection of overridden accounts.
 type StateOverride map[common.Address]OverrideAccount
 
