@@ -137,19 +137,29 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 								continue
 							}
 
+							tokenToDenom, _ := h.k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+
 							h.k.StoreFinalizedTx(ctx, &types.TransferTx{
 								HyperionId:  claim.HyperionId,
 								Id:          claim.EventNonce,
 								Height:      claim.BlockHeight,
 								Sender:      cmn.AnyToHexAddress(claim.EthereumSender).String(),
 								DestAddress: cmn.AnyToHexAddress(claim.CosmosReceiver).String(),
-								Erc20Token: &types.ERC20Token{
+								SentToken: &types.Token{
 									Amount:   claim.Amount,
 									Contract: claim.TokenContract,
 								},
-								Erc20Fee: &types.ERC20Token{
+								SentFee: &types.Token{
 									Amount:   math.NewInt(0),
-									Contract: claim.TokenContract,
+									Contract: "",
+								},
+								ReceivedToken: &types.Token{
+									Amount:   claim.Amount,
+									Contract: tokenToDenom.Denom,
+								},
+								ReceivedFee: &types.Token{
+									Amount:   math.NewInt(0),
+									Contract: "",
 								},
 								Status:    "BRIDGED",
 								Direction: "IN",

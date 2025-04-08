@@ -44,7 +44,7 @@ message LastClaimEvent {
   uint64 ethereum_event_height = 3;
 }
 
-// This records the relationship between an ERC20 token and the denom
+// This records the relationship between an bridged token and the denom
 // of the corresponding Cosmos originated asset
 message TokenAddressToDenom {
   string chain_id = 1;
@@ -75,12 +75,14 @@ message TransferTx {
   uint64 height = 3;
   string sender = 4;
   string dest_address = 5 [(gogoproto.jsontag) = "destAddress"];
-  ERC20Token erc20_token = 6 [(gogoproto.jsontag) = "erc20Token"];
-  ERC20Token erc20_fee = 7 [(gogoproto.jsontag) = "erc20Fee"];
-  string status = 8;
-  string direction = 9;
-  uint64 chain_id = 10 [(gogoproto.jsontag) = "chainId"];
-  Proof proof = 11;
-  string tx_hash = 12 [(gogoproto.jsontag) = "txHash"];
-  uint64 index = 13;
+  Token received_token = 6 [(gogoproto.jsontag) = "receivedToken"];
+  Token sent_token = 7 [(gogoproto.jsontag) = "sentToken"];
+  Token received_fee = 8 [(gogoproto.jsontag) = "receivedFee"];
+  Token sent_fee = 9 [(gogoproto.jsontag) = "sentFee"];
+  string status = 10;
+  string direction = 11;
+  uint64 chain_id = 12 [(gogoproto.jsontag) = "chainId"];
+  Proof proof = 13;
+  string tx_hash = 14 [(gogoproto.jsontag) = "txHash"];
+  uint64 index = 15;
 }

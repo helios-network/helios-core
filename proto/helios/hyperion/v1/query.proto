@@ -141,7 +141,7 @@ service Query {
 
   rpc QueryGetCounterpartyChainParamsByChainId(QueryGetCounterpartyChainParamsByChainIdRequest)
       returns (QueryGetCounterpartyChainParamsByChainIdResponse) {
-    option (google.api.http).get = "/hyperion/v1/counterparty_chain_params_by_chain_id/{chain_id}";
+    option (google.api.http).get = "/hyperion/v1/chains/{chain_id}/params";
   }
 }
 
@@ -338,6 +338,7 @@ message QueryGetLastObservedEventNonceResponse {
 message QueryGetTransactionsByPageAndSizeRequest {
   string address = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
+  bool format_erc20 = 3;
 }
 
 message QueryGetTransactionsByPageAndSizeResponse {

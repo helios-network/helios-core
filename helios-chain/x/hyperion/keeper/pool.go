@@ -71,8 +71,8 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		Sender:      sender.String(),
 		HyperionId:  hyperionId,
 		DestAddress: counterpartReceiver.Hex(),
-		Erc20Token:  types.NewSDKIntERC20Token(amount.Amount, tokenContract),
-		Erc20Fee:    erc20Fee,
+		Token:       types.NewSDKIntERC20Token(amount.Amount, tokenContract),
+		Fee:         erc20Fee,
 		TxTimeout:   k.GetOutgoingTxTimeoutHeight(ctx, hyperionId),
 		TxHash:      txHash,
 	}
@@ -119,9 +119,9 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 
 	// An inconsistent entry should never enter the store, but this is the ideal place to exploit
 	// it such a bug if it did ever occur, so we should double check to be really sure
-	if tx.Erc20Fee.Contract != tx.Erc20Token.Contract {
+	if tx.Fee.Contract != tx.Token.Contract {
 		metrics.ReportFuncError(k.svcTags)
-		return errors.Wrapf(types.ErrInvalid, "Inconsistent tokens to cancel!: %s %s", tx.Erc20Fee.Contract, tx.Erc20Token.Contract)
+		return errors.Wrapf(types.ErrInvalid, "Inconsistent tokens to cancel!: %s %s", tx.Fee.Contract, tx.Token.Contract)
 	}
 
 	found := false
@@ -137,7 +137,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 	}
 
 	// delete this tx from both indexes
-	err = k.removeFromUnbatchedTXIndex(ctx, tx.HyperionId, common.HexToAddress(tx.Erc20Token.Contract), tx.Erc20Fee, txId)
+	err = k.removeFromUnbatchedTXIndex(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract), tx.Fee, txId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
@@ -146,7 +146,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 
 	// reissue the amount and the fee
 	var totalToRefundCoins sdk.Coins
-	tokenAddressToDenom, exists := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Erc20Token.Contract))
+	tokenAddressToDenom, exists := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
 	if !exists {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
@@ -156,13 +156,13 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 	// native cosmos coin denom
 	if isCosmosOriginated {
 		// native denom
-		totalToRefund := sdk.NewCoin(denom, tx.Erc20Token.Amount)
-		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
+		totalToRefund := sdk.NewCoin(denom, tx.Token.Amount)
+		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	} else {
 		// hyperion denom
-		totalToRefund := tx.Erc20Token.HyperionCoin(tx.HyperionId)
-		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
+		totalToRefund := tx.Token.HyperionCoin(tx.HyperionId)
+		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	}
 
@@ -195,7 +195,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 }
 
 // appendToUnbatchedTXIndex add at the end when tx with same fee exists
-func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
+func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.Token, txID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -211,7 +211,7 @@ func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, to
 }
 
 // appendToUnbatchedTXIndex add at the top when tx with same fee exists
-func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
+func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.Token, txID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -231,7 +231,7 @@ func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, t
 // GetPoolTransactions, making this tx implicitly invisible without a direct request. We remove a tx
 // from the pool for good in OutgoingTxBatchExecuted, but if a batch is canceled or timed out we 'reactivate'
 // an entry by adding it back to the second index.
-func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.ERC20Token, txID uint64) error {
+func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.Token, txID uint64) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 

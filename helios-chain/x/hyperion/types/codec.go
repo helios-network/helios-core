@@ -73,7 +73,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgValsetUpdatedClaim{}, "hyperion/MsgValsetUpdatedClaim", nil)
 	cdc.RegisterConcrete(&OutgoingTxBatch{}, "hyperion/OutgoingTxBatch", nil)
 	cdc.RegisterConcrete(&OutgoingTransferTx{}, "hyperion/OutgoingTransferTx", nil)
-	cdc.RegisterConcrete(&ERC20Token{}, "hyperion/ERC20Token", nil)
+	cdc.RegisterConcrete(&Token{}, "hyperion/ERC20Token", nil)
 	cdc.RegisterConcrete(&IDSet{}, "hyperion/IDSet", nil)
 	cdc.RegisterConcrete(&Attestation{}, "hyperion/Attestation", nil)
 	cdc.RegisterConcrete(&MsgSubmitBadSignatureEvidence{}, "hyperion/MsgSubmitBadSignatureEvidence", nil)

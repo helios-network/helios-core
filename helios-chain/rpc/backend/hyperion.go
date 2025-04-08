@@ -26,6 +26,7 @@ func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Addr
 			Offset: (uint64(page) - 1) * uint64(size),
 			Limit:  uint64(size),
 		},
+		FormatErc20: true,
 	}
 	res, err := b.queryClient.Hyperion.QueryGetTransactionsByPageAndSize(b.ctx, req)
 	if err != nil || res.Txs == nil {

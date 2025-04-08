@@ -280,7 +280,7 @@ func GetBatchConfirmKey(hyperionId uint64, tokenContract common.Address, batchNo
 // GetFeeSecondIndexKey returns the following key format
 // prefix    hyperionId        eth-contract-address            					fee_amount
 // [0x9][0 0 0 0 0 0 0 1][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-func GetFeeSecondIndexKey(hyperionId uint64, tokenContract common.Address, fee *ERC20Token) []byte {
+func GetFeeSecondIndexKey(hyperionId uint64, tokenContract common.Address, fee *Token) []byte {
 	buf := make([]byte, 0, len(SecondIndexOutgoingTXFeeKey)+8+ETHContractAddressLen+32)
 	buf = append(buf, SecondIndexOutgoingTXFeeKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)

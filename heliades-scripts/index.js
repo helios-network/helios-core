@@ -746,7 +746,7 @@ async function main() {
   // await getRewards();
 
   // await sendToChain("5");
-  await sendToChain("20");
+  await sendToChain("5");
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   // await uploadLogo();

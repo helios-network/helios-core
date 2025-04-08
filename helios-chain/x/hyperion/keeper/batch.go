@@ -135,18 +135,23 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 			continue
 		}
 
+		tokenAddressToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
+		tokenAddressToDenomFee, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
+
 		k.StoreFinalizedTx(ctx, &types.TransferTx{
-			HyperionId:  tx.HyperionId,
-			Id:          tx.Id,
-			Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
-			DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
-			Erc20Token:  tx.Erc20Token,
-			Erc20Fee:    tx.Erc20Fee,
-			Status:      "BRIDGED",
-			Direction:   "OUT",
-			ChainId:     k.GetBridgeChainID(ctx)[tx.HyperionId],
-			Height:      claim.BlockHeight,
-			TxHash:      tx.TxHash,
+			HyperionId:    tx.HyperionId,
+			Id:            tx.Id,
+			Sender:        cmn.AnyToHexAddress(tx.Sender).String(),
+			DestAddress:   cmn.AnyToHexAddress(tx.DestAddress).String(),
+			SentToken:     &types.Token{Amount: tx.Token.Amount, Contract: tokenAddressToDenom.Denom},
+			SentFee:       &types.Token{Amount: tx.Fee.Amount, Contract: tokenAddressToDenomFee.Denom},
+			ReceivedToken: tx.Token,
+			ReceivedFee:   tx.Fee,
+			Status:        "BRIDGED",
+			Direction:     "OUT",
+			ChainId:       k.GetBridgeChainID(ctx)[tx.HyperionId],
+			Height:        claim.BlockHeight,
+			TxHash:        tx.TxHash,
 			Proof: &types.Proof{
 				Orchestrators: cmn.AnyToHexAddress(claim.Orchestrator).String(),
 				Hashs:         claim.TxHash,
@@ -213,9 +218,9 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, 
 
 	k.IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx, hyperionId, tokenContract, func(txID uint64, tx *types.OutgoingTransferTx) bool {
 		fmt.Println("pickUnbatchedTX - tx: ", tx)
-		if tx != nil && tx.Erc20Fee != nil {
+		if tx != nil && tx.Fee != nil {
 			selectedTx = append(selectedTx, tx)
-			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Erc20Fee, txID)
+			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Fee, txID)
 			return err != nil || len(selectedTx) == maxElements
 		} else {
 			// we found a nil, exit
@@ -248,8 +253,8 @@ func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addres
 	k.cdc.MustUnmarshal(bz, &b)
 	fmt.Printf("GetOutgoingTxBatch - b: %+v\n", b)
 	for _, tx := range b.Transactions {
-		tx.Erc20Token.Contract = tokenContract.Hex()
-		tx.Erc20Fee.Contract = tokenContract.Hex()
+		tx.Token.Contract = tokenContract.Hex()
+		tx.Fee.Contract = tokenContract.Hex()
 	}
 
 	return &b
@@ -266,8 +271,8 @@ func (k *Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract common.Add
 	}
 
 	for _, tx := range batch.Transactions {
-		tx.Erc20Fee.Contract = tokenContract.Hex()
-		k.prependToUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Erc20Fee, tx.Id)
+		tx.Fee.Contract = tokenContract.Hex()
+		k.prependToUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Fee, tx.Id)
 	}
 
 	// Delete batch since it is finished

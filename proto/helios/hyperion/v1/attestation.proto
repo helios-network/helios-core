@@ -48,13 +48,13 @@ message Attestation {
   uint64 hyperionId = 5;
 }
 
-// ERC20Token unique identifier for an Ethereum ERC20 token.
+// Token unique identifier for an Bridged token.
 // CONTRACT:
-// The contract address on ETH of the token, this could be a Cosmos
-// originated token, if so it will be the ERC20 address of the representation
-// (note: developers should look up the token symbol using the address on ETH to
+// The contract address on Originating chain of the token, this could be a Cosmos
+// originated token, if so it will be the address of the representation
+// (note: developers should look up the token symbol using the address on original chain to
 // display for UI)
-message ERC20Token {
+message Token {
   string contract = 1;
   string amount = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",

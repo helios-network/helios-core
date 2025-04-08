@@ -59,16 +59,16 @@ func ValidateEthAddress(address string) error {
 }
 
 // NewERC20Token returns a new instance of an ERC20
-func NewERC20Token(amount uint64, contract gethcommon.Address) *ERC20Token {
-	return &ERC20Token{Amount: math.NewIntFromUint64(amount), Contract: contract.Hex()}
+func NewERC20Token(amount uint64, contract gethcommon.Address) *Token {
+	return &Token{Amount: math.NewIntFromUint64(amount), Contract: contract.Hex()}
 }
 
-func NewSDKIntERC20Token(amount math.Int, contract gethcommon.Address) *ERC20Token {
-	return &ERC20Token{Amount: amount, Contract: contract.Hex()}
+func NewSDKIntERC20Token(amount math.Int, contract gethcommon.Address) *Token {
+	return &Token{Amount: amount, Contract: contract.Hex()}
 }
 
 // HyperionCoin returns the hyperion representation of an ERC20 token
-func (e *ERC20Token) HyperionCoin(hyperionId uint64) sdk.Coin {
+func (e *Token) HyperionCoin(hyperionId uint64) sdk.Coin {
 	return sdk.NewCoin(HyperionDenomString(hyperionId, gethcommon.HexToAddress(e.Contract)), e.Amount)
 }
 
@@ -162,7 +162,7 @@ func HyperionDenomString(hyperionId uint64, tokenContract gethcommon.Address) st
 }
 
 // ValidateBasic permforms stateless validation
-func (e *ERC20Token) ValidateBasic(hyperionId uint64) error {
+func (e *Token) ValidateBasic(hyperionId uint64) error {
 	if err := ValidateEthAddress(e.Contract); err != nil {
 		return errors.Wrap(err, "ethereum address")
 	}
@@ -179,7 +179,7 @@ func (e *ERC20Token) ValidateBasic(hyperionId uint64) error {
 }
 
 // Add adds one ERC20 to another
-func (e *ERC20Token) Add(o *ERC20Token) (*ERC20Token, error) {
+func (e *Token) Add(o *Token) (*Token, error) {
 	if e.Contract != o.Contract {
 		return nil, fmt.Errorf("invalid contract address")
 	}

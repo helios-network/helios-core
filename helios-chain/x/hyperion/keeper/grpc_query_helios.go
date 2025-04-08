@@ -325,19 +325,29 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 					}
 				}
 
+				receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+
 				incomingTxs = append(incomingTxs, &types.TransferTx{
 					HyperionId:  claim.HyperionId,
 					Id:          claim.EventNonce,
 					Height:      claim.BlockHeight,
 					Sender:      cmn.AnyToHexAddress(claim.EthereumSender).String(),
 					DestAddress: cmn.AnyToHexAddress(claim.CosmosReceiver).String(),
-					Erc20Token: &types.ERC20Token{
+					SentToken: &types.Token{
 						Amount:   claim.Amount,
 						Contract: claim.TokenContract,
 					},
-					Erc20Fee: &types.ERC20Token{
+					SentFee: &types.Token{
 						Amount:   math.NewInt(0),
-						Contract: claim.TokenContract,
+						Contract: "",
+					},
+					ReceivedToken: &types.Token{
+						Amount:   claim.Amount,
+						Contract: receivedTokenToDenom.Denom,
+					},
+					ReceivedFee: &types.Token{
+						Amount:   math.NewInt(0),
+						Contract: "",
 					},
 					Status:    status,
 					Direction: "IN",
@@ -363,9 +373,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 
 		// If we've filled our page, return early
 		if uint64(len(txs)) >= req.Pagination.Limit {
-			return &types.QueryGetTransactionsByPageAndSizeResponse{
-				Txs: txs,
-			}, nil
+			break
 		}
 	}
 
@@ -387,19 +395,30 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		outgoingTxs := make([]*types.TransferTx, 0)
 		for _, tx := range allOuts {
 			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address {
+				receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
+				receivedFeeToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
+
 				outgoingTxs = append(outgoingTxs, &types.TransferTx{
-					HyperionId:  tx.HyperionId,
-					Id:          tx.Id,
-					Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
-					DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
-					Erc20Token:  tx.Erc20Token,
-					Erc20Fee:    tx.Erc20Fee,
-					Status:      "PROGRESS",
-					Direction:   "OUT",
-					ChainId:     k.GetBridgeChainID(ctx)[tx.HyperionId],
-					Height:      uint64(ctx.BlockHeight()),
-					Proof:       &types.Proof{},
-					TxHash:      tx.TxHash,
+					HyperionId:    tx.HyperionId,
+					Id:            tx.Id,
+					Sender:        cmn.AnyToHexAddress(tx.Sender).String(),
+					DestAddress:   cmn.AnyToHexAddress(tx.DestAddress).String(),
+					ReceivedToken: tx.Token,
+					ReceivedFee:   tx.Fee,
+					SentToken: &types.Token{
+						Amount:   tx.Token.Amount,
+						Contract: receivedTokenToDenom.Denom,
+					},
+					SentFee: &types.Token{
+						Amount:   tx.Fee.Amount,
+						Contract: receivedFeeToDenom.Denom,
+					},
+					Status:    "PROGRESS",
+					Direction: "OUT",
+					ChainId:   k.GetBridgeChainID(ctx)[tx.HyperionId],
+					Height:    uint64(ctx.BlockHeight()),
+					Proof:     &types.Proof{},
+					TxHash:    tx.TxHash,
 				})
 			}
 		}
@@ -427,9 +446,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 
 			// If we've filled our page, break
 			if uint64(len(txs)) >= req.Pagination.Limit {
-				return &types.QueryGetTransactionsByPageAndSizeResponse{
-					Txs: txs,
-				}, nil
+				break
 			}
 		}
 	}
@@ -453,6 +470,36 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		}
 
 		txs = append(txs, finalizedTxs...)
+	}
+
+	// Format ERC20 tokens if requested
+	if req.FormatErc20 {
+		for _, tx := range txs {
+			if strings.Contains(tx.SentToken.Contract, "hyperion-") {
+				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentToken.Contract))
+				if exists {
+					tx.SentToken.Contract = tokenPair.Erc20Address
+				}
+			}
+			if strings.Contains(tx.ReceivedToken.Contract, "hyperion-") {
+				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedToken.Contract))
+				if exists {
+					tx.ReceivedToken.Contract = tokenPair.Erc20Address
+				}
+			}
+			if strings.Contains(tx.SentFee.Contract, "hyperion-") {
+				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentFee.Contract))
+				if exists {
+					tx.SentFee.Contract = tokenPair.Erc20Address
+				}
+			}
+			if strings.Contains(tx.ReceivedFee.Contract, "hyperion-") {
+				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedFee.Contract))
+				if exists {
+					tx.ReceivedFee.Contract = tokenPair.Erc20Address
+				}
+			}
+		}
 	}
 
 	return &types.QueryGetTransactionsByPageAndSizeResponse{

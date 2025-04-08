@@ -2498,7 +2498,7 @@ var (
 
 	pattern_Query_QueryGetTransactionsByPageAndSize_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"hyperion", "v1", "transactions", "address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_QueryGetCounterpartyChainParamsByChainId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"hyperion", "v1", "counterparty_chain_params_by_chain_id", "chain_id"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_QueryGetCounterpartyChainParamsByChainId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"hyperion", "v1", "chains", "chain_id", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

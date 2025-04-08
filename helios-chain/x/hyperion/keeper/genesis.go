@@ -33,8 +33,8 @@ func NormalizeGenesis(data *types.GenesisState) {
 
 			for _, outgoingTx := range batch.Transactions {
 				outgoingTx.DestAddress = common.HexToAddress(outgoingTx.DestAddress).Hex()
-				outgoingTx.Erc20Fee.Contract = common.HexToAddress(outgoingTx.Erc20Fee.Contract).Hex()
-				outgoingTx.Erc20Token.Contract = common.HexToAddress(outgoingTx.Erc20Token.Contract).Hex()
+				outgoingTx.Fee.Contract = common.HexToAddress(outgoingTx.Fee.Contract).Hex()
+				outgoingTx.Token.Contract = common.HexToAddress(outgoingTx.Token.Contract).Hex()
 			}
 		}
 
