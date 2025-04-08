@@ -24,30 +24,173 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+type GenesisHyperionState struct {
+	HyperionId                 uint64                           `protobuf:"varint,1,opt,name=hyperion_id,json=hyperionId,proto3" json:"hyperion_id,omitempty"`
+	LastObservedNonce          uint64                           `protobuf:"varint,2,opt,name=last_observed_nonce,json=lastObservedNonce,proto3" json:"last_observed_nonce,omitempty"`
+	Valsets                    []*Valset                        `protobuf:"bytes,3,rep,name=valsets,proto3" json:"valsets,omitempty"`
+	ValsetConfirms             []*MsgValsetConfirm              `protobuf:"bytes,4,rep,name=valset_confirms,json=valsetConfirms,proto3" json:"valset_confirms,omitempty"`
+	Batches                    []*OutgoingTxBatch               `protobuf:"bytes,5,rep,name=batches,proto3" json:"batches,omitempty"`
+	BatchConfirms              []*MsgConfirmBatch               `protobuf:"bytes,6,rep,name=batch_confirms,json=batchConfirms,proto3" json:"batch_confirms,omitempty"`
+	Attestations               []*Attestation                   `protobuf:"bytes,7,rep,name=attestations,proto3" json:"attestations,omitempty"`
+	OrchestratorAddresses      []*MsgSetOrchestratorAddresses   `protobuf:"bytes,8,rep,name=orchestrator_addresses,json=orchestratorAddresses,proto3" json:"orchestrator_addresses,omitempty"`
+	Erc20ToDenoms              []*ERC20ToDenom                  `protobuf:"bytes,9,rep,name=erc20_to_denoms,json=erc20ToDenoms,proto3" json:"erc20_to_denoms,omitempty"`
+	UnbatchedTransfers         []*OutgoingTransferTx            `protobuf:"bytes,10,rep,name=unbatched_transfers,json=unbatchedTransfers,proto3" json:"unbatched_transfers,omitempty"`
+	LastObservedEthereumHeight *LastObservedEthereumBlockHeight `protobuf:"bytes,11,opt,name=last_observed_ethereum_height,json=lastObservedEthereumHeight,proto3" json:"last_observed_ethereum_height,omitempty"`
+	LastOutgoingBatchId        uint64                           `protobuf:"varint,12,opt,name=last_outgoing_batch_id,json=lastOutgoingBatchId,proto3" json:"last_outgoing_batch_id,omitempty"`
+	LastOutgoingPoolId         uint64                           `protobuf:"varint,13,opt,name=last_outgoing_pool_id,json=lastOutgoingPoolId,proto3" json:"last_outgoing_pool_id,omitempty"`
+	LastObservedValset         Valset                           `protobuf:"bytes,14,opt,name=last_observed_valset,json=lastObservedValset,proto3" json:"last_observed_valset"`
+	EthereumBlacklist          []string                         `protobuf:"bytes,15,rep,name=ethereum_blacklist,json=ethereumBlacklist,proto3" json:"ethereum_blacklist,omitempty"`
+}
+
+func (m *GenesisHyperionState) Reset()         { *m = GenesisHyperionState{} }
+func (m *GenesisHyperionState) String() string { return proto.CompactTextString(m) }
+func (*GenesisHyperionState) ProtoMessage()    {}
+func (*GenesisHyperionState) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6673652d3a5debb2, []int{0}
+}
+func (m *GenesisHyperionState) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GenesisHyperionState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GenesisHyperionState.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GenesisHyperionState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GenesisHyperionState.Merge(m, src)
+}
+func (m *GenesisHyperionState) XXX_Size() int {
+	return m.Size()
+}
+func (m *GenesisHyperionState) XXX_DiscardUnknown() {
+	xxx_messageInfo_GenesisHyperionState.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GenesisHyperionState proto.InternalMessageInfo
+
+func (m *GenesisHyperionState) GetHyperionId() uint64 {
+	if m != nil {
+		return m.HyperionId
+	}
+	return 0
+}
+
+func (m *GenesisHyperionState) GetLastObservedNonce() uint64 {
+	if m != nil {
+		return m.LastObservedNonce
+	}
+	return 0
+}
+
+func (m *GenesisHyperionState) GetValsets() []*Valset {
+	if m != nil {
+		return m.Valsets
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetValsetConfirms() []*MsgValsetConfirm {
+	if m != nil {
+		return m.ValsetConfirms
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetBatches() []*OutgoingTxBatch {
+	if m != nil {
+		return m.Batches
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetBatchConfirms() []*MsgConfirmBatch {
+	if m != nil {
+		return m.BatchConfirms
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetAttestations() []*Attestation {
+	if m != nil {
+		return m.Attestations
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetOrchestratorAddresses() []*MsgSetOrchestratorAddresses {
+	if m != nil {
+		return m.OrchestratorAddresses
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetErc20ToDenoms() []*ERC20ToDenom {
+	if m != nil {
+		return m.Erc20ToDenoms
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetUnbatchedTransfers() []*OutgoingTransferTx {
+	if m != nil {
+		return m.UnbatchedTransfers
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetLastObservedEthereumHeight() *LastObservedEthereumBlockHeight {
+	if m != nil {
+		return m.LastObservedEthereumHeight
+	}
+	return nil
+}
+
+func (m *GenesisHyperionState) GetLastOutgoingBatchId() uint64 {
+	if m != nil {
+		return m.LastOutgoingBatchId
+	}
+	return 0
+}
+
+func (m *GenesisHyperionState) GetLastOutgoingPoolId() uint64 {
+	if m != nil {
+		return m.LastOutgoingPoolId
+	}
+	return 0
+}
+
+func (m *GenesisHyperionState) GetLastObservedValset() Valset {
+	if m != nil {
+		return m.LastObservedValset
+	}
+	return Valset{}
+}
+
+func (m *GenesisHyperionState) GetEthereumBlacklist() []string {
+	if m != nil {
+		return m.EthereumBlacklist
+	}
+	return nil
+}
+
 // GenesisState struct
 type GenesisState struct {
-	Params                     *Params                        `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
-	LastObservedNonce          uint64                         `protobuf:"varint,2,opt,name=last_observed_nonce,json=lastObservedNonce,proto3" json:"last_observed_nonce,omitempty"`
-	Valsets                    []*Valset                      `protobuf:"bytes,3,rep,name=valsets,proto3" json:"valsets,omitempty"`
-	ValsetConfirms             []*MsgValsetConfirm            `protobuf:"bytes,4,rep,name=valset_confirms,json=valsetConfirms,proto3" json:"valset_confirms,omitempty"`
-	Batches                    []*OutgoingTxBatch             `protobuf:"bytes,5,rep,name=batches,proto3" json:"batches,omitempty"`
-	BatchConfirms              []*MsgConfirmBatch             `protobuf:"bytes,6,rep,name=batch_confirms,json=batchConfirms,proto3" json:"batch_confirms,omitempty"`
-	Attestations               []*Attestation                 `protobuf:"bytes,7,rep,name=attestations,proto3" json:"attestations,omitempty"`
-	OrchestratorAddresses      []*MsgSetOrchestratorAddresses `protobuf:"bytes,8,rep,name=orchestrator_addresses,json=orchestratorAddresses,proto3" json:"orchestrator_addresses,omitempty"`
-	Erc20ToDenoms              []*ERC20ToDenom                `protobuf:"bytes,9,rep,name=erc20_to_denoms,json=erc20ToDenoms,proto3" json:"erc20_to_denoms,omitempty"`
-	UnbatchedTransfers         []*OutgoingTransferTx          `protobuf:"bytes,10,rep,name=unbatched_transfers,json=unbatchedTransfers,proto3" json:"unbatched_transfers,omitempty"`
-	LastObservedEthereumHeight uint64                         `protobuf:"varint,11,opt,name=last_observed_ethereum_height,json=lastObservedEthereumHeight,proto3" json:"last_observed_ethereum_height,omitempty"`
-	LastOutgoingBatchId        uint64                         `protobuf:"varint,12,opt,name=last_outgoing_batch_id,json=lastOutgoingBatchId,proto3" json:"last_outgoing_batch_id,omitempty"`
-	LastOutgoingPoolId         uint64                         `protobuf:"varint,13,opt,name=last_outgoing_pool_id,json=lastOutgoingPoolId,proto3" json:"last_outgoing_pool_id,omitempty"`
-	LastObservedValset         Valset                         `protobuf:"bytes,14,opt,name=last_observed_valset,json=lastObservedValset,proto3" json:"last_observed_valset"`
-	EthereumBlacklist          []string                       `protobuf:"bytes,15,rep,name=ethereum_blacklist,json=ethereumBlacklist,proto3" json:"ethereum_blacklist,omitempty"`
+	Params    *Params                 `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
+	SubStates []*GenesisHyperionState `protobuf:"bytes,2,rep,name=sub_states,json=subStates,proto3" json:"sub_states,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
 func (m *GenesisState) String() string { return proto.CompactTextString(m) }
 func (*GenesisState) ProtoMessage()    {}
 func (*GenesisState) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6673652d3a5debb2, []int{0}
+	return fileDescriptor_6673652d3a5debb2, []int{1}
 }
 func (m *GenesisState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -83,155 +226,70 @@ func (m *GenesisState) GetParams() *Params {
 	return nil
 }
 
-func (m *GenesisState) GetLastObservedNonce() uint64 {
+func (m *GenesisState) GetSubStates() []*GenesisHyperionState {
 	if m != nil {
-		return m.LastObservedNonce
-	}
-	return 0
-}
-
-func (m *GenesisState) GetValsets() []*Valset {
-	if m != nil {
-		return m.Valsets
-	}
-	return nil
-}
-
-func (m *GenesisState) GetValsetConfirms() []*MsgValsetConfirm {
-	if m != nil {
-		return m.ValsetConfirms
-	}
-	return nil
-}
-
-func (m *GenesisState) GetBatches() []*OutgoingTxBatch {
-	if m != nil {
-		return m.Batches
-	}
-	return nil
-}
-
-func (m *GenesisState) GetBatchConfirms() []*MsgConfirmBatch {
-	if m != nil {
-		return m.BatchConfirms
-	}
-	return nil
-}
-
-func (m *GenesisState) GetAttestations() []*Attestation {
-	if m != nil {
-		return m.Attestations
-	}
-	return nil
-}
-
-func (m *GenesisState) GetOrchestratorAddresses() []*MsgSetOrchestratorAddresses {
-	if m != nil {
-		return m.OrchestratorAddresses
-	}
-	return nil
-}
-
-func (m *GenesisState) GetErc20ToDenoms() []*ERC20ToDenom {
-	if m != nil {
-		return m.Erc20ToDenoms
-	}
-	return nil
-}
-
-func (m *GenesisState) GetUnbatchedTransfers() []*OutgoingTransferTx {
-	if m != nil {
-		return m.UnbatchedTransfers
-	}
-	return nil
-}
-
-func (m *GenesisState) GetLastObservedEthereumHeight() uint64 {
-	if m != nil {
-		return m.LastObservedEthereumHeight
-	}
-	return 0
-}
-
-func (m *GenesisState) GetLastOutgoingBatchId() uint64 {
-	if m != nil {
-		return m.LastOutgoingBatchId
-	}
-	return 0
-}
-
-func (m *GenesisState) GetLastOutgoingPoolId() uint64 {
-	if m != nil {
-		return m.LastOutgoingPoolId
-	}
-	return 0
-}
-
-func (m *GenesisState) GetLastObservedValset() Valset {
-	if m != nil {
-		return m.LastObservedValset
-	}
-	return Valset{}
-}
-
-func (m *GenesisState) GetEthereumBlacklist() []string {
-	if m != nil {
-		return m.EthereumBlacklist
+		return m.SubStates
 	}
 	return nil
 }
 
 func init() {
+	proto.RegisterType((*GenesisHyperionState)(nil), "helios.hyperion.v1.GenesisHyperionState")
 	proto.RegisterType((*GenesisState)(nil), "helios.hyperion.v1.GenesisState")
 }
 
 func init() { proto.RegisterFile("helios/hyperion/v1/genesis.proto", fileDescriptor_6673652d3a5debb2) }
 
 var fileDescriptor_6673652d3a5debb2 = []byte{
-	// 636 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x94, 0xcb, 0x4e, 0xdb, 0x4e,
-	0x14, 0xc6, 0x93, 0x3f, 0xfc, 0xb9, 0x0c, 0x37, 0x31, 0x5c, 0x34, 0x8a, 0x84, 0x89, 0x5a, 0x54,
-	0xd1, 0x05, 0x31, 0x09, 0xdd, 0x76, 0x41, 0x52, 0x54, 0xa8, 0x44, 0x41, 0x06, 0xb5, 0x52, 0x37,
-	0xd6, 0xc4, 0x3e, 0xd8, 0x56, 0x1d, 0x4f, 0x34, 0x67, 0x88, 0x60, 0xd7, 0x47, 0xe8, 0x63, 0xb1,
-	0x64, 0xd9, 0x55, 0x55, 0xc1, 0x8b, 0x54, 0x9e, 0x19, 0xe7, 0xa2, 0x3a, 0xec, 0xc6, 0xf3, 0x7d,
-	0xdf, 0xef, 0x9c, 0xcc, 0x9c, 0x0c, 0xa9, 0xc7, 0x90, 0x26, 0x02, 0xdd, 0xf8, 0xbe, 0x0f, 0x32,
-	0x11, 0x99, 0x3b, 0x68, 0xba, 0x11, 0x64, 0x80, 0x09, 0x36, 0xfa, 0x52, 0x28, 0x41, 0xa9, 0x71,
-	0x34, 0x0a, 0x47, 0x63, 0xd0, 0xac, 0x6d, 0x46, 0x22, 0x12, 0x5a, 0x76, 0xf3, 0x95, 0x71, 0xd6,
-	0x9c, 0x12, 0x96, 0xba, 0xef, 0x83, 0x25, 0xd5, 0x76, 0x4a, 0xf4, 0x1e, 0x46, 0xf8, 0x42, 0xbc,
-	0xcb, 0x55, 0x10, 0x5b, 0x7d, 0xaf, 0x44, 0xe7, 0x4a, 0x01, 0x2a, 0xae, 0xf2, 0xbe, 0x8c, 0x6b,
-	0xb7, 0xc4, 0xd5, 0xe7, 0x92, 0xf7, 0x86, 0x65, 0x02, 0x81, 0x3d, 0x81, 0x6e, 0x97, 0x23, 0xb8,
-	0x83, 0x66, 0x17, 0x14, 0x6f, 0xba, 0x81, 0x48, 0x2c, 0xe0, 0xd5, 0x8f, 0x05, 0xb2, 0xfc, 0xd1,
-	0x9c, 0xc0, 0x95, 0xe2, 0x0a, 0x68, 0x8b, 0xcc, 0x19, 0x00, 0xab, 0xd6, 0xab, 0xfb, 0x4b, 0xad,
-	0x5a, 0xe3, 0xdf, 0x13, 0x69, 0x5c, 0x6a, 0x87, 0x67, 0x9d, 0xb4, 0x41, 0x36, 0x52, 0x8e, 0xca,
-	0x17, 0x5d, 0x04, 0x39, 0x80, 0xd0, 0xcf, 0x44, 0x16, 0x00, 0xfb, 0xaf, 0x5e, 0xdd, 0x9f, 0xf5,
-	0xd6, 0x73, 0xe9, 0xc2, 0x2a, 0x9f, 0x73, 0x81, 0xbe, 0x23, 0xf3, 0x03, 0x9e, 0x22, 0x28, 0x64,
-	0x33, 0xf5, 0x99, 0x69, 0x45, 0xbe, 0x68, 0x8b, 0x57, 0x58, 0xe9, 0x39, 0x59, 0x33, 0x4b, 0x3f,
-	0x10, 0xd9, 0x4d, 0x22, 0x7b, 0xc8, 0x66, 0x75, 0x7a, 0xaf, 0x2c, 0x7d, 0x8e, 0x91, 0x01, 0x74,
-	0x8c, 0xd9, 0x5b, 0x1d, 0x8c, 0x7f, 0x22, 0x7d, 0x4f, 0xe6, 0xf5, 0x79, 0x03, 0xb2, 0xff, 0x35,
-	0xe6, 0x75, 0x19, 0xe6, 0xe2, 0x56, 0x45, 0x22, 0xc9, 0xa2, 0xeb, 0xbb, 0x76, 0x6e, 0xf6, 0x8a,
-	0x0c, 0xfd, 0x44, 0x56, 0xf5, 0x72, 0xd4, 0xcc, 0xdc, 0x74, 0xca, 0x39, 0x46, 0xb6, 0xae, 0xa1,
-	0xac, 0xe8, 0xe8, 0xb0, 0x95, 0x0e, 0x59, 0x1e, 0xbb, 0x5a, 0x64, 0xf3, 0x9a, 0xb4, 0x5b, 0x46,
-	0x3a, 0x1e, 0xf9, 0xbc, 0x89, 0x10, 0xbd, 0x21, 0xdb, 0x42, 0xe6, 0xad, 0x29, 0xc9, 0x95, 0x90,
-	0x3e, 0x0f, 0x43, 0x09, 0x88, 0x80, 0x6c, 0x41, 0xe3, 0xdc, 0x29, 0x8d, 0x5d, 0x81, 0xba, 0x18,
-	0xcb, 0x1d, 0x17, 0x31, 0x6f, 0x4b, 0x94, 0x6d, 0xd3, 0x53, 0xb2, 0x06, 0x32, 0x68, 0x1d, 0xfa,
-	0x4a, 0xf8, 0x21, 0x64, 0xa2, 0x87, 0x6c, 0x51, 0x17, 0xa8, 0x97, 0x15, 0x38, 0xf1, 0x3a, 0xad,
-	0xc3, 0x6b, 0xf1, 0x21, 0x37, 0x7a, 0x2b, 0x3a, 0x68, 0xbf, 0x90, 0x7e, 0x25, 0x1b, 0xb7, 0x99,
-	0x39, 0xcf, 0xd0, 0x57, 0x92, 0x67, 0x78, 0x03, 0x12, 0x19, 0xd1, 0xb4, 0x37, 0x2f, 0xde, 0x86,
-	0x35, 0x5f, 0xdf, 0x79, 0x74, 0x88, 0x28, 0x36, 0x91, 0x1e, 0x93, 0x9d, 0xc9, 0x79, 0x04, 0x15,
-	0x83, 0x84, 0xdb, 0x9e, 0x1f, 0x43, 0x12, 0xc5, 0x8a, 0x2d, 0xe9, 0xc9, 0xac, 0x8d, 0x4f, 0xe6,
-	0x89, 0xb5, 0x9c, 0x6a, 0x07, 0x3d, 0x22, 0xdb, 0x06, 0x61, 0x2b, 0xfa, 0xe6, 0xb2, 0x93, 0x90,
-	0x2d, 0xeb, 0xac, 0x1e, 0xf8, 0xa2, 0x1d, 0x7d, 0xa9, 0x67, 0x21, 0x6d, 0x92, 0xad, 0xc9, 0x50,
-	0x5f, 0x88, 0x34, 0xcf, 0xac, 0xe8, 0x0c, 0x1d, 0xcf, 0x5c, 0x0a, 0x91, 0x9e, 0x85, 0xd4, 0x23,
-	0x9b, 0x93, 0xad, 0x9a, 0x29, 0x65, 0xab, 0xd3, 0xff, 0x7c, 0x66, 0xac, 0xdb, 0xb3, 0x0f, 0xbf,
-	0x77, 0x2b, 0x96, 0x69, 0xc3, 0x46, 0xa1, 0x07, 0x84, 0x0e, 0x7f, 0x70, 0x37, 0xe5, 0xc1, 0xf7,
-	0x34, 0x41, 0xc5, 0xd6, 0xea, 0x33, 0xfb, 0x8b, 0xde, 0x7a, 0xa1, 0xb4, 0x0b, 0xa1, 0xdd, 0x79,
-	0x78, 0x72, 0xaa, 0x8f, 0x4f, 0x4e, 0xf5, 0xcf, 0x93, 0x53, 0xfd, 0xf9, 0xec, 0x54, 0x1e, 0x9f,
-	0x9d, 0xca, 0xaf, 0x67, 0xa7, 0xf2, 0xed, 0xad, 0xa9, 0x7e, 0x10, 0x08, 0x09, 0x6e, 0xb1, 0x8e,
-	0x79, 0x92, 0xb9, 0x77, 0xa3, 0x17, 0x47, 0xbf, 0x79, 0xdd, 0x39, 0xfd, 0x9c, 0x1c, 0xfd, 0x0d,
-	0x00, 0x00, 0xff, 0xff, 0x1c, 0xe6, 0x3f, 0x3e, 0x62, 0x05, 0x00, 0x00,
+	// 705 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x54, 0xcd, 0x4e, 0xdb, 0x4a,
+	0x14, 0x4e, 0x80, 0xcb, 0xcf, 0x84, 0x1f, 0x31, 0xfc, 0x68, 0x14, 0x89, 0x24, 0xe2, 0xa2, 0xab,
+	0xdc, 0x05, 0x31, 0x09, 0x77, 0x7b, 0x17, 0x24, 0x45, 0x40, 0x55, 0x0a, 0x1a, 0x50, 0x2b, 0x75,
+	0x63, 0x8d, 0xed, 0xc1, 0xb1, 0x70, 0x3c, 0xd1, 0x9c, 0x89, 0x05, 0xcf, 0xd0, 0x4d, 0x9f, 0xa3,
+	0x4f, 0xc2, 0x92, 0x65, 0x57, 0x55, 0x05, 0x2f, 0x52, 0x79, 0x66, 0x1c, 0x12, 0xd5, 0xb0, 0x3b,
+	0xf6, 0xf7, 0x73, 0xce, 0x9c, 0x39, 0x73, 0x50, 0xa3, 0xcf, 0xe3, 0x48, 0x80, 0xd3, 0xbf, 0x1f,
+	0x72, 0x19, 0x89, 0xc4, 0x49, 0xdb, 0x4e, 0xc8, 0x13, 0x0e, 0x11, 0xb4, 0x86, 0x52, 0x28, 0x81,
+	0xb1, 0x61, 0xb4, 0x72, 0x46, 0x2b, 0x6d, 0x57, 0x37, 0x43, 0x11, 0x0a, 0x0d, 0x3b, 0x59, 0x64,
+	0x98, 0xd5, 0x5a, 0x81, 0x97, 0xba, 0x1f, 0x72, 0xeb, 0x54, 0xdd, 0x29, 0xc0, 0x07, 0x10, 0xc2,
+	0x1b, 0x72, 0x8f, 0x29, 0xbf, 0x6f, 0xf1, 0xbd, 0x02, 0x9c, 0x29, 0xc5, 0x41, 0x31, 0x95, 0xd5,
+	0x65, 0x58, 0xf5, 0x02, 0xd6, 0x90, 0x49, 0x36, 0x18, 0xa7, 0xf1, 0x05, 0x0c, 0x04, 0x38, 0x1e,
+	0x03, 0xee, 0xa4, 0x6d, 0x8f, 0x2b, 0xd6, 0x76, 0x7c, 0x11, 0x59, 0x83, 0xdd, 0xef, 0x8b, 0x68,
+	0xf3, 0xc4, 0x74, 0xe0, 0xd4, 0x7a, 0x5c, 0x29, 0xa6, 0x38, 0xae, 0xa3, 0x4a, 0x6e, 0xea, 0x46,
+	0x01, 0x29, 0x37, 0xca, 0xcd, 0x39, 0x8a, 0xf2, 0x5f, 0x67, 0x01, 0x6e, 0xa1, 0x8d, 0x98, 0x81,
+	0x72, 0x85, 0x07, 0x5c, 0xa6, 0x3c, 0x70, 0x13, 0x91, 0xf8, 0x9c, 0xcc, 0x68, 0xe2, 0x7a, 0x06,
+	0x5d, 0x58, 0xe4, 0x63, 0x06, 0xe0, 0xff, 0xd0, 0x42, 0xca, 0x62, 0xe0, 0x0a, 0xc8, 0x6c, 0x63,
+	0xb6, 0x59, 0xe9, 0x54, 0x5b, 0x7f, 0xf6, 0xba, 0xf5, 0x49, 0x53, 0x68, 0x4e, 0xc5, 0xe7, 0x68,
+	0xcd, 0x84, 0xae, 0x2f, 0x92, 0x9b, 0x48, 0x0e, 0x80, 0xcc, 0x69, 0xf5, 0x5e, 0x91, 0xfa, 0x1c,
+	0x42, 0x63, 0xd0, 0x33, 0x64, 0xba, 0x9a, 0x4e, 0x7e, 0x02, 0xfe, 0x1f, 0x2d, 0xe8, 0x26, 0x73,
+	0x20, 0x7f, 0x69, 0x9b, 0xbf, 0x8b, 0x6c, 0x2e, 0x46, 0x2a, 0x14, 0x51, 0x12, 0x5e, 0xdf, 0x75,
+	0x33, 0x32, 0xcd, 0x35, 0xf8, 0x3d, 0x5a, 0xd5, 0xe1, 0x4b, 0x31, 0xf3, 0xaf, 0xbb, 0x9c, 0x43,
+	0x68, 0xf3, 0x1a, 0x97, 0x15, 0x2d, 0x1d, 0x97, 0xd2, 0x43, 0xcb, 0x13, 0xf7, 0x09, 0x64, 0x41,
+	0x3b, 0xd5, 0x8b, 0x9c, 0x8e, 0x5e, 0x78, 0x74, 0x4a, 0x84, 0x6f, 0xd0, 0xb6, 0x90, 0x59, 0x69,
+	0x4a, 0x32, 0x25, 0xa4, 0xcb, 0x82, 0x40, 0x72, 0x00, 0x0e, 0x64, 0x51, 0xdb, 0x39, 0xaf, 0x14,
+	0x76, 0xc5, 0xd5, 0xc5, 0x84, 0xee, 0x28, 0x97, 0xd1, 0x2d, 0x51, 0xf4, 0x1b, 0x9f, 0xa2, 0x35,
+	0x2e, 0xfd, 0xce, 0x81, 0xab, 0x84, 0x1b, 0xf0, 0x44, 0x0c, 0x80, 0x2c, 0xe9, 0x04, 0x8d, 0xa2,
+	0x04, 0xc7, 0xb4, 0xd7, 0x39, 0xb8, 0x16, 0xef, 0x32, 0x22, 0x5d, 0xd1, 0x42, 0xfb, 0x05, 0xf8,
+	0x33, 0xda, 0x18, 0x25, 0xa6, 0x9f, 0x81, 0xab, 0x24, 0x4b, 0xe0, 0x86, 0x4b, 0x20, 0x48, 0xbb,
+	0xfd, 0xf3, 0xe6, 0x6d, 0x58, 0xf2, 0xf5, 0x1d, 0xc5, 0x63, 0x8b, 0xfc, 0x27, 0xe0, 0x14, 0xed,
+	0x4c, 0xcf, 0x23, 0x57, 0x7d, 0x2e, 0xf9, 0x68, 0xe0, 0xf6, 0x79, 0x14, 0xf6, 0x15, 0xa9, 0x34,
+	0xca, 0xcd, 0x4a, 0xe7, 0xb0, 0x28, 0xc5, 0x87, 0x89, 0x69, 0x3d, 0xb6, 0xb2, 0x6e, 0x2c, 0xfc,
+	0xdb, 0x53, 0x2d, 0xa5, 0xd5, 0xb8, 0x80, 0x60, 0x30, 0x7c, 0x88, 0xb6, 0x4d, 0x5e, 0x5b, 0xa6,
+	0x6b, 0x26, 0x24, 0x0a, 0xc8, 0xb2, 0x7e, 0x0a, 0xfa, 0x95, 0xe4, 0x67, 0xd0, 0x93, 0x70, 0x16,
+	0xe0, 0x36, 0xda, 0x9a, 0x16, 0x0d, 0x85, 0x88, 0x33, 0xcd, 0x8a, 0xd6, 0xe0, 0x49, 0xcd, 0xa5,
+	0x10, 0xf1, 0x59, 0x80, 0x29, 0xda, 0x9c, 0x3e, 0x9f, 0x19, 0x6d, 0xb2, 0xaa, 0x8f, 0xf5, 0xc6,
+	0x63, 0xea, 0xce, 0x3d, 0xfc, 0xac, 0x97, 0xac, 0xa7, 0x15, 0x1b, 0x04, 0xef, 0x23, 0x3c, 0xee,
+	0x92, 0x17, 0x33, 0xff, 0x36, 0x8e, 0x40, 0x91, 0xb5, 0xc6, 0x6c, 0x73, 0x89, 0xae, 0xf3, 0x71,
+	0x23, 0x2c, 0xb0, 0xfb, 0xb5, 0x8c, 0x96, 0xed, 0xb2, 0x30, 0x4b, 0xa2, 0x83, 0xe6, 0xcd, 0xb6,
+	0xd1, 0xfb, 0xe1, 0x95, 0x2a, 0x2e, 0x35, 0x83, 0x5a, 0x26, 0x3e, 0x41, 0x08, 0x46, 0x9e, 0x9b,
+	0x8d, 0x30, 0x07, 0x32, 0xa3, 0xef, 0xbd, 0x59, 0xa4, 0x2b, 0x5a, 0x4b, 0x74, 0x09, 0x46, 0x9e,
+	0x8e, 0xa0, 0xdb, 0x7b, 0x78, 0xaa, 0x95, 0x1f, 0x9f, 0x6a, 0xe5, 0x5f, 0x4f, 0xb5, 0xf2, 0xb7,
+	0xe7, 0x5a, 0xe9, 0xf1, 0xb9, 0x56, 0xfa, 0xf1, 0x5c, 0x2b, 0x7d, 0xf9, 0xd7, 0xb8, 0xed, 0xfb,
+	0x42, 0x72, 0x27, 0x8f, 0xfb, 0x2c, 0x4a, 0x9c, 0xbb, 0x97, 0x4d, 0xa9, 0x77, 0xb5, 0x37, 0xaf,
+	0xd7, 0xe0, 0xe1, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0x81, 0xfd, 0x70, 0xe8, 0x1a, 0x06, 0x00,
+	0x00,
 }
 
-func (m *GenesisState) Marshal() (dAtA []byte, err error) {
+func (m *GenesisHyperionState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -241,12 +299,12 @@ func (m *GenesisState) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GenesisState) MarshalTo(dAtA []byte) (int, error) {
+func (m *GenesisHyperionState) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GenesisHyperionState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -280,10 +338,17 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x60
 	}
-	if m.LastObservedEthereumHeight != 0 {
-		i = encodeVarintGenesis(dAtA, i, uint64(m.LastObservedEthereumHeight))
+	if m.LastObservedEthereumHeight != nil {
+		{
+			size, err := m.LastObservedEthereumHeight.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintGenesis(dAtA, i, uint64(size))
+		}
 		i--
-		dAtA[i] = 0x58
+		dAtA[i] = 0x5a
 	}
 	if len(m.UnbatchedTransfers) > 0 {
 		for iNdEx := len(m.UnbatchedTransfers) - 1; iNdEx >= 0; iNdEx-- {
@@ -402,6 +467,48 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
+	if m.HyperionId != 0 {
+		i = encodeVarintGenesis(dAtA, i, uint64(m.HyperionId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GenesisState) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GenesisState) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.SubStates) > 0 {
+		for iNdEx := len(m.SubStates) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.SubStates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
 	if m.Params != nil {
 		{
 			size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
@@ -428,15 +535,14 @@ func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *GenesisState) Size() (n int) {
+func (m *GenesisHyperionState) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.Params != nil {
-		l = m.Params.Size()
-		n += 1 + l + sovGenesis(uint64(l))
+	if m.HyperionId != 0 {
+		n += 1 + sovGenesis(uint64(m.HyperionId))
 	}
 	if m.LastObservedNonce != 0 {
 		n += 1 + sovGenesis(uint64(m.LastObservedNonce))
@@ -489,8 +595,9 @@ func (m *GenesisState) Size() (n int) {
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if m.LastObservedEthereumHeight != 0 {
-		n += 1 + sovGenesis(uint64(m.LastObservedEthereumHeight))
+	if m.LastObservedEthereumHeight != nil {
+		l = m.LastObservedEthereumHeight.Size()
+		n += 1 + l + sovGenesis(uint64(l))
 	}
 	if m.LastOutgoingBatchId != 0 {
 		n += 1 + sovGenesis(uint64(m.LastOutgoingBatchId))
@@ -509,13 +616,32 @@ func (m *GenesisState) Size() (n int) {
 	return n
 }
 
+func (m *GenesisState) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Params != nil {
+		l = m.Params.Size()
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	if len(m.SubStates) > 0 {
+		for _, e := range m.SubStates {
+			l = e.Size()
+			n += 1 + l + sovGenesis(uint64(l))
+		}
+	}
+	return n
+}
+
 func sovGenesis(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozGenesis(x uint64) (n int) {
 	return sovGenesis(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *GenesisState) Unmarshal(dAtA []byte) error {
+func (m *GenesisHyperionState) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -538,17 +664,17 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GenesisState: wiretype end group for non-group")
+			return fmt.Errorf("proto: GenesisHyperionState: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GenesisState: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GenesisHyperionState: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HyperionId", wireType)
 			}
-			var msglen int
+			m.HyperionId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGenesis
@@ -558,28 +684,11 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				m.HyperionId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Params == nil {
-				m.Params = &Params{}
-			}
-			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field LastObservedNonce", wireType)
@@ -872,10 +981,10 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 11:
-			if wireType != 0 {
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field LastObservedEthereumHeight", wireType)
 			}
-			m.LastObservedEthereumHeight = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGenesis
@@ -885,11 +994,28 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.LastObservedEthereumHeight |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.LastObservedEthereumHeight == nil {
+				m.LastObservedEthereumHeight = &LastObservedEthereumBlockHeight{}
+			}
+			if err := m.LastObservedEthereumHeight.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 12:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field LastOutgoingBatchId", wireType)
@@ -992,6 +1118,126 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.EthereumBlacklist = append(m.EthereumBlacklist, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GenesisState) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GenesisState: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GenesisState: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Params == nil {
+				m.Params = &Params{}
+			}
+			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubStates", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SubStates = append(m.SubStates, &GenesisHyperionState{})
+			if err := m.SubStates[len(m.SubStates)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

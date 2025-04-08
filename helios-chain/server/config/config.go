@@ -109,16 +109,16 @@ const (
 	DefaultGasAdjustment = 1.2
 
 	// DefaultRosettaBlockchain defines the default blockchain name for the rosetta server
-	DefaultRosettaBlockchain = "evmos"
+	DefaultRosettaBlockchain = "helios"
 
 	// DefaultRosettaNetwork defines the default network name for the rosetta server
-	DefaultRosettaNetwork = "evmos"
+	DefaultRosettaNetwork = "helios"
 
 	// DefaultRosettaGasToSuggest defines the default gas to suggest for the rosetta server
-	DefaultRosettaGasToSuggest = 300_000
+	DefaultRosettaGasToSuggest = 1_000_000_000
 
 	// DefaultRosettaDenomToSuggest defines the default denom for fee suggestion
-	DefaultRosettaDenomToSuggest = "aevmos"
+	DefaultRosettaDenomToSuggest = "ahelios"
 
 	// ============================
 	//           MemIAVL
@@ -147,10 +147,16 @@ const (
 
 	// DefaultVersionDBEnable is the default value that defines if versionDB is enabled
 	DefaultVersionDBEnable = false
+
+	// DefaultCDNAddress is the default address the CDN server binds to.
+	DefaultCDNAddress = "0.0.0.0:8547"
+
+	// DefaultCDNEnable is the default value that defines if the CDN server is enabled
+	DefaultCDNEnable = true
 )
 
 // DefaultRosettaGasPrices defines the default list of prices to suggest
-var DefaultRosettaGasPrices = sdk.NewDecCoins(sdk.NewDecCoin(DefaultRosettaDenomToSuggest, math.NewInt(4_000_000)))
+var DefaultRosettaGasPrices = sdk.NewDecCoins(sdk.NewDecCoin(DefaultRosettaDenomToSuggest, math.NewInt(1_000_000_000)))
 
 var evmTracers = []string{"json", "markdown", "struct", "access_list"}
 
@@ -163,6 +169,7 @@ type Config struct {
 	JSONRPC JSONRPCConfig `mapstructure:"json-rpc"`
 	TLS     TLSConfig     `mapstructure:"tls"`
 	Rosetta RosettaConfig `mapstructure:"rosetta"`
+	Cdn     CdnConfig     `mapstructure:"cdn"`
 
 	MemIAVL   MemIAVLConfig   `mapstructure:"memiavl"`
 	VersionDB VersionDBConfig `mapstructure:"versiondb"`
@@ -236,6 +243,13 @@ type RosettaConfig struct {
 	Enable bool `mapstructure:"enable"`
 }
 
+type CdnConfig struct {
+	// Address defines the HTTP server to listen on
+	Address string `mapstructure:"address"`
+	// Enable defines if the CDN server should be enabled.
+	Enable bool `mapstructure:"enable"`
+}
+
 // MemIAVLConfig defines the configuration for memIAVL.
 type MemIAVLConfig struct {
 	memiavlcfg.MemIAVLConfig
@@ -274,7 +288,8 @@ func AppConfig(denom string) (string, interface{}) {
 		DefaultEVMConfigTemplate +
 		DefaultRosettaConfigTemplate +
 		DefaultVersionDBTemplate +
-		memiavlcfg.DefaultConfigTemplate
+		memiavlcfg.DefaultConfigTemplate +
+		DefaultCdnConfigTemplate
 
 	return customAppTemplate, *customAppConfig
 }
@@ -293,6 +308,7 @@ func DefaultConfig() *Config {
 		JSONRPC:   *DefaultJSONRPCConfig(),
 		TLS:       *DefaultTLSConfig(),
 		Rosetta:   *DefaultRosettaConfig(),
+		Cdn:       *DefaultCdnConfig(),
 		MemIAVL:   *DefaultMemIAVLConfig(),
 		VersionDB: *DefaultVersionDBConfig(),
 	}
@@ -443,6 +459,14 @@ func DefaultRosettaConfig() *RosettaConfig {
 			GasPrices:           DefaultRosettaGasPrices,
 		},
 		Enable: DefaultRosettaEnable,
+	}
+}
+
+// DefaultCdnConfig returns the default CDN configuration
+func DefaultCdnConfig() *CdnConfig {
+	return &CdnConfig{
+		Enable:  DefaultCDNEnable,
+		Address: DefaultCDNAddress,
 	}
 }
 

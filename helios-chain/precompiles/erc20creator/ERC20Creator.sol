@@ -13,14 +13,18 @@ interface ERC20Creator {
      * Returns the address of the newly created ERC20 token.
      * @param name The name of the ERC20 token.
      * @param symbol The symbol of the ERC20 token.
+     * @param denom The denomimation of one unit of the ERC20 token.
      * @param totalSupply The total supply of the ERC20 token.
      * @param decimals The number of decimals of the ERC20 token.
+     * @param logoBase64 The logo in base64 png 200x200 optionnal "".
      * @return tokenAddress The address of the newly created ERC20 token.
      */
     function createErc20(
         string memory name,
         string memory symbol,
+        string memory denom,
         uint256 totalSupply,
-        uint8 decimals
+        uint8 decimals,
+        string memory logoBase64
     ) external returns (address tokenAddress);
 }

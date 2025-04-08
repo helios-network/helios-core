@@ -1,8 +1,3 @@
----
-sidebar_position: 2
-title: Workflow
----
-
 # Workflow
 
 ## Conceptual Overview
@@ -12,15 +7,16 @@ To recap, each operator is responsible for maintaining 3 secure processes:
 1. An Helios Chain Validator node (`heliades`) to sign blocks
 2. A fully synced Ethereum full node
 3. The `hyperion` orchestrator which runs:
-   * An `Eth Signer`, which signs new `Validator Set` updates and `Transaction Batch`es with the `Operator`'s Ethereum keys and submits using [messages](./04_messages.md#Ethereum-Signer-messages). 
-   * An `Oracle`, which observes events from Ethereum full nodes and relays them using [messages](./04_messages.md#Oracle-messages). 
+   * An `Eth Signer`, which signs new `Validator Set` updates and `Transaction Batch`es with the `Operator`'s Ethereum keys and submits using [messages](./04_messages.md#Ethereum-Signer-messages).
+   * An `Oracle`, which observes events from Ethereum full nodes and relays them using [messages](./04_messages.md#Oracle-messages).
    * A `Relayer` which submits confirmed `Validator Set` updates and `Transaction Batch`es to the `Hyperion Contract` on Ethereum
    * A `Batch Requester` which observes (new) unbatched transactions on Helios and decides which of these to batch according to the cofigured `minBatchFeeUSD` value
 
 Combined, these 3 entities accomplish 3 things:
-- Move assets from Ethereum to Helios
-- Move assets from Helios to Ethereum
-- Keep the `Hyperion.sol` contract in sync with the active `Validator Set` on Helios 
+
+* Move assets from Ethereum to Helios
+* Move assets from Helios to Ethereum
+* Keep the `Hyperion.sol` contract in sync with the active `Validator Set` on Helios
 
 ### Batch Requester
 
@@ -82,23 +78,25 @@ This document describes the end to end lifecycle of the Hyperion bridge.
 
 ### Hyperion Smart Contract Deployment
 
-In order to deploy the Hyperion contract, the validator set of the native chain (Helios Chain) must be known. Upon deploying the Hyperion contract suite (Hyperion Implementation, Proxy contract, and ProxyAdmin contracts), the Hyperion contract (the Proxy contract) must be initialized with the validator set. 
+In order to deploy the Hyperion contract, the validator set of the native chain (Helios Chain) must be known. Upon deploying the Hyperion contract suite (Hyperion Implementation, Proxy contract, and ProxyAdmin contracts), the Hyperion contract (the Proxy contract) must be initialized with the validator set.
 
 The proxy contract is used to upgrade Hyperion Implementation contract  which is needed for bug fixing and potential improvements during initial phase. It is a simple wrapper or "proxy" which users interact with directly and is in charge of forwarding transactions to the Hyperion implementation contract, which contains the logic. The key concept to understand is that the implementation contract can be replaced but the proxy (the access point) is never changed.
 
-The ProxyAdmin is a central admin for the Hyperion proxy, which simplifies management. It controls upgradability and ownership transfers. The ProxyAdmin contract itself has a built-in expiration time which, once expired, prevents the Hyperion implementation contract from being upgraded in the future. 
+The ProxyAdmin is a central admin for the Hyperion proxy, which simplifies management. It controls upgradability and ownership transfers. The ProxyAdmin contract itself has a built-in expiration time which, once expired, prevents the Hyperion implementation contract from being upgraded in the future.
 
 Then the following hyperion genesis params should be updated:
-1. `bridge_ethereum_address` with Hyperion proxy contract address 
+
+1. `bridge_ethereum_address` with Hyperion proxy contract address
 2. `bridge_contract_start_height` with the height at which the Hyperion proxy contract was deployed
 
 This completes the bootstrap of the Hyperion bridge and the chain can be started.
 
 ### **Updating Helios Chain validator set on Ethereum**
 
-![img.png](./images/valsetupdate.png)
+![img.png](./images/UpdateValset.png)
 
 A validator set is a series of Ethereum addresses with attached normalized powers used to represent the Helios validator set (Valset) in the Hyperion contract on Ethereum. The Hyperion contract stays in sync with the Helios Chain validator set through the following mechanism: 
+
 1. **Creating a new Valset on Helios:** A new Valset is automatically created on the Helios Chain when either:
 - the cumulative difference of the current validator set powers compared to the last recorded Valset exceeds 5%
 - a validator begins unbonding
@@ -111,9 +109,9 @@ The Hyperion contract then validates the data, updates the valset checkpoint, tr
 
 ----
 
-### **Transferring ERC-20 tokens from Ethereum to Helios**
+### **Transferring ERC-20 tokens from Chain to Helios**
 
-![img.png](./images/SendToCosmos.png)
+![img.png](./images/SendToHelios.png)
 
 ERC-20 tokens are transferred from Ethereum to Helios through the following mechanism:
   1. **Depositing ERC-20 tokens on the Hyperion Contract:** A user initiates a transfer of ERC-20 tokens from Ethereum to Helios by calling the `SendToCosmos` function on the Hyperion contract which deposits tokens on the Hyperion contract and emits a `SendToCosmosEvent`.
@@ -129,7 +127,7 @@ ERC-20 tokens are transferred from Ethereum to Helios through the following mech
 -----
 ### **Withdrawing tokens from Helios to Ethereum**
 
-![img.png](./images/SendToEth.png)
+![img.png](./images/SendToChain.png)
 
 1. **Request Withdrawal from Helios:** A user can initiate the transfer of assets from the Helios Chain to Ethereum by sending a `MsgSendToEth` transaction to the hyperion module.
 - If the asset is Ethereum native, the represented tokens are burnt. 
@@ -140,7 +138,6 @@ The withdrawal is then added to pending withdrawal OutgoingTx Pool.
 4. **Submit Batch to Hyperion Contract:**  Once a 2/3 majority of validators confirm the batch, the hyperion orchestrator sends `SubmitBatch` tx to the Hyperion contract on Ethereum. The Hyperion contract validates the signatures, updates the batch checkpoint, processes the batch ERC-20 withdrawals, transfers the batch fee to the tx sender and emits a `TransactionBatchExecutedEvent`.
 5. **Send Withdrawal Claim to Helios:** Validators running the hyperion orchestrator witness the `TransactionBatchExecutedEvent` and send a `MsgWithdrawClaim` containing the withdrawal information to the Hyperion module.
 6. **Prune Batches** Once a 2/3 majority of validators submit their `MsgWithdrawClaim` , the batch is deleted along and all previous batches are cancelled on the Hyperion module.
-7. **Batch Slashing:** Validators are responsible for confirming batches and are subject to slashing if they fail to do so. Read more on [batch slashing](./05_slashing.md). 
+7. **Batch Slashing:** Validators are responsible for confirming batches and are subject to slashing if they fail to do so. Read more on [batch slashing](./05_slashing.md).
 
 Note while that batching reduces individual withdrawal costs dramatically, this comes at the cost of latency and implementation complexity. If a user wishes to withdraw quickly they will have to pay a much higher fee. However this fee will be about the same as the fee every withdrawal from the bridge would require in a non-batching system.
-

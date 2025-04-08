@@ -3,25 +3,31 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 )
 
-// ModuleCdc is the codec for the module
-var ModuleCdc = codec.NewLegacyAmino()
+// Legacy Amino Codec for JSON Serialization
+var amino = codec.NewLegacyAmino()
+
+// Protobuf Codec for Message Serialization
+var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
+
+// Amino JSON codec for backwards compatibility
+var AminoCdc = codec.NewAminoCodec(amino) //nolint:staticcheck
 
 func init() {
-	RegisterLegacyAminoCodec(ModuleCdc)
+	RegisterLegacyAminoCodec(amino)
 	RegisterLegacyAminoCodec(authzcdc.Amino)
-	// TODO: check
-	// RegisterLegacyAminoCodec(govcdc.Amino)
-	// RegisterLegacyAminoCodec(groupcdc.Amino)
+	amino.Seal()
 }
 
 // RegisterInterfaces registers the interfaces for the proto stuff
 func RegisterInterfaces(registry types.InterfaceRegistry) {
+	// Register Hyperion Messages
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgValsetConfirm{},
 		&MsgSendToChain{},
@@ -48,15 +54,16 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgValsetUpdatedClaim{},
 	)
 
+	// Register MsgService Descriptor
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
-// RegisterLegacyAminoCodec registers concrete types on the Amino codec
+// RegisterLegacyAminoCodec registers the necessary Hyperion messages for JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetOrchestratorAddresses{}, "hyperion/MsgSetOrchestratorAddresses", nil)
 	cdc.RegisterConcrete(&MsgValsetConfirm{}, "hyperion/MsgValsetConfirm", nil)
-	cdc.RegisterConcrete(&MsgSendToChain{}, "hyperion/MsgSendToEth", nil)
-	cdc.RegisterConcrete(&MsgCancelSendToChain{}, "hyperion/MsgCancelSendToEth", nil)
+	cdc.RegisterConcrete(&MsgSendToChain{}, "hyperion/MsgSendToChain", nil)
+	cdc.RegisterConcrete(&MsgCancelSendToChain{}, "hyperion/MsgCancelSendToChain", nil)
 	cdc.RegisterConcrete(&MsgRequestBatch{}, "hyperion/MsgRequestBatch", nil)
 	cdc.RegisterConcrete(&MsgConfirmBatch{}, "hyperion/MsgConfirmBatch", nil)
 	cdc.RegisterConcrete(&Valset{}, "hyperion/Valset", nil)

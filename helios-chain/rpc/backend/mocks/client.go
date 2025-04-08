@@ -228,6 +228,28 @@ func (_m *Client) BlockchainLocateTxsInfo(ctx context.Context, minHeight int64, 
 	return r0, r1
 }
 
+func (_m *Client) BlockchainLocateNotEmptyBlocksInfo(ctx context.Context, minHeight int64, maxHeight int64) (*coretypes.ResultBlockchainInfo, error) {
+	ret := _m.Called(ctx, minHeight, maxHeight)
+
+	var r0 *coretypes.ResultBlockchainInfo
+	if rf, ok := ret.Get(0).(func(context.Context, int64, int64) *coretypes.ResultBlockchainInfo); ok {
+		r0 = rf(ctx, minHeight, maxHeight)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coretypes.ResultBlockchainInfo)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int64, int64) error); ok {
+		r1 = rf(ctx, minHeight, maxHeight)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // BroadcastEvidence provides a mock function with given fields: _a0, _a1
 func (_m *Client) BroadcastEvidence(_a0 context.Context, _a1 types.Evidence) (*coretypes.ResultBroadcastEvidence, error) {
 	ret := _m.Called(_a0, _a1)

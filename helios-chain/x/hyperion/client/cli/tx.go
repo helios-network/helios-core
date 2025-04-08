@@ -101,7 +101,7 @@ func CmdUnsafeETHAddr() *cobra.Command {
 
 func CmdSendToChain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "send-to-chain [dest-hyperion-id] [eth-dest] [amount] [bridge-fee]",
+		Use:   "send-to-chain [chain-id] [eth-dest] [amount] [bridge-fee]",
 		Short: "Adds a new entry to the transaction pool to withdraw an amount from the Ethereum bridge contract",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -110,7 +110,7 @@ func CmdSendToChain() *cobra.Command {
 				return err
 			}
 			cosmosAddr := cliCtx.GetFromAddress()
-			destHypperionId, err := strconv.ParseUint(args[0], 10, 64)
+			chainId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return errors.Wrap(err, "dest hypperionId")
 			}
@@ -130,11 +130,11 @@ func CmdSendToChain() *cobra.Command {
 
 			// Make the message
 			msg := types.MsgSendToChain{
-				Sender:         cosmosAddr.String(),
-				DestHyperionId: destHypperionId,
-				Dest:           args[1],
-				Amount:         amount[0],
-				BridgeFee:      bridgeFee[0],
+				Sender:      cosmosAddr.String(),
+				DestChainId: chainId,
+				Dest:        args[1],
+				Amount:      amount[0],
+				BridgeFee:   bridgeFee[0],
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -149,9 +149,9 @@ func CmdSendToChain() *cobra.Command {
 
 func NewCancelSendToChain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "cancel-send-to-chain [id]",
+		Use:   "cancel-send-to-chain [tx-id] [chain-id]",
 		Short: "Cancels send to chain",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -159,11 +159,20 @@ func NewCancelSendToChain() *cobra.Command {
 			}
 			cosmosAddr := cliCtx.GetFromAddress()
 
-			id, _ := strconv.Atoi(args[0])
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "dest chainId")
+			}
+
+			chainId, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "dest chainId")
+			}
 			// Make the message
 			msg := types.MsgCancelSendToChain{
 				TransactionId: uint64(id),
 				Sender:        cosmosAddr.String(),
+				ChainId:       chainId,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -178,9 +187,9 @@ func NewCancelSendToChain() *cobra.Command {
 
 func CmdRequestBatch() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "build-batch [denom]",
+		Use:   "build-batch [denom] [hyperion-id]",
 		Short: "Build a new batch on the cosmos side for pooled withdrawal transactions",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -190,9 +199,15 @@ func CmdRequestBatch() *cobra.Command {
 
 			denom := args[0]
 
+			hyperionId, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "hyperionId")
+			}
+
 			msg := types.MsgRequestBatch{
 				Orchestrator: cosmosAddr.String(),
 				Denom:        denom,
+				HyperionId:   hyperionId,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
@@ -208,7 +223,7 @@ func CmdRequestBatch() *cobra.Command {
 
 func CmdSetOrchestratorAddress() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-orchestrator-address [validator-acc-address] [orchestrator-acc-address] [ethereum-address]",
+		Use:   "set-orchestrator-address [validator-acc-address] [orchestrator-acc-address] [ethereum-address] [hyperion-id]",
 		Short: "Allows validators to delegate their voting responsibilities to a given key.",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -216,10 +231,16 @@ func CmdSetOrchestratorAddress() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			hyperionId, err := strconv.ParseUint(args[3], 10, 64)
+			if err != nil {
+				return errors.Wrap(err, "hyperionId")
+			}
+
 			msg := types.MsgSetOrchestratorAddresses{
 				Sender:       args[0],
 				Orchestrator: args[1],
 				EthAddress:   args[2],
+				HyperionId:   hyperionId,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

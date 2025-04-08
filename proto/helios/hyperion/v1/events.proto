@@ -52,6 +52,7 @@ message EventSetOrchestratorAddresses {
   string validator_address = 1;
   string orchestrator_address = 2;
   string operator_eth_address = 3;
+  uint64 hyperion_id = 4;
 }
 
 message EventValsetConfirm {

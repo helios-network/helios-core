@@ -1,0 +1,16 @@
+{
+  "name": "fee-distribution",
+  "version": "1.0.0",
+  "description": "",
+  "main": "deploy-counter-contract.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cosmjs/encoding": "^0.33.1",
+    "ethers": "^6.13.5"
+  }
+}

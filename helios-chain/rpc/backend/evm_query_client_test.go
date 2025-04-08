@@ -9,6 +9,11 @@ import (
 
 	"cosmossdk.io/math"
 
+	"helios-core/helios-chain/rpc/backend/mocks"
+	rpc "helios-core/helios-chain/rpc/types"
+	utiltx "helios-core/helios-chain/testutil/tx"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
@@ -19,10 +24,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"helios-core/helios-chain/rpc/backend/mocks"
-	rpc "helios-core/helios-chain/rpc/types"
-	utiltx "helios-core/helios-chain/testutil/tx"
-	evmtypes "helios-core/helios-chain/x/evm/types"
 )
 
 // QueryClient defines a mocked object that implements the ethermint GRPC
@@ -140,13 +141,15 @@ func TestRegisterParamsError(t *testing.T) {
 
 // ETH Call
 func RegisterEthCall(queryClient *mocks.EVMQueryClient, request *evmtypes.EthCallRequest) {
-	ctx, _ := context.WithCancel(rpc.ContextWithHeight(1)) //nolint
+	ctx, cancel := context.WithCancel(rpc.ContextWithHeight(1)) //nolint
+	defer cancel()
 	queryClient.On("EthCall", ctx, request).
 		Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 }
 
 func RegisterEthCallError(queryClient *mocks.EVMQueryClient, request *evmtypes.EthCallRequest) {
-	ctx, _ := context.WithCancel(rpc.ContextWithHeight(1)) //nolint
+	ctx, cancel := context.WithCancel(rpc.ContextWithHeight(1)) //nolint
+	defer cancel()
 	queryClient.On("EthCall", ctx, request).
 		Return(nil, errortypes.ErrInvalidRequest)
 }

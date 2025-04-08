@@ -459,150 +459,98 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 }
 
 func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
-	if page == 0 || size == 0 {
-		return nil, errors.New("page and size must be greater than 0")
+
+	if page == 0 || size == 0 || size > 100 {
+		return nil, errors.New("invalid page or size parameters")
 	}
-	pageNum := uint64(page)
-	pageSize := uint64(size)
 
-	transactions := make([]*rpctypes.RPCTransaction, 0, pageSize)
+	// Transactions accumulator
+	transactions := make([]*rpctypes.RPCTransaction, 0, size)
 
-	// Get pending transactions
-	pendingTxs, err := b.PendingTransactions()
-	if err != nil {
-		return nil, err
-	}
-	// offSet is the index of the first transaction in the page (0-indexed)
-	offSet := (pageNum - 1) * pageSize
+	// utilities
+	counter := uint64(0)
+	skip := (uint64(page) - 1) * uint64(size)
 
-	// pendingTxCount is the number of pending transactions in the mempool
-	pendingTxCount := uint64(len(pendingTxs))
-
-	// add mempool txs if we are in the page range
-	if offSet < pendingTxCount {
-		pendingEndPosition := min(offSet+pageSize, pendingTxCount)
-
-		for i := offSet; i < pendingEndPosition; i++ {
-			msg, err := evmtypes.UnwrapEthereumMsgTx(pendingTxs[i])
-			if err != nil {
-				return nil, fmt.Errorf("failed to unwrap ethereum tx: %w", err)
-			}
-
-			rpctx, err := rpctypes.NewTransactionFromMsg(
-				msg,
-				common.Hash{},
-				uint64(0),
-				uint64(0),
-				nil,
-				b.chainID,
-			)
-			if err != nil {
-				return nil, fmt.Errorf("failed to create transaction from msg: %w", err)
-			}
+	// Handle pending transactions first
+	pendingTxs, _ := b.PendingTransactions()
+	for _, tx := range pendingTxs {
+		msg, err := evmtypes.UnwrapEthereumMsgTx(tx)
+		if err != nil {
+			continue
+		}
+		rpctx, err := rpctypes.NewTransactionFromMsg(msg, common.Hash{}, 0, 0, nil, b.chainID)
+		if err != nil {
+			continue
+		}
+		if counter >= skip {
 			transactions = append(transactions, rpctx)
-
-			if uint64(len(transactions)) >= pageSize {
+			if uint64(len(transactions)) >= uint64(size) {
 				return transactions, nil
 			}
 		}
+		counter++
 	}
 
-	// we need to find txs in confirmed blocks
-	// get latest block number
+	// Fetch relevant blocks heights once
+	heightsWhereFindingTx := make([]int64, 0)
+	batchSize := int64(1000)
 	latestBlockNumber, err := b.BlockNumber()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get latest block number: %w", err)
+		return nil, err
 	}
-
-	// Calculate how many more transactions we need
-	txCount := uint64(0)
-
-	// use BlockchainInfo to estimate the target block based on num_txs using batches of 100
-	const batchSize = int64(100)
 	maxHeight := int64(latestBlockNumber)
-	for maxHeight > 0 && uint64(len(transactions)) < pageSize {
-		// Calculate minHeight safely
-		minHeight := int64(1)
-		if maxHeight > int64(batchSize) {
-			minHeight = maxHeight - int64(batchSize) + 1
+	totalMatchedTxs := uint64(0)
+
+	for maxHeight > 0 && totalMatchedTxs < skip+uint64(size) {
+		minHeight := maxHeight - batchSize + 1
+		if minHeight < 1 {
+			minHeight = 1
 		}
 
-		b.logger.Debug("Querying BlockchainInfo",
-			"minHeight", minHeight,
-			"maxHeight", maxHeight)
-
-		// get block metadata for the current batch
-		info, err := b.clientCtx.Client.BlockchainInfo(b.ctx, int64(minHeight), int64(maxHeight))
+		info, err := b.clientCtx.Client.BlockchainLocateNotEmptyBlocksInfo(b.ctx, minHeight, maxHeight)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get block metadata: %w", err)
 		}
 
-		var targetBlock int64
-		// inspect the number of txs in each block and find the block within the page range
-		for i := 0; i < len(info.BlockMetas); i++ {
-			txCount += uint64(info.BlockMetas[i].NumTxs)
-			if uint64(txCount) >= offSet { // this block contains txs we need
-				targetBlock = info.BlockMetas[i].Header.Height
-				break
+		for _, blockMeta := range info.BlockMetas {
+			if blockMeta.NumTxs > 0 {
+				heightsWhereFindingTx = append(heightsWhereFindingTx, blockMeta.Header.Height)
+				totalMatchedTxs += uint64(blockMeta.NumTxs) // Compteur explicite ici
 			}
 		}
-		if targetBlock == 0 {
-			return nil, fmt.Errorf("txs not found for page %d and size %d", pageNum, pageSize)
+		maxHeight = minHeight - 1
+		if minHeight == 1 {
+			break
 		}
+	}
 
-		for blockHeight := targetBlock; blockHeight > 0 && uint64(len(transactions)) < pageSize; blockHeight-- {
-
-			block, err := b.rpcClient.Block(b.ctx, &blockHeight)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get block %d: %w", blockHeight, err)
+	// Reverse iterate relevant heights to maintain asc order
+	for i := 0; i < len(heightsWhereFindingTx) && uint64(len(transactions)) < uint64(size); i++ {
+		blockHeight := heightsWhereFindingTx[i]
+		block, err := b.GetBlockByNumber(rpctypes.BlockNumber(blockHeight), true)
+		if err != nil {
+			continue
+		}
+		txs, ok := block["transactions"].([]interface{})
+		if !ok {
+			continue
+		}
+		for _, tx := range txs {
+			ethTx, ok := tx.(*rpctypes.RPCTransaction)
+			if !ok {
+				continue
 			}
-
-			blockRes, err := b.rpcClient.BlockResults(b.ctx, &blockHeight)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get block results for block %d: %w", blockHeight, err)
-			}
-
-			updatedOffset := offSet + uint64(len(transactions))
-			txCount := uint64(0)
-			ethMsgs := b.EthMsgsFromTendermintBlock(block, blockRes)
-			for i, msg := range ethMsgs {
-
-				// Skip eth messages until we reach our start position
-				if txCount+uint64(i) < updatedOffset {
-					continue
-				}
-
-				// Check if we've reached our page size
-				if uint64(len(transactions)) >= pageSize {
+			if counter >= skip {
+				transactions = append(transactions, ethTx)
+				if uint64(len(transactions)) >= uint64(size) {
 					return transactions, nil
 				}
-
-				// construct the rpc transaction
-				baseFee, err := b.BaseFee(blockRes)
-				if err != nil {
-					return nil, fmt.Errorf("failed to fetch Base Fee from prunned block. Check node prunning configuration: %w", err)
-				}
-
-				rpctx, err := rpctypes.NewTransactionFromMsg(
-					msg,
-					common.BytesToHash(block.Block.Hash()),
-					uint64(block.Block.Height),
-					uint64(i),
-					baseFee,
-					b.chainID,
-				)
-				if err != nil {
-					return nil, fmt.Errorf("failed to create transaction from msg: %w", err)
-				}
-				transactions = append(transactions, rpctx)
 			}
-			txCount += uint64(len(ethMsgs))
+			counter++
 		}
-		maxHeight -= batchSize
 	}
 
 	return transactions, nil
-
 }
 
 func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) (map[string]interface{}, error) {

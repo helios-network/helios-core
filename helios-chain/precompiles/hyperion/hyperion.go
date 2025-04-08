@@ -10,10 +10,13 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	hyperionkeeper "helios-core/helios-chain/x/hyperion/keeper"
 
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+
+	logoskeeper "helios-core/helios-chain/x/logos/keeper"
+
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -29,8 +32,10 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	hyperionKeeper hyperionkeeper.Keeper
+	erc20Keeper    erc20keeper.Keeper
 	bankKeeper     bankkeeper.Keeper
 	chronosKeeper  chronoskeeper.Keeper
+	logosKeeper    logoskeeper.Keeper
 }
 
 // LoadABI loads the gov ABI from the embedded abi.json file
@@ -42,8 +47,10 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	hyperionKeeper hyperionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	chronosKeeper chronoskeeper.Keeper,
+	logosKeeper logoskeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -59,8 +66,10 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		hyperionKeeper: hyperionKeeper,
+		erc20Keeper:    erc20Keeper,
 		bankKeeper:     bankKeeper,
 		chronosKeeper:  chronosKeeper,
+		logosKeeper:    logosKeeper,
 	}
 
 	// SetAddress defines the address of the gov precompiled contract.
@@ -106,6 +115,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.SendToChain(ctx, evm.Origin, contract, stateDB, method, args)
 	case SetOrchestratorAddressesMethod:
 		bz, err = p.SetOrchestratorAddresses(ctx, evm.Origin, contract, stateDB, method, args)
+	case UpdateCounterpartyChainInfosParamsMethod:
+		bz, err = p.UpdateCounterpartyChainInfosParams(ctx, evm.Origin, contract, stateDB, method, args)
 	// ask for external chain datas
 	case RequestDataHyperion:
 		bz, err = p.RequestData(ctx, evm.Origin, contract, stateDB, method, args)
@@ -140,6 +151,8 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 	case SetOrchestratorAddressesMethod:
 		return true
 	case RequestDataHyperion:
+		return true
+	case UpdateCounterpartyChainInfosParamsMethod:
 		return true
 	default:
 		return false

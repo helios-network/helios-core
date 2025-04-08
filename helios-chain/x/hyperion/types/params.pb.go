@@ -83,23 +83,29 @@ type CounterpartyChainParams struct {
 	ContractSourceHash            string                      `protobuf:"bytes,2,opt,name=contract_source_hash,json=contractSourceHash,proto3" json:"contract_source_hash,omitempty"`
 	BridgeCounterpartyAddress     string                      `protobuf:"bytes,3,opt,name=bridge_counterparty_address,json=bridgeCounterpartyAddress,proto3" json:"bridge_counterparty_address,omitempty"`
 	BridgeChainId                 uint64                      `protobuf:"varint,4,opt,name=bridge_chain_id,json=bridgeChainId,proto3" json:"bridge_chain_id,omitempty"`
-	SignedValsetsWindow           uint64                      `protobuf:"varint,5,opt,name=signed_valsets_window,json=signedValsetsWindow,proto3" json:"signed_valsets_window,omitempty"`
-	SignedBatchesWindow           uint64                      `protobuf:"varint,6,opt,name=signed_batches_window,json=signedBatchesWindow,proto3" json:"signed_batches_window,omitempty"`
-	SignedClaimsWindow            uint64                      `protobuf:"varint,7,opt,name=signed_claims_window,json=signedClaimsWindow,proto3" json:"signed_claims_window,omitempty"`
-	TargetBatchTimeout            uint64                      `protobuf:"varint,8,opt,name=target_batch_timeout,json=targetBatchTimeout,proto3" json:"target_batch_timeout,omitempty"`
-	AverageBlockTime              uint64                      `protobuf:"varint,9,opt,name=average_block_time,json=averageBlockTime,proto3" json:"average_block_time,omitempty"`
-	AverageCounterpartyBlockTime  uint64                      `protobuf:"varint,10,opt,name=average_counterparty_block_time,json=averageCounterpartyBlockTime,proto3" json:"average_counterparty_block_time,omitempty"`
-	SlashFractionValset           cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=slash_fraction_valset,json=slashFractionValset,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_valset"`
-	SlashFractionBatch            cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=slash_fraction_batch,json=slashFractionBatch,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_batch"`
-	SlashFractionClaim            cosmossdk_io_math.LegacyDec `protobuf:"bytes,13,opt,name=slash_fraction_claim,json=slashFractionClaim,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_claim"`
-	SlashFractionConflictingClaim cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=slash_fraction_conflicting_claim,json=slashFractionConflictingClaim,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_conflicting_claim"`
-	UnbondSlashingValsetsWindow   uint64                      `protobuf:"varint,15,opt,name=unbond_slashing_valsets_window,json=unbondSlashingValsetsWindow,proto3" json:"unbond_slashing_valsets_window,omitempty"`
-	SlashFractionBadEthSignature  cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=slash_fraction_bad_eth_signature,json=slashFractionBadEthSignature,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_bad_eth_signature"`
-	CosmosCoinDenom               string                      `protobuf:"bytes,17,opt,name=cosmos_coin_denom,json=cosmosCoinDenom,proto3" json:"cosmos_coin_denom,omitempty"`
-	CosmosCoinErc20Contract       string                      `protobuf:"bytes,18,opt,name=cosmos_coin_erc20_contract,json=cosmosCoinErc20Contract,proto3" json:"cosmos_coin_erc20_contract,omitempty"`
-	ClaimSlashingEnabled          bool                        `protobuf:"varint,19,opt,name=claim_slashing_enabled,json=claimSlashingEnabled,proto3" json:"claim_slashing_enabled,omitempty"`
-	BridgeContractStartHeight     uint64                      `protobuf:"varint,20,opt,name=bridge_contract_start_height,json=bridgeContractStartHeight,proto3" json:"bridge_contract_start_height,omitempty"`
-	ValsetReward                  types.Coin                  `protobuf:"bytes,21,opt,name=valset_reward,json=valsetReward,proto3" json:"valset_reward"`
+	BridgeChainName               string                      `protobuf:"bytes,5,opt,name=bridge_chain_name,json=bridgeChainName,proto3" json:"bridge_chain_name,omitempty"`
+	BridgeChainLogo               string                      `protobuf:"bytes,6,opt,name=bridge_chain_logo,json=bridgeChainLogo,proto3" json:"bridge_chain_logo,omitempty"`
+	BridgeChainType               string                      `protobuf:"bytes,7,opt,name=bridge_chain_type,json=bridgeChainType,proto3" json:"bridge_chain_type,omitempty"`
+	SignedValsetsWindow           uint64                      `protobuf:"varint,8,opt,name=signed_valsets_window,json=signedValsetsWindow,proto3" json:"signed_valsets_window,omitempty"`
+	SignedBatchesWindow           uint64                      `protobuf:"varint,9,opt,name=signed_batches_window,json=signedBatchesWindow,proto3" json:"signed_batches_window,omitempty"`
+	SignedClaimsWindow            uint64                      `protobuf:"varint,10,opt,name=signed_claims_window,json=signedClaimsWindow,proto3" json:"signed_claims_window,omitempty"`
+	TargetBatchTimeout            uint64                      `protobuf:"varint,11,opt,name=target_batch_timeout,json=targetBatchTimeout,proto3" json:"target_batch_timeout,omitempty"`
+	TargetOutgoingTxTimeout       uint64                      `protobuf:"varint,12,opt,name=target_outgoing_tx_timeout,json=targetOutgoingTxTimeout,proto3" json:"target_outgoing_tx_timeout,omitempty"`
+	AverageBlockTime              uint64                      `protobuf:"varint,13,opt,name=average_block_time,json=averageBlockTime,proto3" json:"average_block_time,omitempty"`
+	AverageCounterpartyBlockTime  uint64                      `protobuf:"varint,14,opt,name=average_counterparty_block_time,json=averageCounterpartyBlockTime,proto3" json:"average_counterparty_block_time,omitempty"`
+	SlashFractionValset           cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=slash_fraction_valset,json=slashFractionValset,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_valset"`
+	SlashFractionBatch            cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=slash_fraction_batch,json=slashFractionBatch,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_batch"`
+	SlashFractionClaim            cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=slash_fraction_claim,json=slashFractionClaim,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_claim"`
+	SlashFractionConflictingClaim cosmossdk_io_math.LegacyDec `protobuf:"bytes,18,opt,name=slash_fraction_conflicting_claim,json=slashFractionConflictingClaim,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_conflicting_claim"`
+	UnbondSlashingValsetsWindow   uint64                      `protobuf:"varint,19,opt,name=unbond_slashing_valsets_window,json=unbondSlashingValsetsWindow,proto3" json:"unbond_slashing_valsets_window,omitempty"`
+	SlashFractionBadEthSignature  cosmossdk_io_math.LegacyDec `protobuf:"bytes,20,opt,name=slash_fraction_bad_eth_signature,json=slashFractionBadEthSignature,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"slash_fraction_bad_eth_signature"`
+	CosmosCoinDenom               string                      `protobuf:"bytes,21,opt,name=cosmos_coin_denom,json=cosmosCoinDenom,proto3" json:"cosmos_coin_denom,omitempty"`
+	CosmosCoinErc20Contract       string                      `protobuf:"bytes,22,opt,name=cosmos_coin_erc20_contract,json=cosmosCoinErc20Contract,proto3" json:"cosmos_coin_erc20_contract,omitempty"`
+	ClaimSlashingEnabled          bool                        `protobuf:"varint,23,opt,name=claim_slashing_enabled,json=claimSlashingEnabled,proto3" json:"claim_slashing_enabled,omitempty"`
+	BridgeContractStartHeight     uint64                      `protobuf:"varint,24,opt,name=bridge_contract_start_height,json=bridgeContractStartHeight,proto3" json:"bridge_contract_start_height,omitempty"`
+	ValsetReward                  types.Coin                  `protobuf:"bytes,25,opt,name=valset_reward,json=valsetReward,proto3" json:"valset_reward"`
+	Erc20ToDenoms                 []*ERC20ToDenom             `protobuf:"bytes,26,rep,name=erc20_to_denoms,json=erc20ToDenoms,proto3" json:"erc20_to_denoms,omitempty"`
+	Initializer                   string                      `protobuf:"bytes,27,opt,name=initializer,proto3" json:"initializer,omitempty"`
 }
 
 func (m *CounterpartyChainParams) Reset()         { *m = CounterpartyChainParams{} }
@@ -163,6 +169,27 @@ func (m *CounterpartyChainParams) GetBridgeChainId() uint64 {
 	return 0
 }
 
+func (m *CounterpartyChainParams) GetBridgeChainName() string {
+	if m != nil {
+		return m.BridgeChainName
+	}
+	return ""
+}
+
+func (m *CounterpartyChainParams) GetBridgeChainLogo() string {
+	if m != nil {
+		return m.BridgeChainLogo
+	}
+	return ""
+}
+
+func (m *CounterpartyChainParams) GetBridgeChainType() string {
+	if m != nil {
+		return m.BridgeChainType
+	}
+	return ""
+}
+
 func (m *CounterpartyChainParams) GetSignedValsetsWindow() uint64 {
 	if m != nil {
 		return m.SignedValsetsWindow
@@ -187,6 +214,13 @@ func (m *CounterpartyChainParams) GetSignedClaimsWindow() uint64 {
 func (m *CounterpartyChainParams) GetTargetBatchTimeout() uint64 {
 	if m != nil {
 		return m.TargetBatchTimeout
+	}
+	return 0
+}
+
+func (m *CounterpartyChainParams) GetTargetOutgoingTxTimeout() uint64 {
+	if m != nil {
+		return m.TargetOutgoingTxTimeout
 	}
 	return 0
 }
@@ -247,6 +281,20 @@ func (m *CounterpartyChainParams) GetValsetReward() types.Coin {
 	return types.Coin{}
 }
 
+func (m *CounterpartyChainParams) GetErc20ToDenoms() []*ERC20ToDenom {
+	if m != nil {
+		return m.Erc20ToDenoms
+	}
+	return nil
+}
+
+func (m *CounterpartyChainParams) GetInitializer() string {
+	if m != nil {
+		return m.Initializer
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "helios.hyperion.v1.Params")
 	proto.RegisterType((*CounterpartyChainParams)(nil), "helios.hyperion.v1.CounterpartyChainParams")
@@ -255,60 +303,67 @@ func init() {
 func init() { proto.RegisterFile("helios/hyperion/v1/params.proto", fileDescriptor_f5f87689d64baa8c) }
 
 var fileDescriptor_f5f87689d64baa8c = []byte{
-	// 836 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0x4d, 0x6f, 0x1c, 0x35,
-	0x18, 0xde, 0x69, 0x42, 0x68, 0xbc, 0x09, 0x69, 0x9c, 0x4d, 0xe3, 0x7c, 0xb0, 0x3b, 0x2a, 0x12,
-	0xda, 0x16, 0x98, 0x49, 0x02, 0xa7, 0x22, 0x81, 0xd8, 0x4d, 0x50, 0x2b, 0x71, 0x40, 0x1b, 0xa0,
-	0x12, 0x17, 0xcb, 0x63, 0xbb, 0x33, 0x56, 0x76, 0xec, 0x95, 0xed, 0xdd, 0x90, 0x1b, 0x67, 0x24,
-	0x24, 0xfe, 0x03, 0x7f, 0x80, 0x9f, 0xd1, 0x63, 0x8f, 0x08, 0xa1, 0x0a, 0x25, 0x07, 0xfe, 0x06,
-	0xb2, 0x3d, 0xb3, 0x1f, 0x69, 0x2b, 0x45, 0x5c, 0x56, 0xb3, 0x7e, 0x3e, 0xde, 0x57, 0x8f, 0xed,
-	0xd7, 0xa0, 0x53, 0xf0, 0xa1, 0x50, 0x26, 0x2d, 0x2e, 0x47, 0x5c, 0x0b, 0x25, 0xd3, 0xc9, 0x51,
-	0x3a, 0x22, 0x9a, 0x94, 0x26, 0x19, 0x69, 0x65, 0x15, 0x84, 0x81, 0x90, 0xd4, 0x84, 0x64, 0x72,
-	0xb4, 0xd7, 0xca, 0x55, 0xae, 0x3c, 0x9c, 0xba, 0xaf, 0xc0, 0xdc, 0x6b, 0x53, 0x65, 0x4a, 0x65,
-	0xd2, 0x8c, 0x18, 0x9e, 0x4e, 0x8e, 0x32, 0x6e, 0xc9, 0x51, 0x4a, 0x95, 0x90, 0x15, 0xbe, 0x49,
-	0x4a, 0x21, 0x55, 0xea, 0x7f, 0xc3, 0xd2, 0x83, 0xdf, 0x23, 0xb0, 0xf2, 0xad, 0xaf, 0x06, 0x73,
-	0xb0, 0x4b, 0xd5, 0x58, 0x5a, 0xae, 0x47, 0x44, 0xdb, 0x4b, 0x4c, 0x0b, 0x22, 0x24, 0x0e, 0xad,
-	0xa0, 0x28, 0x5e, 0xea, 0x36, 0x8f, 0x3f, 0x4a, 0x5e, 0xef, 0x25, 0xe9, 0xcf, 0x89, 0xfa, 0x4e,
-	0x13, 0xfc, 0x06, 0x3b, 0xf4, 0xcd, 0x00, 0xbc, 0x0f, 0x56, 0x08, 0x2b, 0x85, 0x34, 0xe8, 0x4e,
-	0xbc, 0xd4, 0x5d, 0x1d, 0x54, 0xff, 0x1e, 0xa3, 0x9f, 0xff, 0x8e, 0x1b, 0xbf, 0xfc, 0xfb, 0xc7,
-	0xa3, 0x8d, 0x69, 0x16, 0x41, 0xf1, 0xe0, 0xd7, 0x26, 0xd8, 0x79, 0x4b, 0x19, 0xd8, 0x01, 0xcd,
-	0x9a, 0x8e, 0x05, 0x43, 0x51, 0x1c, 0x75, 0x97, 0x07, 0xa0, 0x5e, 0x7a, 0xca, 0xe0, 0x21, 0x68,
-	0x51, 0x25, 0xad, 0x26, 0xd4, 0x62, 0xa3, 0xc6, 0x9a, 0x72, 0x5c, 0x10, 0x53, 0xa0, 0x3b, 0x71,
-	0xd4, 0x5d, 0x1d, 0xc0, 0x1a, 0x3b, 0xf3, 0xd0, 0x13, 0x62, 0x0a, 0xf8, 0x05, 0xd8, 0xcf, 0xb4,
-	0x60, 0x39, 0xc7, 0x0b, 0x81, 0x10, 0xc6, 0x34, 0x37, 0x06, 0x2d, 0x79, 0xe1, 0x6e, 0xa0, 0xcc,
-	0xb7, 0xf5, 0x55, 0x20, 0xc0, 0x0f, 0xc1, 0x46, 0xad, 0xf7, 0x19, 0x0a, 0x86, 0x96, 0x7d, 0x5b,
-	0xeb, 0x95, 0xc6, 0xad, 0x3e, 0x65, 0xf0, 0x18, 0x6c, 0x1b, 0x91, 0x4b, 0xce, 0xf0, 0x84, 0x0c,
-	0x0d, 0xb7, 0x06, 0x5f, 0x08, 0xc9, 0xd4, 0x05, 0x7a, 0xc7, 0xb3, 0xb7, 0x02, 0xf8, 0x43, 0xc0,
-	0x9e, 0x79, 0x68, 0x4e, 0x93, 0x11, 0x4b, 0x0b, 0x3e, 0xd5, 0xac, 0xcc, 0x6b, 0x7a, 0x01, 0xab,
-	0x34, 0x87, 0xa0, 0x55, 0x69, 0xe8, 0x90, 0x88, 0x72, 0x2a, 0x79, 0xd7, 0x4b, 0x60, 0xc0, 0xfa,
-	0x1e, 0x9a, 0x29, 0x2c, 0xd1, 0x39, 0xb7, 0xa1, 0x0a, 0xb6, 0xa2, 0xe4, 0x6a, 0x6c, 0xd1, 0xdd,
-	0xa0, 0x08, 0x98, 0x2f, 0xf2, 0x5d, 0x40, 0xe0, 0xc7, 0x00, 0x92, 0x09, 0xd7, 0x24, 0xe7, 0x38,
-	0x1b, 0x2a, 0x7a, 0xee, 0x25, 0x68, 0xd5, 0xf3, 0xef, 0x55, 0x48, 0xcf, 0x01, 0x4e, 0x00, 0x4f,
-	0x41, 0xa7, 0x66, 0x2f, 0x44, 0x3c, 0x27, 0x05, 0x5e, 0x7a, 0x50, 0xd1, 0xe6, 0x63, 0x9e, 0xd9,
-	0x3c, 0x03, 0xdb, 0x66, 0x48, 0x4c, 0x81, 0x9f, 0xbb, 0x1d, 0x74, 0x27, 0x20, 0x04, 0x89, 0x9a,
-	0x71, 0xd4, 0x5d, 0xeb, 0x7d, 0xf0, 0xe2, 0x55, 0xa7, 0xf1, 0xd7, 0xab, 0xce, 0x7e, 0xb8, 0x17,
-	0x86, 0x9d, 0x27, 0x42, 0xa5, 0x25, 0xb1, 0x45, 0xf2, 0x0d, 0xcf, 0x09, 0xbd, 0x3c, 0xe1, 0x74,
-	0xb0, 0xe5, 0x1d, 0xbe, 0xae, 0x0c, 0x42, 0xd8, 0xf0, 0x7b, 0xd0, 0xba, 0x61, 0xec, 0x73, 0x40,
-	0x6b, 0xb7, 0xf7, 0x85, 0x0b, 0xbe, 0x3e, 0xab, 0x37, 0xd8, 0xfa, 0x0d, 0x41, 0xeb, 0xff, 0xd7,
-	0xd6, 0x6f, 0x1a, 0x1c, 0x82, 0xf8, 0xa6, 0xad, 0x92, 0xcf, 0x87, 0x82, 0x5a, 0x21, 0xf3, 0xaa,
-	0xc4, 0x7b, 0xb7, 0x2f, 0xf1, 0xfe, 0x62, 0x89, 0x99, 0x55, 0xa8, 0xd6, 0x07, 0xed, 0xb1, 0xcc,
-	0x94, 0x64, 0xd8, 0xf3, 0x5c, 0x89, 0x1b, 0xc7, 0x77, 0xc3, 0x6f, 0xdd, 0x7e, 0x60, 0x9d, 0x55,
-	0xa4, 0xc5, 0x63, 0x7c, 0xfe, 0x5a, 0xcb, 0x19, 0x61, 0x98, 0xdb, 0x02, 0xbb, 0xd3, 0x48, 0xec,
-	0x58, 0x73, 0x74, 0xef, 0xf6, 0x2d, 0x1f, 0xdc, 0x08, 0x9b, 0x9d, 0xda, 0xe2, 0xac, 0x36, 0x82,
-	0x8f, 0xc0, 0x66, 0x10, 0x63, 0x37, 0x0c, 0x31, 0xe3, 0x52, 0x95, 0x68, 0xd3, 0xdf, 0xe2, 0x8d,
-	0x00, 0xf4, 0x95, 0x90, 0x27, 0x6e, 0x19, 0x7e, 0x0e, 0xf6, 0xe6, 0xb9, 0x5c, 0xd3, 0xe3, 0x43,
-	0x5c, 0xcf, 0x08, 0x04, 0xbd, 0x68, 0x67, 0x26, 0x3a, 0x75, 0x78, 0xbf, 0x82, 0xe1, 0x67, 0xe0,
-	0xbe, 0x4f, 0x7b, 0x96, 0x0c, 0x97, 0x24, 0x1b, 0x72, 0x86, 0xb6, 0xe2, 0xa8, 0x7b, 0x77, 0xd0,
-	0xf2, 0x68, 0x9d, 0xc8, 0x69, 0xc0, 0xe0, 0x97, 0xe0, 0x60, 0x3a, 0x6e, 0xea, 0x39, 0x65, 0x89,
-	0xb6, 0xb8, 0xe0, 0x22, 0x2f, 0x2c, 0x6a, 0xf9, 0x38, 0xa7, 0xf3, 0xa6, 0x1a, 0x57, 0x8e, 0xf1,
-	0xc4, 0x13, 0xe0, 0x09, 0x58, 0x0f, 0x3b, 0x80, 0x35, 0xbf, 0x20, 0x9a, 0xa1, 0xed, 0x38, 0xea,
-	0x36, 0x8f, 0x77, 0x93, 0xd0, 0x67, 0xe2, 0xde, 0x83, 0xa4, 0x7a, 0x0f, 0x12, 0xd7, 0x75, 0x6f,
-	0xd9, 0x85, 0x3a, 0x58, 0x0b, 0xaa, 0x81, 0x17, 0x3d, 0x7e, 0x58, 0x8f, 0xdf, 0x78, 0x3a, 0x7e,
-	0xdf, 0x32, 0x73, 0x7b, 0xfd, 0x17, 0x57, 0xed, 0xe8, 0xe5, 0x55, 0x3b, 0xfa, 0xe7, 0xaa, 0x1d,
-	0xfd, 0x76, 0xdd, 0x6e, 0xbc, 0xbc, 0x6e, 0x37, 0xfe, 0xbc, 0x6e, 0x37, 0x7e, 0x7c, 0x18, 0x1e,
-	0x88, 0x4f, 0xa8, 0xd2, 0x3c, 0xad, 0xbf, 0x9d, 0x32, 0xfd, 0x69, 0xf6, 0xc2, 0xd9, 0xcb, 0x11,
-	0x37, 0xd9, 0x8a, 0x7f, 0x81, 0x3e, 0xfd, 0x2f, 0x00, 0x00, 0xff, 0xff, 0xf5, 0x7d, 0x61, 0x6d,
-	0x01, 0x07, 0x00, 0x00,
+	// 956 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x95, 0x4d, 0x6f, 0xe3, 0x44,
+	0x18, 0xc7, 0xe3, 0x6d, 0x29, 0xdb, 0x49, 0x43, 0xb6, 0xd3, 0xb4, 0x99, 0xbe, 0x90, 0x58, 0x8b,
+	0x84, 0xb2, 0x0b, 0xd8, 0x6d, 0xe0, 0xb4, 0x48, 0x20, 0x92, 0x06, 0x75, 0xa5, 0x15, 0x20, 0xb7,
+	0xb0, 0x12, 0x97, 0xd1, 0xc4, 0x9e, 0xb5, 0x47, 0xb5, 0x3d, 0x91, 0x67, 0x92, 0x36, 0x9c, 0x38,
+	0x73, 0xe2, 0x3b, 0xf0, 0x05, 0x38, 0xf3, 0x09, 0xf6, 0xb8, 0x47, 0x84, 0xd0, 0x0a, 0xb5, 0x07,
+	0xbe, 0x06, 0x9a, 0x19, 0x3b, 0x71, 0x9a, 0x56, 0xaa, 0xb8, 0x54, 0xf1, 0xfc, 0xff, 0xbf, 0xe7,
+	0x79, 0xfa, 0xcc, 0xcb, 0x03, 0xda, 0x11, 0x8d, 0x19, 0x17, 0x6e, 0x34, 0x1d, 0xd1, 0x8c, 0xf1,
+	0xd4, 0x9d, 0x1c, 0xb9, 0x23, 0x92, 0x91, 0x44, 0x38, 0xa3, 0x8c, 0x4b, 0x0e, 0xa1, 0x31, 0x38,
+	0x85, 0xc1, 0x99, 0x1c, 0xed, 0x35, 0x42, 0x1e, 0x72, 0x2d, 0xbb, 0xea, 0x97, 0x71, 0xee, 0xb5,
+	0x7c, 0x2e, 0x12, 0x2e, 0xdc, 0x21, 0x11, 0xd4, 0x9d, 0x1c, 0x0d, 0xa9, 0x24, 0x47, 0xae, 0xcf,
+	0x59, 0x9a, 0xeb, 0x9b, 0x24, 0x61, 0x29, 0x77, 0xf5, 0xdf, 0x02, 0xb9, 0x25, 0xbb, 0x9c, 0x8e,
+	0x68, 0x9e, 0xfc, 0xf1, 0x6f, 0x16, 0x58, 0xfb, 0x4e, 0x57, 0x03, 0x43, 0xb0, 0xeb, 0xf3, 0x71,
+	0x2a, 0x69, 0x36, 0x22, 0x99, 0x9c, 0x62, 0x3f, 0x22, 0x2c, 0xc5, 0xa6, 0x54, 0x64, 0xd9, 0x2b,
+	0x9d, 0x6a, 0xf7, 0x23, 0x67, 0xb9, 0x56, 0xa7, 0x5f, 0x82, 0xfa, 0x8a, 0x31, 0xf1, 0xbc, 0xa6,
+	0x7f, 0xbb, 0x00, 0x77, 0xc0, 0x1a, 0x09, 0x12, 0x96, 0x0a, 0xf4, 0xc0, 0x5e, 0xe9, 0xac, 0x7b,
+	0xf9, 0xd7, 0x33, 0xf4, 0xf3, 0xdf, 0x76, 0xe5, 0x97, 0x7f, 0x7f, 0x7f, 0x5a, 0x9f, 0x55, 0x6b,
+	0x88, 0xc7, 0x7f, 0xd4, 0x40, 0xf3, 0x8e, 0x34, 0xb0, 0x0d, 0xaa, 0x85, 0x1d, 0xb3, 0x00, 0x59,
+	0xb6, 0xd5, 0x59, 0xf5, 0x40, 0xb1, 0xf4, 0x3c, 0x80, 0x87, 0xa0, 0xe1, 0xf3, 0x54, 0x66, 0xc4,
+	0x97, 0x58, 0xf0, 0x71, 0xe6, 0x53, 0x1c, 0x11, 0x11, 0xa1, 0x07, 0xb6, 0xd5, 0x59, 0xf7, 0x60,
+	0xa1, 0x9d, 0x6a, 0xe9, 0x84, 0x88, 0x08, 0x7e, 0x01, 0xf6, 0x87, 0x19, 0x0b, 0x42, 0x8a, 0x17,
+	0x1a, 0x42, 0x82, 0x20, 0xa3, 0x42, 0xa0, 0x15, 0x0d, 0xee, 0x1a, 0x4b, 0xb9, 0xac, 0xaf, 0x8c,
+	0x01, 0x7e, 0x08, 0xea, 0x05, 0xaf, 0x7b, 0xc8, 0x02, 0xb4, 0xaa, 0xcb, 0xaa, 0xe5, 0x8c, 0x5a,
+	0x7d, 0x1e, 0xc0, 0xa7, 0x60, 0x73, 0xc1, 0x97, 0x92, 0x84, 0xa2, 0x77, 0x74, 0xf4, 0x7a, 0xc9,
+	0xf9, 0x0d, 0x49, 0xe8, 0x92, 0x37, 0xe6, 0x21, 0x47, 0x6b, 0x4b, 0xde, 0x17, 0x3c, 0xe4, 0x4b,
+	0x5e, 0xb5, 0xe1, 0xe8, 0xdd, 0x25, 0xef, 0xd9, 0x74, 0x44, 0x61, 0x17, 0x6c, 0x0b, 0x16, 0xa6,
+	0x34, 0xc0, 0x13, 0x12, 0x0b, 0x2a, 0x05, 0xbe, 0x60, 0x69, 0xc0, 0x2f, 0xd0, 0x43, 0x5d, 0xf1,
+	0x96, 0x11, 0x7f, 0x30, 0xda, 0x4b, 0x2d, 0x95, 0x98, 0x21, 0x91, 0x7e, 0x44, 0x67, 0xcc, 0x7a,
+	0x99, 0xe9, 0x19, 0x2d, 0x67, 0x0e, 0x41, 0x23, 0x67, 0xfc, 0x98, 0xb0, 0x64, 0x86, 0x00, 0x8d,
+	0x40, 0xa3, 0xf5, 0xb5, 0x34, 0x27, 0x24, 0xc9, 0x42, 0x2a, 0x4d, 0x16, 0x2c, 0x59, 0x42, 0xf9,
+	0x58, 0xa2, 0xaa, 0x21, 0x8c, 0xa6, 0x93, 0x9c, 0x19, 0x05, 0x7e, 0x0e, 0xf6, 0x72, 0x82, 0x8f,
+	0x65, 0xc8, 0x59, 0x1a, 0x62, 0x79, 0x39, 0xe3, 0x36, 0x34, 0xd7, 0x34, 0x8e, 0x6f, 0x73, 0xc3,
+	0xd9, 0x65, 0x01, 0x7f, 0x0c, 0x20, 0x99, 0xd0, 0x8c, 0x84, 0x14, 0x0f, 0x63, 0xee, 0x9f, 0x6b,
+	0x0e, 0xd5, 0x34, 0xf4, 0x28, 0x57, 0x7a, 0x4a, 0x50, 0x00, 0x1c, 0x80, 0x76, 0xe1, 0x5e, 0x38,
+	0x23, 0x25, 0xf4, 0x3d, 0x8d, 0x1e, 0xe4, 0xb6, 0xf2, 0x39, 0x99, 0x87, 0x79, 0x09, 0xb6, 0x45,
+	0x4c, 0x44, 0x84, 0x5f, 0xa9, 0x23, 0xa8, 0x8e, 0xb0, 0xd9, 0x05, 0x54, 0xb7, 0xad, 0xce, 0x46,
+	0xef, 0x83, 0xd7, 0x6f, 0xdb, 0x95, 0xbf, 0xde, 0xb6, 0xf7, 0xcd, 0xc5, 0x17, 0xc1, 0xb9, 0xc3,
+	0xb8, 0x9b, 0x10, 0x19, 0x39, 0x2f, 0x68, 0x48, 0xfc, 0xe9, 0x31, 0xf5, 0xbd, 0x2d, 0x1d, 0xe1,
+	0xeb, 0x3c, 0x80, 0xd9, 0x29, 0xf8, 0x3d, 0x68, 0xdc, 0x08, 0xac, 0x9b, 0x88, 0x1e, 0xdd, 0x3f,
+	0x2e, 0x5c, 0x88, 0xab, 0x1b, 0x7d, 0x4b, 0x58, 0xbd, 0x9b, 0x68, 0xf3, 0xff, 0x86, 0xd5, 0x3b,
+	0x0e, 0x63, 0x60, 0xdf, 0x0c, 0xcb, 0xd3, 0x57, 0x31, 0xf3, 0xa5, 0xda, 0x43, 0x93, 0x02, 0xde,
+	0x3f, 0xc5, 0xfb, 0x8b, 0x29, 0xe6, 0xa1, 0x4c, 0xb6, 0x3e, 0x68, 0x8d, 0xd3, 0x21, 0x4f, 0x03,
+	0xac, 0x7d, 0x2a, 0xc5, 0x8d, 0xb3, 0xbf, 0xa5, 0xb7, 0x6e, 0xdf, 0xb8, 0x4e, 0x73, 0xd3, 0xe2,
+	0x1d, 0x38, 0x5f, 0x2a, 0x79, 0x48, 0x02, 0x4c, 0x65, 0x84, 0xd5, 0x51, 0x26, 0x72, 0x9c, 0x51,
+	0xd4, 0xb8, 0x7f, 0xc9, 0x07, 0x37, 0x9a, 0x1d, 0x0c, 0x64, 0x74, 0x5a, 0x04, 0x52, 0x17, 0xda,
+	0xc0, 0x58, 0xbd, 0xf6, 0x38, 0xa0, 0x29, 0x4f, 0xd0, 0xb6, 0xb9, 0xd0, 0x46, 0xe8, 0x73, 0x96,
+	0x1e, 0xab, 0x65, 0x75, 0x09, 0xca, 0x5e, 0x9a, 0xf9, 0xdd, 0x43, 0x5c, 0x3c, 0x72, 0x68, 0x47,
+	0x43, 0xcd, 0x39, 0x34, 0x50, 0x7a, 0x3f, 0x97, 0xe1, 0x67, 0x60, 0x47, 0x77, 0x7b, 0xde, 0x19,
+	0x9a, 0x92, 0x61, 0x4c, 0x03, 0xd4, 0xb4, 0xad, 0xce, 0x43, 0xaf, 0xa1, 0xd5, 0xa2, 0x23, 0x03,
+	0xa3, 0xc1, 0x2f, 0xc1, 0xc1, 0xec, 0xbd, 0x2c, 0x1e, 0x5a, 0x49, 0x32, 0x89, 0x23, 0xca, 0xc2,
+	0x48, 0x22, 0xa4, 0xdb, 0x39, 0x7b, 0x30, 0xf3, 0xf7, 0x56, 0x39, 0x4e, 0xb4, 0x01, 0x1e, 0x83,
+	0x9a, 0xd9, 0x01, 0x9c, 0xd1, 0x0b, 0x92, 0x05, 0x68, 0xd7, 0xb6, 0x3a, 0xd5, 0xee, 0xae, 0x63,
+	0xea, 0x74, 0xd4, 0xc0, 0x73, 0xf2, 0x81, 0xe7, 0xa8, 0xaa, 0x7b, 0xab, 0xaa, 0xa9, 0xde, 0x86,
+	0xa1, 0x3c, 0x0d, 0xc1, 0x13, 0x50, 0x37, 0xff, 0xad, 0xe4, 0xa6, 0x45, 0x02, 0xed, 0xe9, 0xb1,
+	0x65, 0xdf, 0x36, 0xb6, 0x06, 0x5e, 0xbf, 0x7b, 0x78, 0xc6, 0x75, 0xd3, 0xbc, 0x9a, 0x06, 0xf3,
+	0x2f, 0x01, 0x6d, 0x50, 0x65, 0x29, 0x93, 0x8c, 0xc4, 0xec, 0x27, 0x9a, 0xa1, 0x7d, 0xdd, 0xb4,
+	0xf2, 0xd2, 0xb3, 0x27, 0xc5, 0xac, 0xb2, 0x67, 0xb3, 0xea, 0x8e, 0x01, 0xd5, 0xeb, 0xbf, 0xbe,
+	0x6a, 0x59, 0x6f, 0xae, 0x5a, 0xd6, 0x3f, 0x57, 0x2d, 0xeb, 0xd7, 0xeb, 0x56, 0xe5, 0xcd, 0x75,
+	0xab, 0xf2, 0xe7, 0x75, 0xab, 0xf2, 0xe3, 0x13, 0x53, 0xd6, 0x27, 0x3e, 0xcf, 0xa8, 0x5b, 0xfc,
+	0x56, 0xa4, 0x7b, 0x39, 0x1f, 0xd8, 0x7a, 0x5a, 0x0f, 0xd7, 0xf4, 0xb8, 0xfe, 0xf4, 0xbf, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0xb4, 0xb1, 0x9e, 0xf7, 0x4e, 0x08, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -377,6 +432,31 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	_ = i
 	var l int
 	_ = l
+	if len(m.Initializer) > 0 {
+		i -= len(m.Initializer)
+		copy(dAtA[i:], m.Initializer)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.Initializer)))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xda
+	}
+	if len(m.Erc20ToDenoms) > 0 {
+		for iNdEx := len(m.Erc20ToDenoms) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Erc20ToDenoms[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintParams(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0xd2
+		}
+	}
 	{
 		size, err := m.ValsetReward.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -388,13 +468,13 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	i--
 	dAtA[i] = 0x1
 	i--
-	dAtA[i] = 0xaa
+	dAtA[i] = 0xca
 	if m.BridgeContractStartHeight != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.BridgeContractStartHeight))
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0xa0
+		dAtA[i] = 0xc0
 	}
 	if m.ClaimSlashingEnabled {
 		i--
@@ -406,7 +486,7 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0x98
+		dAtA[i] = 0xb8
 	}
 	if len(m.CosmosCoinErc20Contract) > 0 {
 		i -= len(m.CosmosCoinErc20Contract)
@@ -415,7 +495,7 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0x92
+		dAtA[i] = 0xb2
 	}
 	if len(m.CosmosCoinDenom) > 0 {
 		i -= len(m.CosmosCoinDenom)
@@ -424,7 +504,7 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0x8a
+		dAtA[i] = 0xaa
 	}
 	{
 		size := m.SlashFractionBadEthSignature.Size()
@@ -437,11 +517,13 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	i--
 	dAtA[i] = 0x1
 	i--
-	dAtA[i] = 0x82
+	dAtA[i] = 0xa2
 	if m.UnbondSlashingValsetsWindow != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.UnbondSlashingValsetsWindow))
 		i--
-		dAtA[i] = 0x78
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x98
 	}
 	{
 		size := m.SlashFractionConflictingClaim.Size()
@@ -452,7 +534,9 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x72
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x92
 	{
 		size := m.SlashFractionClaim.Size()
 		i -= size
@@ -462,7 +546,9 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x6a
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x8a
 	{
 		size := m.SlashFractionBatch.Size()
 		i -= size
@@ -472,7 +558,9 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x62
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x82
 	{
 		size := m.SlashFractionValset.Size()
 		i -= size
@@ -482,36 +570,62 @@ func (m *CounterpartyChainParams) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x5a
+	dAtA[i] = 0x7a
 	if m.AverageCounterpartyBlockTime != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.AverageCounterpartyBlockTime))
 		i--
-		dAtA[i] = 0x50
+		dAtA[i] = 0x70
 	}
 	if m.AverageBlockTime != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.AverageBlockTime))
 		i--
-		dAtA[i] = 0x48
+		dAtA[i] = 0x68
+	}
+	if m.TargetOutgoingTxTimeout != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.TargetOutgoingTxTimeout))
+		i--
+		dAtA[i] = 0x60
 	}
 	if m.TargetBatchTimeout != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.TargetBatchTimeout))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x58
 	}
 	if m.SignedClaimsWindow != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.SignedClaimsWindow))
 		i--
-		dAtA[i] = 0x38
+		dAtA[i] = 0x50
 	}
 	if m.SignedBatchesWindow != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.SignedBatchesWindow))
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x48
 	}
 	if m.SignedValsetsWindow != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.SignedValsetsWindow))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x40
+	}
+	if len(m.BridgeChainType) > 0 {
+		i -= len(m.BridgeChainType)
+		copy(dAtA[i:], m.BridgeChainType)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.BridgeChainType)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if len(m.BridgeChainLogo) > 0 {
+		i -= len(m.BridgeChainLogo)
+		copy(dAtA[i:], m.BridgeChainLogo)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.BridgeChainLogo)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.BridgeChainName) > 0 {
+		i -= len(m.BridgeChainName)
+		copy(dAtA[i:], m.BridgeChainName)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.BridgeChainName)))
+		i--
+		dAtA[i] = 0x2a
 	}
 	if m.BridgeChainId != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.BridgeChainId))
@@ -592,6 +706,18 @@ func (m *CounterpartyChainParams) Size() (n int) {
 	if m.BridgeChainId != 0 {
 		n += 1 + sovParams(uint64(m.BridgeChainId))
 	}
+	l = len(m.BridgeChainName)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.BridgeChainLogo)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.BridgeChainType)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
 	if m.SignedValsetsWindow != 0 {
 		n += 1 + sovParams(uint64(m.SignedValsetsWindow))
 	}
@@ -604,6 +730,9 @@ func (m *CounterpartyChainParams) Size() (n int) {
 	if m.TargetBatchTimeout != 0 {
 		n += 1 + sovParams(uint64(m.TargetBatchTimeout))
 	}
+	if m.TargetOutgoingTxTimeout != 0 {
+		n += 1 + sovParams(uint64(m.TargetOutgoingTxTimeout))
+	}
 	if m.AverageBlockTime != 0 {
 		n += 1 + sovParams(uint64(m.AverageBlockTime))
 	}
@@ -613,13 +742,13 @@ func (m *CounterpartyChainParams) Size() (n int) {
 	l = m.SlashFractionValset.Size()
 	n += 1 + l + sovParams(uint64(l))
 	l = m.SlashFractionBatch.Size()
-	n += 1 + l + sovParams(uint64(l))
+	n += 2 + l + sovParams(uint64(l))
 	l = m.SlashFractionClaim.Size()
-	n += 1 + l + sovParams(uint64(l))
+	n += 2 + l + sovParams(uint64(l))
 	l = m.SlashFractionConflictingClaim.Size()
-	n += 1 + l + sovParams(uint64(l))
+	n += 2 + l + sovParams(uint64(l))
 	if m.UnbondSlashingValsetsWindow != 0 {
-		n += 1 + sovParams(uint64(m.UnbondSlashingValsetsWindow))
+		n += 2 + sovParams(uint64(m.UnbondSlashingValsetsWindow))
 	}
 	l = m.SlashFractionBadEthSignature.Size()
 	n += 2 + l + sovParams(uint64(l))
@@ -639,6 +768,16 @@ func (m *CounterpartyChainParams) Size() (n int) {
 	}
 	l = m.ValsetReward.Size()
 	n += 2 + l + sovParams(uint64(l))
+	if len(m.Erc20ToDenoms) > 0 {
+		for _, e := range m.Erc20ToDenoms {
+			l = e.Size()
+			n += 2 + l + sovParams(uint64(l))
+		}
+	}
+	l = len(m.Initializer)
+	if l > 0 {
+		n += 2 + l + sovParams(uint64(l))
+	}
 	return n
 }
 
@@ -896,6 +1035,102 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BridgeChainName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BridgeChainName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BridgeChainLogo", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BridgeChainLogo = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BridgeChainType", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BridgeChainType = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SignedValsetsWindow", wireType)
 			}
@@ -914,7 +1149,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 6:
+		case 9:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SignedBatchesWindow", wireType)
 			}
@@ -933,7 +1168,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 7:
+		case 10:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SignedClaimsWindow", wireType)
 			}
@@ -952,7 +1187,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 8:
+		case 11:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TargetBatchTimeout", wireType)
 			}
@@ -971,7 +1206,26 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 9:
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetOutgoingTxTimeout", wireType)
+			}
+			m.TargetOutgoingTxTimeout = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TargetOutgoingTxTimeout |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 13:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AverageBlockTime", wireType)
 			}
@@ -990,7 +1244,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 10:
+		case 14:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AverageCounterpartyBlockTime", wireType)
 			}
@@ -1009,7 +1263,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 11:
+		case 15:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SlashFractionValset", wireType)
 			}
@@ -1042,7 +1296,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 12:
+		case 16:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SlashFractionBatch", wireType)
 			}
@@ -1075,7 +1329,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 13:
+		case 17:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SlashFractionClaim", wireType)
 			}
@@ -1108,7 +1362,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 14:
+		case 18:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SlashFractionConflictingClaim", wireType)
 			}
@@ -1141,7 +1395,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 15:
+		case 19:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UnbondSlashingValsetsWindow", wireType)
 			}
@@ -1160,7 +1414,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 16:
+		case 20:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SlashFractionBadEthSignature", wireType)
 			}
@@ -1193,7 +1447,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 17:
+		case 21:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CosmosCoinDenom", wireType)
 			}
@@ -1225,7 +1479,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 			}
 			m.CosmosCoinDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 18:
+		case 22:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CosmosCoinErc20Contract", wireType)
 			}
@@ -1257,7 +1511,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 			}
 			m.CosmosCoinErc20Contract = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 19:
+		case 23:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ClaimSlashingEnabled", wireType)
 			}
@@ -1277,7 +1531,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.ClaimSlashingEnabled = bool(v != 0)
-		case 20:
+		case 24:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field BridgeContractStartHeight", wireType)
 			}
@@ -1296,7 +1550,7 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 21:
+		case 25:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ValsetReward", wireType)
 			}
@@ -1328,6 +1582,72 @@ func (m *CounterpartyChainParams) Unmarshal(dAtA []byte) error {
 			if err := m.ValsetReward.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		case 26:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Erc20ToDenoms", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Erc20ToDenoms = append(m.Erc20ToDenoms, &ERC20ToDenom{})
+			if err := m.Erc20ToDenoms[len(m.Erc20ToDenoms)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 27:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Initializer", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Initializer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

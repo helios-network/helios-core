@@ -21,7 +21,7 @@ import (
 // - burns the voucher for transfer amount and fees
 // - persists an OutgoingTx
 // - adds the TX to the `available` TX pool via a second index
-func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, counterpartReceiver common.Address, amount, fee sdk.Coin, hyperionId uint64) (uint64, error) {
+func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, counterpartReceiver common.Address, amount, fee sdk.Coin, hyperionId uint64, txHash string) (uint64, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -70,6 +70,8 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		DestAddress: counterpartReceiver.Hex(),
 		Erc20Token:  types.NewSDKIntERC20Token(amount.Amount, tokenContract),
 		Erc20Fee:    erc20Fee,
+		TxTimeout:   k.GetOutgoingTxTimeoutHeight(ctx, hyperionId),
+		TxHash:      txHash,
 	}
 
 	// set the outgoing tx in the pool index
@@ -78,7 +80,7 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	}
 
 	// add a second index with the fee
-	k.appendToUnbatchedTXIndex(ctx, tokenContract, erc20Fee, nextID)
+	k.appendToUnbatchedTXIndex(ctx, hyperionId, tokenContract, erc20Fee, nextID)
 
 	// todo: add second index for sender so that we can easily query: give pending Tx by sender
 	// todo: what about a second index for receiver?
@@ -90,12 +92,12 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 // - checks that the provided tx actually exists
 // - deletes the unbatched tx from the pool
 // - issues the tokens back to the sender
-func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, sender sdk.AccAddress) error {
+func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uint64, txId uint64, sender sdk.AccAddress) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	// check that we actually have a tx with that id and what it's details are
-	tx, err := k.getPoolEntry(ctx, txId)
+	tx, err := k.getPoolEntry(ctx, hyperionId, txId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return err
@@ -120,7 +122,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 	}
 
 	found := false
-	poolTx := k.GetPoolTransactions(ctx)
+	poolTx := k.GetPoolTransactions(ctx, tx.HyperionId)
 	for _, pTx := range poolTx {
 		if pTx.Id == txId {
 			found = true
@@ -132,12 +134,12 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 	}
 
 	// delete this tx from both indexes
-	err = k.removeFromUnbatchedTXIndex(ctx, common.HexToAddress(tx.Erc20Token.Contract), tx.Erc20Fee, txId)
+	err = k.removeFromUnbatchedTXIndex(ctx, tx.HyperionId, common.HexToAddress(tx.Erc20Token.Contract), tx.Erc20Fee, txId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
 	}
-	k.removePoolEntry(ctx, txId)
+	k.removePoolEntry(ctx, tx.HyperionId, txId)
 
 	// reissue the amount and the fee
 	var totalToRefundCoins sdk.Coins
@@ -150,7 +152,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	} else {
 		// hyperion denom
-		totalToRefund := tx.Erc20Token.HyperionCoin()
+		totalToRefund := tx.Erc20Token.HyperionCoin(tx.HyperionId)
 		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	}
@@ -184,12 +186,12 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, s
 }
 
 // appendToUnbatchedTXIndex add at the end when tx with same fee exists
-func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
+func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee)
+	idxKey := types.GetFeeSecondIndexKey(hyperionId, tokenContract, fee)
 	var idSet types.IDSet
 	if store.Has(idxKey) {
 		bz := store.Get(idxKey)
@@ -200,12 +202,12 @@ func (k *Keeper) appendToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.
 }
 
 // appendToUnbatchedTXIndex add at the top when tx with same fee exists
-func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
+func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.ERC20Token, txID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee)
+	idxKey := types.GetFeeSecondIndexKey(hyperionId, tokenContract, fee)
 	var idSet types.IDSet
 	if store.Has(idxKey) {
 		bz := store.Get(idxKey)
@@ -220,12 +222,12 @@ func (k *Keeper) prependToUnbatchedTXIndex(ctx sdk.Context, tokenContract common
 // GetPoolTransactions, making this tx implicitly invisible without a direct request. We remove a tx
 // from the pool for good in OutgoingTxBatchExecuted, but if a batch is canceled or timed out we 'reactivate'
 // an entry by adding it back to the second index.
-func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, tokenContract common.Address, fee *types.ERC20Token, txID uint64) error {
+func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.ERC20Token, txID uint64) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(tokenContract, fee)
+	idxKey := types.GetFeeSecondIndexKey(hyperionId, tokenContract, fee)
 
 	var idSet types.IDSet
 	bz := store.Get(idxKey)
@@ -262,20 +264,20 @@ func (k *Keeper) setPoolEntry(ctx sdk.Context, outgoingTransferTx *types.Outgoin
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetOutgoingTxPoolKey(outgoingTransferTx.Id), bz)
+	store.Set(types.GetOutgoingTxPoolKey(outgoingTransferTx.HyperionId, outgoingTransferTx.Id), bz)
 
 	return nil
 }
 
 // getPoolEntry grabs an entry from the tx pool, this *does* include transactions in batches
 // so check the UnbatchedTxIndex or call GetPoolTransactions for that purpose
-func (k *Keeper) getPoolEntry(ctx sdk.Context, id uint64) (*types.OutgoingTransferTx, error) {
+func (k *Keeper) getPoolEntry(ctx sdk.Context, hyperionId uint64, id uint64) (*types.OutgoingTransferTx, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetOutgoingTxPoolKey(id))
+	bz := store.Get(types.GetOutgoingTxPoolKey(hyperionId, id))
 	if bz == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, types.ErrUnknown
@@ -293,24 +295,22 @@ func (k *Keeper) getPoolEntry(ctx sdk.Context, id uint64) (*types.OutgoingTransf
 
 // removePoolEntry removes an entry from the tx pool, this *does* include transactions in batches
 // so you will need to run it when cleaning up after a executed batch
-func (k *Keeper) removePoolEntry(ctx sdk.Context, id uint64) {
+func (k *Keeper) removePoolEntry(ctx sdk.Context, hyperionId uint64, id uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetOutgoingTxPoolKey(id))
+	store.Delete(types.GetOutgoingTxPoolKey(hyperionId, id))
 }
 
 // GetPoolTransactions, grabs all transactions from the tx pool, useful for queries or genesis save/load
 // this does not include all transactions in batches, because it iterates using the second index key
-func (k *Keeper) GetPoolTransactions(ctx sdk.Context) []*types.OutgoingTransferTx {
+func (k *Keeper) GetPoolTransactions(ctx sdk.Context, hyperionId uint64) []*types.OutgoingTransferTx {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	prefixStore := ctx.KVStore(k.storeKey)
-	// we must use the second index key here because transactions are left in the store, but removed
-	// from the tx sorting key, while in batches
-	iter := prefixStore.ReverseIterator(PrefixRange(types.SecondIndexOutgoingTXFeeKey))
+	iter := prefixStore.ReverseIterator(PrefixRange(append(types.SecondIndexOutgoingTXFeeKey, sdk.Uint64ToBigEndian(hyperionId)...)))
 
 	var ret []*types.OutgoingTransferTx
 	defer iter.Close()
@@ -319,10 +319,13 @@ func (k *Keeper) GetPoolTransactions(ctx sdk.Context) []*types.OutgoingTransferT
 		var ids types.IDSet
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, id)
+			tx, err := k.getPoolEntry(ctx, hyperionId, id)
+			if tx.HyperionId != hyperionId {
+				continue
+			}
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
-				panic("Invalid id in tx index!")
+				continue
 			}
 			ret = append(ret, tx)
 		}
@@ -331,13 +334,48 @@ func (k *Keeper) GetPoolTransactions(ctx sdk.Context) []*types.OutgoingTransferT
 	return ret
 }
 
-// IterateOutgoingPoolByFee itetates over the outgoing pool which is sorted by fee
-func (k *Keeper) IterateOutgoingPoolByFee(ctx sdk.Context, tokenContract common.Address, cb func(uint64, *types.OutgoingTransferTx) bool) {
+func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransferTx {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
-	iter := prefixStore.ReverseIterator(PrefixRange(tokenContract.Bytes()))
+	// we must use the second index key here because transactions are left in the store, but removed
+	// from the tx sorting key, while in batches
+	iter := prefixStore.ReverseIterator(nil, nil)
+
+	var ret []*types.OutgoingTransferTx
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		var ids types.IDSet
+		k.cdc.MustUnmarshal(iter.Value(), &ids)
+		for _, id := range ids.Ids {
+			key := iter.Key()
+			HyperionIDLen := 8
+			// 1. hyperionId (uint64)
+			hyperionIdBytes := key[:HyperionIDLen]
+			hyperionIdOfTheTx := binary.BigEndian.Uint64(hyperionIdBytes)
+
+			tx, err := k.getPoolEntry(ctx, hyperionIdOfTheTx, id)
+			if err != nil {
+				metrics.ReportFuncError(k.svcTags)
+				continue
+			}
+			ret = append(ret, tx)
+		}
+	}
+
+	return ret
+}
+
+// IterateOnSpecificalTokenContractOutgoingPoolByFee itetates over the outgoing pool which is sorted by fee
+func (k *Keeper) IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, cb func(uint64, *types.OutgoingTransferTx) bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
+	iter := prefixStore.ReverseIterator(PrefixRange(types.GetPrefixRangeForGetFeeSecondIndexKeyOnSpecificalTokenContract(hyperionId, tokenContract)))
+	// iterate over all [SecondIndexOutgoingTXFeeKey][hyperionId][tokenContract] prefixed []bytes
 
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -345,10 +383,10 @@ func (k *Keeper) IterateOutgoingPoolByFee(ctx sdk.Context, tokenContract common.
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		// cb returns true to stop early
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, id)
+			tx, err := k.getPoolEntry(ctx, hyperionId, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
-				panic("Invalid id in tx index!")
+				continue
 			}
 			if cb(id, tx) {
 				return
@@ -361,21 +399,21 @@ func (k *Keeper) IterateOutgoingPoolByFee(ctx sdk.Context, tokenContract common.
 // have if created. This info is both presented to relayers for the purpose of determining
 // when to request batches and also used by the batch creation process to decide not to create
 // a new batch
-func (k *Keeper) GetBatchFeesByTokenType(ctx sdk.Context, tokenContractAddr common.Address) *types.BatchFees {
+func (k *Keeper) GetBatchFeesByTokenType(ctx sdk.Context, hyperionId uint64, tokenContractAddr common.Address) *types.BatchFees {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	batchFeesMap := k.createBatchFees(ctx)
+	batchFeesMap := k.createBatchFees(ctx, hyperionId)
 	return batchFeesMap[tokenContractAddr]
 }
 
 // GetAllBatchFees creates a fee entry for every batch type currently in the store
 // this can be used by relayers to determine what batch types are desirable to request
-func (k *Keeper) GetAllBatchFees(ctx sdk.Context) (batchFees []*types.BatchFees) {
+func (k *Keeper) GetAllBatchFees(ctx sdk.Context, hyperionId uint64) (batchFees []*types.BatchFees) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	batchFeesMap := k.createBatchFees(ctx)
+	batchFeesMap := k.createBatchFees(ctx, hyperionId)
 	// create array of batchFees
 	for _, batchFee := range batchFeesMap {
 		batchFees = append(batchFees, batchFee)
@@ -391,12 +429,13 @@ func (k *Keeper) GetAllBatchFees(ctx sdk.Context) (batchFees []*types.BatchFees)
 }
 
 // CreateBatchFees iterates over the outgoing pool and creates batch token fee map
-func (k *Keeper) createBatchFees(ctx sdk.Context) map[common.Address]*types.BatchFees {
+func (k *Keeper) createBatchFees(ctx sdk.Context, hyperionId uint64) map[common.Address]*types.BatchFees {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
-	iter := prefixStore.Iterator(nil, nil)
+	iter := prefixStore.Iterator(PrefixRange(types.GetPrefixRangeForGetFeeSecondIndexKey(hyperionId)))
+	// iterate over [SecondIndexOutgoingTXFeeKey][hyperionId] prefixes
 	defer iter.Close()
 
 	batchFeesMap := make(map[common.Address]*types.BatchFees)
@@ -411,11 +450,28 @@ func (k *Keeper) createBatchFees(ctx sdk.Context) map[common.Address]*types.Batc
 		// If len(ids.Ids) > 1, multiply fee amount with len(ids.Ids) and add it to total fee amount
 
 		key := iter.Key()
-		tokenContractBytes := key[:types.ETHContractAddressLen]
+
+		HyperionIDLen := 8
+		ETHContractAddressLen := 20
+		FeeAmountLen := 32
+
+		// 1. hyperionId (uint64)
+		hyperionIdBytes := key[:HyperionIDLen]
+		hyperionIdOfTheTx := binary.BigEndian.Uint64(hyperionIdBytes)
+
+		k.Logger(ctx).Info("BatchFee", "hyperionIdOfTheTx", hyperionIdOfTheTx)
+
+		// 2. tokenContractAddr (common.Address)
+		tokenContractBytes := key[HyperionIDLen : HyperionIDLen+ETHContractAddressLen]
 		tokenContractAddr := common.BytesToAddress(tokenContractBytes)
 
-		feeAmountBytes := key[len(tokenContractBytes):]
+		k.Logger(ctx).Info("BatchFee", "tokenContractAddr", tokenContractAddr.String())
+
+		// 3. feeAmount (*big.Int)
+		feeAmountBytes := key[HyperionIDLen+ETHContractAddressLen : HyperionIDLen+ETHContractAddressLen+FeeAmountLen]
 		feeAmount := big.NewInt(0).SetBytes(feeAmountBytes)
+
+		k.Logger(ctx).Info("BatchFee", "feeAmount", feeAmount.String())
 
 		for i := 0; i < len(ids.Ids); i++ {
 			if txCountMap[tokenContractAddr] >= OutgoingTxBatchSize {
@@ -458,12 +514,21 @@ func (k *Keeper) AutoIncrementID(ctx sdk.Context, idKey []byte) uint64 {
 	return id
 }
 
-func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context) uint64 {
+func (k *Keeper) SetID(ctx sdk.Context, idKey []byte, id uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastOutgoingBatchID
+	bz := sdk.Uint64ToBigEndian(id)
+	store.Set(idKey, bz)
+}
+
+func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context, hyperionId uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetLastOutgoingBatchIDKey(hyperionId)
 	var id uint64
 	bz := store.Get(key)
 	if bz != nil {
@@ -472,22 +537,22 @@ func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context) uint64 {
 	return id
 }
 
-func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, lastOutgoingBatchID uint64) {
+func (k *Keeper) SetLastOutgoingBatchID(ctx sdk.Context, hyperionId uint64, lastOutgoingBatchID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastOutgoingBatchID
+	key := types.GetLastOutgoingBatchIDKey(hyperionId)
 	bz := sdk.Uint64ToBigEndian(lastOutgoingBatchID)
 	store.Set(key, bz)
 }
 
-func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastTXPoolID
+	key := types.GetLastTXPoolIDKey(hyperionId)
 	var id uint64
 	bz := store.Get(key)
 	if bz != nil {
@@ -496,12 +561,24 @@ func (k *Keeper) GetLastOutgoingPoolID(ctx sdk.Context) uint64 {
 	return id
 }
 
-func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, lastOutgoingPoolID uint64) {
+func (k *Keeper) SetLastOutgoingPoolID(ctx sdk.Context, hyperionId uint64, lastOutgoingPoolID uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	key := types.KeyLastTXPoolID
+	key := types.GetLastTXPoolIDKey(hyperionId)
 	bz := sdk.Uint64ToBigEndian(lastOutgoingPoolID)
 	store.Set(key, bz)
+}
+
+// / This gets the batch timeout height in the counterparty chain blocks.
+func (k *Keeper) GetOutgoingTxTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	projectedCurrentEthereumHeight := k.GetProjectedCurrentEthereumHeight(ctx, hyperionId)
+
+	blocksToAdd := counterpartyChainParams.TargetOutgoingTxTimeout / counterpartyChainParams.AverageCounterpartyBlockTime
+	return projectedCurrentEthereumHeight + blocksToAdd
 }

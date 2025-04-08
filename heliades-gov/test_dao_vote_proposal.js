@@ -14,8 +14,8 @@ import protopkg from '@helios-chain-labs/proto';
     }
 
     const LOCALNET_CHAIN = {
-      chainId: 4242,
-      cosmosChainId: '4242',
+      chainId: 42000,
+      cosmosChainId: '42000',
       rpcEndpoint: 'http://localhost:26657',
       bech32Prefix: 'helios',
       currency: {

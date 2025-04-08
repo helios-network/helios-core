@@ -147,13 +147,13 @@ func (b BridgeValidators) ValidateBasic() error {
 }
 
 // NewValset returns a new valset
-func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdkmath.Int, rewardToken gethcommon.Address) *Valset {
+func NewValset(hyperionId, nonce, height uint64, members BridgeValidators, rewardAmount sdkmath.Int, rewardToken gethcommon.Address) *Valset {
 	members.Sort()
 	mem := make([]*BridgeValidator, 0)
 	for _, val := range members {
 		mem = append(mem, val)
 	}
-	return &Valset{Nonce: nonce, Members: mem, Height: height, RewardAmount: rewardAmount, RewardToken: rewardToken.Hex()}
+	return &Valset{HyperionId: hyperionId, Nonce: nonce, Members: mem, Height: height, RewardAmount: rewardAmount, RewardToken: rewardToken.Hex()}
 }
 
 // GetCheckpoint returns the checkpoint hash
@@ -194,15 +194,15 @@ func (v Valset) GetCheckpoint(hyperionID uint64) gethcommon.Hash {
 	var tHyperionID [32]uint8
 	copy(tHyperionID[:], hyperionIDBytes)
 	/*
-	"inputs": [
-			{ "internalType": "bytes32",   "name": "_hyperionId",   "type": "bytes32"   },
-			{ "internalType": "bytes32",   "name": "_checkpoint",  "type": "bytes32"   },
-			{ "internalType": "uint256",   "name": "_valsetNonce", "type": "uint256"   },
-			{ "internalType": "address[]", "name": "_validators",  "type": "address[]" },
-			{ "internalType": "uint256[]", "name": "_powers",      "type": "uint256[]" },
-			{ "internalType": "uint256",   "name": "_rewardAmount","type": "uint256"   },
-			{ "internalType": "address",   "name": "_rewardToken", "type": "address"   }
-		],
+		"inputs": [
+				{ "internalType": "bytes32",   "name": "_hyperionId",   "type": "bytes32"   },
+				{ "internalType": "bytes32",   "name": "_checkpoint",  "type": "bytes32"   },
+				{ "internalType": "uint256",   "name": "_valsetNonce", "type": "uint256"   },
+				{ "internalType": "address[]", "name": "_validators",  "type": "address[]" },
+				{ "internalType": "uint256[]", "name": "_powers",      "type": "uint256[]" },
+				{ "internalType": "uint256",   "name": "_rewardAmount","type": "uint256"   },
+				{ "internalType": "address",   "name": "_rewardToken", "type": "address"   }
+			],
 	*/
 	fmt.Println("tHyperionID: ", tHyperionID)
 	fmt.Println("checkpoint: ", checkpoint)

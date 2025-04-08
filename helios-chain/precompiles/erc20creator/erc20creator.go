@@ -28,10 +28,11 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 	vm "helios-core/helios-chain/x/evm/core/vm"
+
+	logoskeeper "helios-core/helios-chain/x/logos/keeper"
 
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
@@ -63,13 +64,14 @@ type Precompile struct {
 	abi.ABI
 	erc20Keeper erc20keeper.Keeper
 	bankKeeper  bankkeeper.Keeper
+	logosKeeper logoskeeper.Keeper
 }
 
 func LoadABI() (abi.ABI, error) {
 	return cmn.LoadABI(f, "abi.json")
 }
 
-func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper) (*Precompile, error) {
+func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper, logosKeeper logoskeeper.Keeper) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load ABI for ERC20 creator precompile: %w", err)
@@ -83,6 +85,7 @@ func NewPrecompile(erc20Keeper erc20keeper.Keeper, bankKeeper bankkeeper.Keeper)
 		},
 		erc20Keeper: erc20Keeper,
 		bankKeeper:  bankKeeper,
+		logosKeeper: logosKeeper,
 	}
 
 	p.SetAddress(common.HexToAddress(evmtypes.Erc20CreatorPrecompileAddress))
@@ -101,18 +104,29 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		return nil, fmt.Errorf("failed to run setup for ERC20 precompile: %w", err)
 	}
 
-	// Extract arguments in expected order: base (name), symbol, totalSupply, decimals
-	base, okBase := args[0].(string)
+	// Extract arguments in expected order: name (name), symbol, totalSupply, decimals
+	name, okName := args[0].(string)
 	symbol, okSymbol := args[1].(string)
-	supply, okSupply := args[2].(*big.Int)
-	decimals, okDecimals := args[3].(uint8)
+	denom, okDenom := args[2].(string)
+	supply, okSupply := args[3].(*big.Int)
+	decimals, okDecimals := args[4].(uint8)
+	logoBase64, okLogo := args[5].(string)
 
-	if !okBase || !okSymbol || !okSupply || !okDecimals {
+	if !okName || !okSymbol || !okSupply || !okDecimals || !okDenom || !okLogo {
 		return nil, fmt.Errorf("invalid argument types")
 	}
 
+	logoHash := ""
+
+	if logoBase64 != "" {
+		logoHash, err = p.logosKeeper.StoreLogo(ctx, logoBase64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to store logo: %w", err)
+		}
+	}
+
 	// Validate arguments
-	if err := p.validateArguments(base, symbol, supply, decimals); err != nil {
+	if err := p.validateArguments(name, symbol, denom, supply, decimals); err != nil {
 		return nil, err
 	}
 
@@ -121,8 +135,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		return nil, fmt.Errorf("origin address is zero address")
 	}
 
-	// Check if metadata already exists for this base denom
-	_, found := p.bankKeeper.GetDenomMetaData(ctx, base)
+	found := true
+	// Check if metadata already exists for this base denom permit to create ~100 000 same denoms maximum
+	_, found = p.bankKeeper.GetDenomMetaData(ctx, denom)
 	if found {
 		return nil, errorsmod.Wrap(
 			types.ErrInternalTokenPair,
@@ -131,22 +146,28 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	}
 
 	coinMetadata := banktypes.Metadata{
-		Description: fmt.Sprintf("Token %s created with ERC20Creator precompile", base),
-		Base:        base,
-		Name:        base,
+		Description: fmt.Sprintf("Token %s created with ERC20Creator precompile", denom),
+		Base:        denom,
+		Name:        name,
 		Symbol:      symbol,
 		Decimals:    uint32(decimals),
-		Display:     base,
+		Display:     symbol,
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    base,
-				Exponent: 0,
+				Denom:    denom,
+				Exponent: uint32(0),
 			},
 			{
-				Denom:    base,
+				Denom:    symbol,
 				Exponent: uint32(decimals),
 			},
 		},
+		Logo: logoHash,
+	}
+
+	// validate metadata
+	if err := coinMetadata.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to deploy ERC20 contract: %w", err)
 	}
 
 	// Deploy the ERC20 contract
@@ -160,8 +181,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		return nil, fmt.Errorf("failed to mint ERC20 tokens: %w", err)
 	}
 
-	recipient := sdk.AccAddress(evm.Origin.Bytes())
-	coins := sdk.NewCoins(sdk.NewCoin(base, sdkmath.NewIntFromBigInt(supply)))
+	recipient := sdktypes.AccAddress(evm.Origin.Bytes())
+	coins := sdktypes.NewCoins(sdktypes.NewCoin(denom, sdkmath.NewIntFromBigInt(supply)))
 
 	p.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
 
@@ -176,16 +197,18 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	}
 
 	// Register the token pair for cross-chain usage
-	tokenPair := types.NewTokenPair(contractAddr, base, types.OWNER_MODULE)
+	tokenPair := types.NewTokenPair(contractAddr, denom, types.OWNER_MODULE)
 	p.erc20Keeper.SetToken(ctx, tokenPair)
 
 	// Enable dynamic precompiles for the deployed ERC20 contract
-	p.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+	if err = p.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract()); err != nil {
+		return nil, fmt.Errorf("failed to EnableDynamicPrecompiles: %w", err)
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdktypes.NewEvent(
 			"erc20_created", // todo: add to sdktypes
-			sdktypes.NewAttribute("denom", base),
+			sdktypes.NewAttribute("denom", denom),
 			sdktypes.NewAttribute("symbol", symbol),
 			sdktypes.NewAttribute("contract_address", contractAddr.String()),
 			sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
@@ -195,7 +218,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 
 	// TODO REMOVE AFTER
 	asset := types.Asset{
-		Denom:           base,
+		Denom:           denom,
 		ContractAddress: contractAddr.Hex(),
 		ChainId:         "ethereum", // Exemple de chainId, à ajuster si nécessaire
 		Decimals:        uint64(decimals),
@@ -216,21 +239,38 @@ func (Precompile) IsTransaction(_ *abi.Method) bool {
 }
 
 // validateArguments checks the token parameters for basic safety and correctness
-func (p *Precompile) validateArguments(base, symbol string, supply *big.Int, decimals uint8) error {
+func (p *Precompile) validateArguments(name, symbol, denom string, supply *big.Int, decimals uint8) error {
 	// Check non-empty fields
-	if strings.TrimSpace(base) == "" {
-		return fmt.Errorf("base denom cannot be empty")
+	if strings.TrimSpace(name) == "" {
+		return fmt.Errorf("name cannot be empty")
 	}
 	if strings.TrimSpace(symbol) == "" {
 		return fmt.Errorf("symbol cannot be empty")
 	}
+	if strings.TrimSpace(denom) == "" {
+		return fmt.Errorf("denom cannot be empty")
+	}
+
+	// Check for spaces
+	if strings.Contains(name, " ") {
+		return fmt.Errorf("name cannot contain spaces")
+	}
+	if strings.Contains(symbol, " ") {
+		return fmt.Errorf("symbol cannot contain spaces")
+	}
+	if strings.Contains(denom, " ") {
+		return fmt.Errorf("denom cannot contain spaces")
+	}
 
 	// Check length constraints
-	if len(base) > MaxNameLength {
-		return fmt.Errorf("base denom length exceeds %d characters", MaxNameLength)
+	if len(name) > MaxNameLength {
+		return fmt.Errorf("name length exceeds %d characters", MaxNameLength)
 	}
 	if len(symbol) > MaxSymbolLength {
 		return fmt.Errorf("symbol length exceeds %d characters", MaxSymbolLength)
+	}
+	if len(denom) > MaxSymbolLength {
+		return fmt.Errorf("denom length exceeds %d characters", MaxSymbolLength)
 	}
 
 	// Check supply validity

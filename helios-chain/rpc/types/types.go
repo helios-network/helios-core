@@ -16,10 +16,25 @@ import (
 
 // TokenBalance représente la balance d'un token spécifique
 type TokenBalance struct {
-	Address   common.Address `json:"address"`
-	Symbol    string         `json:"symbol"`
-	Balance   *hexutil.Big   `json:"balance"`
-	BalanceUI string         `json:"balanceUI"`
+	Address     common.Address `json:"address"`
+	Denom       string         `json:"denom"`
+	Symbol      string         `json:"symbol"`
+	Balance     *hexutil.Big   `json:"balance"`
+	BalanceUI   string         `json:"balanceUI"`
+	Decimals    uint32         `json:"decimals"`
+	Description string         `json:"description"`
+}
+
+type TokenDetails struct {
+	Address       common.Address `json:"address"`
+	Denom         string         `json:"denom"`
+	Symbol        string         `json:"symbol"`
+	TotalSupply   *hexutil.Big   `json:"totalSupply"`
+	TotalSupplyUI string         `json:"totalSupplyUI"`
+	Decimals      uint32         `json:"decimals"`
+	Description   string         `json:"description"`
+	Logo          string         `json:"logo"`
+	Holders       uint64         `json:"holders"`
 }
 
 type ChainSize struct {
@@ -139,7 +154,7 @@ type ValidatorRPC struct {
 	ValidatorAddress        string                   `json:"validatorAddress"`
 	Shares                  string                   `json:"shares"`
 	Moniker                 string                   `json:"moniker"`
-	Commission              stakingtypes.Commission  `json:"commision"`
+	Commission              stakingtypes.Commission  `json:"commission"`
 	Description             stakingtypes.Description `json:"description"`
 	Status                  stakingtypes.BondStatus  `json:"status"`
 	UnbondingHeight         int64                    `json:"unbondingHeight"`
@@ -179,4 +194,13 @@ type WhitelistedAssetRPC struct {
 	ContractAddress               string                `json:"oldestBlock"`
 	TotalShares                   cosmossdk_io_math.Int `json:"totalShares"`
 	NetworkPercentageSecurisation string                `json:"networkPercentageSecurisation"`
+}
+
+type HyperionChainRPC struct {
+	HyperionContractAddress string `json:"hyperionContractAddress"`
+	ChainId                 uint64 `json:"chainId"`
+	Name                    string `json:"name"`
+	ChainType               string `json:"chainType"`
+	Logo                    string `json:"logo"`
+	HyperionId              uint64 `json:"hyperionId"`
 }

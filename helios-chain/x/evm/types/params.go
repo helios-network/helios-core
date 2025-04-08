@@ -31,6 +31,7 @@ var (
 		Erc20CreatorPrecompileAddress, // Erc20Creator precompile
 		ChronosPrecompileAddress,      // Chronos precompile
 		HyperionPrecompileAddress,     // Hyperion precompile
+		LogosPrecompileAddress,        // Logos precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
@@ -52,6 +53,7 @@ var (
 			AccessControlList: DefaultCreateAllowlistAddresses,
 		},
 	}
+	DefaultEVMDenom = "ahelios"
 )
 
 // NewParams creates a new Params instance
@@ -61,6 +63,7 @@ func NewParams(
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
+	evmDenom string,
 ) Params {
 	return Params{
 		AllowUnprotectedTxs:     allowUnprotectedTxs,
@@ -68,6 +71,7 @@ func NewParams(
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
+		EvmDenom:                evmDenom,
 	}
 }
 
@@ -79,6 +83,7 @@ func DefaultParams() Params {
 		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
+		EvmDenom:                DefaultEVMDenom,
 	}
 }
 

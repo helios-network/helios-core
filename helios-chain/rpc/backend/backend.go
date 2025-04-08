@@ -11,6 +11,7 @@ import (
 	evmostypes "helios-core/helios-chain/types"
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	"cosmossdk.io/log"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -106,6 +107,7 @@ type EVMBackend interface {
 
 	// Tokens Info
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error)
 
 	// Tx Info
 	GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransaction, error)
@@ -164,6 +166,10 @@ type EVMBackend interface {
 	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
 	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
+
+	// hyperion
+	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
+	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
 }
 
 var _ BackendI = (*Backend)(nil)

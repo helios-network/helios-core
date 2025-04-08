@@ -153,3 +153,17 @@ const DefaultVersionDBTemplate = `
 # Enable defines if the versiondb should be enabled.
 enable = {{ .VersionDB.Enable }}
 `
+
+const DefaultCdnConfigTemplate = `
+###############################################################################
+###                             CDN Configuration                           ###
+###############################################################################
+
+[cdn]
+
+# Enable defines if the CDN server should be enabled.
+enable = {{ .Cdn.Enable }}
+
+# Address defines the CDN server to listen on.
+address = "{{ .Cdn.Address }}"
+`

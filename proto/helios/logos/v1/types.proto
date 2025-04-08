@@ -1,0 +1,87 @@
+syntax = "proto3";
+package helios.logos.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+
+option go_package = "helios-core/helios-chain/x/logos/types";
+
+// Logo représente un logo stocké avec son hash
+message Logo {
+  string hash = 1;
+  string data = 2; // base64 encoded logo data
+  string created_at = 3;
+}
+
+// Params définit les paramètres du module
+message Params {
+  uint64 max_logo_size = 1; // taille maximale en octets
+}
+
+// QueryParamsRequest est la requête pour Query/Params
+message QueryParamsRequest {}
+
+// QueryParamsResponse est la réponse de Query/Params
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryLogoRequest est la requête pour Query/Logo
+message QueryLogoRequest {
+  string hash = 1;
+}
+
+// QueryLogoResponse est la réponse de Query/Logo
+message QueryLogoResponse {
+  Logo logo = 1;
+}
+
+// MsgStoreLogoRequest est la requête pour Msg/StoreLogo
+message MsgStoreLogoRequest {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string data = 2; // base64 encoded logo data
+}
+
+// MsgStoreLogoResponse est la réponse de Msg/StoreLogo
+message MsgStoreLogoResponse {
+  string hash = 1;
+}
+
+// MsgUpdateParams defines a Msg for updating the x/logos module parameters.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // params defines the x/logos parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
+
+// Service pour les requêtes
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/helios/logos/v1/params";
+  }
+  
+  rpc Logo(QueryLogoRequest) returns (QueryLogoResponse) {
+    option (google.api.http).get = "/helios/logos/v1/logo/{hash}";
+  }
+  
+}
+
+// Service pour les transactions
+service Msg {
+  rpc StoreLogo(MsgStoreLogoRequest) returns (MsgStoreLogoResponse);
+
+  // UpdateParams defined a governance operation for updating the x/logos module parameters.
+  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}

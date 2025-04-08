@@ -4,7 +4,11 @@ import (
 	gomath "math"
 	"sort"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
@@ -32,6 +36,7 @@ type Keeper struct {
 	bankKeeper     types.BankKeeper
 	DistKeeper     distrkeeper.Keeper
 	SlashingKeeper types.SlashingKeeper
+	erc20Keeper    erc20keeper.Keeper
 
 	AttestationHandler interface {
 		Handle(sdk.Context, types.EthereumClaim) error
@@ -43,6 +48,8 @@ type Keeper struct {
 	// address authorized to execute MsgUpdateParams. Default: gov module
 	authority     string
 	accountKeeper keeper.AccountKeeper
+
+	txDecoder sdk.TxDecoder
 }
 
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
@@ -59,7 +66,13 @@ func NewKeeper(
 	distKeeper distrkeeper.Keeper,
 	authority string,
 	accountKeeper keeper.AccountKeeper,
+	erc20Keeper erc20keeper.Keeper,
 ) Keeper {
+
+	txConfig, err := authtx.NewTxConfigWithOptions(cdc, authtx.ConfigOptions{})
+	if err != nil {
+		panic("failed to update app tx config: " + err.Error())
+	}
 
 	k := Keeper{
 		cdc:            cdc,
@@ -76,6 +89,8 @@ func NewKeeper(
 			"svc": "hyperion_grpc",
 		},
 		accountKeeper: accountKeeper,
+		erc20Keeper:   erc20Keeper,
+		txDecoder:     txConfig.TxDecoder(),
 	}
 
 	k.AttestationHandler = NewAttestationHandler(bankKeeper, k)
@@ -103,7 +118,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64) *types.Val
 	k.StoreValset(ctx, valset)
 	// Store the checkpoint as a legit past valset
 	checkpoint := valset.GetCheckpoint(hyperionId)
-	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
+	k.SetPastEthSignatureCheckpoint(ctx, hyperionId, checkpoint)
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetUpdateRequest{
@@ -125,17 +140,17 @@ func (k *Keeper) StoreValset(ctx sdk.Context, valset *types.Valset) {
 
 	store := ctx.KVStore(k.storeKey)
 	valset.Height = uint64(ctx.BlockHeight())
-	store.Set(types.GetValsetKey(valset.Nonce), k.cdc.MustMarshal(valset))
-	k.SetLatestValsetNonce(ctx, valset.Nonce)
+	store.Set(types.GetValsetKey(valset.HyperionId, valset.Nonce), k.cdc.MustMarshal(valset))
+	k.SetLatestValsetNonce(ctx, valset.HyperionId, valset.Nonce)
 }
 
 // SetLatestValsetNonce sets the latest valset nonce
-func (k *Keeper) SetLatestValsetNonce(ctx sdk.Context, nonce uint64) {
+func (k *Keeper) SetLatestValsetNonce(ctx sdk.Context, hyperionId uint64, nonce uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LatestValsetNonce, types.UInt64Bytes(nonce))
+	store.Set(types.GetLatestValsetKey(hyperionId), types.UInt64Bytes(nonce))
 }
 
 // StoreValsetUnsafe is for storing a valiator set at a given height
@@ -144,34 +159,34 @@ func (k *Keeper) StoreValsetUnsafe(ctx sdk.Context, valset *types.Valset) {
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValsetKey(valset.Nonce), k.cdc.MustMarshal(valset))
-	k.SetLatestValsetNonce(ctx, valset.Nonce)
+	store.Set(types.GetValsetKey(valset.HyperionId, valset.Nonce), k.cdc.MustMarshal(valset))
+	k.SetLatestValsetNonce(ctx, valset.HyperionId, valset.Nonce)
 }
 
 // HasValsetRequest returns true if a valset defined by a nonce exists
-func (k *Keeper) HasValsetRequest(ctx sdk.Context, nonce uint64) bool {
+func (k *Keeper) HasValsetRequest(ctx sdk.Context, hyperionId uint64, nonce uint64) bool {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.GetValsetKey(nonce))
+	return store.Has(types.GetValsetKey(hyperionId, nonce))
 }
 
 // DeleteValset deletes the valset at a given nonce from state
-func (k *Keeper) DeleteValset(ctx sdk.Context, nonce uint64) {
+func (k *Keeper) DeleteValset(ctx sdk.Context, hyperionId uint64, nonce uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	ctx.KVStore(k.storeKey).Delete(types.GetValsetKey(nonce))
+	ctx.KVStore(k.storeKey).Delete(types.GetValsetKey(hyperionId, nonce))
 }
 
 // GetLatestValsetNonce returns the latest valset nonce
-func (k *Keeper) GetLatestValsetNonce(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLatestValsetNonce(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LatestValsetNonce)
+	bytes := store.Get(types.GetLatestValsetKey(hyperionId))
 
 	if len(bytes) == 0 {
 		return 0
@@ -181,12 +196,12 @@ func (k *Keeper) GetLatestValsetNonce(ctx sdk.Context) uint64 {
 }
 
 // GetValset returns a valset by nonce
-func (k *Keeper) GetValset(ctx sdk.Context, nonce uint64) *types.Valset {
+func (k *Keeper) GetValset(ctx sdk.Context, hyperionId uint64, nonce uint64) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValsetKey(nonce))
+	bz := store.Get(types.GetValsetKey(hyperionId, nonce))
 	if bz == nil {
 		return nil
 	}
@@ -217,12 +232,14 @@ func (k *Keeper) IterateValsets(ctx sdk.Context, cb func(key []byte, val *types.
 }
 
 // GetValsets returns all the validator sets in state
-func (k *Keeper) GetValsets(ctx sdk.Context) (out []*types.Valset) {
+func (k *Keeper) GetValsets(ctx sdk.Context, hyperionId uint64) (out []*types.Valset) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	k.IterateValsets(ctx, func(_ []byte, val *types.Valset) bool {
-		out = append(out, val)
+		if val.HyperionId == hyperionId {
+			out = append(out, val)
+		}
 		return false
 	})
 
@@ -232,32 +249,32 @@ func (k *Keeper) GetValsets(ctx sdk.Context) (out []*types.Valset) {
 }
 
 // GetLatestValset returns the latest validator set in state
-func (k *Keeper) GetLatestValset(ctx sdk.Context) (out *types.Valset) {
+func (k *Keeper) GetLatestValset(ctx sdk.Context, hyperionId uint64) (out *types.Valset) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	latestValsetNonce := k.GetLatestValsetNonce(ctx)
-	out = k.GetValset(ctx, latestValsetNonce)
+	latestValsetNonce := k.GetLatestValsetNonce(ctx, hyperionId)
+	out = k.GetValset(ctx, hyperionId, latestValsetNonce)
 
 	return
 }
 
 // setLastSlashedValsetNonce sets the latest slashed valset nonce
-func (k *Keeper) SetLastSlashedValsetNonce(ctx sdk.Context, nonce uint64) {
+func (k *Keeper) SetLastSlashedValsetNonce(ctx sdk.Context, hyperionId uint64, nonce uint64) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastSlashedValsetNonce, types.UInt64Bytes(nonce))
+	store.Set(types.GetLastSlashedValsetNonceKey(hyperionId), types.UInt64Bytes(nonce))
 }
 
 // GetLastSlashedValsetNonce returns the latest slashed valset nonce
-func (k *Keeper) GetLastSlashedValsetNonce(ctx sdk.Context) uint64 {
+func (k *Keeper) GetLastSlashedValsetNonce(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastSlashedValsetNonce)
+	bytes := store.Get(types.GetLastSlashedValsetNonceKey(hyperionId))
 
 	if len(bytes) == 0 {
 		return 0
@@ -272,7 +289,7 @@ func (k *Keeper) SetLastUnbondingBlockHeight(ctx sdk.Context, unbondingBlockHeig
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastUnbondingBlockHeight, types.UInt64Bytes(unbondingBlockHeight))
+	store.Set(types.GetLastUnbondingBlockHeightKey(), types.UInt64Bytes(unbondingBlockHeight))
 }
 
 // GetLastUnbondingBlockHeight returns the last unbonding block height
@@ -281,7 +298,7 @@ func (k *Keeper) GetLastUnbondingBlockHeight(ctx sdk.Context) uint64 {
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastUnbondingBlockHeight)
+	bytes := store.Get(types.GetLastUnbondingBlockHeightKey())
 
 	if len(bytes) == 0 {
 		return 0
@@ -291,11 +308,11 @@ func (k *Keeper) GetLastUnbondingBlockHeight(ctx sdk.Context) uint64 {
 }
 
 // GetUnslashedValsets returns all the unslashed validator sets in state
-func (k *Keeper) GetUnslashedValsets(ctx sdk.Context, maxHeight uint64) (out []*types.Valset) {
+func (k *Keeper) GetUnslashedValsets(ctx sdk.Context, hyperionId uint64, maxHeight uint64) (out []*types.Valset) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	lastSlashedValsetNonce := k.GetLastSlashedValsetNonce(ctx)
+	lastSlashedValsetNonce := k.GetLastSlashedValsetNonce(ctx, hyperionId)
 
 	k.IterateValsetBySlashedValsetNonce(ctx, lastSlashedValsetNonce, maxHeight, func(_ []byte, valset *types.Valset) bool {
 		if valset.Nonce > lastSlashedValsetNonce {
@@ -336,12 +353,12 @@ func (k *Keeper) IterateValsetBySlashedValsetNonce(
 /////////////////////////////
 
 // GetValsetConfirm returns a valset confirmation by a nonce and validator address
-func (k *Keeper) GetValsetConfirm(ctx sdk.Context, nonce uint64, validator sdk.AccAddress) *types.MsgValsetConfirm {
+func (k *Keeper) GetValsetConfirm(ctx sdk.Context, hyperionId uint64, nonce uint64, validator sdk.AccAddress) *types.MsgValsetConfirm {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	entity := store.Get(types.GetValsetConfirmKey(nonce, validator))
+	entity := store.Get(types.GetValsetConfirmKey(hyperionId, nonce, validator))
 	if entity == nil {
 		return nil
 	}
@@ -364,19 +381,19 @@ func (k *Keeper) SetValsetConfirm(ctx sdk.Context, valset *types.MsgValsetConfir
 		panic(err)
 	}
 
-	key := types.GetValsetConfirmKey(valset.Nonce, addr)
+	key := types.GetValsetConfirmKey(valset.HyperionId, valset.Nonce, addr)
 	store.Set(key, k.cdc.MustMarshal(valset))
 
 	return key
 }
 
 // GetValsetConfirms returns all validator set confirmations by nonce
-func (k *Keeper) GetValsetConfirms(ctx sdk.Context, nonce uint64) (valsetConfirms []*types.MsgValsetConfirm) {
+func (k *Keeper) GetValsetConfirms(ctx sdk.Context, hyperionId uint64, nonce uint64) (valsetConfirms []*types.MsgValsetConfirm) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValsetConfirmKey)
-	start, end := PrefixRange(types.UInt64Bytes(nonce))
+	start, end := PrefixRange(types.GetValsetConfirmPrefixKey(hyperionId, nonce))
 	iterator := prefixStore.Iterator(start, end)
 
 	defer iterator.Close()
@@ -392,12 +409,13 @@ func (k *Keeper) GetValsetConfirms(ctx sdk.Context, nonce uint64) (valsetConfirm
 }
 
 // IterateValsetConfirmByNonce iterates through all valset confirms by validator set nonce in ASC order
-func (k *Keeper) IterateValsetConfirmByNonce(ctx sdk.Context, nonce uint64, cb func(k []byte, v *types.MsgValsetConfirm) (stop bool)) {
+func (k *Keeper) IterateValsetConfirmByNonce(ctx sdk.Context, hyperionId uint64, nonce uint64, cb func(k []byte, v *types.MsgValsetConfirm) (stop bool)) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValsetConfirmKey)
-	iter := prefixStore.Iterator(PrefixRange(types.UInt64Bytes(nonce)))
+	start, end := PrefixRange(types.GetValsetConfirmPrefixKey(hyperionId, nonce))
+	iter := prefixStore.Iterator(start, end)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -415,12 +433,12 @@ func (k *Keeper) IterateValsetConfirmByNonce(ctx sdk.Context, nonce uint64, cb f
 /////////////////////////////
 
 // GetBatchConfirm returns a batch confirmation given its nonce, the token contract, and a validator address
-func (k *Keeper) GetBatchConfirm(ctx sdk.Context, nonce uint64, tokenContract common.Address, validator sdk.AccAddress) *types.MsgConfirmBatch {
+func (k *Keeper) GetBatchConfirm(ctx sdk.Context, hyperionId uint64, nonce uint64, tokenContract common.Address, validator sdk.AccAddress) *types.MsgConfirmBatch {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	entity := store.Get(types.GetBatchConfirmKey(tokenContract, nonce, validator))
+	entity := store.Get(types.GetBatchConfirmKey(hyperionId, tokenContract, nonce, validator))
 	if entity == nil {
 		return nil
 	}
@@ -447,7 +465,7 @@ func (k *Keeper) SetBatchConfirm(ctx sdk.Context, batch *types.MsgConfirmBatch) 
 		panic(err)
 	}
 
-	key := types.GetBatchConfirmKey(tokenContract, batch.Nonce, acc)
+	key := types.GetBatchConfirmKey(batch.HyperionId, tokenContract, batch.Nonce, acc)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	return key
@@ -456,6 +474,7 @@ func (k *Keeper) SetBatchConfirm(ctx sdk.Context, batch *types.MsgConfirmBatch) 
 // IterateBatchConfirmByNonceAndTokenContract iterates through all batch confirmations
 func (k *Keeper) IterateBatchConfirmByNonceAndTokenContract(
 	ctx sdk.Context,
+	hyperionId uint64,
 	nonce uint64,
 	tokenContract common.Address,
 	cb func(k []byte, v *types.MsgConfirmBatch) (stop bool),
@@ -464,7 +483,12 @@ func (k *Keeper) IterateBatchConfirmByNonceAndTokenContract(
 	defer doneFn()
 
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.BatchConfirmKey)
-	batchPrefix := append(tokenContract.Bytes(), types.UInt64Bytes(nonce)...)
+
+	batchPrefix := make([]byte, 0, 8+types.ETHContractAddressLen+8)
+	batchPrefix = append(batchPrefix, types.UInt64Bytes(hyperionId)...)
+	batchPrefix = append(batchPrefix, tokenContract.Bytes()...)
+	batchPrefix = append(batchPrefix, types.UInt64Bytes(nonce)...)
+
 	iter := prefixStore.Iterator(PrefixRange(batchPrefix))
 	defer iter.Close()
 
@@ -479,11 +503,11 @@ func (k *Keeper) IterateBatchConfirmByNonceAndTokenContract(
 }
 
 // GetBatchConfirmByNonceAndTokenContract returns the batch confirms
-func (k *Keeper) GetBatchConfirmByNonceAndTokenContract(ctx sdk.Context, nonce uint64, tokenContract common.Address) (out []*types.MsgConfirmBatch) {
+func (k *Keeper) GetBatchConfirmByNonceAndTokenContract(ctx sdk.Context, hyperionId uint64, nonce uint64, tokenContract common.Address) (out []*types.MsgConfirmBatch) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	k.IterateBatchConfirmByNonceAndTokenContract(ctx, nonce, tokenContract, func(_ []byte, msg *types.MsgConfirmBatch) (stop bool) {
+	k.IterateBatchConfirmByNonceAndTokenContract(ctx, hyperionId, nonce, tokenContract, func(_ []byte, msg *types.MsgConfirmBatch) (stop bool) {
 		out = append(out, msg)
 		return false
 	})
@@ -496,22 +520,22 @@ func (k *Keeper) GetBatchConfirmByNonceAndTokenContract(ctx sdk.Context, nonce u
 /////////////////////////////
 
 // SetOrchestratorValidator sets the Orchestrator key for a given validator
-func (k *Keeper) SetOrchestratorValidator(ctx sdk.Context, val sdk.ValAddress, orch sdk.AccAddress) {
+func (k *Keeper) SetOrchestratorValidator(ctx sdk.Context, hyperionId uint64, val sdk.ValAddress, orch sdk.AccAddress) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetOrchestratorAddressKey(orch), val.Bytes())
+	store.Set(types.GetOrchestratorAddressKey(hyperionId, orch), val.Bytes())
 }
 
 // GetOrchestratorValidator returns the validator key associated with an orchestrator key
-func (k *Keeper) GetOrchestratorValidator(ctx sdk.Context, orch sdk.AccAddress) (sdk.ValAddress, bool) {
+func (k *Keeper) GetOrchestratorValidator(ctx sdk.Context, hyperionId uint64, orch sdk.AccAddress) (sdk.ValAddress, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetOrchestratorAddressKey(orch))
+	bz := store.Get(types.GetOrchestratorAddressKey(hyperionId, orch))
 	if bz == nil {
 		return nil, false
 	}
@@ -524,23 +548,23 @@ func (k *Keeper) GetOrchestratorValidator(ctx sdk.Context, orch sdk.AccAddress) 
 /////////////////////////////
 
 // SetEthAddressForValidator sets the ethereum address for a given validator
-func (k *Keeper) SetEthAddressForValidator(ctx sdk.Context, validator sdk.ValAddress, ethAddr common.Address) {
+func (k *Keeper) SetEthAddressForValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress, ethAddr common.Address) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetEthAddressByValidatorKey(validator), ethAddr.Bytes())
-	store.Set(types.GetValidatorByEthAddressKey(ethAddr), validator.Bytes())
+	store.Set(types.GetEthAddressByValidatorKey(hyperionId, validator), ethAddr.Bytes())
+	store.Set(types.GetValidatorByEthAddressKey(hyperionId, ethAddr), validator.Bytes())
 }
 
 // GetEthAddressByValidator returns the eth address for a given hyperion validator
-func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, validator sdk.ValAddress) (common.Address, bool) {
+func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetEthAddressByValidatorKey(validator))
+	bz := store.Get(types.GetEthAddressByValidatorKey(hyperionId, validator))
 	if bz == nil {
 		return common.Address{}, false
 	}
@@ -549,12 +573,12 @@ func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, validator sdk.ValAddr
 }
 
 // GetValidatorByEthAddress returns the validator for a given eth address
-func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, ethAddr common.Address) (validator stakingtypes.Validator, found bool) {
+func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, hyperionId uint64, ethAddr common.Address) (validator stakingtypes.Validator, found bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	valAddr := store.Get(types.GetValidatorByEthAddressKey(ethAddr))
+	valAddr := store.Get(types.GetValidatorByEthAddressKey(hyperionId, ethAddr))
 	if valAddr == nil {
 		return stakingtypes.Validator{}, false
 	}
@@ -602,7 +626,7 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Val
 		vp, _ := k.StakingKeeper.GetLastValidatorPower(ctx, val)
 		p := uint64(vp)
 
-		if ethAddress, found := k.GetEthAddressByValidator(ctx, val); found {
+		if ethAddress, found := k.GetEthAddressByValidator(ctx, hyperionId, val); found {
 			bv := &types.BridgeValidator{Power: p, EthereumAddress: ethAddress.Hex()}
 			bridgeValidators = append(bridgeValidators, bv)
 			totalPower += p
@@ -630,7 +654,7 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Val
 		rewardToken, rewardAmount = k.RewardToERC20Lookup(ctx, reward, hyperionId)
 	}
 	// TODO: make the nonce an incrementing one (i.e. fetch last nonce from state, increment, set here)
-	return types.NewValset(uint64(ctx.BlockHeight()), uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
+	return types.NewValset(hyperionId, uint64(ctx.BlockHeight()), uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
 }
 
 /////////////////////////////
@@ -704,6 +728,7 @@ func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[uint64]*types.C
 	counterpartyChainParamsMap := make(map[uint64]*types.CounterpartyChainParams)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		counterpartyChainParamsMap[counterpartyChainParams.HyperionId] = counterpartyChainParams
+		counterpartyChainParamsMap[counterpartyChainParams.HyperionId].Erc20ToDenoms = k.GetAllERC20ToDenom(ctx, counterpartyChainParams.HyperionId)
 	}
 
 	return counterpartyChainParamsMap
@@ -836,12 +861,16 @@ func (k *Keeper) UnpackAttestationClaim(attestation *types.Attestation) (types.E
 // address mapping will mean having to keep two of the same data around just to provide lookups.
 //
 // For the time being this will serve
-func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context) []*types.MsgSetOrchestratorAddresses {
+func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context, hyperionId uint64) []*types.MsgSetOrchestratorAddresses {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	storePrefix := types.EthAddressByValidatorKey
+
+	storePrefix := make([]byte, 0, len(types.EthAddressByValidatorKey)+8)
+	storePrefix = append(storePrefix, types.EthAddressByValidatorKey...)
+	storePrefix = append(storePrefix, types.UInt64Bytes(hyperionId)...)
+
 	iter := store.Iterator(PrefixRange(storePrefix))
 	defer iter.Close()
 
@@ -852,7 +881,7 @@ func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context) []*types.MsgSetOrches
 		// to cut off the starting bytes, if you don't do this a valid
 		// cosmos key will be made out of EthAddressByValidatorKey + the startin bytes
 		// of the actual key
-		key := iter.Key()[len(types.EthAddressByValidatorKey):]
+		key := iter.Key()[len(types.EthAddressByValidatorKey)+8:]
 		value := iter.Value()
 		ethAddress := common.BytesToAddress(value)
 		validatorAccount := sdk.AccAddress(key)
@@ -860,14 +889,16 @@ func (k *Keeper) GetOrchestratorAddresses(ctx sdk.Context) []*types.MsgSetOrches
 	}
 
 	store = ctx.KVStore(k.storeKey)
-	storePrefix = types.KeyOrchestratorAddress
+	storePrefix = make([]byte, 0, len(types.KeyOrchestratorAddress)+8)
+	storePrefix = append(storePrefix, types.KeyOrchestratorAddress...)
+	storePrefix = append(storePrefix, types.UInt64Bytes(hyperionId)...)
 	iter = store.Iterator(PrefixRange(storePrefix))
 	defer iter.Close()
 
 	orchestratorAddresses := make(map[string]sdk.AccAddress)
 
 	for ; iter.Valid(); iter.Next() {
-		key := iter.Key()[len(types.KeyOrchestratorAddress):]
+		key := iter.Key()[len(types.KeyOrchestratorAddress)+8:]
 		value := iter.Value()
 		orchestratorAccount := sdk.AccAddress(key)
 		validatorAccount := sdk.AccAddress(value)
@@ -1021,4 +1052,135 @@ func (k *Keeper) CreateModuleAccount(ctx sdk.Context) {
 	baseAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter, authtypes.Burner)
 	moduleAcc := (k.accountKeeper.NewAccount(ctx, baseAcc)).(sdk.ModuleAccountI) // set the account number
 	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
+}
+
+func (k *Keeper) SetErc20Keeper(erc20Keeper erc20keeper.Keeper) {
+	k.erc20Keeper = erc20Keeper
+}
+
+func (k *Keeper) GetHyperionParamsFromChainId(ctx sdk.Context, chainId uint64) *types.CounterpartyChainParams {
+	params := k.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == chainId {
+			return counterpartyChainParam
+		}
+	}
+
+	return nil
+}
+
+func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId uint64) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
+	currentCosmosHeight := ctx.BlockHeight()
+	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values
+	// are zero because no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
+	heights := k.GetLastObservedEthereumBlockHeight(ctx, hyperionId)
+	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
+		return 0
+	}
+	// we project how long it has been in milliseconds since the last Ethereum block height was observed
+	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
+	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
+	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
+
+	return projectedCurrentEthereumHeight
+}
+
+func (k *Keeper) SearchAttestationsByEthereumAddress(ctx sdk.Context, hyperionId uint64, ethereumAddress string) ([]*types.Attestation, error) {
+	attestations := k.GetAttestationMapping(ctx, hyperionId) // Assuming hyperionId is known or passed as a parameter
+	var matchingAttestations []*types.Attestation
+
+	for _, attestationList := range attestations {
+		for _, attestation := range attestationList {
+			claim, err := k.UnpackAttestationClaim(attestation)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to unpack attestation claim")
+			}
+
+			// Check if the claim contains the specified Ethereum address
+			switch claim := claim.(type) {
+			case *types.MsgDepositClaim:
+				if claim.EthereumSender == ethereumAddress {
+					matchingAttestations = append(matchingAttestations, attestation)
+				}
+			}
+		}
+	}
+
+	return matchingAttestations, nil
+}
+
+func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.Index), k.cdc.MustMarshal(tx))
+
+	if tx.DestAddress != tx.Sender {
+		lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.DestAddress))
+		if err != nil {
+			return
+		}
+		tx.Index = lastIndex + 1
+		finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index), k.cdc.MustMarshal(tx))
+	}
+}
+
+func (k *Keeper) FindLastFinalizedTxIndex(ctx sdk.Context, addr common.Address) (uint64, error) {
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	iter := finalizedTxStore.ReverseIterator(PrefixRange(types.GetFinalizedTxAddressPrefixKey(addr)))
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		var tx types.TransferTx
+		k.cdc.MustUnmarshal(iter.Value(), &tx)
+
+		return tx.Index, nil
+	}
+	return 0, nil
+}
+
+func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*types.TransferTx, error) {
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	iter := finalizedTxStore.Iterator(PrefixRange(types.GetFinalizedTxAddressPrefixKey(addr)))
+	defer iter.Close()
+
+	txs := make([]*types.TransferTx, 0)
+
+	for ; iter.Valid(); iter.Next() {
+		var tx types.TransferTx
+		k.cdc.MustUnmarshal(iter.Value(), &tx)
+		txs = append(txs, &tx)
+	}
+
+	return txs, nil
+}
+
+func (k *Keeper) FindFinalizedTxsByIndexToIndex(ctx sdk.Context, addr common.Address, startIndex uint64, endIndex uint64) ([]*types.TransferTx, error) {
+	store := ctx.KVStore(k.storeKey)
+	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
+	iter := finalizedTxStore.Iterator(PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, startIndex)))
+	defer iter.Close()
+
+	txs := make([]*types.TransferTx, 0)
+
+	for ; iter.Valid(); iter.Next() {
+		var tx types.TransferTx
+		k.cdc.MustUnmarshal(iter.Value(), &tx)
+
+		if tx.Index > endIndex {
+			break
+		}
+		txs = append(txs, &tx)
+	}
+
+	return txs, nil
 }

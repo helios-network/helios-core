@@ -60,6 +60,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/add_counterparty_chain_params";
   }
 
+  rpc UpdateCounterpartyChainInfosParams(MsgUpdateCounterpartyChainInfosParams)
+      returns (MsgUpdateCounterpartyChainInfosParamsResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_counterparty_chain_infos_params";
+  }
+
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
   // BlacklistEthereumAddresses adds Ethereum addresses to the hyperion blacklist.
@@ -70,6 +75,8 @@ service Msg {
   // blacklist.
   rpc RevokeEthereumBlacklist(MsgRevokeEthereumBlacklist)
       returns (MsgRevokeEthereumBlacklistResponse);
+
+  rpc ForceSetValsetAndLastObservedEventNonce(MsgForceSetValsetAndLastObservedEventNonce) returns (MsgForceSetValsetAndLastObservedEventNonceResponse);
 }
 
 // MsgSetOrchestratorAddresses
@@ -92,6 +99,7 @@ message MsgSetOrchestratorAddresses {
   string sender = 1;
   string orchestrator = 2;
   string eth_address = 3;
+  uint64 hyperion_id = 4;
 }
 
 message MsgSetOrchestratorAddressesResponse {}
@@ -141,7 +149,7 @@ message MsgSendToChain {
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
-  uint64 dest_hyperion_id = 2;
+  uint64 dest_chain_id = 2;
   string dest = 3;
   cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin bridge_fee = 5 [ (gogoproto.nullable) = false ];
@@ -211,6 +219,7 @@ message MsgDepositClaim {
   string cosmos_receiver = 7;
   string orchestrator = 8;
   string data = 9;
+  string tx_hash = 10;
 }
 
 message MsgDepositClaimResponse {}
@@ -227,6 +236,7 @@ message MsgWithdrawClaim {
   uint64 batch_nonce = 4;
   string token_contract = 5;
   string orchestrator = 6;
+  string tx_hash = 7;
 }
 
 message MsgWithdrawClaimResponse {}
@@ -260,6 +270,7 @@ message MsgCancelSendToChain {
 
   uint64 transaction_id = 1;
   string sender = 2;
+  uint64 chain_id = 3;
 }
 
 message MsgCancelSendToChainResponse {}
@@ -357,3 +368,31 @@ message MsgRevokeEthereumBlacklist {
 // MsgRevokeEthereumBlacklistResponse defines the MsgRevokeEthereumBlacklist
 // response type.
 message MsgRevokeEthereumBlacklistResponse {}
+
+message MsgForceSetValsetAndLastObservedEventNonce {
+  option (amino.name) = "hyperion/MsgForceSetValsetAndLastObservedEventNonce";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 hyperion_id = 2;
+  Valset valset = 3;
+  uint64 last_observed_event_nonce = 4;
+  uint64 last_observed_ethereum_block_height = 5;
+}
+
+message MsgForceSetValsetAndLastObservedEventNonceResponse {}
+
+
+message MsgUpdateCounterpartyChainInfosParams {
+  option (amino.name) = "hyperion/MsgUpdateCounterpartyChainInfosParams";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 bridge_chain_id = 2;
+  string bridge_chain_logo = 3;
+  string bridge_chain_name = 4;
+}
+
+message MsgUpdateCounterpartyChainInfosParamsResponse {
+  bool updated = 1;
+}

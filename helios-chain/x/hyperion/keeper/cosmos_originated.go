@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"encoding/json"
+	"reflect"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,13 +15,13 @@ import (
 	"helios-core/helios-chain/x/hyperion/types"
 )
 
-func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.Address) (string, bool) {
+func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, hyperionId uint64, tokenContract common.Address) (string, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetERC20ToCosmosDenomKey(tokenContract))
+	bz := store.Get(types.GetERC20ToCosmosDenomKey(hyperionId, tokenContract))
 	if bz == nil {
 		return "", false
 	}
@@ -26,13 +29,13 @@ func (k *Keeper) GetCosmosOriginatedDenom(ctx sdk.Context, tokenContract common.
 	return string(bz), true
 }
 
-func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, denom string) (common.Address, bool) {
+func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, hyperionId uint64, denom string) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetCosmosDenomToERC20Key(denom))
+	bz := store.Get(types.GetCosmosDenomToERC20Key(hyperionId, denom))
 	if bz == nil {
 		return common.Address{}, false
 	}
@@ -40,13 +43,13 @@ func (k *Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, denom string) (common
 	return common.BytesToAddress(bz), true
 }
 
-func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, denom string, tokenContract common.Address) {
+func (k *Keeper) SetCosmosOriginatedDenomToERC20(ctx sdk.Context, hyperionId uint64, denom string, tokenContract common.Address) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetCosmosDenomToERC20Key(denom), tokenContract.Bytes())
-	store.Set(types.GetERC20ToCosmosDenomKey(tokenContract), []byte(denom))
+	store.Set(types.GetCosmosDenomToERC20Key(hyperionId, denom), tokenContract.Bytes())
+	store.Set(types.GetERC20ToCosmosDenomKey(hyperionId, tokenContract), []byte(denom))
 }
 
 // DenomToERC20 returns if an asset is native to Cosmos or Ethereum, and get its corresponding ERC20 address
@@ -57,7 +60,7 @@ func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId
 	defer doneFn()
 
 	// First try parsing the ERC20 out of the denom
-	hyperionDenom, denomErr := types.NewHyperionDenomFromString(denomStr)
+	hyperionDenom, denomErr := types.NewHyperionDenomFromString(hyperionId, denomStr)
 	if denomErr == nil {
 		// This is an Ethereum-originated asset
 		tokenContractFromDenom, _ := hyperionDenom.TokenContract()
@@ -73,7 +76,7 @@ func (k *Keeper) DenomToERC20Lookup(ctx sdk.Context, denomStr string, hyperionId
 	}
 
 	// Look up ERC20 contract in index and error if it's not in there
-	tokenContract, exists := k.GetCosmosOriginatedERC20(ctx, denomStr)
+	tokenContract, exists := k.GetCosmosOriginatedERC20(ctx, hyperionId, denomStr)
 	if !exists {
 		err = errors.Errorf(
 			"denom (%s) not a hyperion voucher coin (parse error: %s), and also not in cosmos-originated ERC20 index",
@@ -116,35 +119,60 @@ func (k *Keeper) RewardToERC20Lookup(ctx sdk.Context, coin sdk.Coin, hyperionId 
 	}
 }
 
-// Validate if claim data can be unmarshalled into authorised sdk msgs
-// Enfore if it is signed by valid signer
-// Enfore if validateBasic is successful.
-func (k *Keeper) ValidateClaimData(ctx sdk.Context, claimData string, ethereumSigner sdk.AccAddress) (msg sdk.Msg, err error) {
+func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMetadata) (*types.TokenMetadata, error) {
+
+	if metadata == nil {
+		return nil, errors.Errorf("undefined metadata")
+	}
+
+	if metadata.Decimals > 18 {
+		return nil, errors.Errorf("claim data is not a valid Decimals: %v", metadata.Decimals)
+	}
+
+	if len(metadata.Name) > 30 {
+		return nil, errors.Errorf("claim data is not a valid Name: %v len superior to 30", metadata.Name)
+	}
+
+	if len(metadata.Symbol) > 30 {
+		return nil, errors.Errorf("claim data is not a valid Symbol: %v len superior to 30", metadata.Name)
+	}
+
+	return metadata, nil
+}
+
+func (k *Keeper) parseClaimData(ctx sdk.Context, claimData string) (*types.TokenMetadata, *sdk.Msg, error) {
+	var data types.ClaimData
+	var msg sdk.Msg
+
+	claimDataFull := claimData
+
+	if err := json.Unmarshal([]byte(claimData), &data); err != nil {
+		return nil, nil, errors.Errorf("claim data is not a json valid or empty (%s)", claimData)
+	}
+
+	if data.Metadata != nil {
+		claimDataFull = data.Data
+		if _, err := k.ValidateTokenMetaData(ctx, data.Metadata); err != nil {
+			return nil, nil, err
+		}
+		if claimDataFull == "" { // metadata alone
+			return data.Metadata, nil, nil
+		}
+	}
 	// Check if the claim data is a valid sdk msg
-	if err := k.cdc.UnmarshalInterfaceJSON([]byte(claimData), &msg); err != nil {
-		return msg, errors.Errorf("claim data is not a valid sdk msg: %s", err.Error())
+	if err := k.cdc.UnmarshalInterfaceJSON([]byte(claimDataFull), &msg); err != nil {
+		return data.Metadata, nil, err
 	}
 
-	message, ok := msg.(sdk.HasValidateBasic)
-	if !ok {
-		return msg, errors.Errorf("claim data is not a valid sdk.Msg: %v", err)
-	}
+	return data.Metadata, &msg, nil
+}
 
-	// Enforce that msg.ValidateBasic() succeeds
-	if err := message.ValidateBasic(); err != nil {
-		return msg, errors.Errorf("claim data is not a valid sdk.Msg: %v", err)
+func (k *Keeper) handleValidateMsg(_ sdk.Context, msg *sdk.Msg) (bool, error) {
+	switch (*msg).(type) {
+	case *types.MsgSendToChain:
+		return true, nil
 	}
-
-	legacyMsg, ok := msg.(sdk.LegacyMsg)
-	if !ok {
-		return msg, errors.Errorf("claim data is not a valid sdk.Msg: %v", err)
-	}
-	// Enforce that the claim data is signed by the ethereum signer
-	if !legacyMsg.GetSigners()[0].Equals(ethereumSigner) {
-		return msg, errors.Errorf("claim data is not signed by ethereum signer: %s", ethereumSigner.String())
-	}
-
-	return msg, nil
+	return false, errors.Errorf("Message %s not managed", reflect.TypeOf(msg))
 }
 
 // ERC20ToDenom returns if an ERC20 address represents an asset is native to Cosmos or Ethereum,
@@ -154,7 +182,7 @@ func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Addres
 	defer doneFn()
 
 	// First try looking up tokenContract in index
-	denomStr, exists := k.GetCosmosOriginatedDenom(ctx, tokenContract)
+	denomStr, exists := k.GetCosmosOriginatedDenom(ctx, hyperionId, tokenContract)
 	if exists {
 		isCosmosOriginated = true
 		return isCosmosOriginated, denomStr
@@ -163,15 +191,16 @@ func (k *Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract common.Addres
 	}
 
 	// If it is not in there, it is not a cosmos originated token, turn the ERC20 into a hyperion denom
-	return false, types.NewHyperionDenom(tokenContract).String()
+	return false, types.NewHyperionDenom(hyperionId, tokenContract).String()
 }
 
 // IterateERC20ToDenom iterates over erc20 to denom relations
-func (k *Keeper) IterateERC20ToDenom(ctx sdk.Context, cb func(k []byte, v *types.ERC20ToDenom) (stop bool)) {
+func (k *Keeper) IterateERC20ToDenom(ctx sdk.Context, hyperionId uint64, cb func(k []byte, v *types.ERC20ToDenom) (stop bool)) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ERC20ToDenomKey)
+	prefixKey := append(types.ERC20ToDenomKey, types.UInt64Bytes(hyperionId)...)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixKey)
 	iter := prefixStore.Iterator(nil, nil)
 	defer iter.Close()
 
@@ -185,4 +214,15 @@ func (k *Keeper) IterateERC20ToDenom(ctx sdk.Context, cb func(k []byte, v *types
 			break
 		}
 	}
+}
+
+func (k *Keeper) GetAllERC20ToDenom(ctx sdk.Context, hyperionId uint64) []*types.ERC20ToDenom {
+	erc20ToDenoms := []*types.ERC20ToDenom{}
+
+	k.IterateERC20ToDenom(ctx, hyperionId, func(_ []byte, erc20ToDenom *types.ERC20ToDenom) bool {
+		erc20ToDenoms = append(erc20ToDenoms, erc20ToDenom)
+		return false
+	})
+
+	return erc20ToDenoms
 }

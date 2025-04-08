@@ -3,7 +3,11 @@
 package backend
 
 import (
-	"helios-core/helios-chain/x/erc20/types"
+	rpctypes "helios-core/helios-chain/rpc/types"
+
+	erc20types "helios-core/helios-chain/x/erc20/types"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -21,7 +25,7 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 	}
 
 	// Create the query request
-	req := &types.QueryTokenPairsRequest{
+	req := &erc20types.QueryTokenPairsRequest{
 		Pagination: pageReq,
 	}
 
@@ -41,7 +45,7 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 		erc20Addr := common.HexToAddress(pair.Erc20Address)
 
 		token["address"] = erc20Addr.Hex()
-		token["symbol"] = pair.Denom
+		token["denom"] = pair.Denom
 		token["enabled"] = pair.Enabled
 		token["owner"] = pair.ContractOwner
 
@@ -49,4 +53,44 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 	}
 
 	return tokens, nil
+}
+
+func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error) {
+
+	// Get ERC20 balances using erc20 query
+	// Create the query request
+	erc20Req := &erc20types.QueryTokenPairRequest{
+		Token: tokenAddress.String(),
+	}
+	erc20Res, err := b.queryClient.Erc20.TokenPair(b.ctx, erc20Req)
+	if err != nil {
+		return nil, err
+	}
+
+	bankRes, err := b.queryClient.Bank.DenomMetadata(b.ctx, &banktypes.QueryDenomMetadataRequest{
+		Denom: erc20Res.TokenPair.Denom,
+	})
+
+	if err != nil {
+		return &rpctypes.TokenDetails{
+			Address: tokenAddress,
+			Denom:   erc20Res.TokenPair.Denom,
+		}, nil
+	}
+
+	logo := bankRes.Metadata.Logo
+
+	if logo == "" && erc20Res.TokenPair.Denom == "ahelios" {
+		logo = "807ff0e6f9c51651b04710e61a15ded84be227d9afe812613b871a8d75ac0d4a"
+	}
+
+	return &rpctypes.TokenDetails{
+		Address:     tokenAddress,
+		Denom:       erc20Res.TokenPair.Denom,
+		Symbol:      bankRes.Metadata.Symbol,
+		Decimals:    bankRes.Metadata.Decimals,
+		Description: bankRes.Metadata.Description,
+		Logo:        logo,
+		Holders:     0,
+	}, nil
 }

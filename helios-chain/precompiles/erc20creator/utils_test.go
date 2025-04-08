@@ -17,6 +17,7 @@ func (s *PrecompileTestSuite) setupErc20CreatorPrecompile() *erc20creator.Precom
 	precompile, err := erc20creator.NewPrecompile(
 		s.network.App.Erc20Keeper,
 		s.network.App.BankKeeper,
+		s.network.App.LogosKeeper,
 	)
 
 	s.Require().NoError(err, "failed to create erc20creator precompile")
@@ -27,6 +28,7 @@ func (is *IntegrationTestSuite) setupErc20CreatorPrecompile() *erc20creator.Prec
 	precompile, err := erc20creator.NewPrecompile(
 		is.network.App.Erc20Keeper,
 		is.network.App.BankKeeper,
+		is.network.App.LogosKeeper,
 	)
 
 	Expect(err).ToNot(HaveOccurred(), "failed to create erc20creator precompile")

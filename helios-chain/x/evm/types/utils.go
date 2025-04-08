@@ -72,14 +72,15 @@ func UnwrapEthereumMsgTx(tx *sdk.Tx) (*MsgEthereumTx, error) {
 	for _, msg := range (*tx).GetMsgs() {
 		ethMsg, ok := msg.(*MsgEthereumTx)
 		if !ok {
-			return nil, fmt.Errorf("invalid tx type: %T", tx)
+			continue // Skip non-Ethereum messages
 		}
 		txHash := ethMsg.AsTransaction().Hash()
 		ethMsg.Hash = txHash.Hex()
+
 		return ethMsg, nil
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("no ethereum messages found in tx")
 }
 
 // UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx
