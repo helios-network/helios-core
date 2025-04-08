@@ -651,7 +651,14 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Val
 		rewardAmount = math.NewIntFromUint64(0)
 
 	} else {
-		rewardToken, rewardAmount = k.RewardToERC20Lookup(ctx, reward, hyperionId)
+		rewardAmount = reward.Amount
+		tokenAddressToDenom, exists := k.GetTokenFromDenom(ctx, hyperionId, reward.Denom)
+		if !exists { // force the reward to be zero
+			rewardToken = common.Address{0x0000000000000000000000000000000000000000}
+			rewardAmount = math.NewIntFromUint64(0)
+		} else {
+			rewardToken = common.HexToAddress(tokenAddressToDenom.TokenAddress)
+		}
 	}
 	// TODO: make the nonce an incrementing one (i.e. fetch last nonce from state, increment, set here)
 	return types.NewValset(hyperionId, uint64(ctx.BlockHeight()), uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
@@ -728,7 +735,6 @@ func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[uint64]*types.C
 	counterpartyChainParamsMap := make(map[uint64]*types.CounterpartyChainParams)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
 		counterpartyChainParamsMap[counterpartyChainParams.HyperionId] = counterpartyChainParams
-		counterpartyChainParamsMap[counterpartyChainParams.HyperionId].Erc20ToDenoms = k.GetAllERC20ToDenom(ctx, counterpartyChainParams.HyperionId)
 	}
 
 	return counterpartyChainParamsMap
@@ -785,40 +791,6 @@ func (k *Keeper) GetHyperionID(ctx sdk.Context) map[uint64]uint64 {
 	}
 
 	return hyperionIdMap
-}
-
-// GetCosmosCoinDenom returns a mapping (hyperion id => the Cosmos native coin)
-func (k *Keeper) GetCosmosCoinDenom(ctx sdk.Context) map[uint64]string {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	params := k.GetParams(ctx)
-	if params == nil {
-		return map[uint64]string{}
-	}
-	cosmosCoinDenom := make(map[uint64]string)
-	for _, counterpartyChainParams := range params.CounterpartyChainParams {
-		cosmosCoinDenom[counterpartyChainParams.HyperionId] = counterpartyChainParams.CosmosCoinDenom
-	}
-
-	return cosmosCoinDenom
-}
-
-// GetCosmosCoinERC20Contract returns a mapping (hyperion id => the Cosmos coin ERC20 contract address of the counterparty chain)
-func (k *Keeper) GetCosmosCoinERC20Contract(ctx sdk.Context) map[uint64]common.Address {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	params := k.GetParams(ctx)
-	if params == nil {
-		return map[uint64]common.Address{}
-	}
-	cosmosCoinErc20ContractMap := make(map[uint64]common.Address)
-	for _, counterpartyChainParams := range params.CounterpartyChainParams {
-		cosmosCoinErc20ContractMap[counterpartyChainParams.HyperionId] = common.HexToAddress(counterpartyChainParams.CosmosCoinErc20Contract)
-	}
-
-	return cosmosCoinErc20ContractMap
 }
 
 func (k *Keeper) GetValsetReward(ctx sdk.Context) map[uint64]sdk.Coin {

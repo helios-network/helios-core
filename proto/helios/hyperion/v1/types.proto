@@ -46,10 +46,11 @@ message LastClaimEvent {
 
 // This records the relationship between an ERC20 token and the denom
 // of the corresponding Cosmos originated asset
-message ERC20ToDenom {
+message TokenAddressToDenom {
   string chain_id = 1;
-  string erc20 = 2;
+  string token_address = 2;
   string denom = 3;
+  bool is_cosmos_originated = 4;
 }
 
 message TokenMetadata {

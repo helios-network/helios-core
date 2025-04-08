@@ -85,11 +85,11 @@ var (
 	// LastObservedEthereumBlockHeightKey indexes the latest Ethereum block height
 	LastObservedEthereumBlockHeightKey = []byte{0xf9}
 
-	// DenomToERC20Key prefixes the index of Cosmos originated asset denoms to ERC20s
-	DenomToERC20Key = []byte{0xf3}
+	// DenomToTokenAddressKey prefixes the index of Cosmos originated asset denoms to ERC20s
+	DenomToTokenAddressKey = []byte{0xf3}
 
-	// ERC20ToDenomKey prefixes the index of Cosmos originated assets ERC20s to denoms
-	ERC20ToDenomKey = []byte{0xf4}
+	// TokenAddressToDenomKey prefixes the index of Cosmos originated asset denoms to ERC20s
+	TokenAddressToDenomKey = []byte{0xf4}
 
 	// LastSlashedValsetNonce indexes the latest slashed valset nonce
 	LastSlashedValsetNonce = []byte{0xf5}
@@ -315,18 +315,18 @@ func GetLastEventByValidatorKey(hyperionId uint64, validator sdk.ValAddress) []b
 	return buf
 }
 
-func GetCosmosDenomToERC20Key(hyperionId uint64, denom string) []byte {
-	buf := make([]byte, 0, len(DenomToERC20Key)+8+len(denom))
-	buf = append(buf, DenomToERC20Key...)
+func GetCosmosDenomToTokenAddressKey(hyperionId uint64, denom string) []byte {
+	buf := make([]byte, 0, len(DenomToTokenAddressKey)+8+len(denom))
+	buf = append(buf, DenomToTokenAddressKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, denom...)
 
 	return buf
 }
 
-func GetERC20ToCosmosDenomKey(hyperionId uint64, tokenContract common.Address) []byte {
-	buf := make([]byte, 0, len(ERC20ToDenomKey)+8+ETHContractAddressLen)
-	buf = append(buf, ERC20ToDenomKey...)
+func GetTokenAddressToCosmosDenomKey(hyperionId uint64, tokenContract common.Address) []byte {
+	buf := make([]byte, 0, len(TokenAddressToDenomKey)+8+ETHContractAddressLen)
+	buf = append(buf, TokenAddressToDenomKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, tokenContract.Bytes()...)
 

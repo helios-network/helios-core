@@ -53,32 +53,44 @@ func (k *Keeper) BatchRequestByNonce(c context.Context, req *types.QueryBatchReq
 	return &types.QueryBatchRequestByNonceResponse{Batch: foundBatch}, nil
 }
 
-// [Not Used In Hyperion] DenomToERC20 queries the Cosmos Denom that maps to an Ethereum ERC20
-func (k *Keeper) DenomToERC20(c context.Context, req *types.QueryDenomToERC20Request) (*types.QueryDenomToERC20Response, error) {
+// [Not Used In Hyperion] DenomToTokenAddress queries the Cosmos Denom that maps to an Ethereum ERC20
+func (k *Keeper) DenomToTokenAddress(c context.Context, req *types.QueryDenomToTokenAddressRequest) (*types.QueryDenomToTokenAddressResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	cosmosOriginated, erc20, err := k.DenomToERC20Lookup(ctx, req.Denom, req.HyperionId)
+	tokenAddressToDenom, exists := k.GetTokenFromDenom(ctx, req.HyperionId, req.Denom)
+	if !exists {
+		return nil, errors.Wrap(types.ErrInvalid, "token not found")
+	}
 
-	var ret types.QueryDenomToERC20Response
-	ret.Erc20 = erc20.Hex()
-	ret.CosmosOriginated = cosmosOriginated
+	var ret types.QueryDenomToTokenAddressResponse
+	ret.TokenAddress = tokenAddressToDenom.TokenAddress
+	ret.CosmosOriginated = tokenAddressToDenom.IsCosmosOriginated
 
-	return &ret, err
+	return &ret, nil
 }
 
-// [Not Used In Hyperion] ERC20ToDenom queries the ERC20 contract that maps to an Ethereum ERC20 if any
-func (k *Keeper) ERC20ToDenom(c context.Context, req *types.QueryERC20ToDenomRequest) (*types.QueryERC20ToDenomResponse, error) {
+// [Not Used In Hyperion] TokenAddressToDenom queries the ERC20 contract that maps to an Ethereum ERC20 if any
+func (k *Keeper) TokenAddressToDenom(c context.Context, req *types.QueryTokenAddressToDenomRequest) (*types.QueryTokenAddressToDenomResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	cosmosOriginated, name := k.ERC20ToDenomLookup(ctx, common.HexToAddress(req.Erc20), req.HyperionId)
+	tokenAddressToDenom, exists := k.GetTokenFromAddress(ctx, req.HyperionId, common.HexToAddress(req.TokenAddress))
+	if !exists { // simulate the case where the token address to denom is not found
+		hyperionDenom := types.NewHyperionDenom(req.HyperionId, common.HexToAddress(req.TokenAddress))
 
-	var ret types.QueryERC20ToDenomResponse
-	ret.Denom = name
-	ret.CosmosOriginated = cosmosOriginated
+		tokenAddressToDenom = &types.TokenAddressToDenom{
+			TokenAddress:       common.HexToAddress(req.TokenAddress).String(),
+			Denom:              hyperionDenom.String(),
+			IsCosmosOriginated: false,
+		}
+	}
+
+	var ret types.QueryTokenAddressToDenomResponse
+	ret.Denom = tokenAddressToDenom.Denom
+	ret.CosmosOriginated = tokenAddressToDenom.IsCosmosOriginated
 
 	return &ret, nil
 }

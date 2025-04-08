@@ -31,10 +31,13 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	// If the coin is a hyperion voucher, burn the coins. If not, check if there is a deployed ERC20 contract representing it.
 	// If there is, lock the coins.
 
-	isCosmosOriginated, tokenContract, err := k.DenomToERC20Lookup(ctx, totalAmount.Denom, hyperionId)
-	if err != nil {
-		return 0, err
+	tokenAddressToDenom, exists := k.GetTokenFromDenom(ctx, hyperionId, totalAmount.Denom)
+	if !exists {
+		metrics.ReportFuncError(k.svcTags)
+		return 0, errors.Wrapf(types.ErrInvalid, "token not found")
 	}
+	isCosmosOriginated := tokenAddressToDenom.IsCosmosOriginated
+	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
 	// If it is a cosmos-originated asset we lock it
 	if isCosmosOriginated {
@@ -143,10 +146,16 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 
 	// reissue the amount and the fee
 	var totalToRefundCoins sdk.Coins
-	isCosmosOriginated, denom := k.ERC20ToDenomLookup(ctx, common.HexToAddress(tx.Erc20Token.Contract), tx.HyperionId)
+	tokenAddressToDenom, exists := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Erc20Token.Contract))
+	if !exists {
+		metrics.ReportFuncError(k.svcTags)
+		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
+	}
+	isCosmosOriginated := tokenAddressToDenom.IsCosmosOriginated
+	denom := tokenAddressToDenom.Denom
 	// native cosmos coin denom
-	if denom == k.GetCosmosCoinDenom(ctx)[tx.HyperionId] {
-		// hyperion denom
+	if isCosmosOriginated {
+		// native denom
 		totalToRefund := sdk.NewCoin(denom, tx.Erc20Token.Amount)
 		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)

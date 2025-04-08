@@ -142,14 +142,12 @@ message CounterpartyChainParams {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  string cosmos_coin_denom = 21;
-  string cosmos_coin_erc20_contract = 22;
-  bool claim_slashing_enabled = 23;
-  uint64 bridge_contract_start_height = 24;
+  bool claim_slashing_enabled = 22;
+  uint64 bridge_contract_start_height = 23;
 
-  cosmos.base.v1beta1.Coin valset_reward = 25 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin valset_reward = 24 [ (gogoproto.nullable) = false ];
 
-  repeated ERC20ToDenom erc20_to_denoms = 26;
+  repeated TokenAddressToDenom default_token_address_to_denoms = 25;
 
-  string initializer = 27;
+  string initializer = 26;
 }

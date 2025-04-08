@@ -107,12 +107,11 @@ func (p Precompile) AddCounterpartyChainParams(
 			SlashFractionConflictingClaim: cosmosmath.LegacyNewDecFromIntWithPrec(cosmosmath.NewInt(1), 3), // 0.001
 			UnbondSlashingValsetsWindow:   25000,
 			SlashFractionBadEthSignature:  cosmosmath.LegacyNewDecFromIntWithPrec(cosmosmath.NewInt(1), 3), // 0.001
-			CosmosCoinDenom:               "ahelios",
-			CosmosCoinErc20Contract:       "",
 			ClaimSlashingEnabled:          false,
 			BridgeContractStartHeight:     bridgeContractStartHeight,
 			ValsetReward:                  sdk.Coin{Denom: "ahelios", Amount: cosmosmath.NewInt(0)},
 			Initializer:                   cmn.AccAddressFromHexAddress(origin).String(),
+			DefaultTokenAddressToDenoms:   []*hyperiontypes.TokenAddressToDenom{},
 		},
 	}
 

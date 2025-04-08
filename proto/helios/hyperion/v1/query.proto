@@ -86,13 +86,13 @@ service Query {
     option (google.api.http).get = "/hyperion/v1/batch/confirms";
   }
 
-  rpc ERC20ToDenom(QueryERC20ToDenomRequest)
-      returns (QueryERC20ToDenomResponse) {
-    option (google.api.http).get = "/hyperion/v1/cosmos_originated/erc20_to_denom";
+  rpc TokenAddressToDenom(QueryTokenAddressToDenomRequest)
+      returns (QueryTokenAddressToDenomResponse) {
+    option (google.api.http).get = "/hyperion/v1/tokens/token_address_to_denom";
   }
-  rpc DenomToERC20(QueryDenomToERC20Request)
-      returns (QueryDenomToERC20Response) {
-    option (google.api.http).get = "/hyperion/v1/cosmos_originated/denom_to_erc20";
+  rpc DenomToTokenAddress(QueryDenomToTokenAddressRequest)
+      returns (QueryDenomToTokenAddressResponse) {
+    option (google.api.http).get = "/hyperion/v1/tokens/denom_to_token_address";
   }
 
   rpc GetDelegateKeyByValidator(QueryDelegateKeysByValidatorAddress)
@@ -233,22 +233,22 @@ message QueryLastEventByAddrRequest {
 }
 message QueryLastEventByAddrResponse { LastClaimEvent last_claim_event = 1; }
 
-message QueryERC20ToDenomRequest { 
+message QueryTokenAddressToDenomRequest { 
   uint64 hyperion_id = 1;
-  string erc20 = 2; 
+  string token_address = 2; 
 }
-message QueryERC20ToDenomResponse {
+message QueryTokenAddressToDenomResponse {
   string denom = 1;
   bool cosmos_originated = 2;
 }
 
-message QueryDenomToERC20Request { 
+message QueryDenomToTokenAddressRequest { 
   uint64 hyperion_id = 1;
   string denom = 2; 
   
 }
-message QueryDenomToERC20Response {
-  string erc20 = 1;
+message QueryDenomToTokenAddressResponse {
+  string token_address = 1;
   bool cosmos_originated = 2;
 }
 

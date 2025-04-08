@@ -185,11 +185,12 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 
 	// Check if the denom is a hyperion coin, if not, check if there is a deployed ERC20 representing it.
 	// If not, error out
-	_, tokenContract, err := k.Keeper.DenomToERC20Lookup(ctx, msg.Denom, msg.HyperionId)
-	if err != nil {
-		fmt.Println("RequestBatch - err: ", err)
-		return nil, err
+	tokenAddressToDenom, exists := k.Keeper.GetTokenFromDenom(ctx, msg.HyperionId, msg.Denom)
+	if !exists {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrapf(types.ErrInvalid, "token not found")
 	}
+	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
 	batch, err := k.Keeper.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize)
 	if err != nil {

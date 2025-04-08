@@ -14,7 +14,6 @@ import (
 func NormalizeGenesis(data *types.GenesisState) {
 	for _, counterpartyParams := range data.Params.CounterpartyChainParams {
 		counterpartyParams.BridgeCounterpartyAddress = common.HexToAddress(counterpartyParams.BridgeCounterpartyAddress).Hex()
-		counterpartyParams.CosmosCoinErc20Contract = common.HexToAddress(counterpartyParams.CosmosCoinErc20Contract).Hex()
 	}
 
 	for _, subState := range data.SubStates {
@@ -48,8 +47,8 @@ func NormalizeGenesis(data *types.GenesisState) {
 			orchestrator.EthAddress = common.HexToAddress(orchestrator.EthAddress).Hex()
 		}
 
-		for _, token := range subState.Erc20ToDenoms {
-			token.Erc20 = common.HexToAddress(token.Erc20).Hex()
+		for _, token := range subState.TokenAddressToDenoms {
+			token.TokenAddress = common.HexToAddress(token.TokenAddress).Hex()
 		}
 	}
 }
@@ -158,8 +157,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		}
 
 		// populate state with cosmos originated denom-erc20 mapping
-		for _, item := range subState.Erc20ToDenoms {
-			k.SetCosmosOriginatedDenomToERC20(ctx, subState.HyperionId, item.Denom, common.HexToAddress(item.Erc20))
+		for _, item := range subState.TokenAddressToDenoms {
+			k.SetToken(ctx, subState.HyperionId, item)
 		}
 
 		for _, blacklistAddress := range subState.EthereumBlacklist {
@@ -189,7 +188,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 			orchestratorAddresses           = k.GetOrchestratorAddresses(ctx, param.HyperionId)
 			lastObservedEventNonce          = k.GetLastObservedEventNonce(ctx, param.HyperionId)
 			lastObservedEthereumBlockHeight = k.GetLastObservedEthereumBlockHeight(ctx, param.HyperionId)
-			erc20ToDenoms                   = k.GetAllERC20ToDenom(ctx, param.HyperionId)
+			tokens                          = k.GetAllTokens(ctx, param.HyperionId)
 			unbatchedTransfers              = k.GetPoolTransactions(ctx, param.HyperionId)
 			ethereumBlacklistAddresses      = k.GetAllEthereumBlacklistAddresses(ctx) // same for all
 		)
@@ -231,7 +230,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 			BatchConfirms:              batchconfs,
 			Attestations:               attestations,
 			OrchestratorAddresses:      orchestratorAddresses,
-			Erc20ToDenoms:              erc20ToDenoms,
+			TokenAddressToDenoms:       tokens,
 			UnbatchedTransfers:         unbatchedTransfers,
 			LastOutgoingBatchId:        lastOutgoingBatchID,
 			LastOutgoingPoolId:         lastOutgoingPoolID,

@@ -56,7 +56,16 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		}
 
 		// Check if coin is Cosmos-originated asset and get denom
-		isCosmosOriginated, denom := a.keeper.ERC20ToDenomLookup(ctx, common.HexToAddress(claim.TokenContract), claim.HyperionId)
+		tokenAddressToDenom, exists := a.keeper.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+		if !exists {
+			hyperionDenom := types.NewHyperionDenom(claim.HyperionId, common.HexToAddress(claim.TokenContract))
+			tokenAddressToDenom = a.keeper.SetToken(ctx, claim.HyperionId, &types.TokenAddressToDenom{
+				TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
+				Denom:              hyperionDenom.String(),
+				IsCosmosOriginated: false,
+			})
+		}
+		denom := tokenAddressToDenom.Denom
 
 		coins := sdk.Coins{
 			sdk.NewCoin(denom, claim.Amount),
@@ -74,9 +83,9 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			metrics.ReportFuncError(a.svcTags)
 			invalidAddress = true
 		}
-		fmt.Println("isCosmosOriginated", isCosmosOriginated)
+		fmt.Println("isCosmosOriginated", tokenAddressToDenom.IsCosmosOriginated)
 
-		if !isCosmosOriginated {
+		if !tokenAddressToDenom.IsCosmosOriginated {
 
 			name := denom
 			symbol := denom
@@ -165,13 +174,13 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 		return nil
 	case *types.MsgERC20DeployedClaim:
 		// Check if it already exists
-		existingERC20, exists := a.keeper.GetCosmosOriginatedERC20(ctx, claim.HyperionId, claim.CosmosDenom)
+		tokenAddressToDenom, exists := a.keeper.GetTokenFromDenom(ctx, claim.HyperionId, claim.CosmosDenom)
 		if exists {
 			metrics.ReportFuncError(a.svcTags)
 
 			return errors.Wrap(
 				types.ErrInvalid,
-				fmt.Sprintf("ERC20 %s already exists for denom %s", existingERC20, claim.CosmosDenom))
+				fmt.Sprintf("ERC20 %s already exists for denom %s", tokenAddressToDenom, claim.CosmosDenom))
 		}
 
 		// Check if denom exists
@@ -196,7 +205,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				fmt.Sprintf("ERC20 symbol %s does not match denom display %s", claim.Symbol, metadata.Display))
 		}
 
-		// ERC20 tokens use a very simple mechanism to tell you where to display the decimal point.
+		// Token addresses use a very simple mechanism to tell you where to display the decimal point.
 		// The "decimals" field simply tells you how many decimal places there will be.
 		// Cosmos denoms have a system that is much more full featured, with enterprise-ready token denominations.
 		// There is a DenomUnits array that tells you what the name of each denomination of the
@@ -224,8 +233,12 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				fmt.Sprintf("ERC20 decimals %d does not match denom decimals %d", claim.Decimals, decimals))
 		}
 
-		// Add to denom-erc20 mapping
-		a.keeper.SetCosmosOriginatedDenomToERC20(ctx, claim.HyperionId, claim.CosmosDenom, common.HexToAddress(claim.TokenContract))
+		// Add to denom-token address mapping
+		a.keeper.SetToken(ctx, claim.HyperionId, &types.TokenAddressToDenom{
+			TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
+			Denom:              claim.CosmosDenom,
+			IsCosmosOriginated: true,
+		})
 	case *types.MsgValsetUpdatedClaim:
 		// TODO here we should check the contents of the validator set against
 		// the store, if they differ we should take some action to indicate to the
