@@ -11,6 +11,12 @@ import (
 	"helios-core/helios-chain/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
+	"helios-core/helios-chain/precompiles/distribution"
+	"helios-core/helios-chain/precompiles/erc20creator"
+	"helios-core/helios-chain/precompiles/gov"
+	"helios-core/helios-chain/precompiles/hyperion"
+	"helios-core/helios-chain/precompiles/staking"
+
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -597,4 +603,308 @@ func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil
 
 	return transactions, nil
 
+}
+
+func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) (map[string]interface{}, error) {
+	if !(size > 0 && size <= 50) {
+		return nil, errors.New("size must be between 1 and 50")
+	}
+
+	b.logger.Debug("GetLastTransactionsInfo", "size", size)
+
+	transactions, err := b.GetTransactionsByPageAndSize(1, size)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get transactions: %w", err)
+	}
+
+	for _, transaction := range transactions {
+		if transaction == nil {
+			return nil, errors.New("transaction is nil")
+		}
+
+		to := transaction.To
+
+		switch to.Hex() {
+		case "0x0000000000000000000000000000000000000800": // Staking Tx
+			txData, err := b.decodeStakingTransaction(transaction)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to decode staking transaction")
+			}
+			return txData, nil
+		case "0x0000000000000000000000000000000000000801": // Distribution Tx
+		case "0x0000000000000000000000000000000000000802": // ICS Tx
+		case "0x0000000000000000000000000000000000000803": // Vesting tx
+		case "0x0000000000000000000000000000000000000804": // Bank Tx
+		case "0x0000000000000000000000000000000000000805": // Proposal Tx
+			txData, err := b.decodeGovTransaction(transaction)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to decode gov transaction")
+			}
+			return txData, nil
+		case "0x0000000000000000000000000000000000000806": // ERC20 Creation Tx
+			txData, err := b.decodeErc20CreationTransaction(transaction)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to decode erc20 creation transaction")
+			}
+			return txData, nil
+		case "0x0000000000000000000000000000000000000830": // Cron Tx
+		case "0x0000000000000000000000000000000000000900": // Bridge Tx
+			txData, err := b.decodeBridgeTransaction(transaction)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to decode bridge transaction")
+			}
+			return txData, nil
+
+		default:
+		}
+	}
+
+	return nil, nil
+}
+
+func (b *Backend) decodeStakingTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
+	if transaction.Input == nil || len(transaction.Input) == 0 {
+		return nil, errors.New("transaction input is empty")
+	}
+
+	stakingAbi, err := staking.LoadABI()
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load staking ABI")
+	}
+
+	sigdata := transaction.Input[:4]
+	inputData := transaction.Input[4:]
+
+	method, err := stakingAbi.MethodById(sigdata)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find method by id")
+	}
+
+	decodedInput, err := method.Inputs.Unpack(inputData)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode staking transaction input")
+	}
+
+	methodName := method.Name
+
+	if methodName == "delegate" || methodName == "undelegate" {
+		amount, ok := decodedInput[2].(*big.Int)
+		if !ok {
+			return nil, errors.New("invalid amount")
+		}
+		denom, ok := decodedInput[3].(string)
+		if !ok {
+			return nil, errors.New("invalid denom")
+		}
+		// Create a map to hold the decoded values
+		decodedValues := make(map[string]interface{})
+		if methodName == "delegate" {
+			decodedValues["type"] = "STAKE_IN"
+		} else {
+			decodedValues["type"] = "STAKE_OUT"
+		}
+		decodedValues["amount"] = amount.String()
+		decodedValues["denom"] = denom
+		return decodedValues, nil
+	}
+
+	return nil, nil
+}
+
+func (b *Backend) decodeErc20CreationTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
+	if transaction.Input == nil || len(transaction.Input) == 0 {
+		return nil, errors.New("transaction input is empty")
+	}
+
+	erc20Abi, err := erc20creator.LoadABI()
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load erc20 ABI")
+	}
+
+	sigdata := transaction.Input[:4]
+	inputData := transaction.Input[4:]
+
+	method, err := erc20Abi.MethodById(sigdata)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find method by id")
+	}
+
+	decodedInput, err := method.Inputs.Unpack(inputData)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode erc20 transaction input")
+	}
+
+	name, ok := decodedInput[0].(string)
+	if !ok {
+		return nil, errors.New("invalid name")
+	}
+	symbol, ok := decodedInput[1].(string)
+	if !ok {
+		return nil, errors.New("invalid symbol")
+	}
+	totalSupply, ok := decodedInput[2].(*big.Int)
+	if !ok {
+		return nil, errors.New("invalid total supply")
+	}
+	decimals, ok := decodedInput[3].(uint8)
+	if !ok {
+		return nil, errors.New("invalid decimals")
+	}
+	// Create a map to hold the decoded values
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "CREATE_ERC20"
+	decodedValues["name"] = name
+	decodedValues["symbol"] = symbol
+	decodedValues["totalSupply"] = totalSupply.String()
+	decodedValues["decimals"] = decimals
+
+	return decodedValues, nil
+}
+
+func (b *Backend) decodeDistributionTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
+	if transaction.Input == nil || len(transaction.Input) == 0 {
+		return nil, errors.New("transaction input is empty")
+	}
+
+	distributionAbi, err := distribution.LoadABI()
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load distribution ABI")
+	}
+
+	sigdata := transaction.Input[:4]
+	inputData := transaction.Input[4:]
+
+	method, err := distributionAbi.MethodById(sigdata)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find method by id")
+	}
+
+	decodedInput, err := method.Inputs.Unpack(inputData)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode distribution transaction input")
+	}
+
+	validatorAddress, ok := decodedInput[1].(string)
+	if !ok {
+		return nil, errors.New("invalid validator address")
+	}
+	// Create a map to hold the decoded values
+	decodedValues := make(map[string]interface{})
+	decodedValues["validatorAddress"] = validatorAddress
+
+	return decodedValues, nil
+}
+
+func (b *Backend) decodeBridgeTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
+	if transaction.Input == nil || len(transaction.Input) == 0 {
+		return nil, errors.New("transaction input is empty")
+	}
+
+	bridgeAbi, err := hyperion.LoadABI()
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load bridge ABI")
+	}
+
+	sigdata := transaction.Input[:4]
+	inputData := transaction.Input[4:]
+
+	method, err := bridgeAbi.MethodById(sigdata)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find method by id")
+	}
+
+	decodedInput, err := method.Inputs.Unpack(inputData)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode bridge transaction input")
+	}
+
+	methodName := method.Name
+
+	if methodName == "delegate" || methodName == "undelegate" {
+		amount, ok := decodedInput[2].(*big.Int)
+		if !ok {
+			return nil, errors.New("invalid amount")
+		}
+		denom, ok := decodedInput[3].(string)
+		if !ok {
+			return nil, errors.New("invalid denom")
+		}
+		// Create a map to hold the decoded values
+		decodedValues := make(map[string]interface{})
+		if methodName == "delegate" {
+			decodedValues["type"] = "STAKE_IN"
+		} else {
+			decodedValues["type"] = "STAKE_OUT"
+		}
+		decodedValues["amount"] = amount.String()
+		decodedValues["denom"] = denom
+		return decodedValues, nil
+	}
+
+	return nil, nil
+}
+
+func (b *Backend) decodeGovTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
+	if transaction.Input == nil || len(transaction.Input) == 0 {
+		return nil, errors.New("transaction input is empty")
+	}
+
+	govAbi, err := gov.LoadABI()
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load gov ABI")
+	}
+
+	sigdata := transaction.Input[:4]
+	inputData := transaction.Input[4:]
+
+	method, err := govAbi.MethodById(sigdata)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find method by id")
+	}
+
+	decodedInput, err := method.Inputs.Unpack(inputData)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode gov transaction input")
+	}
+
+	methodName := method.Name
+
+	if methodName == "vote" {
+		voter, ok := decodedInput[0].(common.Address)
+		if !ok {
+			return nil, errors.New("invalid voter")
+		}
+		proposalId, ok := decodedInput[1].(uint64)
+		if !ok {
+			return nil, errors.New("Invalid proposalId")
+		}
+		option, ok := decodedInput[2].(uint8)
+		if !ok {
+			return nil, errors.New("invalid option")
+		}
+		metadata, ok := decodedInput[3].(string)
+		if !ok {
+			return nil, errors.New("invalid metadata")
+		}
+		// Create a map to hold the decoded values
+		decodedValues := make(map[string]interface{})
+		decodedValues["type"] = "GOV_VOTE"
+		decodedValues["voter"] = voter.String()
+		decodedValues["proposalId"] = proposalId
+		decodedValues["option"] = option
+		decodedValues["metadata"] = metadata
+		return decodedValues, nil
+	}
+
+	return nil, nil
 }

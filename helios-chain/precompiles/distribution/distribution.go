@@ -4,15 +4,16 @@ import (
 	"embed"
 	"fmt"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+	"helios-core/helios-chain/x/evm/core/vm"
+	evmtypes "helios-core/helios-chain/x/evm/types"
+	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "helios-core/helios-chain/precompiles/common"
-	"helios-core/helios-chain/x/evm/core/vm"
-	evmtypes "helios-core/helios-chain/x/evm/types"
-	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -27,6 +28,10 @@ type Precompile struct {
 	cmn.Precompile
 	distributionKeeper distributionkeeper.Keeper
 	stakingKeeper      stakingkeeper.Keeper
+}
+
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
 }
 
 // NewPrecompile creates a new distribution Precompile instance as a

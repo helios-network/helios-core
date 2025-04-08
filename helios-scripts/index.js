@@ -725,16 +725,16 @@ async function redelegate() {
 
 
 async function main() {
-  //await create();
-  //await fetch();
-  //await delegate();
+  // await create();
+  // await fetch();
+  await delegate();
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();
   //await undelegate();
   //await getRewards();
   
-  await createValidator();
+  // await createValidator();
   //await editValidator();
   //await redelegate();
  
