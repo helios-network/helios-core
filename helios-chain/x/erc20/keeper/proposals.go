@@ -79,9 +79,10 @@ func (k Keeper) CreateCoinMetadata(
 				Exponent: 0,
 			},
 		},
-		Name:    types.CreateDenom(strContract),
-		Symbol:  erc20Data.Symbol,
-		Display: base,
+		Name:            types.CreateDenom(strContract),
+		Symbol:          erc20Data.Symbol,
+		Display:         base,
+		ContractAddress: contract.Hex(),
 	}
 
 	// only append metadata if decimals > 0, otherwise validation fails
