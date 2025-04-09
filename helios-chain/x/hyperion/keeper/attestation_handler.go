@@ -121,13 +121,17 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 							Exponent: uint32(decimals),
 						},
 					},
+					OriginChainMetadata: &banktypes.OriginChainMetadata{
+						ChainId:         a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId),
+						ContractAddress: common.HexToAddress(claim.TokenContract).String(),
+						Symbol:          symbol,
+						Decimals:        uint32(decimals),
+					},
 				}
 				contractAddr, err := a.keeper.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
 				if err != nil {
 					return fmt.Errorf("failed to deploy ERC20 contract: %w", err)
 				}
-
-				a.keeper.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
 				tokenPair := erc20types.NewTokenPair(contractAddr, denom, erc20types.OWNER_MODULE)
 				a.keeper.erc20Keeper.SetToken(ctx, tokenPair)
 				a.keeper.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())

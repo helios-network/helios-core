@@ -54,17 +54,18 @@ func (k Keeper) DeployERC20Contract(
 
 	// Set the PairContract field in the denom metadata
 	k.bankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
-		Description:  coinMetadata.Description,
-		DenomUnits:   coinMetadata.DenomUnits,
-		Base:         coinMetadata.Base,
-		Display:      coinMetadata.Display,
-		Name:         coinMetadata.Name,
-		Symbol:       coinMetadata.Symbol,
-		URI:          coinMetadata.URI,
-		URIHash:      coinMetadata.URIHash,
-		Decimals:     coinMetadata.Decimals,
-		Logo:         coinMetadata.Logo,
-		PairContract: contractAddr.Hex(),
+		Description:         coinMetadata.Description,
+		DenomUnits:          coinMetadata.DenomUnits,
+		Base:                coinMetadata.Base,
+		Display:             coinMetadata.Display,
+		Name:                coinMetadata.Name,
+		Symbol:              coinMetadata.Symbol,
+		URI:                 coinMetadata.URI,
+		URIHash:             coinMetadata.URIHash,
+		Decimals:            coinMetadata.Decimals,
+		Logo:                coinMetadata.Logo,
+		ContractAddress:     contractAddr.Hex(),
+		OriginChainMetadata: coinMetadata.OriginChainMetadata,
 	})
 
 	return contractAddr, nil

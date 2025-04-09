@@ -1042,6 +1042,18 @@ func (k *Keeper) GetHyperionParamsFromChainId(ctx sdk.Context, chainId uint64) *
 	return nil
 }
 
+func (k *Keeper) GetChainIdFromHyperionId(ctx sdk.Context, hyperionId uint64) uint64 {
+	params := k.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.HyperionId == hyperionId {
+			return counterpartyChainParam.BridgeChainId
+		}
+	}
+
+	return 0
+}
+
 func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

@@ -62,8 +62,8 @@ func InitGenesis(
 					Exponent: uint32(18),
 				},
 			},
-			Logo:         "807ff0e6f9c51651b04710e61a15ded84be227d9afe812613b871a8d75ac0d4a",
-			PairContract: pair.Erc20Address,
+			Logo:            "807ff0e6f9c51651b04710e61a15ded84be227d9afe812613b871a8d75ac0d4a",
+			ContractAddress: pair.Erc20Address,
 		}
 
 		// validate metadata
