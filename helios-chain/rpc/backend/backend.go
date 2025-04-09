@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -90,8 +91,8 @@ type EVMBackend interface {
 	GetProof(address common.Address, storageKeys []string, blockNrOrHash rpctypes.BlockNumberOrHash) (*rpctypes.AccountResult, error)
 	GetTransactionCount(address common.Address, blockNum rpctypes.BlockNumber) (*hexutil.Uint64, error)
 	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
-	GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
-	GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error)
+	GetAccountTokenBalance(address common.Address, tokenAddress common.Address) (*hexutil.Big, error)
+	GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.TokenBalance, error)
 
 	// Chain Info
 	ChainID() (*hexutil.Big, error)
@@ -106,7 +107,7 @@ type EVMBackend interface {
 	ChainSize() (*rpctypes.ChainSize, error)
 
 	// Tokens Info
-	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error)
 	GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error)
 
 	// Tx Info

@@ -184,8 +184,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	recipient := sdktypes.AccAddress(evm.Origin.Bytes())
 	coins := sdktypes.NewCoins(sdktypes.NewCoin(denom, sdkmath.NewIntFromBigInt(supply)))
 
-	p.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
-
 	// Mint native coins to the module account
 	if err := p.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
 		return nil, fmt.Errorf("failed to mint coins on-chain: %w", err)

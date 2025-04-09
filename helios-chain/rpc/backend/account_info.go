@@ -9,6 +9,7 @@ import (
 
 	rpctypes "helios-core/helios-chain/rpc/types"
 	chronostypes "helios-core/helios-chain/x/chronos/types"
+	erc20types "helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -17,13 +18,12 @@ import (
 	"github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
-
-	erc20types "helios-core/helios-chain/x/erc20/types"
 )
 
 func (b *Backend) GetHeliosAddress(address common.Address) (string, error) {
@@ -210,97 +210,64 @@ func (b *Backend) GetBalance(address common.Address, blockNrOrHash rpctypes.Bloc
 }
 
 // GetTokenBalance returns specifical token balance for an account
-func (b *Backend) GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error) {
-	blockNum, err := b.BlockNumberFromTendermint(blockNrOrHash)
+func (b *Backend) GetAccountTokenBalance(address common.Address, tokenAddress common.Address) (*hexutil.Big, error) {
+	tokenPair, err := b.queryClient.Erc20.TokenPair(b.ctx, &erc20types.QueryTokenPairRequest{
+		Token: tokenAddress.String(),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	balanceReq := &erc20types.QueryERC20BalanceOfRequest{
-		Token:   tokenAddress.String(),
-		Address: address.String(),
-	}
-
-	balanceRes, err := b.queryClient.Erc20.ERC20BalanceOf(rpctypes.ContextWithHeight(blockNum.Int64()), balanceReq)
+	balance, err := b.queryClient.Bank.Balance(b.ctx, &banktypes.QueryBalanceRequest{
+		Address: sdk.AccAddress(address.Bytes()).String(),
+		Denom:   tokenPair.TokenPair.Denom,
+	})
 	if err != nil {
-		b.logger.Debug("failed to get ERC20 balance",
-			"token", tokenAddress.String(),
-			"error", err.Error())
-		return nil, nil
+		return nil, err
 	}
 
-	val, ok := sdkmath.NewIntFromString(balanceRes.Balance)
-	if !ok {
-		b.logger.Debug("failed to parse ERC20 balance", "token", tokenAddress.String())
-		return nil, nil
-	}
-
-	return (*hexutil.Big)(val.BigInt()), nil
+	return (*hexutil.Big)(balance.Balance.Amount.BigInt()), nil
 }
 
 // GetTokensBalance returns all token balances for an account
-func (b *Backend) GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error) {
+func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.TokenBalance, error) {
 	balances := make([]rpctypes.TokenBalance, 0)
 
-	// 2. Get Cosmos balances using bank query
-	blockNum, err := b.BlockNumberFromTendermint(blockNrOrHash)
+	allBalances, err := b.queryClient.Bank.AllBalancesWithFullMetadata(b.ctx, &banktypes.QueryAllBalancesWithFullMetadataRequest{
+		Address: sdk.AccAddress(address.Bytes()).String(),
+		Pagination: &query.PageRequest{
+			Offset: uint64((page - 1) * size),
+			Limit:  uint64(size),
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
-	// Get ERC20 balances using erc20 query
-	// Create the query request
-	erc20Req := &erc20types.QueryTokenPairsRequest{}
-	erc20Res, err := b.queryClient.Erc20.TokenPairs(b.ctx, erc20Req)
-	if err != nil {
-		return nil, err
-	}
 
-	for _, token := range erc20Res.TokenPairs {
-		// Query balance for each token
-		balanceReq := &erc20types.QueryERC20BalanceOfRequest{
-			Token:   token.Erc20Address,
-			Address: address.String(),
+	for _, balance := range allBalances.Balances {
+		decimals := uint64(18) // Default value
+		if balance.FullMetadata.Metadata.DenomUnits != nil {
+			for _, unit := range balance.FullMetadata.Metadata.DenomUnits {
+				if unit.Denom == balance.FullMetadata.Metadata.Display {
+					decimals = uint64(unit.Exponent)
+					break
+				}
+			}
 		}
-
-		balanceRes, err := b.queryClient.Erc20.ERC20BalanceOf(rpctypes.ContextWithHeight(blockNum.Int64()), balanceReq)
-		if err != nil {
-			b.logger.Debug("failed to get ERC20 balance",
-				"token", token.Erc20Address,
-				"error", err.Error())
-			continue
-		}
-
-		val, ok := sdkmath.NewIntFromString(balanceRes.Balance)
-		if !ok {
-			b.logger.Debug("failed to parse ERC20 balance", "token", token.Denom)
-			continue
-		}
-
-		response, err := b.queryClient.Bank.DenomMetadata(b.ctx, &banktypes.QueryDenomMetadataRequest{
-			Denom: token.Denom,
-		})
-
-		if err != nil {
-			balances = append(balances, rpctypes.TokenBalance{
-				Address:   common.HexToAddress(token.Erc20Address),
-				Denom:     token.Denom,
-				Balance:   (*hexutil.Big)(val.BigInt()),
-				BalanceUI: val.String(),
-				Decimals:  6,
-			})
-			continue
-		}
+		// Calculate balanceUI as float string based on decimals
+		balanceFloat := new(big.Float).SetInt(balance.Balance.BigInt())
+		divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil))
+		balanceFloat.Quo(balanceFloat, divisor)
 
 		balances = append(balances, rpctypes.TokenBalance{
-			Address:     common.HexToAddress(token.Erc20Address),
-			Denom:       token.Denom,
-			Symbol:      response.Metadata.Symbol,
-			Decimals:    response.Metadata.Decimals,
-			Balance:     (*hexutil.Big)(val.BigInt()),
-			BalanceUI:   val.String(),
-			Description: response.Metadata.Description,
+			Address:     address,
+			Denom:       balance.FullMetadata.Metadata.Base,
+			Symbol:      balance.FullMetadata.Metadata.Symbol,
+			Balance:     (*hexutil.Big)(balance.Balance.BigInt()),
+			BalanceUI:   balanceFloat.Text('f', int(decimals)), // Convert to user-friendly format
+			Decimals:    uint32(decimals),
+			Description: balance.FullMetadata.Metadata.Description,
 		})
-
 	}
 
 	return balances, nil

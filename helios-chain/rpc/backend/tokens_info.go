@@ -16,7 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
 	// Create pagination request
 	pageReq := &query.PageRequest{
 		Offset:     uint64((page - 1) * size),
@@ -24,35 +24,14 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 		CountTotal: true,
 	}
 
-	// Create the query request
-	req := &erc20types.QueryTokenPairsRequest{
+	res, err := b.queryClient.Bank.DenomsFullMetadata(b.ctx, &banktypes.QueryDenomsFullMetadataRequest{
 		Pagination: pageReq,
-	}
-
-	// Query token pairs using the ERC20 keeper
-	res, err := b.queryClient.Erc20.TokenPairs(b.ctx, req)
+	})
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to get token pairs")
 	}
 
-	tokens := make([]map[string]interface{}, 0, len(res.TokenPairs))
-
-	// Format each token pair into a map
-	for _, pair := range res.TokenPairs {
-		token := make(map[string]interface{})
-
-		// Convert ERC20 address to checksum format
-		erc20Addr := common.HexToAddress(pair.Erc20Address)
-
-		token["address"] = erc20Addr.Hex()
-		token["denom"] = pair.Denom
-		token["enabled"] = pair.Enabled
-		token["owner"] = pair.ContractOwner
-
-		tokens = append(tokens, token)
-	}
-
-	return tokens, nil
+	return res.Metadatas, nil
 }
 
 func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error) {
@@ -67,7 +46,7 @@ func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenD
 		return nil, err
 	}
 
-	bankRes, err := b.queryClient.Bank.DenomMetadata(b.ctx, &banktypes.QueryDenomMetadataRequest{
+	bankRes, err := b.queryClient.Bank.DenomFullMetadata(b.ctx, &banktypes.QueryDenomFullMetadataRequest{
 		Denom: erc20Res.TokenPair.Denom,
 	})
 
@@ -78,19 +57,15 @@ func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenD
 		}, nil
 	}
 
-	logo := bankRes.Metadata.Logo
-
-	if logo == "" && erc20Res.TokenPair.Denom == "ahelios" {
-		logo = "807ff0e6f9c51651b04710e61a15ded84be227d9afe812613b871a8d75ac0d4a"
-	}
-
 	return &rpctypes.TokenDetails{
-		Address:     tokenAddress,
-		Denom:       erc20Res.TokenPair.Denom,
-		Symbol:      bankRes.Metadata.Symbol,
-		Decimals:    bankRes.Metadata.Decimals,
-		Description: bankRes.Metadata.Description,
-		Logo:        logo,
-		Holders:     0,
+		Address:       tokenAddress,
+		Denom:         erc20Res.TokenPair.Denom,
+		Symbol:        bankRes.Metadata.Metadata.Symbol,
+		Decimals:      bankRes.Metadata.Metadata.Decimals,
+		Description:   bankRes.Metadata.Metadata.Description,
+		Logo:          bankRes.Metadata.Metadata.Logo,
+		Holders:       bankRes.Metadata.HoldersCount,
+		TotalSupply:   (*hexutil.Big)(bankRes.Metadata.TotalSupply.BigInt()),
+		TotalSupplyUI: bankRes.Metadata.TotalSupply.String(),
 	}, nil
 }

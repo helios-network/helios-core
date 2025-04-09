@@ -20,6 +20,8 @@ import (
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // The Ethereum API allows applications to connect to an Evmos node that is
@@ -78,9 +80,8 @@ type EthereumAPI interface {
 	GetCode(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (hexutil.Bytes, error)
 	GetProof(address common.Address, storageKeys []string, blockNrOrHash rpctypes.BlockNumberOrHash) (*rpctypes.AccountResult, error)
 	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
-	GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error)
-	// experimental
-	GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error)
+	GetAccountTokenBalance(address common.Address, tokenAddress common.Address) (*hexutil.Big, error)
+	GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.TokenBalance, error)
 
 	// EVM/Smart Contract Execution
 	//
@@ -100,7 +101,7 @@ type EthereumAPI interface {
 	ChainSize() (*rpctypes.ChainSize, error)
 
 	// Tokens Information
-	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error)
 	GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error)
 
 	// Getting Uncles
@@ -361,14 +362,14 @@ func (e *PublicAPI) GetAccountTransactionsByPageAndSize(address common.Address, 
 	return e.backend.GetAccountTransactionsByPageAndSize(address, page, size)
 }
 
-func (e *PublicAPI) GetTokenBalance(address common.Address, tokenAddress common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error) {
-	e.logger.Debug("eth_getTokenBalance", "address", address.String(), "tokenAddress", tokenAddress, "block number or hash", blockNrOrHash)
-	return e.backend.GetTokenBalance(address, tokenAddress, blockNrOrHash)
+func (e *PublicAPI) GetAccountTokenBalance(address common.Address, tokenAddress common.Address) (*hexutil.Big, error) {
+	e.logger.Debug("eth_getAccountTokenBalance", "address", address.String(), "tokenAddress", tokenAddress.String())
+	return e.backend.GetAccountTokenBalance(address, tokenAddress)
 }
 
-func (e *PublicAPI) GetTokensBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) ([]rpctypes.TokenBalance, error) {
-	e.logger.Debug("eth_getTokensBalance", "address", address.String(), "block number or hash", blockNrOrHash)
-	return e.backend.GetTokensBalance(address, blockNrOrHash)
+func (e *PublicAPI) GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.TokenBalance, error) {
+	e.logger.Debug("eth_getAccountTokensBalanceByPageAndSize", "address", address.String(), "page", page, "size", size)
+	return e.backend.GetAccountTokensBalanceByPageAndSize(address, page, size)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -458,7 +459,7 @@ func (e *PublicAPI) ChainSize() (*rpctypes.ChainSize, error) {
 ///                           Tokens									    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
 	e.logger.Debug("eth_getTokensByPageAndSize", "page", page, "size", size)
 	return e.backend.GetTokensByPageAndSize(page, size)
 }

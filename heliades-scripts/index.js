@@ -185,9 +185,9 @@ const withdrawDelegatorRewardsAbi = [
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
 
-const tokenName = 'BTC';
-const tokenSymbol = 'BTC';
-const tokenDenom = 'uBTC'; // denomination of one unit of the token
+const tokenName = 'BTC2';
+const tokenSymbol = 'BTC2';
+const tokenDenom = 'uBTC2'; // denomination of one unit of the token
 const tokenTotalSupply = ethers.parseUnits('100', 18);
 const tokenDecimals = 18;
 

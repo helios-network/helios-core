@@ -4,7 +4,8 @@
 package keeper
 
 import (
-	errorsmod "cosmossdk.io/errors"
+	"fmt"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -97,11 +98,13 @@ func (k Keeper) PostTxProcessing(
 		fees,
 	)
 	if err != nil {
-		return errorsmod.Wrapf(
-			err,
-			"fee collector account failed to distribute developer fees (%s %s) to withdraw address %s. contract %s",
-			fees, evmDenom, withdrawer, contract,
-		)
+		fmt.Println("Error distributing developer fees:", err)
+		// return errorsmod.Wrapf(
+		// 	err,
+		// 	"fee collector account failed to distribute developer fees (%s %s) to withdraw address %s. contract %s",
+		// 	fees, evmDenom, withdrawer, contract,
+		// )
+		return nil
 	}
 
 	ctx.EventManager().EmitEvents(
