@@ -185,9 +185,9 @@ const withdrawDelegatorRewardsAbi = [
 const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
 
-const tokenName = 'BNB';
-const tokenSymbol = 'BNB';
-const tokenDenom = 'uBNB'; // denomination of one unit of the token
+const tokenName = 'BTC';
+const tokenSymbol = 'BTC';
+const tokenDenom = 'uBTC'; // denomination of one unit of the token
 const tokenTotalSupply = ethers.parseUnits('100', 18);
 const tokenDecimals = 18;
 
@@ -733,7 +733,7 @@ async function main() {
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  // await create();
+  await create();
   //await fetch();
   //await delegate();
   //await addNewConsensusProposal();
@@ -746,7 +746,7 @@ async function main() {
   // await getRewards();
 
   // await sendToChain("5");
-  await sendToChain("5");
+  // await sendToChain("5");
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   // await uploadLogo();

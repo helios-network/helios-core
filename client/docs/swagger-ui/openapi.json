@@ -2824,7 +2824,7 @@
                       "dest_address": {
                         "type": "string"
                       },
-                      "erc20_token": {
+                      "token": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -2834,9 +2834,9 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
-                      "erc20_fee": {
+                      "fee": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -2846,7 +2846,7 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
                       "tx_timeout": {
                         "type": "string",
@@ -2878,7 +2878,7 @@
                       "dest_address": {
                         "type": "string"
                       },
-                      "erc20_token": {
+                      "token": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -2888,9 +2888,9 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
-                      "erc20_fee": {
+                      "fee": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -2900,7 +2900,7 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
                       "tx_timeout": {
                         "type": "string",
@@ -3127,7 +3127,7 @@
                           "dest_address": {
                             "type": "string"
                           },
-                          "erc20_token": {
+                          "token": {
                             "type": "object",
                             "properties": {
                               "contract": {
@@ -3137,9 +3137,9 @@
                                 "type": "string"
                               }
                             },
-                            "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                            "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                           },
-                          "erc20_fee": {
+                          "fee": {
                             "type": "object",
                             "properties": {
                               "contract": {
@@ -3149,7 +3149,7 @@
                                 "type": "string"
                               }
                             },
-                            "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                            "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                           },
                           "tx_timeout": {
                             "type": "string",
@@ -3387,7 +3387,7 @@
                           "dest_address": {
                             "type": "string"
                           },
-                          "erc20_token": {
+                          "token": {
                             "type": "object",
                             "properties": {
                               "contract": {
@@ -3397,9 +3397,9 @@
                                 "type": "string"
                               }
                             },
-                            "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                            "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                           },
-                          "erc20_fee": {
+                          "fee": {
                             "type": "object",
                             "properties": {
                               "contract": {
@@ -3409,7 +3409,7 @@
                                 "type": "string"
                               }
                             },
-                            "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                            "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                           },
                           "tx_timeout": {
                             "type": "string",
@@ -3537,7 +3537,7 @@
                             "dest_address": {
                               "type": "string"
                             },
-                            "erc20_token": {
+                            "token": {
                               "type": "object",
                               "properties": {
                                 "contract": {
@@ -3547,9 +3547,9 @@
                                   "type": "string"
                                 }
                               },
-                              "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                              "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                             },
-                            "erc20_fee": {
+                            "fee": {
                               "type": "object",
                               "properties": {
                                 "contract": {
@@ -3559,7 +3559,7 @@
                                   "type": "string"
                                 }
                               },
-                              "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                              "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                             },
                             "tx_timeout": {
                               "type": "string",
@@ -3714,103 +3714,7 @@
         ]
       }
     },
-    "/hyperion/v1/confirms/{nonce}": {
-      "get": {
-        "operationId": "ValsetConfirmsByNonce",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "confirms": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "hyperion_id": {
-                        "type": "string",
-                        "format": "uint64"
-                      },
-                      "nonce": {
-                        "type": "string",
-                        "format": "uint64"
-                      },
-                      "orchestrator": {
-                        "type": "string"
-                      },
-                      "eth_address": {
-                        "type": "string"
-                      },
-                      "signature": {
-                        "type": "string"
-                      }
-                    },
-                    "description": "MsgValsetConfirm\nthis is the message sent by the validators when they wish to submit their\nsignatures over the validator set at a given block height. A validator must\nfirst call MsgSetEthAddress to set their Ethereum address to be used for\nsigning. Then someone (anyone) must make a ValsetRequest the request is\nessentially a messaging mechanism to determine which block all validators\nshould submit signatures over. Finally validators sign the validator set,\npowers, and Ethereum addresses of the entire validator set at the height of a\nValsetRequest and submit that signature with this message.\n\nIf a sufficient number of validators (66% of voting power) (A) have set\nEthereum addresses and (B) submit ValsetConfirm messages with their\nsignatures it is then possible for anyone to view these signatures in the\nchain store and submit them to Ethereum to update the validator set\n-------------"
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string"
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "message": {
-                  "type": "string"
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "description": "Must be a valid serialized protocol buffer of the above specified type."
-                      }
-                    },
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "nonce",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "hyperion_id",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          }
-        ],
-        "tags": [
-          "Query"
-        ]
-      }
-    },
-    "/hyperion/v1/counterparty_chain_params_by_chain_id/{chain_id}": {
+    "/hyperion/v1/chains/{chain_id}/params": {
       "get": {
         "operationId": "QueryGetCounterpartyChainParamsByChainId",
         "responses": {
@@ -3934,7 +3838,7 @@
                             "type": "boolean"
                           }
                         },
-                        "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                        "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                       }
                     },
                     "initializer": {
@@ -3987,6 +3891,102 @@
             "name": "chain_id",
             "in": "path",
             "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/confirms/{nonce}": {
+      "get": {
+        "operationId": "ValsetConfirmsByNonce",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "confirms": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hyperion_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "orchestrator": {
+                        "type": "string"
+                      },
+                      "eth_address": {
+                        "type": "string"
+                      },
+                      "signature": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "MsgValsetConfirm\nthis is the message sent by the validators when they wish to submit their\nsignatures over the validator set at a given block height. A validator must\nfirst call MsgSetEthAddress to set their Ethereum address to be used for\nsigning. Then someone (anyone) must make a ValsetRequest the request is\nessentially a messaging mechanism to determine which block all validators\nshould submit signatures over. Finally validators sign the validator set,\npowers, and Ethereum addresses of the entire validator set at the height of a\nValsetRequest and submit that signature with this message.\n\nIf a sufficient number of validators (66% of voting power) (A) have set\nEthereum addresses and (B) submit ValsetConfirm messages with their\nsignatures it is then possible for anyone to view these signatures in the\nchain store and submit them to Ethereum to update the validator set\n-------------"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nonce",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
             "type": "string",
             "format": "uint64"
           }
@@ -4198,7 +4198,7 @@
                                       "type": "boolean"
                                     }
                                   },
-                                  "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                                  "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                                 }
                               },
                               "initializer": {
@@ -4334,7 +4334,7 @@
                                       "dest_address": {
                                         "type": "string"
                                       },
-                                      "erc20_token": {
+                                      "token": {
                                         "type": "object",
                                         "properties": {
                                           "contract": {
@@ -4344,9 +4344,9 @@
                                             "type": "string"
                                           }
                                         },
-                                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                                       },
-                                      "erc20_fee": {
+                                      "fee": {
                                         "type": "object",
                                         "properties": {
                                           "contract": {
@@ -4356,7 +4356,7 @@
                                             "type": "string"
                                           }
                                         },
-                                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                                       },
                                       "tx_timeout": {
                                         "type": "string",
@@ -4491,7 +4491,7 @@
                                   "type": "boolean"
                                 }
                               },
-                              "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                              "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                             }
                           },
                           "unbatched_transfers": {
@@ -4513,7 +4513,7 @@
                                 "dest_address": {
                                   "type": "string"
                                 },
-                                "erc20_token": {
+                                "token": {
                                   "type": "object",
                                   "properties": {
                                     "contract": {
@@ -4523,9 +4523,9 @@
                                       "type": "string"
                                     }
                                   },
-                                  "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                                  "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                                 },
-                                "erc20_fee": {
+                                "fee": {
                                   "type": "object",
                                   "properties": {
                                     "contract": {
@@ -4535,7 +4535,7 @@
                                       "type": "string"
                                     }
                                   },
-                                  "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                                  "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                                 },
                                 "tx_timeout": {
                                   "type": "string",
@@ -4886,7 +4886,7 @@
                                   "type": "boolean"
                                 }
                               },
-                              "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                              "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                             }
                           },
                           "initializer": {
@@ -4977,7 +4977,7 @@
                       "dest_address": {
                         "type": "string"
                       },
-                      "erc20_token": {
+                      "token": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -4987,9 +4987,9 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
-                      "erc20_fee": {
+                      "fee": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -4999,7 +4999,7 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
                       "tx_timeout": {
                         "type": "string",
@@ -5031,7 +5031,7 @@
                       "dest_address": {
                         "type": "string"
                       },
-                      "erc20_token": {
+                      "token": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -5041,9 +5041,9 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
-                      "erc20_fee": {
+                      "fee": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -5053,7 +5053,7 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
                       "tx_timeout": {
                         "type": "string",
@@ -5744,7 +5744,7 @@
                       "dest_address": {
                         "type": "string"
                       },
-                      "erc20_token": {
+                      "received_token": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -5754,9 +5754,9 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
-                      "erc20_fee": {
+                      "sent_token": {
                         "type": "object",
                         "properties": {
                           "contract": {
@@ -5766,7 +5766,31 @@
                             "type": "string"
                           }
                         },
-                        "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                      },
+                      "received_fee": {
+                        "type": "object",
+                        "properties": {
+                          "contract": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          }
+                        },
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                      },
+                      "sent_fee": {
+                        "type": "object",
+                        "properties": {
+                          "contract": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          }
+                        },
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                       },
                       "status": {
                         "type": "string"
@@ -5880,6 +5904,12 @@
           {
             "name": "pagination.reverse",
             "description": "reverse is set to true if results are to be returned in the descending order.\n\nSince: cosmos-sdk 0.43",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "format_erc20",
             "in": "query",
             "required": false,
             "type": "boolean"
@@ -8552,6 +8582,559 @@
         ]
       }
     },
+    "/cosmos/bank/v1beta1/denom_owners_count/{denom}": {
+      "get": {
+        "summary": "DenomOwnersCount returns the total number of addresses holding a specific denomination",
+        "description": "This query is used to count the number of addresses holding a specific denomination.\n\nSince: cosmos-sdk 0.50.3",
+        "operationId": "DenomOwnersCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "string",
+                  "format": "uint64",
+                  "description": "count defines the total number of addresses holding the denomination."
+                }
+              },
+              "title": "QueryDenomOwnersCountResponse defines the response for the DenomOwnersCount query"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "denom",
+            "description": "denom defines the coin denomination to query all account holders for.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/bank/v1beta1/denoms_full_metadata": {
+      "get": {
+        "summary": "DenomsFullMetadata queries the client metadata for all registered coin\ndenominations.",
+        "operationId": "DenomsFullMetadata",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "metadatas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "metadata": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "denom_units": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "denom": {
+                                  "type": "string",
+                                  "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                                },
+                                "exponent": {
+                                  "type": "integer",
+                                  "format": "int64",
+                                  "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                                },
+                                "aliases": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "title": "aliases is a list of string aliases for the given denom"
+                                }
+                              },
+                              "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                            },
+                            "title": "denom_units represents the list of DenomUnit's for a given coin"
+                          },
+                          "base": {
+                            "type": "string",
+                            "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                          },
+                          "display": {
+                            "type": "string",
+                            "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Since: cosmos-sdk 0.43",
+                            "title": "name defines the name of the token (eg: Cosmos Atom)"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                          },
+                          "uri": {
+                            "type": "string",
+                            "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                          },
+                          "uri_hash": {
+                            "type": "string",
+                            "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Since: cosmos-sdk 0.50",
+                            "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                          },
+                          "logo": {
+                            "type": "string",
+                            "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                          }
+                        },
+                        "description": "Metadata represents a struct that describes\na basic token."
+                      },
+                      "holders_count": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "total_supply": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "metadata provides the client information for all the registered tokens."
+                },
+                "pagination": {
+                  "description": "pagination defines the pagination in the response.",
+                  "type": "object",
+                  "properties": {
+                    "next_key": {
+                      "type": "string",
+                      "format": "byte",
+                      "description": "next_key is the key to be passed to PageRequest.key to\nquery the next page most efficiently. It will be empty if\nthere are no more results."
+                    },
+                    "total": {
+                      "type": "string",
+                      "format": "uint64",
+                      "title": "total is total number of results available if PageRequest.count_total\nwas set, its value is undefined otherwise"
+                    }
+                  }
+                }
+              },
+              "description": "QueryDenomsFullMetadataResponse is the response type for the Query/DenomsFullMetadata RPC\nmethod."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "pagination.reverse",
+            "description": "reverse is set to true if results are to be returned in the descending order.\n\nSince: cosmos-sdk 0.43",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/bank/v1beta1/denoms_full_metadata/{denom}": {
+      "get": {
+        "summary": "DenomFullMetadata queries the client metadata of a given coin denomination.",
+        "operationId": "DenomFullMetadata",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "metadata": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "denom_units": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "denom": {
+                                "type": "string",
+                                "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                              },
+                              "exponent": {
+                                "type": "integer",
+                                "format": "int64",
+                                "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                              },
+                              "aliases": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "title": "aliases is a list of string aliases for the given denom"
+                              }
+                            },
+                            "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                          },
+                          "title": "denom_units represents the list of DenomUnit's for a given coin"
+                        },
+                        "base": {
+                          "type": "string",
+                          "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                        },
+                        "display": {
+                          "type": "string",
+                          "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Since: cosmos-sdk 0.43",
+                          "title": "name defines the name of the token (eg: Cosmos Atom)"
+                        },
+                        "symbol": {
+                          "type": "string",
+                          "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                        },
+                        "uri": {
+                          "type": "string",
+                          "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                        },
+                        "uri_hash": {
+                          "type": "string",
+                          "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                        },
+                        "decimals": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "Since: cosmos-sdk 0.50",
+                          "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                        },
+                        "logo": {
+                          "type": "string",
+                          "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                        }
+                      },
+                      "description": "Metadata represents a struct that describes\na basic token."
+                    },
+                    "holders_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "total_supply": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "metadata describes and provides all the client information for the requested token."
+                }
+              },
+              "description": "QueryDenomFullMetadataResponse is the response type for the Query/DenomFullMetadata RPC\nmethod."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "denom",
+            "description": "denom is the coin denom to query the metadata for.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/bank/v1beta1/denoms_full_metadata_by_query_string": {
+      "get": {
+        "summary": "DenomFullMetadataByQueryString queries the client metadata of a given coin denomination.",
+        "operationId": "DenomFullMetadataByQueryString",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "metadata": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "denom_units": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "denom": {
+                                "type": "string",
+                                "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                              },
+                              "exponent": {
+                                "type": "integer",
+                                "format": "int64",
+                                "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                              },
+                              "aliases": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "title": "aliases is a list of string aliases for the given denom"
+                              }
+                            },
+                            "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                          },
+                          "title": "denom_units represents the list of DenomUnit's for a given coin"
+                        },
+                        "base": {
+                          "type": "string",
+                          "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                        },
+                        "display": {
+                          "type": "string",
+                          "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Since: cosmos-sdk 0.43",
+                          "title": "name defines the name of the token (eg: Cosmos Atom)"
+                        },
+                        "symbol": {
+                          "type": "string",
+                          "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                        },
+                        "uri": {
+                          "type": "string",
+                          "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                        },
+                        "uri_hash": {
+                          "type": "string",
+                          "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                        },
+                        "decimals": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "Since: cosmos-sdk 0.50",
+                          "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                        },
+                        "logo": {
+                          "type": "string",
+                          "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                        }
+                      },
+                      "description": "Metadata represents a struct that describes\na basic token."
+                    },
+                    "holders_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "total_supply": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "metadata describes and provides all the client information for the requested token."
+                }
+              },
+              "description": "QueryDenomFullMetadataByQueryStringResponse is the response type for the Query/DenomFullMetadata RPC\nmethod. Identical with QueryDenomFullMetadataResponse but receives denom as query string in request."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "denom",
+            "description": "denom is the coin denom to query the metadata for.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/cosmos/bank/v1beta1/denoms_metadata": {
       "get": {
         "summary": "DenomsMetadata queries the client metadata for all registered coin\ndenominations.",
@@ -8626,6 +9209,10 @@
                         "format": "int64",
                         "description": "Since: cosmos-sdk 0.50",
                         "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                      },
+                      "logo": {
+                        "type": "string",
+                        "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
                       }
                     },
                     "description": "Metadata represents a struct that describes\na basic token."
@@ -8803,6 +9390,10 @@
                       "format": "int64",
                       "description": "Since: cosmos-sdk 0.50",
                       "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
                     }
                   },
                   "description": "Metadata represents a struct that describes\na basic token."
@@ -8931,6 +9522,10 @@
                       "format": "int64",
                       "description": "Since: cosmos-sdk 0.50",
                       "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
                     }
                   },
                   "description": "Metadata represents a struct that describes\na basic token."
@@ -17641,6 +18236,12 @@
                           "format": "uint64"
                         },
                         "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                      },
+                      "min_delegation": {
+                        "type": "string"
+                      },
+                      "delegate_authorization": {
+                        "type": "boolean"
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -17892,6 +18493,12 @@
                         "format": "uint64"
                       },
                       "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                    },
+                    "min_delegation": {
+                      "type": "string"
+                    },
+                    "delegate_authorization": {
+                      "type": "boolean"
                     }
                   },
                   "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -18298,6 +18905,12 @@
                           "format": "uint64"
                         },
                         "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                      },
+                      "min_delegation": {
+                        "type": "string"
+                      },
+                      "delegate_authorization": {
+                        "type": "boolean"
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -18642,6 +19255,12 @@
                               "format": "uint64"
                             },
                             "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                          },
+                          "min_delegation": {
+                            "type": "string"
+                          },
+                          "delegate_authorization": {
+                            "type": "boolean"
                           }
                         },
                         "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -18800,6 +19419,9 @@
                       "type": "string",
                       "format": "uint64",
                       "title": "randomness_factor defines the influence of randomness in validator selection"
+                    },
+                    "boost_percentage": {
+                      "type": "string"
                     }
                   }
                 }
@@ -18867,6 +19489,9 @@
                       "type": "string"
                     },
                     "bonded_tokens": {
+                      "type": "string"
+                    },
+                    "boosted_tokens": {
                       "type": "string"
                     }
                   }
@@ -19055,6 +19680,12 @@
                           "format": "uint64"
                         },
                         "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                      },
+                      "min_delegation": {
+                        "type": "string"
+                      },
+                      "delegate_authorization": {
+                        "type": "boolean"
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -19422,6 +20053,12 @@
                           "format": "uint64"
                         },
                         "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                      },
+                      "min_delegation": {
+                        "type": "string"
+                      },
+                      "delegate_authorization": {
+                        "type": "boolean"
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -19673,6 +20310,12 @@
                         "format": "uint64"
                       },
                       "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                    },
+                    "min_delegation": {
+                      "type": "string"
+                    },
+                    "delegate_authorization": {
+                      "type": "boolean"
                     }
                   },
                   "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -20171,6 +20814,75 @@
           {
             "name": "delegator_addr",
             "description": "delegator_addr defines the delegator address to query for.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/staking/v1beta1/validators/{validator_addr}/total_boost": {
+      "get": {
+        "summary": "TotalBoostedDelegation queries the total boosted delegation for a given validator.",
+        "operationId": "TotalBoostedDelegation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total_boost": {
+                  "type": "string",
+                  "description": "total_boost defines the total boosted delegation amount for the validator."
+                }
+              },
+              "description": "QueryTotalBoostedDelegationResponse is the response type for the Query/TotalBoostedDelegation RPC method."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "validator_addr",
+            "description": "validator_addr defines the validator address to query.",
             "in": "path",
             "required": true,
             "type": "string"
@@ -29025,25 +29737,13 @@
                 "type": "boolean"
               }
             },
-            "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+            "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
           }
         },
         "initializer": {
           "type": "string"
         }
       }
-    },
-    "helios.hyperion.v1.ERC20Token": {
-      "type": "object",
-      "properties": {
-        "contract": {
-          "type": "string"
-        },
-        "amount": {
-          "type": "string"
-        }
-      },
-      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
     },
     "helios.hyperion.v1.GenesisHyperionState": {
       "type": "object",
@@ -29162,7 +29862,7 @@
                     "dest_address": {
                       "type": "string"
                     },
-                    "erc20_token": {
+                    "token": {
                       "type": "object",
                       "properties": {
                         "contract": {
@@ -29172,9 +29872,9 @@
                           "type": "string"
                         }
                       },
-                      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                     },
-                    "erc20_fee": {
+                    "fee": {
                       "type": "object",
                       "properties": {
                         "contract": {
@@ -29184,7 +29884,7 @@
                           "type": "string"
                         }
                       },
-                      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                     },
                     "tx_timeout": {
                       "type": "string",
@@ -29319,7 +30019,7 @@
                 "type": "boolean"
               }
             },
-            "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+            "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
           }
         },
         "unbatched_transfers": {
@@ -29341,7 +30041,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -29351,9 +30051,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "fee": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -29363,7 +30063,7 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "tx_timeout": {
                 "type": "string",
@@ -29570,7 +30270,7 @@
                           "type": "boolean"
                         }
                       },
-                      "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                      "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                     }
                   },
                   "initializer": {
@@ -29706,7 +30406,7 @@
                           "dest_address": {
                             "type": "string"
                           },
-                          "erc20_token": {
+                          "token": {
                             "type": "object",
                             "properties": {
                               "contract": {
@@ -29716,9 +30416,9 @@
                                 "type": "string"
                               }
                             },
-                            "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                            "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                           },
-                          "erc20_fee": {
+                          "fee": {
                             "type": "object",
                             "properties": {
                               "contract": {
@@ -29728,7 +30428,7 @@
                                 "type": "string"
                               }
                             },
-                            "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                            "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                           },
                           "tx_timeout": {
                             "type": "string",
@@ -29863,7 +30563,7 @@
                       "type": "boolean"
                     }
                   },
-                  "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                  "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                 }
               },
               "unbatched_transfers": {
@@ -29885,7 +30585,7 @@
                     "dest_address": {
                       "type": "string"
                     },
-                    "erc20_token": {
+                    "token": {
                       "type": "object",
                       "properties": {
                         "contract": {
@@ -29895,9 +30595,9 @@
                           "type": "string"
                         }
                       },
-                      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                     },
-                    "erc20_fee": {
+                    "fee": {
                       "type": "object",
                       "properties": {
                         "contract": {
@@ -29907,7 +30607,7 @@
                           "type": "string"
                         }
                       },
-                      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                     },
                     "tx_timeout": {
                       "type": "string",
@@ -30122,7 +30822,7 @@
         "dest_address": {
           "type": "string"
         },
-        "erc20_token": {
+        "token": {
           "type": "object",
           "properties": {
             "contract": {
@@ -30132,9 +30832,9 @@
               "type": "string"
             }
           },
-          "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
         },
-        "erc20_fee": {
+        "fee": {
           "type": "object",
           "properties": {
             "contract": {
@@ -30144,7 +30844,7 @@
               "type": "string"
             }
           },
-          "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
         },
         "tx_timeout": {
           "type": "string",
@@ -30190,7 +30890,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30200,9 +30900,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "fee": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30212,7 +30912,7 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "tx_timeout": {
                 "type": "string",
@@ -30355,7 +31055,7 @@
                       "type": "boolean"
                     }
                   },
-                  "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                  "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                 }
               },
               "initializer": {
@@ -30405,7 +31105,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30415,9 +31115,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "fee": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30427,7 +31127,7 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "tx_timeout": {
                 "type": "string",
@@ -30459,7 +31159,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30469,9 +31169,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "fee": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30481,7 +31181,7 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "tx_timeout": {
                 "type": "string",
@@ -30630,7 +31330,7 @@
                   "dest_address": {
                     "type": "string"
                   },
-                  "erc20_token": {
+                  "token": {
                     "type": "object",
                     "properties": {
                       "contract": {
@@ -30640,9 +31340,9 @@
                         "type": "string"
                       }
                     },
-                    "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                    "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                   },
-                  "erc20_fee": {
+                  "fee": {
                     "type": "object",
                     "properties": {
                       "contract": {
@@ -30652,7 +31352,7 @@
                         "type": "string"
                       }
                     },
-                    "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                    "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                   },
                   "tx_timeout": {
                     "type": "string",
@@ -30885,7 +31585,7 @@
                     "type": "boolean"
                   }
                 },
-                "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
               }
             },
             "initializer": {
@@ -30958,7 +31658,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "received_token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30968,9 +31668,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "sent_token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -30980,7 +31680,31 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+              },
+              "received_fee": {
+                "type": "object",
+                "properties": {
+                  "contract": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string"
+                  }
+                },
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+              },
+              "sent_fee": {
+                "type": "object",
+                "properties": {
+                  "contract": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string"
+                  }
+                },
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "status": {
                 "type": "string"
@@ -31074,7 +31798,7 @@
                   "dest_address": {
                     "type": "string"
                   },
-                  "erc20_token": {
+                  "token": {
                     "type": "object",
                     "properties": {
                       "contract": {
@@ -31084,9 +31808,9 @@
                         "type": "string"
                       }
                     },
-                    "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                    "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                   },
-                  "erc20_fee": {
+                  "fee": {
                     "type": "object",
                     "properties": {
                       "contract": {
@@ -31096,7 +31820,7 @@
                         "type": "string"
                       }
                     },
-                    "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                    "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                   },
                   "tx_timeout": {
                     "type": "string",
@@ -31345,7 +32069,7 @@
                               "type": "boolean"
                             }
                           },
-                          "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                          "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                         }
                       },
                       "initializer": {
@@ -31481,7 +32205,7 @@
                               "dest_address": {
                                 "type": "string"
                               },
-                              "erc20_token": {
+                              "token": {
                                 "type": "object",
                                 "properties": {
                                   "contract": {
@@ -31491,9 +32215,9 @@
                                     "type": "string"
                                   }
                                 },
-                                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                               },
-                              "erc20_fee": {
+                              "fee": {
                                 "type": "object",
                                 "properties": {
                                   "contract": {
@@ -31503,7 +32227,7 @@
                                     "type": "string"
                                   }
                                 },
-                                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                               },
                               "tx_timeout": {
                                 "type": "string",
@@ -31638,7 +32362,7 @@
                           "type": "boolean"
                         }
                       },
-                      "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                      "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                     }
                   },
                   "unbatched_transfers": {
@@ -31660,7 +32384,7 @@
                         "dest_address": {
                           "type": "string"
                         },
-                        "erc20_token": {
+                        "token": {
                           "type": "object",
                           "properties": {
                             "contract": {
@@ -31670,9 +32394,9 @@
                               "type": "string"
                             }
                           },
-                          "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                         },
-                        "erc20_fee": {
+                        "fee": {
                           "type": "object",
                           "properties": {
                             "contract": {
@@ -31682,7 +32406,7 @@
                               "type": "string"
                             }
                           },
-                          "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                         },
                         "tx_timeout": {
                           "type": "string",
@@ -31812,7 +32536,7 @@
                     "dest_address": {
                       "type": "string"
                     },
-                    "erc20_token": {
+                    "token": {
                       "type": "object",
                       "properties": {
                         "contract": {
@@ -31822,9 +32546,9 @@
                           "type": "string"
                         }
                       },
-                      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                     },
-                    "erc20_fee": {
+                    "fee": {
                       "type": "object",
                       "properties": {
                         "contract": {
@@ -31834,7 +32558,7 @@
                           "type": "string"
                         }
                       },
-                      "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
                     },
                     "tx_timeout": {
                       "type": "string",
@@ -31983,7 +32707,7 @@
                           "type": "boolean"
                         }
                       },
-                      "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+                      "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
                     }
                   },
                   "initializer": {
@@ -32024,7 +32748,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -32034,9 +32758,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "fee": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -32046,7 +32770,7 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "tx_timeout": {
                 "type": "string",
@@ -32078,7 +32802,7 @@
               "dest_address": {
                 "type": "string"
               },
-              "erc20_token": {
+              "token": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -32088,9 +32812,9 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
-              "erc20_fee": {
+              "fee": {
                 "type": "object",
                 "properties": {
                   "contract": {
@@ -32100,7 +32824,7 @@
                     "type": "string"
                   }
                 },
-                "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
               },
               "tx_timeout": {
                 "type": "string",
@@ -32231,6 +32955,18 @@
         }
       }
     },
+    "helios.hyperion.v1.Token": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string"
+        }
+      },
+      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+    },
     "helios.hyperion.v1.TokenAddressToDenom": {
       "type": "object",
       "properties": {
@@ -32247,7 +32983,7 @@
           "type": "boolean"
         }
       },
-      "title": "This records the relationship between an ERC20 token and the denom\nof the corresponding Cosmos originated asset"
+      "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
     },
     "helios.hyperion.v1.TransferTx": {
       "type": "object",
@@ -32270,7 +33006,7 @@
         "dest_address": {
           "type": "string"
         },
-        "erc20_token": {
+        "received_token": {
           "type": "object",
           "properties": {
             "contract": {
@@ -32280,9 +33016,9 @@
               "type": "string"
             }
           },
-          "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
         },
-        "erc20_fee": {
+        "sent_token": {
           "type": "object",
           "properties": {
             "contract": {
@@ -32292,7 +33028,31 @@
               "type": "string"
             }
           },
-          "title": "ERC20Token unique identifier for an Ethereum ERC20 token.\nCONTRACT:\nThe contract address on ETH of the token, this could be a Cosmos\noriginated token, if so it will be the ERC20 address of the representation\n(note: developers should look up the token symbol using the address on ETH to\ndisplay for UI)"
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "received_fee": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "sent_fee": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
         },
         "status": {
           "type": "string"
@@ -33144,6 +33904,88 @@
       },
       "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
     },
+    "cosmos.bank.v1beta1.FullMetadata": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "denom_units": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "denom": {
+                    "type": "string",
+                    "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                  },
+                  "exponent": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                  },
+                  "aliases": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "title": "aliases is a list of string aliases for the given denom"
+                  }
+                },
+                "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+              },
+              "title": "denom_units represents the list of DenomUnit's for a given coin"
+            },
+            "base": {
+              "type": "string",
+              "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+            },
+            "display": {
+              "type": "string",
+              "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+            },
+            "name": {
+              "type": "string",
+              "description": "Since: cosmos-sdk 0.43",
+              "title": "name defines the name of the token (eg: Cosmos Atom)"
+            },
+            "symbol": {
+              "type": "string",
+              "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+            },
+            "uri": {
+              "type": "string",
+              "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+            },
+            "uri_hash": {
+              "type": "string",
+              "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+            },
+            "decimals": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Since: cosmos-sdk 0.50",
+              "title": "Decimals represent the number of decimals use to represent token amount on chain"
+            },
+            "logo": {
+              "type": "string",
+              "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+            }
+          },
+          "description": "Metadata represents a struct that describes\na basic token."
+        },
+        "holders_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "total_supply": {
+          "type": "string"
+        }
+      }
+    },
     "cosmos.bank.v1beta1.Metadata": {
       "type": "object",
       "properties": {
@@ -33206,6 +34048,10 @@
           "format": "int64",
           "description": "Since: cosmos-sdk 0.50",
           "title": "Decimals represent the number of decimals use to represent token amount on chain"
+        },
+        "logo": {
+          "type": "string",
+          "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
         }
       },
       "description": "Metadata represents a struct that describes\na basic token."
@@ -33291,6 +34137,184 @@
       },
       "description": "QueryBalanceResponse is the response type for the Query/Balance RPC method."
     },
+    "cosmos.bank.v1beta1.QueryDenomFullMetadataByQueryStringResponse": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "denom_units": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "denom": {
+                        "type": "string",
+                        "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                      },
+                      "exponent": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                      },
+                      "aliases": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "title": "aliases is a list of string aliases for the given denom"
+                      }
+                    },
+                    "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                  },
+                  "title": "denom_units represents the list of DenomUnit's for a given coin"
+                },
+                "base": {
+                  "type": "string",
+                  "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                },
+                "display": {
+                  "type": "string",
+                  "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Since: cosmos-sdk 0.43",
+                  "title": "name defines the name of the token (eg: Cosmos Atom)"
+                },
+                "symbol": {
+                  "type": "string",
+                  "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                },
+                "uri": {
+                  "type": "string",
+                  "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                },
+                "uri_hash": {
+                  "type": "string",
+                  "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                },
+                "decimals": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Since: cosmos-sdk 0.50",
+                  "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                },
+                "logo": {
+                  "type": "string",
+                  "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                }
+              },
+              "description": "Metadata represents a struct that describes\na basic token."
+            },
+            "holders_count": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "total_supply": {
+              "type": "string"
+            }
+          },
+          "description": "metadata describes and provides all the client information for the requested token."
+        }
+      },
+      "description": "QueryDenomFullMetadataByQueryStringResponse is the response type for the Query/DenomFullMetadata RPC\nmethod. Identical with QueryDenomFullMetadataResponse but receives denom as query string in request."
+    },
+    "cosmos.bank.v1beta1.QueryDenomFullMetadataResponse": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "denom_units": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "denom": {
+                        "type": "string",
+                        "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                      },
+                      "exponent": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                      },
+                      "aliases": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "title": "aliases is a list of string aliases for the given denom"
+                      }
+                    },
+                    "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                  },
+                  "title": "denom_units represents the list of DenomUnit's for a given coin"
+                },
+                "base": {
+                  "type": "string",
+                  "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                },
+                "display": {
+                  "type": "string",
+                  "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Since: cosmos-sdk 0.43",
+                  "title": "name defines the name of the token (eg: Cosmos Atom)"
+                },
+                "symbol": {
+                  "type": "string",
+                  "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                },
+                "uri": {
+                  "type": "string",
+                  "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                },
+                "uri_hash": {
+                  "type": "string",
+                  "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                },
+                "decimals": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Since: cosmos-sdk 0.50",
+                  "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                },
+                "logo": {
+                  "type": "string",
+                  "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                }
+              },
+              "description": "Metadata represents a struct that describes\na basic token."
+            },
+            "holders_count": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "total_supply": {
+              "type": "string"
+            }
+          },
+          "description": "metadata describes and provides all the client information for the requested token."
+        }
+      },
+      "description": "QueryDenomFullMetadataResponse is the response type for the Query/DenomFullMetadata RPC\nmethod."
+    },
     "cosmos.bank.v1beta1.QueryDenomMetadataByQueryStringResponse": {
       "type": "object",
       "properties": {
@@ -33356,6 +34380,10 @@
               "format": "int64",
               "description": "Since: cosmos-sdk 0.50",
               "title": "Decimals represent the number of decimals use to represent token amount on chain"
+            },
+            "logo": {
+              "type": "string",
+              "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
             }
           },
           "description": "Metadata represents a struct that describes\na basic token."
@@ -33428,6 +34456,10 @@
               "format": "int64",
               "description": "Since: cosmos-sdk 0.50",
               "title": "Decimals represent the number of decimals use to represent token amount on chain"
+            },
+            "logo": {
+              "type": "string",
+              "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
             }
           },
           "description": "Metadata represents a struct that describes\na basic token."
@@ -33482,6 +34514,17 @@
       },
       "description": "QueryDenomOwnersByQueryResponse defines the RPC response of a DenomOwnersByQuery RPC query.\n\nSince: cosmos-sdk 0.50.3"
     },
+    "cosmos.bank.v1beta1.QueryDenomOwnersCountResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "string",
+          "format": "uint64",
+          "description": "count defines the total number of addresses holding the denomination."
+        }
+      },
+      "title": "QueryDenomOwnersCountResponse defines the response for the DenomOwnersCount query"
+    },
     "cosmos.bank.v1beta1.QueryDenomOwnersResponse": {
       "type": "object",
       "properties": {
@@ -33528,6 +34571,114 @@
         }
       },
       "description": "QueryDenomOwnersResponse defines the RPC response of a DenomOwners RPC query.\n\nSince: cosmos-sdk 0.46"
+    },
+    "cosmos.bank.v1beta1.QueryDenomsFullMetadataResponse": {
+      "type": "object",
+      "properties": {
+        "metadatas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "denom_units": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "denom": {
+                          "type": "string",
+                          "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                        },
+                        "exponent": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                        },
+                        "aliases": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "title": "aliases is a list of string aliases for the given denom"
+                        }
+                      },
+                      "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                    },
+                    "title": "denom_units represents the list of DenomUnit's for a given coin"
+                  },
+                  "base": {
+                    "type": "string",
+                    "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Since: cosmos-sdk 0.43",
+                    "title": "name defines the name of the token (eg: Cosmos Atom)"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                  },
+                  "uri_hash": {
+                    "type": "string",
+                    "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "Since: cosmos-sdk 0.50",
+                    "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                  },
+                  "logo": {
+                    "type": "string",
+                    "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                  }
+                },
+                "description": "Metadata represents a struct that describes\na basic token."
+              },
+              "holders_count": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "total_supply": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "metadata provides the client information for all the registered tokens."
+        },
+        "pagination": {
+          "description": "pagination defines the pagination in the response.",
+          "type": "object",
+          "properties": {
+            "next_key": {
+              "type": "string",
+              "format": "byte",
+              "description": "next_key is the key to be passed to PageRequest.key to\nquery the next page most efficiently. It will be empty if\nthere are no more results."
+            },
+            "total": {
+              "type": "string",
+              "format": "uint64",
+              "title": "total is total number of results available if PageRequest.count_total\nwas set, its value is undefined otherwise"
+            }
+          }
+        }
+      },
+      "description": "QueryDenomsFullMetadataResponse is the response type for the Query/DenomsFullMetadata RPC\nmethod."
     },
     "cosmos.bank.v1beta1.QueryDenomsMetadataResponse": {
       "type": "object",
@@ -33596,6 +34747,10 @@
                 "format": "int64",
                 "description": "Since: cosmos-sdk 0.50",
                 "title": "Decimals represent the number of decimals use to represent token amount on chain"
+              },
+              "logo": {
+                "type": "string",
+                "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
               }
             },
             "description": "Metadata represents a struct that describes\na basic token."
@@ -43579,6 +44734,12 @@
                   "format": "uint64"
                 },
                 "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+              },
+              "min_delegation": {
+                "type": "string"
+              },
+              "delegate_authorization": {
+                "type": "boolean"
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -43671,6 +44832,9 @@
           "type": "string",
           "format": "uint64",
           "title": "randomness_factor defines the influence of randomness in validator selection"
+        },
+        "boost_percentage": {
+          "type": "string"
         }
       },
       "description": "Params defines the parameters for the x/staking module.\nParams defines the parameters for the x/staking module."
@@ -43682,6 +44846,9 @@
           "type": "string"
         },
         "bonded_tokens": {
+          "type": "string"
+        },
+        "boosted_tokens": {
           "type": "string"
         }
       },
@@ -44079,6 +45246,12 @@
                 "format": "uint64"
               },
               "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+            },
+            "min_delegation": {
+              "type": "string"
+            },
+            "delegate_authorization": {
+              "type": "boolean"
             }
           },
           "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -44217,6 +45390,12 @@
                   "format": "uint64"
                 },
                 "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+              },
+              "min_delegation": {
+                "type": "string"
+              },
+              "delegate_authorization": {
+                "type": "boolean"
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -44416,6 +45595,12 @@
                   "format": "uint64"
                 },
                 "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+              },
+              "min_delegation": {
+                "type": "string"
+              },
+              "delegate_authorization": {
+                "type": "boolean"
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -44724,6 +45909,12 @@
                       "format": "uint64"
                     },
                     "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                  },
+                  "min_delegation": {
+                    "type": "string"
+                  },
+                  "delegate_authorization": {
+                    "type": "boolean"
                   }
                 },
                 "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -44831,6 +46022,9 @@
               "type": "string",
               "format": "uint64",
               "title": "randomness_factor defines the influence of randomness in validator selection"
+            },
+            "boost_percentage": {
+              "type": "string"
             }
           }
         }
@@ -44848,6 +46042,9 @@
               "type": "string"
             },
             "bonded_tokens": {
+              "type": "string"
+            },
+            "boosted_tokens": {
               "type": "string"
             }
           }
@@ -44986,6 +46183,12 @@
                   "format": "uint64"
                 },
                 "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+              },
+              "min_delegation": {
+                "type": "string"
+              },
+              "delegate_authorization": {
+                "type": "boolean"
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -45174,6 +46377,16 @@
           "description": "sharesRepartitionMap defines all the repartition shares info of the network."
         }
       }
+    },
+    "cosmos.staking.v1beta1.QueryTotalBoostedDelegationResponse": {
+      "type": "object",
+      "properties": {
+        "total_boost": {
+          "type": "string",
+          "description": "total_boost defines the total boosted delegation amount for the validator."
+        }
+      },
+      "description": "QueryTotalBoostedDelegationResponse is the response type for the Query/TotalBoostedDelegation RPC method."
     },
     "cosmos.staking.v1beta1.QueryUnbondingDelegationResponse": {
       "type": "object",
@@ -45455,6 +46668,12 @@
                 "format": "uint64"
               },
               "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+            },
+            "min_delegation": {
+              "type": "string"
+            },
+            "delegate_authorization": {
+              "type": "boolean"
             }
           },
           "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -45686,6 +46905,12 @@
                   "format": "uint64"
                 },
                 "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+              },
+              "min_delegation": {
+                "type": "string"
+              },
+              "delegate_authorization": {
+                "type": "boolean"
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -46221,6 +47446,12 @@
             "format": "uint64"
           },
           "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+        },
+        "min_delegation": {
+          "type": "string"
+        },
+        "delegate_authorization": {
+          "type": "boolean"
         }
       },
       "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
