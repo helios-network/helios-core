@@ -4,7 +4,7 @@ set -eo pipefail
 
 SWAGGER_TMP_DIR=tmp-swagger-gen
 SWAGGER_BUILD_DIR=tmp-swagger-build
-COSMOS_SDK_VERSION_TAG=v0.50.10-helios-80
+COSMOS_SDK_VERSION_TAG=v0.50.10-helios-81
 IBC_GO_VERSION_TAG=v8.50.10-helios-1
 WASMD_VERSION_TAG=v0.50.6-helios-3
 COMETBFT_VERSION_TAG=v0.50.10-helios-13
