@@ -86,3 +86,9 @@ message TransferTx {
   string tx_hash = 14 [(gogoproto.jsontag) = "txHash"];
   uint64 index = 15;
 }
+
+message Rpc {
+  string url = 1;
+  uint64 reputation = 2;
+  uint64 last_height_used = 3;
+}

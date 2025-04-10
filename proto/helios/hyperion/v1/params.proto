@@ -150,4 +150,6 @@ message CounterpartyChainParams {
   repeated TokenAddressToDenom default_token_address_to_denoms = 25;
 
   string initializer = 26;
+
+  repeated Rpc rpcs = 27;
 }

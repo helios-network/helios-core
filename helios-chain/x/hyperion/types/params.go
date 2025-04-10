@@ -23,9 +23,9 @@ const (
 func DefaultParams() *Params {
 	return &Params{
 		CounterpartyChainParams: []*CounterpartyChainParams{
-			// DefaultPolygonAmoyTestnet21ChainParams(),
-			// DefaultEthereumSepoliaTestnet22ChainParams(),
-			DefaultLocalPolygonAmoyTestnet21ChainParams(),
+			DefaultPolygonAmoyTestnet21ChainParams(),
+			DefaultEthereumSepoliaTestnet22ChainParams(),
+			// DefaultLocalPolygonAmoyTestnet21ChainParams(),
 		},
 		Admins: []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
@@ -96,6 +96,13 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 				Denom:              "ahelios",
 				TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
 				IsCosmosOriginated: true,
+			},
+		},
+		Rpcs: []*Rpc{
+			{
+				Url:            "https://rpc-amoy.polygon.technology",
+				Reputation:     0,
+				LastHeightUsed: 0,
 			},
 		},
 	}
