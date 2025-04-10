@@ -108,7 +108,8 @@ type EVMBackend interface {
 
 	// Tokens Info
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error)
-	GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error)
+	GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error)
+	GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error)
 
 	// Tx Info
 	GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransaction, error)

@@ -8393,25 +8393,31 @@
                                 "type": "string",
                                 "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                               },
-                              "origin_chain_metadata": {
-                                "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                                "type": "object",
-                                "properties": {
-                                  "chain_id": {
-                                    "type": "string",
-                                    "format": "uint64"
-                                  },
-                                  "symbol": {
-                                    "type": "string"
-                                  },
-                                  "decimals": {
-                                    "type": "integer",
-                                    "format": "int64"
-                                  },
-                                  "contract_address": {
-                                    "type": "string"
+                              "chains_metadatas": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "chain_id": {
+                                      "type": "string",
+                                      "format": "uint64"
+                                    },
+                                    "symbol": {
+                                      "type": "string"
+                                    },
+                                    "decimals": {
+                                      "type": "integer",
+                                      "format": "int64"
+                                    },
+                                    "contract_address": {
+                                      "type": "string"
+                                    },
+                                    "is_originated": {
+                                      "type": "boolean"
+                                    }
                                   }
-                                }
+                                },
+                                "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                               }
                             },
                             "description": "Metadata represents a struct that describes\na basic token."
@@ -8973,25 +8979,31 @@
                             "type": "string",
                             "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                           },
-                          "origin_chain_metadata": {
-                            "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                            "type": "object",
-                            "properties": {
-                              "chain_id": {
-                                "type": "string",
-                                "format": "uint64"
-                              },
-                              "symbol": {
-                                "type": "string"
-                              },
-                              "decimals": {
-                                "type": "integer",
-                                "format": "int64"
-                              },
-                              "contract_address": {
-                                "type": "string"
+                          "chains_metadatas": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "chain_id": {
+                                  "type": "string",
+                                  "format": "uint64"
+                                },
+                                "symbol": {
+                                  "type": "string"
+                                },
+                                "decimals": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "contract_address": {
+                                  "type": "string"
+                                },
+                                "is_originated": {
+                                  "type": "boolean"
+                                }
                               }
-                            }
+                            },
+                            "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                           }
                         },
                         "description": "Metadata represents a struct that describes\na basic token."
@@ -9208,25 +9220,31 @@
                             "type": "string",
                             "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                           },
-                          "origin_chain_metadata": {
-                            "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                            "type": "object",
-                            "properties": {
-                              "chain_id": {
-                                "type": "string",
-                                "format": "uint64"
-                              },
-                              "symbol": {
-                                "type": "string"
-                              },
-                              "decimals": {
-                                "type": "integer",
-                                "format": "int64"
-                              },
-                              "contract_address": {
-                                "type": "string"
+                          "chains_metadatas": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "chain_id": {
+                                  "type": "string",
+                                  "format": "uint64"
+                                },
+                                "symbol": {
+                                  "type": "string"
+                                },
+                                "decimals": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "contract_address": {
+                                  "type": "string"
+                                },
+                                "is_originated": {
+                                  "type": "boolean"
+                                }
                               }
-                            }
+                            },
+                            "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                           }
                         },
                         "description": "Metadata represents a struct that describes\na basic token."
@@ -9425,25 +9443,31 @@
                           "type": "string",
                           "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                         },
-                        "origin_chain_metadata": {
-                          "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                          "type": "object",
-                          "properties": {
-                            "chain_id": {
-                              "type": "string",
-                              "format": "uint64"
-                            },
-                            "symbol": {
-                              "type": "string"
-                            },
-                            "decimals": {
-                              "type": "integer",
-                              "format": "int64"
-                            },
-                            "contract_address": {
-                              "type": "string"
+                        "chains_metadatas": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "chain_id": {
+                                "type": "string",
+                                "format": "uint64"
+                              },
+                              "symbol": {
+                                "type": "string"
+                              },
+                              "decimals": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "contract_address": {
+                                "type": "string"
+                              },
+                              "is_originated": {
+                                "type": "boolean"
+                              }
                             }
-                          }
+                          },
+                          "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                         }
                       },
                       "description": "Metadata represents a struct that describes\na basic token."
@@ -9594,25 +9618,31 @@
                           "type": "string",
                           "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                         },
-                        "origin_chain_metadata": {
-                          "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                          "type": "object",
-                          "properties": {
-                            "chain_id": {
-                              "type": "string",
-                              "format": "uint64"
-                            },
-                            "symbol": {
-                              "type": "string"
-                            },
-                            "decimals": {
-                              "type": "integer",
-                              "format": "int64"
-                            },
-                            "contract_address": {
-                              "type": "string"
+                        "chains_metadatas": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "chain_id": {
+                                "type": "string",
+                                "format": "uint64"
+                              },
+                              "symbol": {
+                                "type": "string"
+                              },
+                              "decimals": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "contract_address": {
+                                "type": "string"
+                              },
+                              "is_originated": {
+                                "type": "boolean"
+                              }
                             }
-                          }
+                          },
+                          "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                         }
                       },
                       "description": "Metadata represents a struct that describes\na basic token."
@@ -9762,25 +9792,31 @@
                         "type": "string",
                         "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                       },
-                      "origin_chain_metadata": {
-                        "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                        "type": "object",
-                        "properties": {
-                          "chain_id": {
-                            "type": "string",
-                            "format": "uint64"
-                          },
-                          "symbol": {
-                            "type": "string"
-                          },
-                          "decimals": {
-                            "type": "integer",
-                            "format": "int64"
-                          },
-                          "contract_address": {
-                            "type": "string"
+                      "chains_metadatas": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "chain_id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "decimals": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "contract_address": {
+                              "type": "string"
+                            },
+                            "is_originated": {
+                              "type": "boolean"
+                            }
                           }
-                        }
+                        },
+                        "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                       }
                     },
                     "description": "Metadata represents a struct that describes\na basic token."
@@ -9967,25 +10003,31 @@
                       "type": "string",
                       "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                     },
-                    "origin_chain_metadata": {
-                      "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                      "type": "object",
-                      "properties": {
-                        "chain_id": {
-                          "type": "string",
-                          "format": "uint64"
-                        },
-                        "symbol": {
-                          "type": "string"
-                        },
-                        "decimals": {
-                          "type": "integer",
-                          "format": "int64"
-                        },
-                        "contract_address": {
-                          "type": "string"
+                    "chains_metadatas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chain_id": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "contract_address": {
+                            "type": "string"
+                          },
+                          "is_originated": {
+                            "type": "boolean"
+                          }
                         }
-                      }
+                      },
+                      "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                     }
                   },
                   "description": "Metadata represents a struct that describes\na basic token."
@@ -10123,25 +10165,31 @@
                       "type": "string",
                       "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                     },
-                    "origin_chain_metadata": {
-                      "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                      "type": "object",
-                      "properties": {
-                        "chain_id": {
-                          "type": "string",
-                          "format": "uint64"
-                        },
-                        "symbol": {
-                          "type": "string"
-                        },
-                        "decimals": {
-                          "type": "integer",
-                          "format": "int64"
-                        },
-                        "contract_address": {
-                          "type": "string"
+                    "chains_metadatas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chain_id": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "contract_address": {
+                            "type": "string"
+                          },
+                          "is_originated": {
+                            "type": "boolean"
+                          }
                         }
-                      }
+                      },
+                      "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                     }
                   },
                   "description": "Metadata represents a struct that describes\na basic token."
@@ -34476,6 +34524,28 @@
       },
       "description": "QueryGrantsResponse is the response type for the Query/Authorizations RPC method."
     },
+    "cosmos.bank.v1beta1.ChainMetadata": {
+      "type": "object",
+      "properties": {
+        "chain_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "contract_address": {
+          "type": "string"
+        },
+        "is_originated": {
+          "type": "boolean"
+        }
+      }
+    },
     "cosmos.bank.v1beta1.DenomOwner": {
       "type": "object",
       "properties": {
@@ -34594,25 +34664,31 @@
               "type": "string",
               "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
             },
-            "origin_chain_metadata": {
-              "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-              "type": "object",
-              "properties": {
-                "chain_id": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "symbol": {
-                  "type": "string"
-                },
-                "decimals": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "contract_address": {
-                  "type": "string"
+            "chains_metadatas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "chain_id": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "contract_address": {
+                    "type": "string"
+                  },
+                  "is_originated": {
+                    "type": "boolean"
+                  }
                 }
-              }
+              },
+              "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
             }
           },
           "description": "Metadata represents a struct that describes\na basic token."
@@ -34697,47 +34773,34 @@
           "type": "string",
           "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
         },
-        "origin_chain_metadata": {
-          "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-          "type": "object",
-          "properties": {
-            "chain_id": {
-              "type": "string",
-              "format": "uint64"
-            },
-            "symbol": {
-              "type": "string"
-            },
-            "decimals": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "contract_address": {
-              "type": "string"
+        "chains_metadatas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chain_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "symbol": {
+                "type": "string"
+              },
+              "decimals": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "contract_address": {
+                "type": "string"
+              },
+              "is_originated": {
+                "type": "boolean"
+              }
             }
-          }
+          },
+          "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
         }
       },
       "description": "Metadata represents a struct that describes\na basic token."
-    },
-    "cosmos.bank.v1beta1.OriginChainMetadata": {
-      "type": "object",
-      "properties": {
-        "chain_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "symbol": {
-          "type": "string"
-        },
-        "decimals": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "contract_address": {
-          "type": "string"
-        }
-      }
     },
     "cosmos.bank.v1beta1.Params": {
       "type": "object",
@@ -34884,25 +34947,31 @@
                         "type": "string",
                         "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                       },
-                      "origin_chain_metadata": {
-                        "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                        "type": "object",
-                        "properties": {
-                          "chain_id": {
-                            "type": "string",
-                            "format": "uint64"
-                          },
-                          "symbol": {
-                            "type": "string"
-                          },
-                          "decimals": {
-                            "type": "integer",
-                            "format": "int64"
-                          },
-                          "contract_address": {
-                            "type": "string"
+                      "chains_metadatas": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "chain_id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "decimals": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "contract_address": {
+                              "type": "string"
+                            },
+                            "is_originated": {
+                              "type": "boolean"
+                            }
                           }
-                        }
+                        },
+                        "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                       }
                     },
                     "description": "Metadata represents a struct that describes\na basic token."
@@ -35035,25 +35104,31 @@
                   "type": "string",
                   "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                 },
-                "origin_chain_metadata": {
-                  "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                  "type": "object",
-                  "properties": {
-                    "chain_id": {
-                      "type": "string",
-                      "format": "uint64"
-                    },
-                    "symbol": {
-                      "type": "string"
-                    },
-                    "decimals": {
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "contract_address": {
-                      "type": "string"
+                "chains_metadatas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "chain_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "decimals": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "contract_address": {
+                        "type": "string"
+                      },
+                      "is_originated": {
+                        "type": "boolean"
+                      }
                     }
-                  }
+                  },
+                  "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                 }
               },
               "description": "Metadata represents a struct that describes\na basic token."
@@ -35148,25 +35223,31 @@
                   "type": "string",
                   "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                 },
-                "origin_chain_metadata": {
-                  "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                  "type": "object",
-                  "properties": {
-                    "chain_id": {
-                      "type": "string",
-                      "format": "uint64"
-                    },
-                    "symbol": {
-                      "type": "string"
-                    },
-                    "decimals": {
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "contract_address": {
-                      "type": "string"
+                "chains_metadatas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "chain_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "decimals": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "contract_address": {
+                        "type": "string"
+                      },
+                      "is_originated": {
+                        "type": "boolean"
+                      }
                     }
-                  }
+                  },
+                  "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                 }
               },
               "description": "Metadata represents a struct that describes\na basic token."
@@ -35258,25 +35339,31 @@
               "type": "string",
               "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
             },
-            "origin_chain_metadata": {
-              "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-              "type": "object",
-              "properties": {
-                "chain_id": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "symbol": {
-                  "type": "string"
-                },
-                "decimals": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "contract_address": {
-                  "type": "string"
+            "chains_metadatas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "chain_id": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "contract_address": {
+                    "type": "string"
+                  },
+                  "is_originated": {
+                    "type": "boolean"
+                  }
                 }
-              }
+              },
+              "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
             }
           },
           "description": "Metadata represents a struct that describes\na basic token."
@@ -35358,25 +35445,31 @@
               "type": "string",
               "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
             },
-            "origin_chain_metadata": {
-              "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-              "type": "object",
-              "properties": {
-                "chain_id": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "symbol": {
-                  "type": "string"
-                },
-                "decimals": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "contract_address": {
-                  "type": "string"
+            "chains_metadatas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "chain_id": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "contract_address": {
+                    "type": "string"
+                  },
+                  "is_originated": {
+                    "type": "boolean"
+                  }
                 }
-              }
+              },
+              "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
             }
           },
           "description": "Metadata represents a struct that describes\na basic token."
@@ -35568,25 +35661,31 @@
                     "type": "string",
                     "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                   },
-                  "origin_chain_metadata": {
-                    "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                    "type": "object",
-                    "properties": {
-                      "chain_id": {
-                        "type": "string",
-                        "format": "uint64"
-                      },
-                      "symbol": {
-                        "type": "string"
-                      },
-                      "decimals": {
-                        "type": "integer",
-                        "format": "int64"
-                      },
-                      "contract_address": {
-                        "type": "string"
+                  "chains_metadatas": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chain_id": {
+                          "type": "string",
+                          "format": "uint64"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "decimals": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "contract_address": {
+                          "type": "string"
+                        },
+                        "is_originated": {
+                          "type": "boolean"
+                        }
                       }
-                    }
+                    },
+                    "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                   }
                 },
                 "description": "Metadata represents a struct that describes\na basic token."
@@ -35701,25 +35800,31 @@
                     "type": "string",
                     "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                   },
-                  "origin_chain_metadata": {
-                    "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                    "type": "object",
-                    "properties": {
-                      "chain_id": {
-                        "type": "string",
-                        "format": "uint64"
-                      },
-                      "symbol": {
-                        "type": "string"
-                      },
-                      "decimals": {
-                        "type": "integer",
-                        "format": "int64"
-                      },
-                      "contract_address": {
-                        "type": "string"
+                  "chains_metadatas": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chain_id": {
+                          "type": "string",
+                          "format": "uint64"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "decimals": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "contract_address": {
+                          "type": "string"
+                        },
+                        "is_originated": {
+                          "type": "boolean"
+                        }
                       }
-                    }
+                    },
+                    "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                   }
                 },
                 "description": "Metadata represents a struct that describes\na basic token."
@@ -35830,25 +35935,31 @@
                 "type": "string",
                 "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
               },
-              "origin_chain_metadata": {
-                "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                "type": "object",
-                "properties": {
-                  "chain_id": {
-                    "type": "string",
-                    "format": "uint64"
-                  },
-                  "symbol": {
-                    "type": "string"
-                  },
-                  "decimals": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "contract_address": {
-                    "type": "string"
+              "chains_metadatas": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "chain_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "contract_address": {
+                      "type": "string"
+                    },
+                    "is_originated": {
+                      "type": "boolean"
+                    }
                   }
-                }
+                },
+                "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
               }
             },
             "description": "Metadata represents a struct that describes\na basic token."
@@ -36143,25 +36254,31 @@
                   "type": "string",
                   "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
                 },
-                "origin_chain_metadata": {
-                  "title": "from_chain is the chain id of the origin chain\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76",
-                  "type": "object",
-                  "properties": {
-                    "chain_id": {
-                      "type": "string",
-                      "format": "uint64"
-                    },
-                    "symbol": {
-                      "type": "string"
-                    },
-                    "decimals": {
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "contract_address": {
-                      "type": "string"
+                "chains_metadatas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "chain_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "decimals": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "contract_address": {
+                        "type": "string"
+                      },
+                      "is_originated": {
+                        "type": "boolean"
+                      }
                     }
-                  }
+                  },
+                  "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
                 }
               },
               "description": "Metadata represents a struct that describes\na basic token."

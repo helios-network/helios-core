@@ -3,8 +3,6 @@
 package backend
 
 import (
-	rpctypes "helios-core/helios-chain/rpc/types"
-
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -34,14 +32,11 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 	return res.Metadatas, nil
 }
 
-func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenDetails, error) {
+func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error) {
 
-	// Get ERC20 balances using erc20 query
-	// Create the query request
-	erc20Req := &erc20types.QueryTokenPairRequest{
+	erc20Res, err := b.queryClient.Erc20.TokenPair(b.ctx, &erc20types.QueryTokenPairRequest{
 		Token: tokenAddress.String(),
-	}
-	erc20Res, err := b.queryClient.Erc20.TokenPair(b.ctx, erc20Req)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -51,21 +46,29 @@ func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*rpctypes.TokenD
 	})
 
 	if err != nil {
-		return &rpctypes.TokenDetails{
-			Address: tokenAddress,
-			Denom:   erc20Res.TokenPair.Denom,
-		}, nil
+		return nil, err
 	}
 
-	return &rpctypes.TokenDetails{
-		Address:       tokenAddress,
-		Denom:         erc20Res.TokenPair.Denom,
-		Symbol:        bankRes.Metadata.Metadata.Symbol,
-		Decimals:      bankRes.Metadata.Metadata.Decimals,
-		Description:   bankRes.Metadata.Metadata.Description,
-		Logo:          bankRes.Metadata.Metadata.Logo,
-		Holders:       bankRes.Metadata.HoldersCount,
-		TotalSupply:   (*hexutil.Big)(bankRes.Metadata.TotalSupply.BigInt()),
-		TotalSupplyUI: bankRes.Metadata.TotalSupply.String(),
-	}, nil
+	return &bankRes.Metadata, nil
+}
+
+func (b *Backend) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
+
+	pageReq := &query.PageRequest{
+		Offset:     uint64((page - 1) * size),
+		Limit:      uint64(size),
+		CountTotal: true,
+	}
+
+	res, err := b.queryClient.Bank.DenomsByChainId(b.ctx, &banktypes.QueryDenomsByChainIdRequest{
+		ChainId:             chainId,
+		Pagination:          pageReq,
+		OrderByHoldersCount: true,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Metadatas, nil
 }

@@ -16259,23 +16259,27 @@ paths:
                                 Optional.
 
                                 Since: cosmos-sdk v0.50.10-helios-74
-                            origin_chain_metadata:
+                            chains_metadatas:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  chain_id:
+                                    type: string
+                                    format: uint64
+                                  symbol:
+                                    type: string
+                                  decimals:
+                                    type: integer
+                                    format: int64
+                                  contract_address:
+                                    type: string
+                                  is_originated:
+                                    type: boolean
                               title: |-
-                                from_chain is the chain id of the origin chain
+                                chains_metadatas is the list of chain metadata
                                 Optional.
                                 Since: cosmos-sdk v0.50.10-helios-76
-                              type: object
-                              properties:
-                                chain_id:
-                                  type: string
-                                  format: uint64
-                                symbol:
-                                  type: string
-                                decimals:
-                                  type: integer
-                                  format: int64
-                                contract_address:
-                                  type: string
                           description: |-
                             Metadata represents a struct that describes
                             a basic token.
@@ -16941,23 +16945,27 @@ paths:
                             Optional.
 
                             Since: cosmos-sdk v0.50.10-helios-74
-                        origin_chain_metadata:
+                        chains_metadatas:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chain_id:
+                                type: string
+                                format: uint64
+                              symbol:
+                                type: string
+                              decimals:
+                                type: integer
+                                format: int64
+                              contract_address:
+                                type: string
+                              is_originated:
+                                type: boolean
                           title: |-
-                            from_chain is the chain id of the origin chain
+                            chains_metadatas is the list of chain metadata
                             Optional.
                             Since: cosmos-sdk v0.50.10-helios-76
-                          type: object
-                          properties:
-                            chain_id:
-                              type: string
-                              format: uint64
-                            symbol:
-                              type: string
-                            decimals:
-                              type: integer
-                              format: int64
-                            contract_address:
-                              type: string
                       description: |-
                         Metadata represents a struct that describes
                         a basic token.
@@ -17225,23 +17233,27 @@ paths:
                             Optional.
 
                             Since: cosmos-sdk v0.50.10-helios-74
-                        origin_chain_metadata:
+                        chains_metadatas:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chain_id:
+                                type: string
+                                format: uint64
+                              symbol:
+                                type: string
+                              decimals:
+                                type: integer
+                                format: int64
+                              contract_address:
+                                type: string
+                              is_originated:
+                                type: boolean
                           title: |-
-                            from_chain is the chain id of the origin chain
+                            chains_metadatas is the list of chain metadata
                             Optional.
                             Since: cosmos-sdk v0.50.10-helios-76
-                          type: object
-                          properties:
-                            chain_id:
-                              type: string
-                              format: uint64
-                            symbol:
-                              type: string
-                            decimals:
-                              type: integer
-                              format: int64
-                            contract_address:
-                              type: string
                       description: |-
                         Metadata represents a struct that describes
                         a basic token.
@@ -17490,23 +17502,27 @@ paths:
                           contract_address is the contract address of the token
                           Optional.
                           Since: cosmos-sdk v0.50.10-helios-74
-                      origin_chain_metadata:
+                      chains_metadatas:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            chain_id:
+                              type: string
+                              format: uint64
+                            symbol:
+                              type: string
+                            decimals:
+                              type: integer
+                              format: int64
+                            contract_address:
+                              type: string
+                            is_originated:
+                              type: boolean
                         title: |-
-                          from_chain is the chain id of the origin chain
+                          chains_metadatas is the list of chain metadata
                           Optional.
                           Since: cosmos-sdk v0.50.10-helios-76
-                        type: object
-                        properties:
-                          chain_id:
-                            type: string
-                            format: uint64
-                          symbol:
-                            type: string
-                          decimals:
-                            type: integer
-                            format: int64
-                          contract_address:
-                            type: string
                     description: |-
                       Metadata represents a struct that describes
                       a basic token.
@@ -17676,23 +17692,27 @@ paths:
                           contract_address is the contract address of the token
                           Optional.
                           Since: cosmos-sdk v0.50.10-helios-74
-                      origin_chain_metadata:
+                      chains_metadatas:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            chain_id:
+                              type: string
+                              format: uint64
+                            symbol:
+                              type: string
+                            decimals:
+                              type: integer
+                              format: int64
+                            contract_address:
+                              type: string
+                            is_originated:
+                              type: boolean
                         title: |-
-                          from_chain is the chain id of the origin chain
+                          chains_metadatas is the list of chain metadata
                           Optional.
                           Since: cosmos-sdk v0.50.10-helios-76
-                        type: object
-                        properties:
-                          chain_id:
-                            type: string
-                            format: uint64
-                          symbol:
-                            type: string
-                          decimals:
-                            type: integer
-                            format: int64
-                          contract_address:
-                            type: string
                     description: |-
                       Metadata represents a struct that describes
                       a basic token.
@@ -17862,23 +17882,27 @@ paths:
                         contract_address is the contract address of the token
                         Optional.
                         Since: cosmos-sdk v0.50.10-helios-74
-                    origin_chain_metadata:
+                    chains_metadatas:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          chain_id:
+                            type: string
+                            format: uint64
+                          symbol:
+                            type: string
+                          decimals:
+                            type: integer
+                            format: int64
+                          contract_address:
+                            type: string
+                          is_originated:
+                            type: boolean
                       title: |-
-                        from_chain is the chain id of the origin chain
+                        chains_metadatas is the list of chain metadata
                         Optional.
                         Since: cosmos-sdk v0.50.10-helios-76
-                      type: object
-                      properties:
-                        chain_id:
-                          type: string
-                          format: uint64
-                        symbol:
-                          type: string
-                        decimals:
-                          type: integer
-                          format: int64
-                        contract_address:
-                          type: string
                   description: |-
                     Metadata represents a struct that describes
                     a basic token.
@@ -18117,23 +18141,27 @@ paths:
                       contract_address is the contract address of the token
                       Optional.
                       Since: cosmos-sdk v0.50.10-helios-74
-                  origin_chain_metadata:
+                  chains_metadatas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                          format: uint64
+                        symbol:
+                          type: string
+                        decimals:
+                          type: integer
+                          format: int64
+                        contract_address:
+                          type: string
+                        is_originated:
+                          type: boolean
                     title: |-
-                      from_chain is the chain id of the origin chain
+                      chains_metadatas is the list of chain metadata
                       Optional.
                       Since: cosmos-sdk v0.50.10-helios-76
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                        format: uint64
-                      symbol:
-                        type: string
-                      decimals:
-                        type: integer
-                        format: int64
-                      contract_address:
-                        type: string
                 description: |-
                   Metadata represents a struct that describes
                   a basic token.
@@ -18292,23 +18320,27 @@ paths:
                       contract_address is the contract address of the token
                       Optional.
                       Since: cosmos-sdk v0.50.10-helios-74
-                  origin_chain_metadata:
+                  chains_metadatas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                          format: uint64
+                        symbol:
+                          type: string
+                        decimals:
+                          type: integer
+                          format: int64
+                        contract_address:
+                          type: string
+                        is_originated:
+                          type: boolean
                     title: |-
-                      from_chain is the chain id of the origin chain
+                      chains_metadatas is the list of chain metadata
                       Optional.
                       Since: cosmos-sdk v0.50.10-helios-76
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                        format: uint64
-                      symbol:
-                        type: string
-                      decimals:
-                        type: integer
-                        format: int64
-                      contract_address:
-                        type: string
                 description: |-
                   Metadata represents a struct that describes
                   a basic token.
@@ -65687,6 +65719,21 @@ definitions:
     description: >-
       QueryGrantsResponse is the response type for the Query/Authorizations RPC
       method.
+  cosmos.bank.v1beta1.ChainMetadata:
+    type: object
+    properties:
+      chain_id:
+        type: string
+        format: uint64
+      symbol:
+        type: string
+      decimals:
+        type: integer
+        format: int64
+      contract_address:
+        type: string
+      is_originated:
+        type: boolean
   cosmos.bank.v1beta1.DenomOwner:
     type: object
     properties:
@@ -65845,23 +65892,27 @@ definitions:
               contract_address is the contract address of the token
               Optional.
               Since: cosmos-sdk v0.50.10-helios-74
-          origin_chain_metadata:
+          chains_metadatas:
+            type: array
+            items:
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                  format: uint64
+                symbol:
+                  type: string
+                decimals:
+                  type: integer
+                  format: int64
+                contract_address:
+                  type: string
+                is_originated:
+                  type: boolean
             title: |-
-              from_chain is the chain id of the origin chain
+              chains_metadatas is the list of chain metadata
               Optional.
               Since: cosmos-sdk v0.50.10-helios-76
-            type: object
-            properties:
-              chain_id:
-                type: string
-                format: uint64
-              symbol:
-                type: string
-              decimals:
-                type: integer
-                format: int64
-              contract_address:
-                type: string
         description: |-
           Metadata represents a struct that describes
           a basic token.
@@ -65973,39 +66024,30 @@ definitions:
           contract_address is the contract address of the token
           Optional.
           Since: cosmos-sdk v0.50.10-helios-74
-      origin_chain_metadata:
+      chains_metadatas:
+        type: array
+        items:
+          type: object
+          properties:
+            chain_id:
+              type: string
+              format: uint64
+            symbol:
+              type: string
+            decimals:
+              type: integer
+              format: int64
+            contract_address:
+              type: string
+            is_originated:
+              type: boolean
         title: |-
-          from_chain is the chain id of the origin chain
+          chains_metadatas is the list of chain metadata
           Optional.
           Since: cosmos-sdk v0.50.10-helios-76
-        type: object
-        properties:
-          chain_id:
-            type: string
-            format: uint64
-          symbol:
-            type: string
-          decimals:
-            type: integer
-            format: int64
-          contract_address:
-            type: string
     description: |-
       Metadata represents a struct that describes
       a basic token.
-  cosmos.bank.v1beta1.OriginChainMetadata:
-    type: object
-    properties:
-      chain_id:
-        type: string
-        format: uint64
-      symbol:
-        type: string
-      decimals:
-        type: integer
-        format: int64
-      contract_address:
-        type: string
   cosmos.bank.v1beta1.Params:
     type: object
     properties:
@@ -66199,23 +66241,27 @@ definitions:
                         contract_address is the contract address of the token
                         Optional.
                         Since: cosmos-sdk v0.50.10-helios-74
-                    origin_chain_metadata:
+                    chains_metadatas:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          chain_id:
+                            type: string
+                            format: uint64
+                          symbol:
+                            type: string
+                          decimals:
+                            type: integer
+                            format: int64
+                          contract_address:
+                            type: string
+                          is_originated:
+                            type: boolean
                       title: |-
-                        from_chain is the chain id of the origin chain
+                        chains_metadatas is the list of chain metadata
                         Optional.
                         Since: cosmos-sdk v0.50.10-helios-76
-                      type: object
-                      properties:
-                        chain_id:
-                          type: string
-                          format: uint64
-                        symbol:
-                          type: string
-                        decimals:
-                          type: integer
-                          format: int64
-                        contract_address:
-                          type: string
                   description: |-
                     Metadata represents a struct that describes
                     a basic token.
@@ -66381,23 +66427,27 @@ definitions:
                   contract_address is the contract address of the token
                   Optional.
                   Since: cosmos-sdk v0.50.10-helios-74
-              origin_chain_metadata:
+              chains_metadatas:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                      format: uint64
+                    symbol:
+                      type: string
+                    decimals:
+                      type: integer
+                      format: int64
+                    contract_address:
+                      type: string
+                    is_originated:
+                      type: boolean
                 title: |-
-                  from_chain is the chain id of the origin chain
+                  chains_metadatas is the list of chain metadata
                   Optional.
                   Since: cosmos-sdk v0.50.10-helios-76
-                type: object
-                properties:
-                  chain_id:
-                    type: string
-                    format: uint64
-                  symbol:
-                    type: string
-                  decimals:
-                    type: integer
-                    format: int64
-                  contract_address:
-                    type: string
             description: |-
               Metadata represents a struct that describes
               a basic token.
@@ -66526,23 +66576,27 @@ definitions:
                   contract_address is the contract address of the token
                   Optional.
                   Since: cosmos-sdk v0.50.10-helios-74
-              origin_chain_metadata:
+              chains_metadatas:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                      format: uint64
+                    symbol:
+                      type: string
+                    decimals:
+                      type: integer
+                      format: int64
+                    contract_address:
+                      type: string
+                    is_originated:
+                      type: boolean
                 title: |-
-                  from_chain is the chain id of the origin chain
+                  chains_metadatas is the list of chain metadata
                   Optional.
                   Since: cosmos-sdk v0.50.10-helios-76
-                type: object
-                properties:
-                  chain_id:
-                    type: string
-                    format: uint64
-                  symbol:
-                    type: string
-                  decimals:
-                    type: integer
-                    format: int64
-                  contract_address:
-                    type: string
             description: |-
               Metadata represents a struct that describes
               a basic token.
@@ -66665,23 +66719,27 @@ definitions:
               contract_address is the contract address of the token
               Optional.
               Since: cosmos-sdk v0.50.10-helios-74
-          origin_chain_metadata:
+          chains_metadatas:
+            type: array
+            items:
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                  format: uint64
+                symbol:
+                  type: string
+                decimals:
+                  type: integer
+                  format: int64
+                contract_address:
+                  type: string
+                is_originated:
+                  type: boolean
             title: |-
-              from_chain is the chain id of the origin chain
+              chains_metadatas is the list of chain metadata
               Optional.
               Since: cosmos-sdk v0.50.10-helios-76
-            type: object
-            properties:
-              chain_id:
-                type: string
-                format: uint64
-              symbol:
-                type: string
-              decimals:
-                type: integer
-                format: int64
-              contract_address:
-                type: string
         description: |-
           Metadata represents a struct that describes
           a basic token.
@@ -66797,23 +66855,27 @@ definitions:
               contract_address is the contract address of the token
               Optional.
               Since: cosmos-sdk v0.50.10-helios-74
-          origin_chain_metadata:
+          chains_metadatas:
+            type: array
+            items:
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                  format: uint64
+                symbol:
+                  type: string
+                decimals:
+                  type: integer
+                  format: int64
+                contract_address:
+                  type: string
+                is_originated:
+                  type: boolean
             title: |-
-              from_chain is the chain id of the origin chain
+              chains_metadatas is the list of chain metadata
               Optional.
               Since: cosmos-sdk v0.50.10-helios-76
-            type: object
-            properties:
-              chain_id:
-                type: string
-                format: uint64
-              symbol:
-                type: string
-              decimals:
-                type: integer
-                format: int64
-              contract_address:
-                type: string
         description: |-
           Metadata represents a struct that describes
           a basic token.
@@ -67085,23 +67147,27 @@ definitions:
                     contract_address is the contract address of the token
                     Optional.
                     Since: cosmos-sdk v0.50.10-helios-74
-                origin_chain_metadata:
+                chains_metadatas:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        format: uint64
+                      symbol:
+                        type: string
+                      decimals:
+                        type: integer
+                        format: int64
+                      contract_address:
+                        type: string
+                      is_originated:
+                        type: boolean
                   title: |-
-                    from_chain is the chain id of the origin chain
+                    chains_metadatas is the list of chain metadata
                     Optional.
                     Since: cosmos-sdk v0.50.10-helios-76
-                  type: object
-                  properties:
-                    chain_id:
-                      type: string
-                      format: uint64
-                    symbol:
-                      type: string
-                    decimals:
-                      type: integer
-                      format: int64
-                    contract_address:
-                      type: string
               description: |-
                 Metadata represents a struct that describes
                 a basic token.
@@ -67256,23 +67322,27 @@ definitions:
                     contract_address is the contract address of the token
                     Optional.
                     Since: cosmos-sdk v0.50.10-helios-74
-                origin_chain_metadata:
+                chains_metadatas:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        format: uint64
+                      symbol:
+                        type: string
+                      decimals:
+                        type: integer
+                        format: int64
+                      contract_address:
+                        type: string
+                      is_originated:
+                        type: boolean
                   title: |-
-                    from_chain is the chain id of the origin chain
+                    chains_metadatas is the list of chain metadata
                     Optional.
                     Since: cosmos-sdk v0.50.10-helios-76
-                  type: object
-                  properties:
-                    chain_id:
-                      type: string
-                      format: uint64
-                    symbol:
-                      type: string
-                    decimals:
-                      type: integer
-                      format: int64
-                    contract_address:
-                      type: string
               description: |-
                 Metadata represents a struct that describes
                 a basic token.
@@ -67423,23 +67493,27 @@ definitions:
                 contract_address is the contract address of the token
                 Optional.
                 Since: cosmos-sdk v0.50.10-helios-74
-            origin_chain_metadata:
+            chains_metadatas:
+              type: array
+              items:
+                type: object
+                properties:
+                  chain_id:
+                    type: string
+                    format: uint64
+                  symbol:
+                    type: string
+                  decimals:
+                    type: integer
+                    format: int64
+                  contract_address:
+                    type: string
+                  is_originated:
+                    type: boolean
               title: |-
-                from_chain is the chain id of the origin chain
+                chains_metadatas is the list of chain metadata
                 Optional.
                 Since: cosmos-sdk v0.50.10-helios-76
-              type: object
-              properties:
-                chain_id:
-                  type: string
-                  format: uint64
-                symbol:
-                  type: string
-                decimals:
-                  type: integer
-                  format: int64
-                contract_address:
-                  type: string
           description: |-
             Metadata represents a struct that describes
             a basic token.
@@ -67825,23 +67899,27 @@ definitions:
                   contract_address is the contract address of the token
                   Optional.
                   Since: cosmos-sdk v0.50.10-helios-74
-              origin_chain_metadata:
+              chains_metadatas:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                      format: uint64
+                    symbol:
+                      type: string
+                    decimals:
+                      type: integer
+                      format: int64
+                    contract_address:
+                      type: string
+                    is_originated:
+                      type: boolean
                 title: |-
-                  from_chain is the chain id of the origin chain
+                  chains_metadatas is the list of chain metadata
                   Optional.
                   Since: cosmos-sdk v0.50.10-helios-76
-                type: object
-                properties:
-                  chain_id:
-                    type: string
-                    format: uint64
-                  symbol:
-                    type: string
-                  decimals:
-                    type: integer
-                    format: int64
-                  contract_address:
-                    type: string
             description: |-
               Metadata represents a struct that describes
               a basic token.
