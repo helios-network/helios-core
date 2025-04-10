@@ -121,11 +121,14 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 							Exponent: uint32(decimals),
 						},
 					},
-					OriginChainMetadata: &banktypes.OriginChainMetadata{
-						ChainId:         a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId),
-						ContractAddress: common.HexToAddress(claim.TokenContract).String(),
-						Symbol:          symbol,
-						Decimals:        uint32(decimals),
+					ChainsMetadatas: []*banktypes.ChainMetadata{
+						{
+							ChainId:         a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId),
+							ContractAddress: common.HexToAddress(claim.TokenContract).String(),
+							Symbol:          symbol,
+							Decimals:        uint32(decimals),
+							IsOriginated:    true,
+						},
 					},
 				}
 				contractAddr, err := a.keeper.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
@@ -209,6 +212,15 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				fmt.Sprintf("ERC20 symbol %s does not match denom display %s", claim.Symbol, metadata.Display))
 		}
 
+		for _, chainMetadata := range metadata.ChainsMetadatas {
+			if chainMetadata.ChainId == a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId) {
+				metrics.ReportFuncError(a.svcTags)
+				return errors.Wrap(
+					types.ErrInvalid,
+					fmt.Sprintf("ERC20 %s already exists for chain %d", claim.CosmosDenom, chainMetadata.ChainId))
+			}
+		}
+
 		// Token addresses use a very simple mechanism to tell you where to display the decimal point.
 		// The "decimals" field simply tells you how many decimal places there will be.
 		// Cosmos denoms have a system that is much more full featured, with enterprise-ready token denominations.
@@ -243,6 +255,14 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			Denom:              claim.CosmosDenom,
 			IsCosmosOriginated: true,
 		})
+		metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, &banktypes.ChainMetadata{
+			ChainId:         a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId),
+			ContractAddress: common.HexToAddress(claim.TokenContract).String(),
+			Symbol:          claim.Symbol,
+			Decimals:        uint32(decimals),
+			IsOriginated:    false,
+		})
+		a.keeper.bankKeeper.SetDenomMetaData(ctx, metadata)
 	case *types.MsgValsetUpdatedClaim:
 		// TODO here we should check the contents of the validator set against
 		// the store, if they differ we should take some action to indicate to the

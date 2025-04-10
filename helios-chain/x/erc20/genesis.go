@@ -70,6 +70,9 @@ func InitGenesis(
 		if err := coinMetadata.Validate(); err != nil {
 			panic(fmt.Errorf("failed to validate metadata: %w", err))
 		}
+		if metadata, found := bankKeeper.GetDenomMetaData(ctx, pair.Denom); found {
+			coinMetadata.ChainsMetadatas = metadata.ChainsMetadatas
+		}
 		bankKeeper.SetDenomMetaData(ctx, coinMetadata)
 	}
 }

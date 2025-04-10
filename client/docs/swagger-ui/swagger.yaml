@@ -16052,6 +16052,14 @@ paths:
           in: query
           required: false
           type: boolean
+        - name: resolve_symbol
+          description: |-
+            resolve_symbol is the flag to resolve the symbol from the metadata.
+
+            Since: cosmos-sdk 0.50
+          in: query
+          required: false
+          type: boolean
       tags:
         - Query
   /cosmos/bank/v1beta1/balances/{address}/by_denom:
@@ -16117,6 +16125,280 @@ paths:
           type: string
       tags:
         - Query
+  /cosmos/bank/v1beta1/balances/{address}/with_full_metadata:
+    get:
+      operationId: AllBalancesWithFullMetadata
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              balances:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    full_metadata:
+                      type: object
+                      properties:
+                        metadata:
+                          type: object
+                          properties:
+                            description:
+                              type: string
+                            denom_units:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  denom:
+                                    type: string
+                                    description: >-
+                                      denom represents the string name of the
+                                      given denom unit (e.g uatom).
+                                  exponent:
+                                    type: integer
+                                    format: int64
+                                    description: >-
+                                      exponent represents power of 10 exponent
+                                      that one must
+
+                                      raise the base_denom to in order to equal
+                                      the given DenomUnit's denom
+
+                                      1 denom = 10^exponent base_denom
+
+                                      (e.g. with a base_denom of uatom, one can
+                                      create a DenomUnit of 'atom' with
+
+                                      exponent = 6, thus: 1 atom = 10^6 uatom).
+                                  aliases:
+                                    type: array
+                                    items:
+                                      type: string
+                                    title: >-
+                                      aliases is a list of string aliases for
+                                      the given denom
+                                description: >-
+                                  DenomUnit represents a struct that describes a
+                                  given
+
+                                  denomination unit of the basic token.
+                              title: >-
+                                denom_units represents the list of DenomUnit's
+                                for a given coin
+                            base:
+                              type: string
+                              description: >-
+                                base represents the base denom (should be the
+                                DenomUnit with exponent = 0).
+                            display:
+                              type: string
+                              description: >-
+                                display indicates the suggested denom that
+                                should be
+
+                                displayed in clients.
+                            name:
+                              type: string
+                              description: 'Since: cosmos-sdk 0.43'
+                              title: >-
+                                name defines the name of the token (eg: Cosmos
+                                Atom)
+                            symbol:
+                              type: string
+                              description: >-
+                                symbol is the token symbol usually shown on
+                                exchanges (eg: ATOM). This can
+
+                                be the same as the display.
+
+
+                                Since: cosmos-sdk 0.43
+                            uri:
+                              type: string
+                              description: >-
+                                URI to a document (on or off-chain) that
+                                contains additional information. Optional.
+
+
+                                Since: cosmos-sdk 0.46
+                            uri_hash:
+                              type: string
+                              description: >-
+                                URIHash is a sha256 hash of a document pointed
+                                by URI. It's used to verify that
+
+                                the document didn't change. Optional.
+
+
+                                Since: cosmos-sdk 0.46
+                            decimals:
+                              type: integer
+                              format: int64
+                              description: 'Since: cosmos-sdk 0.50'
+                              title: >-
+                                Decimals represent the number of decimals use to
+                                represent token amount on chain
+                            logo:
+                              type: string
+                              title: >-
+                                Logo represent the base64 logo in png format
+                                with size 200x200 on chain.
+
+                                Optional.
+
+                                Since: cosmos-sdk v0.50.10-helios-72
+                            contract_address:
+                              type: string
+                              title: >-
+                                contract_address is the contract address of the
+                                token
+
+                                Optional.
+
+                                Since: cosmos-sdk v0.50.10-helios-74
+                            origin_chain_metadata:
+                              title: |-
+                                from_chain is the chain id of the origin chain
+                                Optional.
+                                Since: cosmos-sdk v0.50.10-helios-76
+                              type: object
+                              properties:
+                                chain_id:
+                                  type: string
+                                  format: uint64
+                                symbol:
+                                  type: string
+                                decimals:
+                                  type: integer
+                                  format: int64
+                                contract_address:
+                                  type: string
+                          description: |-
+                            Metadata represents a struct that describes
+                            a basic token.
+                        holders_count:
+                          type: string
+                          format: uint64
+                        total_supply:
+                          type: string
+                    balance:
+                      type: string
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
   /cosmos/bank/v1beta1/denom_owners/{denom}:
     get:
       summary: >-
@@ -16176,7 +16458,6 @@ paths:
 
                     Since: cosmos-sdk 0.46
               pagination:
-                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -16194,6 +16475,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryDenomOwnersResponse defines the RPC response of a DenomOwners
               RPC query.
@@ -16340,7 +16631,6 @@ paths:
 
                     Since: cosmos-sdk 0.46
               pagination:
-                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -16358,6 +16648,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryDenomOwnersByQueryResponse defines the RPC response of a
               DenomOwnersByQuery RPC query.
@@ -16511,6 +16811,290 @@ paths:
           type: string
       tags:
         - Query
+  /cosmos/bank/v1beta1/denoms_by_chain/{chain_id}:
+    get:
+      summary: >-
+        DenomsByChainId allows to retrieve all the denoms originating from a
+        specific chain
+      operationId: DenomsByChainId
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              metadatas:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    metadata:
+                      type: object
+                      properties:
+                        description:
+                          type: string
+                        denom_units:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                                description: >-
+                                  denom represents the string name of the given
+                                  denom unit (e.g uatom).
+                              exponent:
+                                type: integer
+                                format: int64
+                                description: >-
+                                  exponent represents power of 10 exponent that
+                                  one must
+
+                                  raise the base_denom to in order to equal the
+                                  given DenomUnit's denom
+
+                                  1 denom = 10^exponent base_denom
+
+                                  (e.g. with a base_denom of uatom, one can
+                                  create a DenomUnit of 'atom' with
+
+                                  exponent = 6, thus: 1 atom = 10^6 uatom).
+                              aliases:
+                                type: array
+                                items:
+                                  type: string
+                                title: >-
+                                  aliases is a list of string aliases for the
+                                  given denom
+                            description: >-
+                              DenomUnit represents a struct that describes a
+                              given
+
+                              denomination unit of the basic token.
+                          title: >-
+                            denom_units represents the list of DenomUnit's for a
+                            given coin
+                        base:
+                          type: string
+                          description: >-
+                            base represents the base denom (should be the
+                            DenomUnit with exponent = 0).
+                        display:
+                          type: string
+                          description: |-
+                            display indicates the suggested denom that should be
+                            displayed in clients.
+                        name:
+                          type: string
+                          description: 'Since: cosmos-sdk 0.43'
+                          title: 'name defines the name of the token (eg: Cosmos Atom)'
+                        symbol:
+                          type: string
+                          description: >-
+                            symbol is the token symbol usually shown on
+                            exchanges (eg: ATOM). This can
+
+                            be the same as the display.
+
+
+                            Since: cosmos-sdk 0.43
+                        uri:
+                          type: string
+                          description: >-
+                            URI to a document (on or off-chain) that contains
+                            additional information. Optional.
+
+
+                            Since: cosmos-sdk 0.46
+                        uri_hash:
+                          type: string
+                          description: >-
+                            URIHash is a sha256 hash of a document pointed by
+                            URI. It's used to verify that
+
+                            the document didn't change. Optional.
+
+
+                            Since: cosmos-sdk 0.46
+                        decimals:
+                          type: integer
+                          format: int64
+                          description: 'Since: cosmos-sdk 0.50'
+                          title: >-
+                            Decimals represent the number of decimals use to
+                            represent token amount on chain
+                        logo:
+                          type: string
+                          title: >-
+                            Logo represent the base64 logo in png format with
+                            size 200x200 on chain.
+
+                            Optional.
+
+                            Since: cosmos-sdk v0.50.10-helios-72
+                        contract_address:
+                          type: string
+                          title: >-
+                            contract_address is the contract address of the
+                            token
+
+                            Optional.
+
+                            Since: cosmos-sdk v0.50.10-helios-74
+                        origin_chain_metadata:
+                          title: |-
+                            from_chain is the chain id of the origin chain
+                            Optional.
+                            Since: cosmos-sdk v0.50.10-helios-76
+                          type: object
+                          properties:
+                            chain_id:
+                              type: string
+                              format: uint64
+                            symbol:
+                              type: string
+                            decimals:
+                              type: integer
+                              format: int64
+                            contract_address:
+                              type: string
+                      description: |-
+                        Metadata represents a struct that describes
+                        a basic token.
+                    holders_count:
+                      type: string
+                      format: uint64
+                    total_supply:
+                      type: string
+                title: >-
+                  metadatas provides the full metadata for all the denoms
+                  originating from the specified chain
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+                title: pagination defines the pagination in the response
+            title: >-
+              QueryDenomsByChainIdResponse is the response for
+              Query/DenomsByChainId
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: chain_id
+          description: chainId is the origin chain id to filter
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+        - name: order_by_holders_count
+          description: >-
+            order_by_holders_count indicates if the results should be sorted by
+            holders count (descending).
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
   /cosmos/bank/v1beta1/denoms_full_metadata:
     get:
       summary: |-
@@ -16632,6 +17216,32 @@ paths:
                             Optional.
 
                             Since: cosmos-sdk v0.50.10-helios-72
+                        contract_address:
+                          type: string
+                          title: >-
+                            contract_address is the contract address of the
+                            token
+
+                            Optional.
+
+                            Since: cosmos-sdk v0.50.10-helios-74
+                        origin_chain_metadata:
+                          title: |-
+                            from_chain is the chain id of the origin chain
+                            Optional.
+                            Since: cosmos-sdk v0.50.10-helios-76
+                          type: object
+                          properties:
+                            chain_id:
+                              type: string
+                              format: uint64
+                            symbol:
+                              type: string
+                            decimals:
+                              type: integer
+                              format: int64
+                            contract_address:
+                              type: string
                       description: |-
                         Metadata represents a struct that describes
                         a basic token.
@@ -16644,7 +17254,6 @@ paths:
                   metadata provides the client information for all the
                   registered tokens.
               pagination:
-                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -16662,6 +17271,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryDenomsFullMetadataResponse is the response type for the
               Query/DenomsFullMetadata RPC
@@ -16865,6 +17484,29 @@ paths:
                           Optional.
 
                           Since: cosmos-sdk v0.50.10-helios-72
+                      contract_address:
+                        type: string
+                        title: |-
+                          contract_address is the contract address of the token
+                          Optional.
+                          Since: cosmos-sdk v0.50.10-helios-74
+                      origin_chain_metadata:
+                        title: |-
+                          from_chain is the chain id of the origin chain
+                          Optional.
+                          Since: cosmos-sdk v0.50.10-helios-76
+                        type: object
+                        properties:
+                          chain_id:
+                            type: string
+                            format: uint64
+                          symbol:
+                            type: string
+                          decimals:
+                            type: integer
+                            format: int64
+                          contract_address:
+                            type: string
                     description: |-
                       Metadata represents a struct that describes
                       a basic token.
@@ -17028,6 +17670,29 @@ paths:
                           Optional.
 
                           Since: cosmos-sdk v0.50.10-helios-72
+                      contract_address:
+                        type: string
+                        title: |-
+                          contract_address is the contract address of the token
+                          Optional.
+                          Since: cosmos-sdk v0.50.10-helios-74
+                      origin_chain_metadata:
+                        title: |-
+                          from_chain is the chain id of the origin chain
+                          Optional.
+                          Since: cosmos-sdk v0.50.10-helios-76
+                        type: object
+                        properties:
+                          chain_id:
+                            type: string
+                            format: uint64
+                          symbol:
+                            type: string
+                          decimals:
+                            type: integer
+                            format: int64
+                          contract_address:
+                            type: string
                     description: |-
                       Metadata represents a struct that describes
                       a basic token.
@@ -17191,6 +17856,29 @@ paths:
                         Optional.
 
                         Since: cosmos-sdk v0.50.10-helios-72
+                    contract_address:
+                      type: string
+                      title: |-
+                        contract_address is the contract address of the token
+                        Optional.
+                        Since: cosmos-sdk v0.50.10-helios-74
+                    origin_chain_metadata:
+                      title: |-
+                        from_chain is the chain id of the origin chain
+                        Optional.
+                        Since: cosmos-sdk v0.50.10-helios-76
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                          format: uint64
+                        symbol:
+                          type: string
+                        decimals:
+                          type: integer
+                          format: int64
+                        contract_address:
+                          type: string
                   description: |-
                     Metadata represents a struct that describes
                     a basic token.
@@ -17198,7 +17886,6 @@ paths:
                   metadata provides the client information for all the
                   registered tokens.
               pagination:
-                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -17216,6 +17903,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryDenomsMetadataResponse is the response type for the
               Query/DenomsMetadata RPC
@@ -17414,6 +18111,29 @@ paths:
                       Optional.
 
                       Since: cosmos-sdk v0.50.10-helios-72
+                  contract_address:
+                    type: string
+                    title: |-
+                      contract_address is the contract address of the token
+                      Optional.
+                      Since: cosmos-sdk v0.50.10-helios-74
+                  origin_chain_metadata:
+                    title: |-
+                      from_chain is the chain id of the origin chain
+                      Optional.
+                      Since: cosmos-sdk v0.50.10-helios-76
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        format: uint64
+                      symbol:
+                        type: string
+                      decimals:
+                        type: integer
+                        format: int64
+                      contract_address:
+                        type: string
                 description: |-
                   Metadata represents a struct that describes
                   a basic token.
@@ -17566,6 +18286,29 @@ paths:
                       Optional.
 
                       Since: cosmos-sdk v0.50.10-helios-72
+                  contract_address:
+                    type: string
+                    title: |-
+                      contract_address is the contract address of the token
+                      Optional.
+                      Since: cosmos-sdk v0.50.10-helios-74
+                  origin_chain_metadata:
+                    title: |-
+                      from_chain is the chain id of the origin chain
+                      Optional.
+                      Since: cosmos-sdk v0.50.10-helios-76
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        format: uint64
+                      symbol:
+                        type: string
+                      decimals:
+                        type: integer
+                        format: int64
+                      contract_address:
+                        type: string
                 description: |-
                   Metadata represents a struct that describes
                   a basic token.
@@ -17710,11 +18453,6 @@ paths:
 
                     sendable).
               pagination:
-                description: >-
-                  pagination defines the pagination in the response. This field
-                  is only
-
-                  populated if the denoms field in the request is empty.
                 type: object
                 properties:
                   next_key:
@@ -17732,6 +18470,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QuerySendEnabledResponse defines the RPC response of a SendEnable
               query.
@@ -17870,7 +18618,6 @@ paths:
                     signatures required by gogoproto.
                 description: balances is the spendable balances of all the coins.
               pagination:
-                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -17888,6 +18635,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QuerySpendableBalancesResponse defines the gRPC response structure
               for querying
@@ -18096,10 +18853,6 @@ paths:
                     signatures required by gogoproto.
                 title: supply is the supply of the coins
               pagination:
-                description: |-
-                  pagination defines the pagination in the response.
-
-                  Since: cosmos-sdk 0.43
                 type: object
                 properties:
                   next_key:
@@ -18117,6 +18870,16 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             title: >-
               QueryTotalSupplyResponse is the response type for the
               Query/TotalSupply RPC
@@ -65076,6 +65839,29 @@ definitions:
               Optional.
 
               Since: cosmos-sdk v0.50.10-helios-72
+          contract_address:
+            type: string
+            title: |-
+              contract_address is the contract address of the token
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-74
+          origin_chain_metadata:
+            title: |-
+              from_chain is the chain id of the origin chain
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-76
+            type: object
+            properties:
+              chain_id:
+                type: string
+                format: uint64
+              symbol:
+                type: string
+              decimals:
+                type: integer
+                format: int64
+              contract_address:
+                type: string
         description: |-
           Metadata represents a struct that describes
           a basic token.
@@ -65181,9 +65967,45 @@ definitions:
           Optional.
 
           Since: cosmos-sdk v0.50.10-helios-72
+      contract_address:
+        type: string
+        title: |-
+          contract_address is the contract address of the token
+          Optional.
+          Since: cosmos-sdk v0.50.10-helios-74
+      origin_chain_metadata:
+        title: |-
+          from_chain is the chain id of the origin chain
+          Optional.
+          Since: cosmos-sdk v0.50.10-helios-76
+        type: object
+        properties:
+          chain_id:
+            type: string
+            format: uint64
+          symbol:
+            type: string
+          decimals:
+            type: integer
+            format: int64
+          contract_address:
+            type: string
     description: |-
       Metadata represents a struct that describes
       a basic token.
+  cosmos.bank.v1beta1.OriginChainMetadata:
+    type: object
+    properties:
+      chain_id:
+        type: string
+        format: uint64
+      symbol:
+        type: string
+      decimals:
+        type: integer
+        format: int64
+      contract_address:
+        type: string
   cosmos.bank.v1beta1.Params:
     type: object
     properties:
@@ -65258,6 +66080,178 @@ definitions:
       RPC
 
       method.
+  cosmos.bank.v1beta1.QueryAllBalancesWithFullMetadataResponse:
+    type: object
+    properties:
+      balances:
+        type: array
+        items:
+          type: object
+          properties:
+            full_metadata:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  properties:
+                    description:
+                      type: string
+                    denom_units:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            description: >-
+                              denom represents the string name of the given
+                              denom unit (e.g uatom).
+                          exponent:
+                            type: integer
+                            format: int64
+                            description: >-
+                              exponent represents power of 10 exponent that one
+                              must
+
+                              raise the base_denom to in order to equal the
+                              given DenomUnit's denom
+
+                              1 denom = 10^exponent base_denom
+
+                              (e.g. with a base_denom of uatom, one can create a
+                              DenomUnit of 'atom' with
+
+                              exponent = 6, thus: 1 atom = 10^6 uatom).
+                          aliases:
+                            type: array
+                            items:
+                              type: string
+                            title: >-
+                              aliases is a list of string aliases for the given
+                              denom
+                        description: |-
+                          DenomUnit represents a struct that describes a given
+                          denomination unit of the basic token.
+                      title: >-
+                        denom_units represents the list of DenomUnit's for a
+                        given coin
+                    base:
+                      type: string
+                      description: >-
+                        base represents the base denom (should be the DenomUnit
+                        with exponent = 0).
+                    display:
+                      type: string
+                      description: |-
+                        display indicates the suggested denom that should be
+                        displayed in clients.
+                    name:
+                      type: string
+                      description: 'Since: cosmos-sdk 0.43'
+                      title: 'name defines the name of the token (eg: Cosmos Atom)'
+                    symbol:
+                      type: string
+                      description: >-
+                        symbol is the token symbol usually shown on exchanges
+                        (eg: ATOM). This can
+
+                        be the same as the display.
+
+
+                        Since: cosmos-sdk 0.43
+                    uri:
+                      type: string
+                      description: >-
+                        URI to a document (on or off-chain) that contains
+                        additional information. Optional.
+
+
+                        Since: cosmos-sdk 0.46
+                    uri_hash:
+                      type: string
+                      description: >-
+                        URIHash is a sha256 hash of a document pointed by URI.
+                        It's used to verify that
+
+                        the document didn't change. Optional.
+
+
+                        Since: cosmos-sdk 0.46
+                    decimals:
+                      type: integer
+                      format: int64
+                      description: 'Since: cosmos-sdk 0.50'
+                      title: >-
+                        Decimals represent the number of decimals use to
+                        represent token amount on chain
+                    logo:
+                      type: string
+                      title: >-
+                        Logo represent the base64 logo in png format with size
+                        200x200 on chain.
+
+                        Optional.
+
+                        Since: cosmos-sdk v0.50.10-helios-72
+                    contract_address:
+                      type: string
+                      title: |-
+                        contract_address is the contract address of the token
+                        Optional.
+                        Since: cosmos-sdk v0.50.10-helios-74
+                    origin_chain_metadata:
+                      title: |-
+                        from_chain is the chain id of the origin chain
+                        Optional.
+                        Since: cosmos-sdk v0.50.10-helios-76
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                          format: uint64
+                        symbol:
+                          type: string
+                        decimals:
+                          type: integer
+                          format: int64
+                        contract_address:
+                          type: string
+                  description: |-
+                    Metadata represents a struct that describes
+                    a basic token.
+                holders_count:
+                  type: string
+                  format: uint64
+                total_supply:
+                  type: string
+            balance:
+              type: string
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
   cosmos.bank.v1beta1.QueryBalanceResponse:
     type: object
     properties:
@@ -65381,6 +66375,29 @@ definitions:
                   Optional.
 
                   Since: cosmos-sdk v0.50.10-helios-72
+              contract_address:
+                type: string
+                title: |-
+                  contract_address is the contract address of the token
+                  Optional.
+                  Since: cosmos-sdk v0.50.10-helios-74
+              origin_chain_metadata:
+                title: |-
+                  from_chain is the chain id of the origin chain
+                  Optional.
+                  Since: cosmos-sdk v0.50.10-helios-76
+                type: object
+                properties:
+                  chain_id:
+                    type: string
+                    format: uint64
+                  symbol:
+                    type: string
+                  decimals:
+                    type: integer
+                    format: int64
+                  contract_address:
+                    type: string
             description: |-
               Metadata represents a struct that describes
               a basic token.
@@ -65503,6 +66520,29 @@ definitions:
                   Optional.
 
                   Since: cosmos-sdk v0.50.10-helios-72
+              contract_address:
+                type: string
+                title: |-
+                  contract_address is the contract address of the token
+                  Optional.
+                  Since: cosmos-sdk v0.50.10-helios-74
+              origin_chain_metadata:
+                title: |-
+                  from_chain is the chain id of the origin chain
+                  Optional.
+                  Since: cosmos-sdk v0.50.10-helios-76
+                type: object
+                properties:
+                  chain_id:
+                    type: string
+                    format: uint64
+                  symbol:
+                    type: string
+                  decimals:
+                    type: integer
+                    format: int64
+                  contract_address:
+                    type: string
             description: |-
               Metadata represents a struct that describes
               a basic token.
@@ -65619,6 +66659,29 @@ definitions:
               Optional.
 
               Since: cosmos-sdk v0.50.10-helios-72
+          contract_address:
+            type: string
+            title: |-
+              contract_address is the contract address of the token
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-74
+          origin_chain_metadata:
+            title: |-
+              from_chain is the chain id of the origin chain
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-76
+            type: object
+            properties:
+              chain_id:
+                type: string
+                format: uint64
+              symbol:
+                type: string
+              decimals:
+                type: integer
+                format: int64
+              contract_address:
+                type: string
         description: |-
           Metadata represents a struct that describes
           a basic token.
@@ -65728,6 +66791,29 @@ definitions:
               Optional.
 
               Since: cosmos-sdk v0.50.10-helios-72
+          contract_address:
+            type: string
+            title: |-
+              contract_address is the contract address of the token
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-74
+          origin_chain_metadata:
+            title: |-
+              from_chain is the chain id of the origin chain
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-76
+            type: object
+            properties:
+              chain_id:
+                type: string
+                format: uint64
+              symbol:
+                type: string
+              decimals:
+                type: integer
+                format: int64
+              contract_address:
+                type: string
         description: |-
           Metadata represents a struct that describes
           a basic token.
@@ -65774,7 +66860,6 @@ definitions:
 
             Since: cosmos-sdk 0.46
       pagination:
-        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -65792,6 +66877,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryDenomOwnersByQueryResponse defines the RPC response of a
       DenomOwnersByQuery RPC query.
@@ -65846,7 +66939,6 @@ definitions:
 
             Since: cosmos-sdk 0.46
       pagination:
-        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -65864,12 +66956,191 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryDenomOwnersResponse defines the RPC response of a DenomOwners RPC
       query.
 
 
       Since: cosmos-sdk 0.46
+  cosmos.bank.v1beta1.QueryDenomsByChainIdResponse:
+    type: object
+    properties:
+      metadatas:
+        type: array
+        items:
+          type: object
+          properties:
+            metadata:
+              type: object
+              properties:
+                description:
+                  type: string
+                denom_units:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                        description: >-
+                          denom represents the string name of the given denom
+                          unit (e.g uatom).
+                      exponent:
+                        type: integer
+                        format: int64
+                        description: >-
+                          exponent represents power of 10 exponent that one must
+
+                          raise the base_denom to in order to equal the given
+                          DenomUnit's denom
+
+                          1 denom = 10^exponent base_denom
+
+                          (e.g. with a base_denom of uatom, one can create a
+                          DenomUnit of 'atom' with
+
+                          exponent = 6, thus: 1 atom = 10^6 uatom).
+                      aliases:
+                        type: array
+                        items:
+                          type: string
+                        title: >-
+                          aliases is a list of string aliases for the given
+                          denom
+                    description: |-
+                      DenomUnit represents a struct that describes a given
+                      denomination unit of the basic token.
+                  title: >-
+                    denom_units represents the list of DenomUnit's for a given
+                    coin
+                base:
+                  type: string
+                  description: >-
+                    base represents the base denom (should be the DenomUnit with
+                    exponent = 0).
+                display:
+                  type: string
+                  description: |-
+                    display indicates the suggested denom that should be
+                    displayed in clients.
+                name:
+                  type: string
+                  description: 'Since: cosmos-sdk 0.43'
+                  title: 'name defines the name of the token (eg: Cosmos Atom)'
+                symbol:
+                  type: string
+                  description: >-
+                    symbol is the token symbol usually shown on exchanges (eg:
+                    ATOM). This can
+
+                    be the same as the display.
+
+
+                    Since: cosmos-sdk 0.43
+                uri:
+                  type: string
+                  description: >-
+                    URI to a document (on or off-chain) that contains additional
+                    information. Optional.
+
+
+                    Since: cosmos-sdk 0.46
+                uri_hash:
+                  type: string
+                  description: >-
+                    URIHash is a sha256 hash of a document pointed by URI. It's
+                    used to verify that
+
+                    the document didn't change. Optional.
+
+
+                    Since: cosmos-sdk 0.46
+                decimals:
+                  type: integer
+                  format: int64
+                  description: 'Since: cosmos-sdk 0.50'
+                  title: >-
+                    Decimals represent the number of decimals use to represent
+                    token amount on chain
+                logo:
+                  type: string
+                  title: >-
+                    Logo represent the base64 logo in png format with size
+                    200x200 on chain.
+
+                    Optional.
+
+                    Since: cosmos-sdk v0.50.10-helios-72
+                contract_address:
+                  type: string
+                  title: |-
+                    contract_address is the contract address of the token
+                    Optional.
+                    Since: cosmos-sdk v0.50.10-helios-74
+                origin_chain_metadata:
+                  title: |-
+                    from_chain is the chain id of the origin chain
+                    Optional.
+                    Since: cosmos-sdk v0.50.10-helios-76
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                      format: uint64
+                    symbol:
+                      type: string
+                    decimals:
+                      type: integer
+                      format: int64
+                    contract_address:
+                      type: string
+              description: |-
+                Metadata represents a struct that describes
+                a basic token.
+            holders_count:
+              type: string
+              format: uint64
+            total_supply:
+              type: string
+        title: >-
+          metadatas provides the full metadata for all the denoms originating
+          from the specified chain
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+        title: pagination defines the pagination in the response
+    title: QueryDenomsByChainIdResponse is the response for Query/DenomsByChainId
   cosmos.bank.v1beta1.QueryDenomsFullMetadataResponse:
     type: object
     properties:
@@ -65979,6 +67250,29 @@ definitions:
                     Optional.
 
                     Since: cosmos-sdk v0.50.10-helios-72
+                contract_address:
+                  type: string
+                  title: |-
+                    contract_address is the contract address of the token
+                    Optional.
+                    Since: cosmos-sdk v0.50.10-helios-74
+                origin_chain_metadata:
+                  title: |-
+                    from_chain is the chain id of the origin chain
+                    Optional.
+                    Since: cosmos-sdk v0.50.10-helios-76
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                      format: uint64
+                    symbol:
+                      type: string
+                    decimals:
+                      type: integer
+                      format: int64
+                    contract_address:
+                      type: string
               description: |-
                 Metadata represents a struct that describes
                 a basic token.
@@ -65991,7 +67285,6 @@ definitions:
           metadata provides the client information for all the registered
           tokens.
       pagination:
-        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -66009,6 +67302,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryDenomsFullMetadataResponse is the response type for the
       Query/DenomsFullMetadata RPC
@@ -66116,6 +67417,29 @@ definitions:
                 Optional.
 
                 Since: cosmos-sdk v0.50.10-helios-72
+            contract_address:
+              type: string
+              title: |-
+                contract_address is the contract address of the token
+                Optional.
+                Since: cosmos-sdk v0.50.10-helios-74
+            origin_chain_metadata:
+              title: |-
+                from_chain is the chain id of the origin chain
+                Optional.
+                Since: cosmos-sdk v0.50.10-helios-76
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                  format: uint64
+                symbol:
+                  type: string
+                decimals:
+                  type: integer
+                  format: int64
+                contract_address:
+                  type: string
           description: |-
             Metadata represents a struct that describes
             a basic token.
@@ -66123,7 +67447,6 @@ definitions:
           metadata provides the client information for all the registered
           tokens.
       pagination:
-        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -66141,6 +67464,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryDenomsMetadataResponse is the response type for the
       Query/DenomsMetadata RPC
@@ -66202,9 +67533,6 @@ definitions:
 
             sendable).
       pagination:
-        description: |-
-          pagination defines the pagination in the response. This field is only
-          populated if the denoms field in the request is empty.
         type: object
         properties:
           next_key:
@@ -66222,6 +67550,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: |-
       QuerySendEnabledResponse defines the RPC response of a SendEnable query.
 
@@ -66268,7 +67604,6 @@ definitions:
             signatures required by gogoproto.
         description: balances is the spendable balances of all the coins.
       pagination:
-        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -66286,6 +67621,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QuerySpendableBalancesResponse defines the gRPC response structure for
       querying
@@ -66331,10 +67674,6 @@ definitions:
             signatures required by gogoproto.
         title: supply is the supply of the coins
       pagination:
-        description: |-
-          pagination defines the pagination in the response.
-
-          Since: cosmos-sdk 0.43
         type: object
         properties:
           next_key:
@@ -66352,6 +67691,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     title: >-
       QueryTotalSupplyResponse is the response type for the Query/TotalSupply
       RPC
@@ -66367,6 +67714,144 @@ definitions:
     description: |-
       SendEnabled maps coin denom to a send_enabled status (whether a denom is
       sendable).
+  cosmos.bank.v1beta1.TokenBalanceWithFullMetadata:
+    type: object
+    properties:
+      full_metadata:
+        type: object
+        properties:
+          metadata:
+            type: object
+            properties:
+              description:
+                type: string
+              denom_units:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                      description: >-
+                        denom represents the string name of the given denom unit
+                        (e.g uatom).
+                    exponent:
+                      type: integer
+                      format: int64
+                      description: >-
+                        exponent represents power of 10 exponent that one must
+
+                        raise the base_denom to in order to equal the given
+                        DenomUnit's denom
+
+                        1 denom = 10^exponent base_denom
+
+                        (e.g. with a base_denom of uatom, one can create a
+                        DenomUnit of 'atom' with
+
+                        exponent = 6, thus: 1 atom = 10^6 uatom).
+                    aliases:
+                      type: array
+                      items:
+                        type: string
+                      title: aliases is a list of string aliases for the given denom
+                  description: |-
+                    DenomUnit represents a struct that describes a given
+                    denomination unit of the basic token.
+                title: >-
+                  denom_units represents the list of DenomUnit's for a given
+                  coin
+              base:
+                type: string
+                description: >-
+                  base represents the base denom (should be the DenomUnit with
+                  exponent = 0).
+              display:
+                type: string
+                description: |-
+                  display indicates the suggested denom that should be
+                  displayed in clients.
+              name:
+                type: string
+                description: 'Since: cosmos-sdk 0.43'
+                title: 'name defines the name of the token (eg: Cosmos Atom)'
+              symbol:
+                type: string
+                description: >-
+                  symbol is the token symbol usually shown on exchanges (eg:
+                  ATOM). This can
+
+                  be the same as the display.
+
+
+                  Since: cosmos-sdk 0.43
+              uri:
+                type: string
+                description: >-
+                  URI to a document (on or off-chain) that contains additional
+                  information. Optional.
+
+
+                  Since: cosmos-sdk 0.46
+              uri_hash:
+                type: string
+                description: >-
+                  URIHash is a sha256 hash of a document pointed by URI. It's
+                  used to verify that
+
+                  the document didn't change. Optional.
+
+
+                  Since: cosmos-sdk 0.46
+              decimals:
+                type: integer
+                format: int64
+                description: 'Since: cosmos-sdk 0.50'
+                title: >-
+                  Decimals represent the number of decimals use to represent
+                  token amount on chain
+              logo:
+                type: string
+                title: >-
+                  Logo represent the base64 logo in png format with size 200x200
+                  on chain.
+
+                  Optional.
+
+                  Since: cosmos-sdk v0.50.10-helios-72
+              contract_address:
+                type: string
+                title: |-
+                  contract_address is the contract address of the token
+                  Optional.
+                  Since: cosmos-sdk v0.50.10-helios-74
+              origin_chain_metadata:
+                title: |-
+                  from_chain is the chain id of the origin chain
+                  Optional.
+                  Since: cosmos-sdk v0.50.10-helios-76
+                type: object
+                properties:
+                  chain_id:
+                    type: string
+                    format: uint64
+                  symbol:
+                    type: string
+                  decimals:
+                    type: integer
+                    format: int64
+                  contract_address:
+                    type: string
+            description: |-
+              Metadata represents a struct that describes
+              a basic token.
+          holders_count:
+            type: string
+            format: uint64
+          total_supply:
+            type: string
+      balance:
+        type: string
   cosmos.base.tendermint.v1beta1.ABCIQueryResponse:
     type: object
     properties:

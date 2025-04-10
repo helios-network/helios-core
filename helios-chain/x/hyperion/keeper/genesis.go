@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/x/hyperion/types"
@@ -157,8 +158,31 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		}
 
 		// populate state with cosmos originated denom-erc20 mapping
+		chainId := k.GetChainIdFromHyperionId(ctx, subState.HyperionId)
+
 		for _, item := range subState.TokenAddressToDenoms {
 			k.SetToken(ctx, subState.HyperionId, item)
+			metadata, found := k.bankKeeper.GetDenomMetaData(ctx, item.Denom)
+
+			chainMetadata := &banktypes.ChainMetadata{
+				ChainId:         chainId,
+				ContractAddress: common.HexToAddress(item.TokenAddress).String(),
+				Symbol:          metadata.Symbol,
+				Decimals:        uint32(metadata.Decimals),
+				IsOriginated:    !item.IsCosmosOriginated,
+			}
+
+			if found {
+				metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, chainMetadata)
+				k.bankKeeper.SetDenomMetaData(ctx, metadata)
+			} else {
+				k.bankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
+					Base: item.Denom,
+					ChainsMetadatas: []*banktypes.ChainMetadata{
+						chainMetadata,
+					},
+				})
+			}
 		}
 
 		for _, blacklistAddress := range subState.EthereumBlacklist {
