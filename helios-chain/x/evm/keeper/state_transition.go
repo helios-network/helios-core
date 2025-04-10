@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"math/big"
+	"slices"
 
 	cmttypes "github.com/cometbft/cometbft/types"
 
@@ -15,6 +16,8 @@ import (
 
 	evmoscore "helios-core/helios-chain/x/evm/core/core"
 	"helios-core/helios-chain/x/evm/core/vm"
+
+	erc20types "helios-core/helios-chain/x/erc20/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -364,7 +367,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 		ret, _, leftoverGas, vmErr = evm.Create(sender, msg.Data(), leftoverGas, msg.Value())
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
 		// hook to register contract for revenue distribution
-		if vmErr == nil {
+		if vmErr == nil && sender.Address().String() != erc20types.ModuleAddress.String() && !slices.Contains(cfg.Params.ActiveStaticPrecompiles, sender.Address().String()) {
 			contractAddress := crypto.CreateAddress(sender.Address(), msg.Nonce())
 			if err := k.hooks.PostContractCreation(ctx, contractAddress, sdk.AccAddress(sender.Address().Bytes())); err != nil {
 				return nil, errorsmod.Wrap(err, "failed to register contract for revenue distribution")
