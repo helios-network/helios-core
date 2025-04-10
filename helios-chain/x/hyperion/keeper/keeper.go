@@ -6,6 +6,7 @@ import (
 
 	cmn "helios-core/helios-chain/precompiles/common"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	logoskeeper "helios-core/helios-chain/x/logos/keeper"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -37,6 +38,7 @@ type Keeper struct {
 	DistKeeper     distrkeeper.Keeper
 	SlashingKeeper types.SlashingKeeper
 	erc20Keeper    erc20keeper.Keeper
+	logosKeeper    logoskeeper.Keeper
 
 	AttestationHandler interface {
 		Handle(sdk.Context, types.EthereumClaim) error
@@ -67,6 +69,7 @@ func NewKeeper(
 	authority string,
 	accountKeeper keeper.AccountKeeper,
 	erc20Keeper erc20keeper.Keeper,
+	logosKeeper logoskeeper.Keeper,
 ) Keeper {
 
 	txConfig, err := authtx.NewTxConfigWithOptions(cdc, authtx.ConfigOptions{})
@@ -90,6 +93,7 @@ func NewKeeper(
 		},
 		accountKeeper: accountKeeper,
 		erc20Keeper:   erc20Keeper,
+		logosKeeper:   logosKeeper,
 		txDecoder:     txConfig.TxDecoder(),
 	}
 
