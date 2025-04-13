@@ -1135,6 +1135,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
 			app.RevenueKeeper.Hooks(),
+			app.Erc20Keeper.Hooks(),
 		),
 	)
 }
