@@ -15,8 +15,6 @@ import (
 
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
-	rpctypes "helios-core/helios-chain/rpc/types"
-
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
@@ -136,13 +134,13 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				}
 				////////////////////////////////////////////////////////
 				// Generate logo
-				base64Logo, err := rpctypes.GenerateTokenLogoBase64(symbol)
-				if err == nil {
-					logoHash, err := a.keeper.logosKeeper.StoreLogo(ctx, base64Logo)
-					if err == nil {
-						coinMetadata.Logo = logoHash
-					}
-				}
+				// base64Logo, err := rpctypes.GenerateTokenLogoBase64(symbol)
+				// if err == nil {
+				// 	logoHash, err := a.keeper.logosKeeper.StoreLogo(ctx, base64Logo)
+				// 	if err == nil {
+				// 		coinMetadata.Logo = logoHash
+				// 	}
+				// }
 				////////////////////////////////////////////////////////
 				contractAddr, err := a.keeper.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
 				if err != nil {

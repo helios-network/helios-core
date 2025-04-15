@@ -50,7 +50,23 @@ message TokenAddressToDenom {
   string chain_id = 1;
   string token_address = 2;
   string denom = 3;
-  bool is_cosmos_originated = 4;
+  string symbol = 4;
+  uint64 decimals = 5;
+  bool is_cosmos_originated = 6;
+  bool is_concensus_token = 7;
+}
+
+message HolderWithAmount {
+  string address = 1;
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message TokenAddressToDenomWithDefaultHolders {
+  TokenAddressToDenom token_address_to_denom = 1;
+  repeated HolderWithAmount default_holders = 2;
 }
 
 message TokenMetadata {

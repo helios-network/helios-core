@@ -1321,9 +1321,9 @@ func initGenesisOrder() []string {
 
 		// Helios modules
 		tokenfactorytypes.ModuleName,
+		erc20types.ModuleName,
 		hyperiontypes.ModuleName,
 		logostypes.ModuleName,
-		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,
 		chronostypes.ModuleName,

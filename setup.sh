@@ -49,7 +49,7 @@ done
 
 # Integrate accounts into the genesis block with specifical balance
 for key in "${KEYS[@]}"; do
-    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend="local") 1000000000000000000000ahelios --keyring-backend="local"
+    heliades add-genesis-account --chain-id $CHAINID $(heliades keys show $key -a --keyring-backend="local") 1000000000000000000000ahelios,10000000000000000000ueth --keyring-backend="local"
 done
 
 echo "Signing genesis transaction"

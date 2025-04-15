@@ -17,13 +17,14 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	"helios-core/helios-chain/x/evm/core/vm"
 
 	evmostypes "helios-core/helios-chain/types"
 	evmante "helios-core/helios-chain/x/evm/ante"
@@ -319,7 +320,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	gasCap = hi
 	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress))
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to load evm config")
+		return nil, status.Errorf(codes.Internal, "failed to load evm config: %s", err.Error())
 	}
 
 	// ApplyMessageWithConfig expect correct nonce set in msg
@@ -570,7 +571,7 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 
 	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress))
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to load evm config")
+		return nil, status.Errorf(codes.Internal, "failed to load evm config: %s", err.Error())
 	}
 
 	// compute and use base fee of height that is being traced

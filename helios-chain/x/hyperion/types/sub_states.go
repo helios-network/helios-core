@@ -4,6 +4,12 @@ func DefaultSubStates(params *Params) []*GenesisHyperionState {
 	substate := make([]*GenesisHyperionState, 0)
 
 	for _, counterParty := range params.CounterpartyChainParams {
+
+		tokenAddressToDenoms := make([]*TokenAddressToDenom, 0)
+		for _, token := range counterParty.DefaultTokens {
+			tokenAddressToDenoms = append(tokenAddressToDenoms, token.TokenAddressToDenom)
+		}
+
 		substate = append(substate, &GenesisHyperionState{
 			HyperionId:            counterParty.HyperionId,
 			LastObservedNonce:     0,
@@ -13,7 +19,7 @@ func DefaultSubStates(params *Params) []*GenesisHyperionState {
 			BatchConfirms:         make([]*MsgConfirmBatch, 0),
 			Attestations:          make([]*Attestation, 0),
 			OrchestratorAddresses: make([]*MsgSetOrchestratorAddresses, 0),
-			TokenAddressToDenoms:  counterParty.DefaultTokenAddressToDenoms,
+			TokenAddressToDenoms:  tokenAddressToDenoms,
 			UnbatchedTransfers:    make([]*OutgoingTransferTx, 0),
 			LastObservedEthereumHeight: &LastObservedEthereumBlockHeight{
 				CosmosBlockHeight:   1, // set to 1 by default

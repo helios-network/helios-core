@@ -1,13 +1,14 @@
 package keeper
 
 import (
+	"helios-core/helios-chain/x/evm/core/vm"
+	"helios-core/helios-chain/x/evm/statedb"
+	"helios-core/helios-chain/x/evm/types"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"helios-core/helios-chain/x/evm/core/vm"
-	"helios-core/helios-chain/x/evm/statedb"
-	"helios-core/helios-chain/x/evm/types"
 )
 
 // EVMConfig creates the EVMConfig based on current state
@@ -18,7 +19,11 @@ func (k *Keeper) EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress) (*s
 	// get the coinbase address from the block proposer
 	coinbase, err := k.GetCoinbaseAddress(ctx, proposerAddress)
 	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to obtain coinbase address")
+		if proposerAddress.Empty() { // genesis block
+			coinbase = common.HexToAddress("0x0000000000000000000000000000000000000000")
+		} else {
+			return nil, errorsmod.Wrap(err, "failed to obtain coinbase address")
+		}
 	}
 
 	baseFee := k.GetBaseFee(ctx)

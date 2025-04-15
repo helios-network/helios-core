@@ -250,15 +250,16 @@ async function fetch(){
 
 async function delegate() {
 
-  const validatorAddress = '0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
-  const delegateAmount = ethers.parseUnits('1.5', 18); // Montant à déléguer (ex: 10 tokens)
+  
+  const validatorAddress = wallet.address;//'0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
+  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
   try {
     console.log('Délégation en cours...');
 
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', delegateAbi, wallet);
-    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "WETH");
+    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "ueth");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -733,9 +734,9 @@ async function main() {
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  await create();
+  // await create();
   //await fetch();
-  //await delegate();
+  await delegate();
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();

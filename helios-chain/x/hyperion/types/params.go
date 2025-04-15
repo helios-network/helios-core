@@ -56,11 +56,61 @@ func DefaultLocalPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		BridgeContractStartHeight:     20193284,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultTokenAddressToDenoms: []*TokenAddressToDenom{
+		DefaultTokens: []*TokenAddressToDenomWithDefaultHolders{
 			{
-				Denom:              "ahelios",
-				TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
-				IsCosmosOriginated: true,
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "ahelios",
+					TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
+					IsCosmosOriginated: true,
+					Symbol:             "HLS",
+					Decimals:           18,
+					IsConcensusToken:   true,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+			},
+			{
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "upol",
+					TokenAddress:       "0x12aa76b88c093c1fe950b609baaa4f46c72b3d6e",
+					IsCosmosOriginated: false,
+					Symbol:             "POL",
+					Decimals:           18,
+					IsConcensusToken:   true,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0x17267eb1fec301848d4b5140eddcfc48945427ab").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0xd1cfbbb140972530a3798fe1ba11312eb8c99582").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0xc9728bfb36f8d2f9d39a5e7ce19aa11af27db440").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0x5eb1275822495570f48b8e573431d217d5708197").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+			},
+		},
+		Rpcs: []*Rpc{
+			{
+				Url:            "https://rpc-amoy.polygon.technology",
+				Reputation:     0,
+				LastHeightUsed: 0,
 			},
 		},
 	}
@@ -91,11 +141,54 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		BridgeContractStartHeight:     20101217,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultTokenAddressToDenoms: []*TokenAddressToDenom{
+		DefaultTokens: []*TokenAddressToDenomWithDefaultHolders{
 			{
-				Denom:              "ahelios",
-				TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
-				IsCosmosOriginated: true,
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "ahelios",
+					TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
+					IsCosmosOriginated: true,
+					Symbol:             "HLS",
+					Decimals:           18,
+					IsConcensusToken:   true,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+			},
+			{
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "upol",
+					TokenAddress:       "0x12aa76b88c093c1fe950b609baaa4f46c72b3d6e",
+					IsCosmosOriginated: false,
+					Symbol:             "POL",
+					Decimals:           18,
+					IsConcensusToken:   true,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0x17267eb1fec301848d4b5140eddcfc48945427ab").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0xd1cfbbb140972530a3798fe1ba11312eb8c99582").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0xc9728bfb36f8d2f9d39a5e7ce19aa11af27db440").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0x5eb1275822495570f48b8e573431d217d5708197").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
 			},
 		},
 		Rpcs: []*Rpc{
@@ -133,11 +226,61 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 		BridgeContractStartHeight:     8062855,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultTokenAddressToDenoms: []*TokenAddressToDenom{
+		DefaultTokens: []*TokenAddressToDenomWithDefaultHolders{
 			{
-				Denom:              "ahelios",
-				TokenAddress:       "0x462D63407eb86531dce7f948F2145382bc269E7C",
-				IsCosmosOriginated: true,
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "ahelios",
+					TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
+					IsCosmosOriginated: true,
+					IsConcensusToken:   true,
+					Symbol:             "HLS",
+					Decimals:           18,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+			},
+			{
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "ueth",
+					TokenAddress:       "0xe0dc6cad46f380c179622f4e85e744fc55e1373b",
+					IsCosmosOriginated: false,
+					Symbol:             "ETH",
+					Decimals:           18,
+					IsConcensusToken:   true,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0x17267eB1FEC301848d4B5140eDDCFC48945427Ab").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0xd1cfbbb140972530a3798fe1ba11312eb8c99582").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0xc9728bfb36f8d2f9d39a5e7ce19aa11af27db440").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+					{
+						Address: common.HexToAddress("0x5eb1275822495570f48b8e573431d217d5708197").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+			},
+		},
+		Rpcs: []*Rpc{
+			{
+				Url:            "https://0xrpc.io/sep",
+				Reputation:     0,
+				LastHeightUsed: 0,
 			},
 		},
 	}

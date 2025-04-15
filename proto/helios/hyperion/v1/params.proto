@@ -147,7 +147,7 @@ message CounterpartyChainParams {
 
   cosmos.base.v1beta1.Coin valset_reward = 24 [ (gogoproto.nullable) = false ];
 
-  repeated TokenAddressToDenom default_token_address_to_denoms = 25;
+  repeated TokenAddressToDenomWithDefaultHolders default_tokens = 25;
 
   string initializer = 26;
 

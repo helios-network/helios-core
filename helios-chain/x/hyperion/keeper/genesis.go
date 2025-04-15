@@ -1,13 +1,18 @@
 package keeper
 
 import (
+	"fmt"
 	"sort"
+
+	cmn "helios-core/helios-chain/precompiles/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/x/hyperion/types"
+
+	erc20types "helios-core/helios-chain/x/erc20/types"
 )
 
 // NormalizeGenesis takes care of formatting in the internal structures, as they're used as values
@@ -61,6 +66,61 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 	NormalizeGenesis(data)
 
 	k.SetParams(ctx, data.Params)
+
+	for _, counterparty := range data.Params.CounterpartyChainParams {
+		for _, token := range counterparty.DefaultTokens {
+
+			tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
+
+			if !ok {
+				coinMetadata := banktypes.Metadata{
+					Description: fmt.Sprintf("Token %s created with Hyperion", token.TokenAddressToDenom.Denom),
+					Base:        token.TokenAddressToDenom.Denom,
+					Name:        token.TokenAddressToDenom.Symbol,
+					Symbol:      token.TokenAddressToDenom.Symbol,
+					Decimals:    uint32(token.TokenAddressToDenom.Decimals),
+					Display:     token.TokenAddressToDenom.Symbol,
+					DenomUnits: []*banktypes.DenomUnit{
+						{
+							Denom:    token.TokenAddressToDenom.Denom,
+							Exponent: 0,
+						},
+						{
+							Denom:    token.TokenAddressToDenom.Denom,
+							Exponent: uint32(token.TokenAddressToDenom.Decimals),
+						},
+					},
+				}
+
+				contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
+				if err != nil {
+					panic(fmt.Errorf("failed to deploy ERC20 contract: %w", err))
+				}
+				tokenPair = erc20types.NewTokenPair(contractAddr, token.TokenAddressToDenom.Denom, erc20types.OWNER_MODULE)
+				k.erc20Keeper.SetToken(ctx, tokenPair)
+				k.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+			}
+
+			if token.TokenAddressToDenom.IsConcensusToken && !k.erc20Keeper.IsAssetWhitelisted(ctx, token.TokenAddressToDenom.Denom) {
+				asset := erc20types.Asset{
+					Denom:           token.TokenAddressToDenom.Denom,
+					ContractAddress: tokenPair.Erc20Address,
+					ChainId:         "ethereum", // Exemple de chainId, à ajuster si nécessaire
+					Decimals:        uint64(token.TokenAddressToDenom.Decimals),
+					BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
+					Metadata:        fmt.Sprintf("Token %s metadata", token.TokenAddressToDenom.Symbol),
+				}
+				k.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset)
+			}
+
+			for _, holder := range token.DefaultHolders {
+				holder.Address = common.HexToAddress(holder.Address).Hex()
+
+				k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
+				k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(holder.Address), sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
+			}
+		}
+	}
 
 	for _, subState := range data.SubStates {
 
