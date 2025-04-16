@@ -10,6 +10,7 @@ TEST_IMAGE_NAME := helios-core-test-image
 LEDGER_ENABLED ?= true
 PROTOSET_DIR := proto/protoset
 PROTOSET_FILE := $(PROTOSET_DIR)/helios.protoset
+DEBUG_FLAGS := -gcflags="all=-N -l"
 
 # process build tags
 build_tags = netgo
@@ -64,10 +65,10 @@ install:
 	else \
 		echo "Command 'heliades' not found, skipping 'heliades keys clear'"; \
 	fi
-	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS) $(DEBUG_FLAGS)
 
 compile:
-	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS)
+	cd cmd/heliades/ && CGO_CFLAGS="-Wno-deprecated-declarations" go install -tags $(build_tags_comma_sep) $(BUILD_FLAGS) $(DEBUG_FLAGS)
 
 setup:
 	sh setup.sh
