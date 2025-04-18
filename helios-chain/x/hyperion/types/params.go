@@ -230,7 +230,7 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
 					Denom:              "ahelios",
-					TokenAddress:       "0x8916f85e0Da4A2Ff2c304e67105dd9d6B0a7F81c",
+					TokenAddress:       common.HexToAddress("0x462D63407eb86531dce7f948F2145382bc269E7C").Hex(),
 					IsCosmosOriginated: true,
 					IsConcensusToken:   true,
 					Symbol:             "HLS",
