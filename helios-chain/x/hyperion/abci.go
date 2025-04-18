@@ -155,7 +155,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 								},
 								ReceivedToken: &types.Token{
 									Amount:   claim.Amount,
-									Contract: tokenToDenom.Denom,
+									Contract: tokenToDenom.TokenAddress,
 								},
 								ReceivedFee: &types.Token{
 									Amount:   math.NewInt(0),
