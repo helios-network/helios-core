@@ -22,11 +22,7 @@ const (
 // WhitelistPrefix is the key prefix used for storing whitelisted assets in the KV store
 const WhitelistPrefix = "whitelist/"
 
-// Errors related to asset whitelisting
-var (
-	ErrAssetAlreadyWhitelisted = fmt.Errorf("asset is already whitelisted")
-	ErrAssetNotFound           = fmt.Errorf("asset not found")
-)
+// NOTE: Error types are now defined in errors.go as registered errors
 
 // GetAssetKey returns the store key for an asset based on its denom
 func GetAssetKey(denom string) []byte {

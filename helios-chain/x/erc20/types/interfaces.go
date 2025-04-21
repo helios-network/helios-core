@@ -29,7 +29,7 @@ type AccountKeeper interface {
 // StakingKeeper defines the expected interface needed to retrieve the staking denom.
 type StakingKeeper interface {
 	BondDenom(ctx context.Context) (string, error)
-	UpdateAssetWeight(ctx sdk.Context, denom string, percentage math.LegacyDec, increase bool) error
+	UpdateAssetWeight(ctx sdk.Context, denom string, percentage math.LegacyDec, increase bool, originalWeight uint64) error
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on erc20

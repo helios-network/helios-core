@@ -21,4 +21,20 @@ var (
 	ErrInvalidIBC               = errorsmod.Register(ModuleName, 14, "invalid IBC transaction")
 	ErrTokenPairOwnedByModule   = errorsmod.Register(ModuleName, 15, "token pair owned by module")
 	ErrNativeConversionDisabled = errorsmod.Register(ModuleName, 16, "native coins manual conversion is disabled")
+
+	// Asset whitelist errors
+	ErrAssetNotFound           = errorsmod.Register(ModuleName, 17, "asset not found in whitelist")
+	ErrAssetAlreadyWhitelisted = errorsmod.Register(ModuleName, 18, "asset already whitelisted")
+	ErrAssetAlreadyArchived    = errorsmod.Register(ModuleName, 19, "asset already archived")
+	ErrAssetNotArchived        = errorsmod.Register(ModuleName, 20, "asset not archived")
+	ErrInvalidAssetQuery       = errorsmod.Register(ModuleName, 21, "invalid asset query format")
 )
+
+// AssetNotFoundError is used for better type checking of asset not found errors
+type AssetNotFoundError struct {
+	Denom string
+}
+
+func (e AssetNotFoundError) Error() string {
+	return errorsmod.Wrapf(ErrAssetNotFound, "asset %s is not whitelisted", e.Denom).Error()
+}
