@@ -39,9 +39,9 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 	defer doneFn()
 
 	params := h.k.GetParams(ctx)
-	for _, counterpartyChainParams := range params.CounterpartyChainParams {
-		h.slashing(ctx, counterpartyChainParams)
-	}
+	// for _, counterpartyChainParams := range params.CounterpartyChainParams {
+	// 	h.slashing(ctx, counterpartyChainParams)
+	// }
 	h.attestationTally(ctx)
 	h.cleanupTimedOutBatches(ctx)
 	h.cleanupTimedOutOutgoingTx(ctx)
