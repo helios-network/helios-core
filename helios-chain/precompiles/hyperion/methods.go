@@ -111,7 +111,7 @@ func (p Precompile) AddCounterpartyChainParams(
 			BridgeContractStartHeight:     bridgeContractStartHeight,
 			ValsetReward:                  sdk.Coin{Denom: "ahelios", Amount: cosmosmath.NewInt(0)},
 			Initializer:                   cmn.AccAddressFromHexAddress(origin).String(),
-			DefaultTokens:                 []*hyperiontypes.TokenAddressToDenomWithDefaultHolders{},
+			DefaultTokens:                 []*hyperiontypes.TokenAddressToDenomWithGenesisInfos{},
 		},
 	}
 

@@ -90,6 +90,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 							Exponent: uint32(token.TokenAddressToDenom.Decimals),
 						},
 					},
+					Logo: token.Logo,
 				}
 
 				contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)

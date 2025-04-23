@@ -64,9 +64,10 @@ message HolderWithAmount {
   ];
 }
 
-message TokenAddressToDenomWithDefaultHolders {
+message TokenAddressToDenomWithGenesisInfos {
   TokenAddressToDenom token_address_to_denom = 1;
   repeated HolderWithAmount default_holders = 2;
+  string logo = 3;
 }
 
 message TokenMetadata {

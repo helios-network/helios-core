@@ -56,7 +56,7 @@ func DefaultLocalPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		BridgeContractStartHeight:     20193284,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultTokens: []*TokenAddressToDenomWithDefaultHolders{
+		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
 					Denom:              "ahelios",
@@ -141,7 +141,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		BridgeContractStartHeight:     20101217,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultTokens: []*TokenAddressToDenomWithDefaultHolders{
+		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
 					Denom:              "ahelios",
@@ -226,7 +226,7 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 		BridgeContractStartHeight:     8062855,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
-		DefaultTokens: []*TokenAddressToDenomWithDefaultHolders{
+		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
 					Denom:              "ahelios",
@@ -274,6 +274,7 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
 					},
 				},
+				Logo: "45fa0204dcbb461f9899168a8b56162ecc832919b0c8b81b85f7de2abba408aa",
 			},
 		},
 		Rpcs: []*Rpc{
