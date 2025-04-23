@@ -549,7 +549,7 @@ async function createCron() {
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
     const tx = await contract.createCron(
-      "0xa80799d619abafB179e843025571d7913bC00ce8",
+      "0xd1dB19022B1cB701Cf25FA55a7d52a9b0dd771C7",
       `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
       "increment", // methodName
       [], // params
@@ -729,14 +729,14 @@ async function uploadLogo() {
 
 async function main() {
   // await createCronCallBackData();
-  // await createCron();
+  await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
   // await create();
   //await fetch();
-  await delegate();
+  // await delegate();
   //await addNewConsensusProposal();
   //await updateConsensusProposal();
   //await vote();

@@ -260,7 +260,7 @@ func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, p
 		balanceFloat.Quo(balanceFloat, divisor)
 
 		balances = append(balances, rpctypes.TokenBalance{
-			Address:     address,
+			Address:     common.HexToAddress(balance.FullMetadata.Metadata.ContractAddress),
 			Denom:       balance.FullMetadata.Metadata.Base,
 			Symbol:      balance.FullMetadata.Metadata.Symbol,
 			Balance:     (*hexutil.Big)(balance.Balance.BigInt()),

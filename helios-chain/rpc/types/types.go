@@ -196,7 +196,7 @@ type WhitelistedAssetRPC struct {
 	ChainId                       string                `json:"chainId"`
 	Decimals                      uint64                `json:"decimals"`
 	Metadata                      string                `json:"metadata"`
-	ContractAddress               string                `json:"oldestBlock"`
+	ContractAddress               string                `json:"contractAddress"`
 	TotalShares                   cosmossdk_io_math.Int `json:"totalShares"`
 	NetworkPercentageSecurisation string                `json:"networkPercentageSecurisation"`
 }
