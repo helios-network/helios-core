@@ -86,7 +86,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 							Exponent: 0,
 						},
 						{
-							Denom:    token.TokenAddressToDenom.Denom,
+							Denom:    token.TokenAddressToDenom.Symbol,
 							Exponent: uint32(token.TokenAddressToDenom.Decimals),
 						},
 					},

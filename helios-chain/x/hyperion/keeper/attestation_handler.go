@@ -118,7 +118,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 							Exponent: 0,
 						},
 						{
-							Denom:    denom,
+							Denom:    symbol,
 							Exponent: uint32(decimals),
 						},
 					},
