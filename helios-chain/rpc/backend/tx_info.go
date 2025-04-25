@@ -559,8 +559,6 @@ func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.Pars
 		return nil, errors.New("size must be between 1 and 50")
 	}
 
-	b.logger.Debug("GetLastTransactionsInfo", "size", size)
-
 	rawTxs, err := b.GetTransactionsByPageAndSize(1, size)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transactions: %w", err)
@@ -628,14 +626,22 @@ func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.Pars
 }
 
 func (b *Backend) decodeStakingTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
-	if transaction.Input == nil || len(transaction.Input) == 0 {
-		return nil, errors.New("transaction input is empty")
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "UNKNOWN"
+	if len(transaction.Input) == 0 {
+		return decodedValues, nil
 	}
 
 	stakingAbi, err := staking.LoadABI()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load staking ABI")
+		b.logger.Error("failed to load staking ABI", "error", err)
+		return decodedValues, nil
+	}
+
+	if len(transaction.Input) < 4 {
+		b.logger.Error("invalid transaction input length", "input", transaction.Input)
+		return decodedValues, nil
 	}
 
 	sigdata := transaction.Input[:4]
@@ -644,26 +650,28 @@ func (b *Backend) decodeStakingTransaction(transaction *rpctypes.RPCTransaction)
 	method, err := stakingAbi.MethodById(sigdata)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find method by id")
+		b.logger.Error("failed to find method by id", "error", err)
+		return decodedValues, nil
 	}
 
 	decodedInput, err := method.Inputs.Unpack(inputData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode staking transaction input")
+		b.logger.Error("failed to decode staking transaction input", "error", err)
+		return decodedValues, nil
 	}
 
 	methodName := method.Name
 
-	decodedValues := make(map[string]interface{})
-
-	if methodName == "delegate" || methodName == "undelegate" {
+	if methodName == "delegate" && len(decodedInput) >= 3 || methodName == "undelegate" && len(decodedInput) >= 3 {
 		amount, ok := decodedInput[2].(*big.Int)
 		if !ok {
-			return nil, errors.New("invalid amount")
+			b.logger.Error("invalid amount", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		denom, ok := decodedInput[3].(string)
 		if !ok {
-			return nil, errors.New("invalid denom")
+			b.logger.Error("invalid denom", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
 		if methodName == "delegate" {
@@ -675,20 +683,26 @@ func (b *Backend) decodeStakingTransaction(transaction *rpctypes.RPCTransaction)
 		decodedValues["denom"] = denom
 		return decodedValues, nil
 	}
-
-	decodedValues["type"] = "UNKNOWN"
 	return decodedValues, nil
 }
 
 func (b *Backend) decodeErc20CreationTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
-	if transaction.Input == nil || len(transaction.Input) == 0 {
-		return nil, errors.New("transaction input is empty")
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "UNKNOWN"
+	if len(transaction.Input) == 0 {
+		return decodedValues, nil
 	}
 
 	erc20Abi, err := erc20creator.LoadABI()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load erc20 ABI")
+		b.logger.Error("failed to load erc20 ABI", "error", err)
+		return decodedValues, nil
+	}
+
+	if len(transaction.Input) < 4 {
+		b.logger.Error("invalid transaction input length", "input", transaction.Input)
+		return decodedValues, nil
 	}
 
 	sigdata := transaction.Input[:4]
@@ -697,33 +711,38 @@ func (b *Backend) decodeErc20CreationTransaction(transaction *rpctypes.RPCTransa
 	method, err := erc20Abi.MethodById(sigdata)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find method by id")
+		b.logger.Error("failed to find method by id", "error", err)
+		return decodedValues, nil
 	}
 
 	decodedInput, err := method.Inputs.Unpack(inputData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode erc20 transaction input")
+		b.logger.Error("failed to decode erc20 transaction input", "error", err)
+		return decodedValues, nil
 	}
 
 	methodName := method.Name
-	decodedValues := make(map[string]interface{})
 
-	if methodName == "createErc20" {
+	if methodName == "createErc20" && len(decodedInput) >= 4 {
 		name, ok := decodedInput[0].(string)
 		if !ok {
-			return nil, errors.New("invalid name")
+			b.logger.Error("invalid name", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		symbol, ok := decodedInput[1].(string)
 		if !ok {
-			return nil, errors.New("invalid symbol")
+			b.logger.Error("invalid symbol", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		totalSupply, ok := decodedInput[2].(*big.Int)
 		if !ok {
-			return nil, errors.New("invalid total supply")
+			b.logger.Error("invalid total supply", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		decimals, ok := decodedInput[3].(uint8)
 		if !ok {
-			return nil, errors.New("invalid decimals")
+			b.logger.Error("invalid decimals", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
 		decodedValues["type"] = "CREATE_ERC20"
@@ -734,20 +753,26 @@ func (b *Backend) decodeErc20CreationTransaction(transaction *rpctypes.RPCTransa
 
 		return decodedValues, nil
 	}
-
-	decodedValues["type"] = "UNKNOWN"
 	return decodedValues, nil
 }
 
 func (b *Backend) decodeDistributionTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
-	if transaction.Input == nil || len(transaction.Input) == 0 {
-		return nil, errors.New("transaction input is empty")
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "UNKNOWN"
+	if len(transaction.Input) == 0 {
+		return decodedValues, nil
 	}
 
 	distributionAbi, err := distribution.LoadABI()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load distribution ABI")
+		b.logger.Error("failed to load distribution ABI", "error", err)
+		return decodedValues, nil
+	}
+
+	if len(transaction.Input) < 4 {
+		b.logger.Error("invalid transaction input length", "input", transaction.Input)
+		return decodedValues, nil
 	}
 
 	sigdata := transaction.Input[:4]
@@ -756,25 +781,28 @@ func (b *Backend) decodeDistributionTransaction(transaction *rpctypes.RPCTransac
 	method, err := distributionAbi.MethodById(sigdata)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find method by id")
+		b.logger.Error("failed to find method by id", "error", err)
+		return decodedValues, nil
 	}
 
 	methodName := method.Name
-	decodedValues := make(map[string]interface{})
 
 	decodedInput, err := method.Inputs.Unpack(inputData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode distribution transaction input")
+		b.logger.Error("failed to decode distribution transaction input", "error", err)
+		return decodedValues, nil
 	}
 
-	if methodName == "withdrawDelegatorRewards" {
+	if methodName == "withdrawDelegatorRewards" && len(decodedInput) >= 2 {
 		delegatorAddress, ok := decodedInput[0].(common.Address)
 		if !ok {
-			return nil, errors.New("invalid delegator address")
+			b.logger.Error("invalid delegator address", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		validatorAddress, ok := decodedInput[1].(common.Address)
 		if !ok {
-			return nil, errors.New("invalid validator address")
+			b.logger.Error("invalid validator address", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
 		decodedValues["delegatorAddress"] = delegatorAddress
@@ -782,20 +810,26 @@ func (b *Backend) decodeDistributionTransaction(transaction *rpctypes.RPCTransac
 
 		return decodedValues, nil
 	}
-
-	decodedValues["type"] = "UNKNOWN"
 	return decodedValues, nil
 }
 
 func (b *Backend) decodeBridgeTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
-	if transaction.Input == nil || len(transaction.Input) == 0 {
-		return nil, errors.New("transaction input is empty")
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "UNKNOWN"
+	if len(transaction.Input) == 0 {
+		return decodedValues, nil
 	}
 
 	bridgeAbi, err := hyperion.LoadABI()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load bridge ABI")
+		b.logger.Error("failed to load bridge ABI", "error", err)
+		return decodedValues, nil
+	}
+
+	if len(transaction.Input) < 4 {
+		b.logger.Error("invalid transaction input length", "input", transaction.Input)
+		return decodedValues, nil
 	}
 
 	sigdata := transaction.Input[:4]
@@ -804,37 +838,43 @@ func (b *Backend) decodeBridgeTransaction(transaction *rpctypes.RPCTransaction) 
 	method, err := bridgeAbi.MethodById(sigdata)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find method by id")
+		b.logger.Error("failed to find method by id", "error", err)
+		return decodedValues, nil
 	}
 
 	decodedInput, err := method.Inputs.Unpack(inputData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode bridge transaction input")
+		b.logger.Error("failed to decode bridge transaction input", "error", err)
+		return decodedValues, nil
 	}
 
 	methodName := method.Name
-	decodedValues := make(map[string]interface{})
 
-	if methodName == "sendToChain" {
+	if methodName == "sendToChain" && len(decodedInput) >= 5 {
 		chainId, ok := decodedInput[0].(uint64)
 		if !ok {
-			return nil, errors.New("invalid chainId")
+			b.logger.Error("invalid chainId", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		destAddress, ok := decodedInput[1].(string)
 		if !ok {
-			return nil, errors.New("invalid destAddress")
+			b.logger.Error("invalid destAddress", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		contractAddress, ok := decodedInput[2].(common.Address)
 		if !ok {
-			return nil, errors.New("invalid contractAddress")
+			b.logger.Error("invalid contractAddress", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		amount, ok := decodedInput[3].(*big.Int)
 		if !ok {
-			return nil, errors.New("invalid amount")
+			b.logger.Error("invalid amount", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		bridgeFee, ok := decodedInput[4].(*big.Int)
 		if !ok {
-			return nil, errors.New("invalid bridgeFee")
+			b.logger.Error("invalid bridgeFee", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
 		decodedValues["type"] = "BRIDGE_IN"
@@ -845,20 +885,21 @@ func (b *Backend) decodeBridgeTransaction(transaction *rpctypes.RPCTransaction) 
 		decodedValues["bridgeFee"] = bridgeFee.String()
 		return decodedValues, nil
 	}
-
-	decodedValues["type"] = "UNKNOWN"
 	return decodedValues, nil
 }
 
 func (b *Backend) decodeGovTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
-	if transaction.Input == nil || len(transaction.Input) == 0 {
-		return nil, errors.New("transaction input is empty")
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "UNKNOWN"
+	if len(transaction.Input) == 0 {
+		return decodedValues, nil
 	}
 
 	govAbi, err := gov.LoadABI()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load gov ABI")
+		b.logger.Error("failed to load gov ABI", "error", err)
+		return decodedValues, nil
 	}
 
 	sigdata := transaction.Input[:4]
@@ -867,33 +908,38 @@ func (b *Backend) decodeGovTransaction(transaction *rpctypes.RPCTransaction) (ma
 	method, err := govAbi.MethodById(sigdata)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find method by id")
+		b.logger.Error("failed to find method by id", "error", err)
+		return decodedValues, nil
 	}
 
 	decodedInput, err := method.Inputs.Unpack(inputData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode gov transaction input")
+		b.logger.Error("failed to decode gov transaction input", "error", err)
+		return decodedValues, nil
 	}
 
 	methodName := method.Name
-	decodedValues := make(map[string]interface{})
 
-	if methodName == "vote" {
+	if methodName == "vote" && len(decodedInput) >= 3 {
 		voter, ok := decodedInput[0].(common.Address)
 		if !ok {
-			return nil, errors.New("invalid voter")
+			b.logger.Error("invalid voter", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		proposalId, ok := decodedInput[1].(uint64)
 		if !ok {
-			return nil, errors.New("Invalid proposalId")
+			b.logger.Error("Invalid proposalId", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		option, ok := decodedInput[2].(uint8)
 		if !ok {
-			return nil, errors.New("invalid option")
+			b.logger.Error("invalid option", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		metadata, ok := decodedInput[3].(string)
 		if !ok {
-			return nil, errors.New("invalid metadata")
+			b.logger.Error("invalid metadata", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
 		decodedValues["type"] = "GOV_VOTE"
@@ -903,20 +949,21 @@ func (b *Backend) decodeGovTransaction(transaction *rpctypes.RPCTransaction) (ma
 		decodedValues["metadata"] = metadata
 		return decodedValues, nil
 	}
-
-	decodedValues["type"] = "UNKNOWN"
 	return decodedValues, nil
 }
 
 func (b *Backend) decodeCronTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {
-	if transaction.Input == nil || len(transaction.Input) == 0 {
-		return nil, errors.New("transaction input is empty")
+	decodedValues := make(map[string]interface{})
+	decodedValues["type"] = "UNKNOWN"
+	if len(transaction.Input) == 0 {
+		return decodedValues, nil
 	}
 
 	chronosAbi, err := chronos.LoadABI()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load chronos ABI")
+		b.logger.Error("failed to load chronos ABI", "error", err)
+		return decodedValues, nil
 	}
 
 	sigdata := transaction.Input[:4]
@@ -925,49 +972,58 @@ func (b *Backend) decodeCronTransaction(transaction *rpctypes.RPCTransaction) (m
 	method, err := chronosAbi.MethodById(sigdata)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find method by id")
+		b.logger.Error("failed to find method by id", "error", err)
+		return decodedValues, nil
 	}
 
 	decodedInput, err := method.Inputs.Unpack(inputData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode chronos transaction input")
+		b.logger.Error("failed to decode chronos transaction input", "error", err)
+		return decodedValues, nil
 	}
 
 	methodName := method.Name
-	decodedValues := make(map[string]interface{})
 
-	if methodName == "createCron" {
+	if methodName == "createCron" && len(decodedInput) >= 9 {
 		contractAddress, ok := decodedInput[0].(common.Address)
 		if !ok {
-			return nil, errors.New("invalid contractAddress")
+			b.logger.Error("invalid contractAddress", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		abi, ok := decodedInput[1].(string)
 		if !ok {
-			return nil, errors.New("invalid abi")
+			b.logger.Error("invalid abi", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		methodName, ok := decodedInput[2].(string)
 		if !ok {
-			return nil, errors.New("invalid methodName")
+			b.logger.Error("invalid methodName", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		frequency, ok := decodedInput[4].(uint64)
 		if !ok {
-			return nil, errors.New("invalid frequency")
+			b.logger.Error("invalid frequency", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		expirationBlock, ok := decodedInput[5].(uint64)
 		if !ok {
-			return nil, errors.New("invalid expirationBlock")
+			b.logger.Error("invalid expirationBlock", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		gasLimit, ok := decodedInput[6].(uint64)
 		if !ok {
-			return nil, errors.New("invalid gasLimit")
+			b.logger.Error("invalid gasLimit", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		maxGasPrice, ok := decodedInput[7].(*big.Int)
 		if !ok {
-			return nil, errors.New("invalid maxGasPrice")
+			b.logger.Error("invalid maxGasPrice", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		amountToDeposit, ok := decodedInput[8].(*big.Int)
 		if !ok {
-			return nil, errors.New("invalid amountToDeposit")
+			b.logger.Error("invalid amountToDeposit", "input", transaction.Input)
+			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
 		decodedValues["type"] = "CREATE_CRON"
@@ -981,7 +1037,5 @@ func (b *Backend) decodeCronTransaction(transaction *rpctypes.RPCTransaction) (m
 		decodedValues["amountToDeposit"] = amountToDeposit.String()
 		return decodedValues, nil
 	}
-
-	decodedValues["type"] = "UNKNOWN"
 	return decodedValues, nil
 }
