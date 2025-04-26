@@ -335,15 +335,18 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 
 			idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
 			baseWeight := math.NewIntFromUint64(1)
+			contractAddress := ""
 			if idx != -1 {
 				baseWeight = math.NewIntFromUint64(whitelistedAssetsResp.Assets[idx].GetBaseWeight())
+				contractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
 			}
 
 			assets = append(assets, rpctypes.DelegationAsset{
-				Denom:          asset.Denom,
-				BaseAmount:     asset.BaseAmount,
-				Amount:         asset.WeightedAmount.Quo(baseWeight),
-				WeightedAmount: asset.WeightedAmount,
+				Denom:           asset.Denom,
+				BaseAmount:      asset.BaseAmount,
+				Amount:          asset.WeightedAmount.Quo(baseWeight),
+				WeightedAmount:  asset.WeightedAmount,
+				ContractAddress: contractAddress,
 			})
 		}
 
@@ -399,15 +402,18 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 
 		idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
 		baseWeight := math.NewIntFromUint64(1)
+		contractAddress := ""
 		if idx != -1 {
 			baseWeight = math.NewIntFromUint64(whitelistedAssetsResp.Assets[idx].GetBaseWeight())
+			contractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
 		}
 
 		assets = append(assets, rpctypes.DelegationAsset{
-			Denom:          asset.Denom,
-			BaseAmount:     asset.BaseAmount,
-			Amount:         asset.WeightedAmount.Quo(baseWeight),
-			WeightedAmount: asset.WeightedAmount,
+			Denom:           asset.Denom,
+			BaseAmount:      asset.BaseAmount,
+			Amount:          asset.WeightedAmount.Quo(baseWeight),
+			WeightedAmount:  asset.WeightedAmount,
+			ContractAddress: contractAddress,
 		})
 	}
 

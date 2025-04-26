@@ -127,10 +127,11 @@ type OneFeeHistory struct {
 }
 
 type DelegationAsset struct {
-	Denom          string                `json:"denom"`
-	BaseAmount     cosmossdk_io_math.Int `json:"baseAmount"`
-	Amount         cosmossdk_io_math.Int `json:"amount"`
-	WeightedAmount cosmossdk_io_math.Int `json:"weightedAmount"`
+	Denom           string                `json:"denom"`
+	BaseAmount      cosmossdk_io_math.Int `json:"baseAmount"`
+	Amount          cosmossdk_io_math.Int `json:"amount"`
+	WeightedAmount  cosmossdk_io_math.Int `json:"weightedAmount"`
+	ContractAddress string                `json:"contractAddress"`
 }
 
 type DelegationRewardRPC struct {
