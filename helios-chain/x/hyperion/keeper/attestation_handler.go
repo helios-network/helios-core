@@ -97,6 +97,10 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 					name = metadata.Name
 					symbol = metadata.Symbol
 					decimals = metadata.Decimals
+
+					if symbol == "" {
+						symbol = denom
+					}
 				}
 			}
 
@@ -131,6 +135,10 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 							IsOriginated:    true,
 						},
 					},
+				}
+
+				if err := coinMetadata.Validate(); err != nil {
+					return fmt.Errorf("invalid coin metadata: %w", err)
 				}
 				////////////////////////////////////////////////////////
 				// Generate logo
