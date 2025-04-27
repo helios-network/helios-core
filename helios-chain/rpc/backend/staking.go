@@ -30,9 +30,22 @@ func (b *Backend) GetValidatorCommission(address common.Address) (*rpctypes.Vali
 		return nil, err
 	}
 
+	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+	if err != nil {
+		b.logger.Error("GetDelegation", "err", err)
+		return nil, nil
+	}
+
+	idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == sdk.DefaultBondDenom })
+	heliosContractAddress := ""
+	if idx != -1 {
+		heliosContractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
+	}
+
 	return &rpctypes.ValidatorCommissionRPC{
-		Amount: res.Commission.Commission.AmountOf(sdk.DefaultBondDenom).TruncateInt(),
-		Denom:  sdk.DefaultBondDenom,
+		Amount:          res.Commission.Commission.AmountOf(sdk.DefaultBondDenom).TruncateInt(),
+		Denom:           sdk.DefaultBondDenom,
+		ContractAddress: heliosContractAddress,
 	}, nil
 }
 
@@ -321,6 +334,12 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 		return delegations, nil
 	}
 
+	idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == sdk.DefaultBondDenom })
+	heliosContractAddress := ""
+	if idx != -1 {
+		heliosContractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
+	}
+
 	for _, delegation := range res.Delegations {
 		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
 		if err != nil {
@@ -364,8 +383,9 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 			Shares:           delegation.Shares.TruncateInt().String(),
 			Assets:           assets,
 			Rewards: rpctypes.DelegationRewardRPC{
-				Denom:  delegationRewardsResponse.Rewards[0].Denom,
-				Amount: delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+				Denom:           delegationRewardsResponse.Rewards[0].Denom,
+				Amount:          delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+				ContractAddress: heliosContractAddress,
 			},
 		})
 	}
@@ -391,10 +411,15 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	delegation := res.DelegationResponse.Delegation
 
 	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
-
 	if err != nil {
 		b.logger.Error("GetDelegation", "err", err)
 		return nil, nil
+	}
+
+	idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == sdk.DefaultBondDenom })
+	heliosContractAddress := ""
+	if idx != -1 {
+		heliosContractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
 	}
 
 	assets := make([]rpctypes.DelegationAsset, 0)
@@ -439,8 +464,9 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		Shares:           delegation.Shares.TruncateInt().String(),
 		Assets:           assets,
 		Rewards: rpctypes.DelegationRewardRPC{
-			Denom:  delegationRewardsResponse.Rewards[0].Denom,
-			Amount: delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+			Denom:           delegationRewardsResponse.Rewards[0].Denom,
+			Amount:          delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
+			ContractAddress: heliosContractAddress,
 		},
 	}, nil
 }

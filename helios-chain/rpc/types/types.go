@@ -135,13 +135,15 @@ type DelegationAsset struct {
 }
 
 type DelegationRewardRPC struct {
-	Denom  string                `json:"denom"`
-	Amount cosmossdk_io_math.Int `json:"amount"`
+	Denom           string                `json:"denom"`
+	Amount          cosmossdk_io_math.Int `json:"amount"`
+	ContractAddress string                `json:"contractAddress"`
 }
 
 type ValidatorCommissionRPC struct {
-	Denom  string                `json:"denom"`
-	Amount cosmossdk_io_math.Int `json:"amount"`
+	Denom           string                `json:"denom"`
+	Amount          cosmossdk_io_math.Int `json:"amount"`
+	ContractAddress string                `json:"contractAddress"`
 }
 
 type ValidatorRewardRPC struct {
