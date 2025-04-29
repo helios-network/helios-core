@@ -195,6 +195,11 @@ import (
 	revenue "helios-core/helios-chain/x/revenue/v1"
 	revenuekeeper "helios-core/helios-chain/x/revenue/v1/keeper"
 	revenuetypes "helios-core/helios-chain/x/revenue/v1/types"
+
+	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
+	// Enable the tracers in debug_traceTransaction rpc method
+	_ "helios-core/helios-chain/x/evm/core/tracers/js"
+	_ "helios-core/helios-chain/x/evm/core/tracers/native"
 )
 
 func init() {
