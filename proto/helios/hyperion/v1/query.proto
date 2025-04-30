@@ -143,6 +143,11 @@ service Query {
       returns (QueryGetCounterpartyChainParamsByChainIdResponse) {
     option (google.api.http).get = "/hyperion/v1/chains/{chain_id}/params";
   }
+
+  rpc QueryGetRpcListByChainId(QueryGetRpcListByChainIdRequest)
+      returns (QueryGetRpcListByChainIdResponse) {
+    option (google.api.http).get = "/hyperion/v1/chains/{chain_id}/rpcs";
+  }
 }
 
 message QueryParamsRequest {}
@@ -351,4 +356,12 @@ message QueryGetCounterpartyChainParamsByChainIdRequest {
 
 message QueryGetCounterpartyChainParamsByChainIdResponse {
   CounterpartyChainParams counterparty_chain_params = 1;
+}
+
+message QueryGetRpcListByChainIdRequest {
+  uint64 chain_id = 1;
+}
+
+message QueryGetRpcListByChainIdResponse {
+  repeated Rpc rpcs = 1;
 }

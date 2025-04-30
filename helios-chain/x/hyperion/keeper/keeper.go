@@ -744,11 +744,11 @@ func (k *Keeper) GetCounterpartyChainParams(ctx sdk.Context) map[uint64]*types.C
 	return counterpartyChainParamsMap
 }
 
-func (k *Keeper) SetCounterpartyChainParams(ctx sdk.Context, hyperionId uint64, counterpartyChainParams *types.CounterpartyChainParams) {
+func (k *Keeper) SetCounterpartyChainParams(ctx sdk.Context, hyperionId uint64, newCounterpartyChainParams *types.CounterpartyChainParams) {
 	params := k.GetParams(ctx)
 	for i, counterpartyChainParams := range params.CounterpartyChainParams {
 		if counterpartyChainParams.HyperionId == hyperionId {
-			params.CounterpartyChainParams[i] = counterpartyChainParams
+			params.CounterpartyChainParams[i] = newCounterpartyChainParams
 			break
 		}
 	}

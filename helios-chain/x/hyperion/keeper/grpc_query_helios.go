@@ -519,3 +519,20 @@ func (k *Keeper) QueryGetCounterpartyChainParamsByChainId(c context.Context, req
 		CounterpartyChainParams: params,
 	}, nil
 }
+
+func (k *Keeper) QueryGetRpcListByChainId(c context.Context, req *types.QueryGetRpcListByChainIdRequest) (*types.QueryGetRpcListByChainIdResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == req.ChainId {
+			return &types.QueryGetRpcListByChainIdResponse{
+				Rpcs: counterpartyChainParam.Rpcs,
+			}, nil
+		}
+	}
+
+	return &types.QueryGetRpcListByChainIdResponse{
+		Rpcs: make([]*types.Rpc, 0),
+	}, nil
+}

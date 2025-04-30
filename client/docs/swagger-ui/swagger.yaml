@@ -2965,6 +2965,10 @@ paths:
                   hyperionId:
                     type: string
                     format: uint64
+                  rpcs_used:
+                    type: array
+                    items:
+                      type: string
                 description: >-
                   The actual content of the claims is passed in with the
                   transaction making the
@@ -4717,26 +4721,288 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
-                  default_token_address_to_denoms:
+                  default_tokens:
                     type: array
                     items:
                       type: object
                       properties:
-                        chain_id:
-                          type: string
-                        token_address:
-                          type: string
-                        denom:
-                          type: string
-                        is_cosmos_originated:
-                          type: boolean
-                      title: >-
-                        This records the relationship between an bridged token
-                        and the denom
+                        token_address_to_denom:
+                          type: object
+                          properties:
+                            chain_id:
+                              type: string
+                            token_address:
+                              type: string
+                            denom:
+                              type: string
+                            symbol:
+                              type: string
+                            decimals:
+                              type: string
+                              format: uint64
+                            is_cosmos_originated:
+                              type: boolean
+                            is_concensus_token:
+                              type: boolean
+                          title: >-
+                            This records the relationship between an bridged
+                            token and the denom
 
-                        of the corresponding Cosmos originated asset
+                            of the corresponding Cosmos originated asset
+                        default_holders:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              address:
+                                type: string
+                              amount:
+                                type: string
+                        logo:
+                          type: string
                   initializer:
                     type: string
+                  rpcs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        reputation:
+                          type: string
+                          format: uint64
+                        last_height_used:
+                          type: string
+                          format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: chain_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /hyperion/v1/chains/{chain_id}/rpcs:
+    get:
+      operationId: QueryGetRpcListByChainId
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              rpcs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    reputation:
+                      type: string
+                      format: uint64
+                    last_height_used:
+                      type: string
+                      format: uint64
         default:
           description: An unexpected error response.
           schema:
@@ -5536,26 +5802,61 @@ paths:
                                 implements the custom method
 
                                 signatures required by gogoproto.
-                            default_token_address_to_denoms:
+                            default_tokens:
                               type: array
                               items:
                                 type: object
                                 properties:
-                                  chain_id:
-                                    type: string
-                                  token_address:
-                                    type: string
-                                  denom:
-                                    type: string
-                                  is_cosmos_originated:
-                                    type: boolean
-                                title: >-
-                                  This records the relationship between an
-                                  bridged token and the denom
+                                  token_address_to_denom:
+                                    type: object
+                                    properties:
+                                      chain_id:
+                                        type: string
+                                      token_address:
+                                        type: string
+                                      denom:
+                                        type: string
+                                      symbol:
+                                        type: string
+                                      decimals:
+                                        type: string
+                                        format: uint64
+                                      is_cosmos_originated:
+                                        type: boolean
+                                      is_concensus_token:
+                                        type: boolean
+                                    title: >-
+                                      This records the relationship between an
+                                      bridged token and the denom
 
-                                  of the corresponding Cosmos originated asset
+                                      of the corresponding Cosmos originated
+                                      asset
+                                  default_holders:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        address:
+                                          type: string
+                                        amount:
+                                          type: string
+                                  logo:
+                                    type: string
                             initializer:
                               type: string
+                            rpcs:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  url:
+                                    type: string
+                                  reputation:
+                                    type: string
+                                    format: uint64
+                                  last_height_used:
+                                    type: string
+                                    format: uint64
                       admins:
                         type: array
                         items:
@@ -6016,6 +6317,10 @@ paths:
                               hyperionId:
                                 type: string
                                 format: uint64
+                              rpcs_used:
+                                type: array
+                                items:
+                                  type: string
                             description: >-
                               The actual content of the claims is passed in with
                               the transaction making the
@@ -6111,7 +6416,14 @@ paths:
                                 type: string
                               denom:
                                 type: string
+                              symbol:
+                                type: string
+                              decimals:
+                                type: string
+                                format: uint64
                               is_cosmos_originated:
+                                type: boolean
+                              is_concensus_token:
                                 type: boolean
                             title: >-
                               This records the relationship between an bridged
@@ -6792,26 +7104,60 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
-                        default_token_address_to_denoms:
+                        default_tokens:
                           type: array
                           items:
                             type: object
                             properties:
-                              chain_id:
-                                type: string
-                              token_address:
-                                type: string
-                              denom:
-                                type: string
-                              is_cosmos_originated:
-                                type: boolean
-                            title: >-
-                              This records the relationship between an bridged
-                              token and the denom
+                              token_address_to_denom:
+                                type: object
+                                properties:
+                                  chain_id:
+                                    type: string
+                                  token_address:
+                                    type: string
+                                  denom:
+                                    type: string
+                                  symbol:
+                                    type: string
+                                  decimals:
+                                    type: string
+                                    format: uint64
+                                  is_cosmos_originated:
+                                    type: boolean
+                                  is_concensus_token:
+                                    type: boolean
+                                title: >-
+                                  This records the relationship between an
+                                  bridged token and the denom
 
-                              of the corresponding Cosmos originated asset
+                                  of the corresponding Cosmos originated asset
+                              default_holders:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    address:
+                                      type: string
+                                    amount:
+                                      type: string
+                              logo:
+                                type: string
                         initializer:
                           type: string
+                        rpcs:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                              reputation:
+                                type: string
+                                format: uint64
+                              last_height_used:
+                                type: string
+                                format: uint64
                   admins:
                     type: array
                     items:
@@ -58728,6 +59074,10 @@ definitions:
       hyperionId:
         type: string
         format: uint64
+      rpcs_used:
+        type: array
+        items:
+          type: string
     description: >-
       The actual content of the claims is passed in with the transaction making
       the
@@ -58852,24 +59202,60 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      default_token_address_to_denoms:
+      default_tokens:
         type: array
         items:
           type: object
           properties:
-            chain_id:
+            token_address_to_denom:
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                token_address:
+                  type: string
+                denom:
+                  type: string
+                symbol:
+                  type: string
+                decimals:
+                  type: string
+                  format: uint64
+                is_cosmos_originated:
+                  type: boolean
+                is_concensus_token:
+                  type: boolean
+              title: >-
+                This records the relationship between an bridged token and the
+                denom
+
+                of the corresponding Cosmos originated asset
+            default_holders:
+              type: array
+              items:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  amount:
+                    type: string
+            logo:
               type: string
-            token_address:
-              type: string
-            denom:
-              type: string
-            is_cosmos_originated:
-              type: boolean
-          title: |-
-            This records the relationship between an bridged token and the denom
-            of the corresponding Cosmos originated asset
       initializer:
         type: string
+      rpcs:
+        type: array
+        items:
+          type: object
+          properties:
+            url:
+              type: string
+            reputation:
+              type: string
+              format: uint64
+            last_height_used:
+              type: string
+              format: uint64
   helios.hyperion.v1.GenesisHyperionState:
     type: object
     properties:
@@ -59299,6 +59685,10 @@ definitions:
             hyperionId:
               type: string
               format: uint64
+            rpcs_used:
+              type: array
+              items:
+                type: string
           description: >-
             The actual content of the claims is passed in with the transaction
             making the
@@ -59393,7 +59783,14 @@ definitions:
               type: string
             denom:
               type: string
+            symbol:
+              type: string
+            decimals:
+              type: string
+              format: uint64
             is_cosmos_originated:
+              type: boolean
+            is_concensus_token:
               type: boolean
           title: |-
             This records the relationship between an bridged token and the denom
@@ -59615,26 +60012,60 @@ definitions:
                     method
 
                     signatures required by gogoproto.
-                default_token_address_to_denoms:
+                default_tokens:
                   type: array
                   items:
                     type: object
                     properties:
-                      chain_id:
-                        type: string
-                      token_address:
-                        type: string
-                      denom:
-                        type: string
-                      is_cosmos_originated:
-                        type: boolean
-                    title: >-
-                      This records the relationship between an bridged token and
-                      the denom
+                      token_address_to_denom:
+                        type: object
+                        properties:
+                          chain_id:
+                            type: string
+                          token_address:
+                            type: string
+                          denom:
+                            type: string
+                          symbol:
+                            type: string
+                          decimals:
+                            type: string
+                            format: uint64
+                          is_cosmos_originated:
+                            type: boolean
+                          is_concensus_token:
+                            type: boolean
+                        title: >-
+                          This records the relationship between an bridged token
+                          and the denom
 
-                      of the corresponding Cosmos originated asset
+                          of the corresponding Cosmos originated asset
+                      default_holders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            address:
+                              type: string
+                            amount:
+                              type: string
+                      logo:
+                        type: string
                 initializer:
                   type: string
+                rpcs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                      reputation:
+                        type: string
+                        format: uint64
+                      last_height_used:
+                        type: string
+                        format: uint64
           admins:
             type: array
             items:
@@ -60081,6 +60512,10 @@ definitions:
                   hyperionId:
                     type: string
                     format: uint64
+                  rpcs_used:
+                    type: array
+                    items:
+                      type: string
                 description: >-
                   The actual content of the claims is passed in with the
                   transaction making the
@@ -60176,7 +60611,14 @@ definitions:
                     type: string
                   denom:
                     type: string
+                  symbol:
+                    type: string
+                  decimals:
+                    type: string
+                    format: uint64
                   is_cosmos_originated:
+                    type: boolean
+                  is_concensus_token:
                     type: boolean
                 title: >-
                   This records the relationship between an bridged token and the
@@ -60320,6 +60762,13 @@ definitions:
               items:
                 type: string
     title: GenesisState struct
+  helios.hyperion.v1.HolderWithAmount:
+    type: object
+    properties:
+      address:
+        type: string
+      amount:
+        type: string
   helios.hyperion.v1.LastClaimEvent:
     type: object
     properties:
@@ -60691,26 +61140,60 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            default_token_address_to_denoms:
+            default_tokens:
               type: array
               items:
                 type: object
                 properties:
-                  chain_id:
-                    type: string
-                  token_address:
-                    type: string
-                  denom:
-                    type: string
-                  is_cosmos_originated:
-                    type: boolean
-                title: >-
-                  This records the relationship between an bridged token and the
-                  denom
+                  token_address_to_denom:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                      token_address:
+                        type: string
+                      denom:
+                        type: string
+                      symbol:
+                        type: string
+                      decimals:
+                        type: string
+                        format: uint64
+                      is_cosmos_originated:
+                        type: boolean
+                      is_concensus_token:
+                        type: boolean
+                    title: >-
+                      This records the relationship between an bridged token and
+                      the denom
 
-                  of the corresponding Cosmos originated asset
+                      of the corresponding Cosmos originated asset
+                  default_holders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        amount:
+                          type: string
+                  logo:
+                    type: string
             initializer:
               type: string
+            rpcs:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  reputation:
+                    type: string
+                    format: uint64
+                  last_height_used:
+                    type: string
+                    format: uint64
       admins:
         type: array
         items:
@@ -61051,6 +61534,10 @@ definitions:
           hyperionId:
             type: string
             format: uint64
+          rpcs_used:
+            type: array
+            items:
+              type: string
         description: >-
           The actual content of the claims is passed in with the transaction
           making the
@@ -61383,26 +61870,60 @@ definitions:
               method
 
               signatures required by gogoproto.
-          default_token_address_to_denoms:
+          default_tokens:
             type: array
             items:
               type: object
               properties:
-                chain_id:
-                  type: string
-                token_address:
-                  type: string
-                denom:
-                  type: string
-                is_cosmos_originated:
-                  type: boolean
-              title: >-
-                This records the relationship between an bridged token and the
-                denom
+                token_address_to_denom:
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                    token_address:
+                      type: string
+                    denom:
+                      type: string
+                    symbol:
+                      type: string
+                    decimals:
+                      type: string
+                      format: uint64
+                    is_cosmos_originated:
+                      type: boolean
+                    is_concensus_token:
+                      type: boolean
+                  title: >-
+                    This records the relationship between an bridged token and
+                    the denom
 
-                of the corresponding Cosmos originated asset
+                    of the corresponding Cosmos originated asset
+                default_holders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      address:
+                        type: string
+                      amount:
+                        type: string
+                logo:
+                  type: string
           initializer:
             type: string
+          rpcs:
+            type: array
+            items:
+              type: object
+              properties:
+                url:
+                  type: string
+                reputation:
+                  type: string
+                  format: uint64
+                last_height_used:
+                  type: string
+                  format: uint64
   helios.hyperion.v1.QueryGetHyperionIdFromChainIdResponse:
     type: object
     properties:
@@ -61433,6 +61954,22 @@ definitions:
       last_observed_event_nonce:
         type: string
         format: uint64
+  helios.hyperion.v1.QueryGetRpcListByChainIdResponse:
+    type: object
+    properties:
+      rpcs:
+        type: array
+        items:
+          type: object
+          properties:
+            url:
+              type: string
+            reputation:
+              type: string
+              format: uint64
+            last_height_used:
+              type: string
+              format: uint64
   helios.hyperion.v1.QueryGetTransactionsByPageAndSizeResponse:
     type: object
     properties:
@@ -61843,26 +62380,60 @@ definitions:
                         custom method
 
                         signatures required by gogoproto.
-                    default_token_address_to_denoms:
+                    default_tokens:
                       type: array
                       items:
                         type: object
                         properties:
-                          chain_id:
-                            type: string
-                          token_address:
-                            type: string
-                          denom:
-                            type: string
-                          is_cosmos_originated:
-                            type: boolean
-                        title: >-
-                          This records the relationship between an bridged token
-                          and the denom
+                          token_address_to_denom:
+                            type: object
+                            properties:
+                              chain_id:
+                                type: string
+                              token_address:
+                                type: string
+                              denom:
+                                type: string
+                              symbol:
+                                type: string
+                              decimals:
+                                type: string
+                                format: uint64
+                              is_cosmos_originated:
+                                type: boolean
+                              is_concensus_token:
+                                type: boolean
+                            title: >-
+                              This records the relationship between an bridged
+                              token and the denom
 
-                          of the corresponding Cosmos originated asset
+                              of the corresponding Cosmos originated asset
+                          default_holders:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                address:
+                                  type: string
+                                amount:
+                                  type: string
+                          logo:
+                            type: string
                     initializer:
                       type: string
+                    rpcs:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                          reputation:
+                            type: string
+                            format: uint64
+                          last_height_used:
+                            type: string
+                            format: uint64
               admins:
                 type: array
                 items:
@@ -62311,6 +62882,10 @@ definitions:
                       hyperionId:
                         type: string
                         format: uint64
+                      rpcs_used:
+                        type: array
+                        items:
+                          type: string
                     description: >-
                       The actual content of the claims is passed in with the
                       transaction making the
@@ -62406,7 +62981,14 @@ definitions:
                         type: string
                       denom:
                         type: string
+                      symbol:
+                        type: string
+                      decimals:
+                        type: string
+                        format: uint64
                       is_cosmos_originated:
+                        type: boolean
+                      is_concensus_token:
                         type: boolean
                     title: >-
                       This records the relationship between an bridged token and
@@ -62737,26 +63319,60 @@ definitions:
                     method
 
                     signatures required by gogoproto.
-                default_token_address_to_denoms:
+                default_tokens:
                   type: array
                   items:
                     type: object
                     properties:
-                      chain_id:
-                        type: string
-                      token_address:
-                        type: string
-                      denom:
-                        type: string
-                      is_cosmos_originated:
-                        type: boolean
-                    title: >-
-                      This records the relationship between an bridged token and
-                      the denom
+                      token_address_to_denom:
+                        type: object
+                        properties:
+                          chain_id:
+                            type: string
+                          token_address:
+                            type: string
+                          denom:
+                            type: string
+                          symbol:
+                            type: string
+                          decimals:
+                            type: string
+                            format: uint64
+                          is_cosmos_originated:
+                            type: boolean
+                          is_concensus_token:
+                            type: boolean
+                        title: >-
+                          This records the relationship between an bridged token
+                          and the denom
 
-                      of the corresponding Cosmos originated asset
+                          of the corresponding Cosmos originated asset
+                      default_holders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            address:
+                              type: string
+                            amount:
+                              type: string
+                      logo:
+                        type: string
                 initializer:
                   type: string
+                rpcs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                      reputation:
+                        type: string
+                        format: uint64
+                      last_height_used:
+                        type: string
+                        format: uint64
           admins:
             type: array
             items:
@@ -63061,6 +63677,17 @@ definitions:
 
           used to check signatures on counterparty chain because of the
           significant gas savings
+  helios.hyperion.v1.Rpc:
+    type: object
+    properties:
+      url:
+        type: string
+      reputation:
+        type: string
+        format: uint64
+      last_height_used:
+        type: string
+        format: uint64
   helios.hyperion.v1.Token:
     type: object
     properties:
@@ -63091,11 +63718,53 @@ definitions:
         type: string
       denom:
         type: string
+      symbol:
+        type: string
+      decimals:
+        type: string
+        format: uint64
       is_cosmos_originated:
+        type: boolean
+      is_concensus_token:
         type: boolean
     title: |-
       This records the relationship between an bridged token and the denom
       of the corresponding Cosmos originated asset
+  helios.hyperion.v1.TokenAddressToDenomWithGenesisInfos:
+    type: object
+    properties:
+      token_address_to_denom:
+        type: object
+        properties:
+          chain_id:
+            type: string
+          token_address:
+            type: string
+          denom:
+            type: string
+          symbol:
+            type: string
+          decimals:
+            type: string
+            format: uint64
+          is_cosmos_originated:
+            type: boolean
+          is_concensus_token:
+            type: boolean
+        title: |-
+          This records the relationship between an bridged token and the denom
+          of the corresponding Cosmos originated asset
+      default_holders:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            amount:
+              type: string
+      logo:
+        type: string
   helios.hyperion.v1.TransferTx:
     type: object
     properties:
