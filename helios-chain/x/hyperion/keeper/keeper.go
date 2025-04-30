@@ -1189,7 +1189,7 @@ func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed strin
 	defer doneFn()
 
 	counterpartyChainParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
-
+	rpcList := make([]*types.Rpc, 0)
 	found := false
 	for _, rpc := range counterpartyChainParams.Rpcs {
 		if rpc.Url == rpcUsed {
@@ -1197,22 +1197,22 @@ func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed strin
 			// Update the rpc's reputation and last height used
 			rpc.Reputation++
 			rpc.LastHeightUsed = heightUsed
-			break
 		}
+		rpcList = append(rpcList, rpc)
 	}
 
 	// order the rpc list by last height used
-	sort.Slice(counterpartyChainParams.Rpcs, func(i, j int) bool {
-		return counterpartyChainParams.Rpcs[i].LastHeightUsed < counterpartyChainParams.Rpcs[j].LastHeightUsed
+	sort.Slice(rpcList, func(i, j int) bool {
+		return rpcList[i].LastHeightUsed < rpcList[j].LastHeightUsed
 	})
 	// keep the first 100 rpc
-	if len(counterpartyChainParams.Rpcs) > 100 {
-		counterpartyChainParams.Rpcs = counterpartyChainParams.Rpcs[:100]
+	if len(rpcList) > 100 {
+		rpcList = rpcList[:100]
 	}
-
 	// If the rpc is not found, add it to the list
 	if !found {
-		counterpartyChainParams.Rpcs = append(counterpartyChainParams.Rpcs, &types.Rpc{Url: rpcUsed, Reputation: 1, LastHeightUsed: heightUsed})
+		rpcList = append(rpcList, &types.Rpc{Url: rpcUsed, Reputation: 1, LastHeightUsed: heightUsed})
 	}
+	counterpartyChainParams.Rpcs = rpcList
 	k.SetCounterpartyChainParams(ctx, hyperionId, counterpartyChainParams)
 }
