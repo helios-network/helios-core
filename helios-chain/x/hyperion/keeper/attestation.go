@@ -82,6 +82,8 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 
 	// Add the validator's vote to this attestation
 	att.Votes = append(att.Votes, valAddr.String()+":"+fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes())))
+	// Add the rpc used to this attestation
+	att.RpcsUsed = append(att.RpcsUsed, claim.GetRpcUsed())
 
 	k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)
 

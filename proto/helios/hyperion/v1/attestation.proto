@@ -46,6 +46,7 @@ message Attestation {
   uint64 height = 3;
   google.protobuf.Any claim = 4;
   uint64 hyperionId = 5;
+  repeated string rpcs_used = 6;
 }
 
 // Token unique identifier for an Bridged token.
