@@ -229,6 +229,9 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 				k.processAttestation(ctx, claim)
 				k.emitObservedEvent(ctx, att, claim)
 
+				// update the rpc used
+				k.UpdateRpcUsed(ctx, claim.GetHyperionId(), claim.GetRpcUsed(), claim.GetBlockHeight())
+
 				// handle the case where user sends arbitrary data in the MsgDepositClaim
 				k.ProcessClaimData(ctx, claim)
 				break

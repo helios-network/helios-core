@@ -192,12 +192,10 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				return errors.Wrap(err, "failed to send to Community pool")
 			}
 		}
-		a.keeper.UpdateRpcUsed(ctx, claim.HyperionId, claim.RpcUsed, claim.BlockHeight)
 		// withdraw in this context means a withdraw from the Ethereum side of the bridge
 	case *types.MsgWithdrawClaim:
 		tokenContract := common.HexToAddress(claim.TokenContract)
 		a.keeper.OutgoingTxBatchExecuted(ctx, tokenContract, claim.BatchNonce, claim.HyperionId, claim)
-		a.keeper.UpdateRpcUsed(ctx, claim.HyperionId, claim.RpcUsed, claim.BlockHeight)
 		return nil
 	case *types.MsgERC20DeployedClaim:
 		// Check if it already exists
@@ -283,7 +281,6 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			IsOriginated:    false,
 		})
 		a.keeper.bankKeeper.SetDenomMetaData(ctx, metadata)
-		a.keeper.UpdateRpcUsed(ctx, claim.HyperionId, claim.RpcUsed, claim.BlockHeight)
 	case *types.MsgValsetUpdatedClaim:
 		// TODO here we should check the contents of the validator set against
 		// the store, if they differ we should take some action to indicate to the
@@ -294,7 +291,6 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 			RewardAmount: claim.RewardAmount,
 			RewardToken:  claim.RewardToken,
 		})
-		a.keeper.UpdateRpcUsed(ctx, claim.HyperionId, claim.RpcUsed, claim.BlockHeight)
 	default:
 		metrics.ReportFuncError(a.svcTags)
 		panic(fmt.Sprintf("Invalid event type for attestations %s", claim.GetType()))
