@@ -69,3 +69,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k *Keeper) GetStore(ctx sdk.Context) storetypes.KVStore {
 	return ctx.KVStore(k.storeKey)
 }
+
+// SetTransferKeeper sets the transfer keeper
+func (k *Keeper) SetTransferKeeper(tk *transferkeeper.Keeper) {
+	k.transferKeeper = tk
+}

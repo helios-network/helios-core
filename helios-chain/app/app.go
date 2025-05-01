@@ -969,6 +969,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
+	// Now set the transfer keeper
+	app.Erc20Keeper.SetTransferKeeper(&app.TransferKeeper)
 	app.PacketForwardKeeper.SetTransferKeeper(app.TransferKeeper)
 
 	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
@@ -987,7 +989,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
 
-	// Create Transfer Stack
+	// Create IBC Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
@@ -1035,15 +1037,41 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
+	// Initialize EVM keeper first without precompiles
 	evmKeeper := evmkeeper.NewKeeper(
 		app.codec, app.keys[evmtypes.StoreKey], app.tKeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
-		// FIX: Temporary solution to solve keeper interdependency while new precompile module
-		// is being developed.
-		app.Erc20Keeper,
+		nil, // Set ERC20 keeper to nil initially
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 	app.EvmKeeper = evmKeeper
+
+	// Initialize ERC20 keeper first without transfer keeper
+	erc20Keeper := erc20keeper.NewKeeper(
+		app.keys[erc20types.StoreKey],
+		app.codec,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.EvmKeeper,
+		app.StakingKeeper,
+		app.AuthzKeeper,
+		nil, // Set transfer keeper to nil initially
+	)
+	app.Erc20Keeper = erc20Keeper
+
+	// Create Transfer Keeper
+	app.TransferKeeper = transferkeeper.NewKeeper(
+		app.codec, app.keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.RateLimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
+		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, app.ScopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+		authority,
+	)
+
+	// Now set the transfer keeper in ERC20 keeper
+	app.Erc20Keeper.SetTransferKeeper(&app.TransferKeeper)
 
 	app.ChronosKeeper = *chronoskeeper.NewKeeper(
 		app.codec,
@@ -1054,15 +1082,10 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.BankKeeper,
 	)
 
-	erc20Keeper := erc20keeper.NewKeeper(
-		app.keys[erc20types.StoreKey], app.codec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
-		app.AuthzKeeper, &app.TransferKeeper,
-	)
-	app.Erc20Keeper = erc20Keeper
-
 	app.StakingKeeper.SetErc20Keeper(app.Erc20Keeper)
-	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
+
+	// Note: The precompiles will be set later in the initialization process
+	// Do not call WithStaticPrecompiles here
 
 	app.HyperionKeeper = hyperionKeeper.NewKeeper(
 		app.codec,
@@ -1097,22 +1120,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		),
 	)
 
-	evmKeeper.WithStaticPrecompiles(
-		evmkeeper.NewAvailableStaticPrecompiles(
-			*app.StakingKeeper,
-			app.DistrKeeper,
-			app.BankKeeper,
-			app.Erc20Keeper,
-			app.AuthzKeeper,
-			app.TransferKeeper,
-			app.IBCKeeper.ChannelKeeper,
-			app.GovKeeper,
-			app.ChronosKeeper,
-			app.HyperionKeeper,
-			app.LogosKeeper,
-		),
-	)
-
 	// register the proposal types
 	govRouter := govv1beta1.NewRouter().
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
@@ -1134,6 +1141,23 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
 			app.RevenueKeeper.Hooks(),
+		),
+	)
+
+	// Finally, set up the static precompiles
+	app.EvmKeeper = app.EvmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
+			*app.StakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
+			app.Erc20Keeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.GovKeeper,
+			app.ChronosKeeper,
+			app.HyperionKeeper,
+			app.LogosKeeper,
 		),
 	)
 }
