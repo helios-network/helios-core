@@ -12,7 +12,7 @@ jq '.app_state["gov"]["params"]["min_initial_deposit_ratio"]="0.1000000000000000
 echo "NOTE: Setting Governance Voting Period to 10 seconds for easy testing"
 jq '.app_state["gov"]["params"]["voting_period"]="30s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 jq '.app_state["gov"]["params"]["expedited_voting_period"]="10s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
-jq '.app_state["staking"]["params"]["unbonding_time"]="5s"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
+jq '.app_state["staking"]["params"]["unbonding_time"]="5h"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 # Set gas limit in genesis (500000000 == 1000 normal tx)
 jq '.consensus["params"]["block"]["max_gas"]="500000000"' $GENESIS_CONFIG > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS_CONFIG
 # Set base fee at the start of the blockchain (1Gwei = 1000000000)
