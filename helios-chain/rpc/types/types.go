@@ -90,6 +90,11 @@ type ParsedRPCTransaction struct {
 	ParsedInfo     map[string]interface{} `json:parsedInfo`
 }
 
+type AccountTokensBalance struct {
+	TotalCount uint64         `json:totalCount`
+	Balances   []TokenBalance `json:balances`
+}
+
 // StateOverride is the collection of overridden accounts.
 type StateOverride map[common.Address]OverrideAccount
 

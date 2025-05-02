@@ -230,7 +230,7 @@ func (b *Backend) GetAccountTokenBalance(address common.Address, tokenAddress co
 }
 
 // GetTokensBalance returns all token balances for an account
-func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.TokenBalance, error) {
+func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) (*rpctypes.AccountTokensBalance, error) {
 	balances := make([]rpctypes.TokenBalance, 0)
 
 	allBalances, err := b.queryClient.Bank.AllBalancesWithFullMetadata(b.ctx, &banktypes.QueryAllBalancesWithFullMetadataRequest{
@@ -270,7 +270,12 @@ func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, p
 		})
 	}
 
-	return balances, nil
+	result := &rpctypes.AccountTokensBalance{
+		Balances:   balances,
+		TotalCount: allBalances.Pagination.Total,
+	}
+
+	return result, nil
 }
 
 // GetTransactionCount returns the number of transactions at the given address up to the given block number.
