@@ -2,6 +2,7 @@ package backend
 
 import (
 	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
@@ -57,12 +58,16 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 		})
 	}
 
+	bankRes, _ := b.queryClient.Bank.DenomFullMetadata(b.ctx, &banktypes.QueryDenomFullMetadataRequest{
+		Denom: evmtypes.DefaultEVMDenom,
+	})
+
 	counterpartyChainParams = append(counterpartyChainParams, &rpctypes.HyperionChainRPC{
 		HyperionContractAddress: evmtypes.HyperionPrecompileAddress,
 		ChainId:                 uint64(b.chainID.Int64()),
 		Name:                    "Helios",
 		ChainType:               "evm",
-		Logo:                    "",
+		Logo:                    bankRes.Metadata.Metadata.Logo,
 		HyperionId:              0,
 	})
 
