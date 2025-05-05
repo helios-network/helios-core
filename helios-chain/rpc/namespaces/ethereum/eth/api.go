@@ -147,6 +147,8 @@ type EthereumAPI interface {
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
 	GetActiveValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
+	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
+	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
 	// eth_getDelegations
 
 	// cron
@@ -775,4 +777,16 @@ func (e *PublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address common.Ad
 func (e *PublicAPI) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 	e.logger.Debug("eth_getHyperionChains")
 	return e.backend.GetHyperionChains()
+}
+
+// Dans helios-chain/rpc/namespaces/ethereum/eth/api.go
+
+func (e *PublicAPI) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error) {
+	e.logger.Debug("eth_getBlockSignatures", "height", blockHeight)
+	return e.backend.GetBlockSignatures(blockHeight)
+}
+
+func (e *PublicAPI) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error) {
+	e.logger.Debug("eth_getEpochComplete", "epochId", epochId)
+	return e.backend.GetEpochComplete(epochId)
 }

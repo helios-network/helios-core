@@ -518,3 +518,127 @@ func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
 
 	return fmt.Sprintf("%f%%", apr*100.0), nil
 }
+
+// GetBlockSignatures queries block signatures with address conversion
+func (b *Backend) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error) {
+	// Call the gRPC query
+	req := &stakingtypes.QueryBlockSignaturesRequest{
+		Height: int64(blockHeight),
+	}
+
+	res, err := b.queryClient.Staking.BlockSignatures(b.ctx, req)
+	if err != nil {
+		b.logger.Error("GetBlockSignatures", "err", err)
+		return nil, err
+	}
+
+	// Convert response with address conversion
+	signatures := make([]*rpctypes.ValidatorSignature, len(res.Signatures))
+	for i, sig := range res.Signatures {
+		// Convert operator address to ETH format - CORRECTION ICI
+		valAddr, err := sdk.ValAddressFromBech32(sig.Address)
+		var ethAddr string
+		if err != nil {
+			b.logger.Error("failed to decode validator address", "addr", sig.Address, "err", err)
+			ethAddr = ""
+		} else {
+			ethAddr = common.BytesToAddress(valAddr.Bytes()).Hex()
+		}
+
+		// Convert AssetWeights
+		var assetWeights []*rpctypes.AssetWeight
+		for _, aw := range sig.AssetWeights {
+			assetWeights = append(assetWeights, &rpctypes.AssetWeight{
+				Denom:          aw.Denom,
+				BaseAmount:     aw.BaseAmount.String(),
+				WeightedAmount: aw.WeightedAmount.String(),
+			})
+		}
+
+		signatures[i] = &rpctypes.ValidatorSignature{
+			Address:          ethAddr,
+			Signed:           sig.Signed,
+			IndexOffset:      sig.IndexOffset,
+			TotalTokens:      sig.TotalTokens,
+			AssetWeights:     assetWeights,
+			EpochNumber:      sig.EpochNumber,
+			Status:           sig.Status,
+			Jailed:           sig.Jailed,
+			MissedBlockCount: sig.MissedBlockCount,
+		}
+	}
+
+	return signatures, nil
+}
+
+// GetEpochComplete queries complete epoch data with address conversion
+func (b *Backend) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error) {
+	// Call the gRPC query
+	req := &stakingtypes.QueryEpochCompleteRequest{
+		EpochId: uint64(epochId),
+	}
+	res, err := b.queryClient.Staking.EpochComplete(b.ctx, req)
+	if err != nil {
+		b.logger.Error("GetEpochComplete", "err", err)
+		return nil, err
+	}
+	// Convert response with address conversion
+	validators := make([]*rpctypes.EpochValidatorDetail, len(res.Validators))
+	for i, val := range res.Validators {
+		// Convert operator address to ETH format
+		valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+		var ethAddress string
+		if err != nil {
+			b.logger.Error("failed to decode validator address", "addr", val.OperatorAddress, "err", err)
+			ethAddress = ""
+		} else {
+			ethAddress = common.BytesToAddress(valAddr.Bytes()).Hex()
+		}
+
+		// Convert BlocksSigned
+		var blocksSigned []*rpctypes.EpochValidatorSignature
+		for _, bs := range val.BlocksSigned {
+			blocksSigned = append(blocksSigned, &rpctypes.EpochValidatorSignature{
+				Signature: bs.Signature,
+				Height:    bs.Height,
+			})
+		}
+		// Convert AssetWeights
+		var assetWeights []*rpctypes.AssetWeight
+		for _, aw := range val.AssetWeights {
+			assetWeights = append(assetWeights, &rpctypes.AssetWeight{
+				Denom:          aw.Denom,
+				BaseAmount:     aw.BaseAmount.String(),
+				WeightedAmount: aw.WeightedAmount.String(),
+			})
+		}
+		validators[i] = &rpctypes.EpochValidatorDetail{
+			ValidatorAddress:       ethAddress, // Même adresse que l'opérateur
+			OperatorAddress:        ethAddress, // L'adresse de l'opérateur
+			BlocksSigned:           blocksSigned,
+			BlocksMissed:           val.BlocksMissed,
+			BondedTokens:           val.BondedTokens.String(),
+			Status:                 val.Status,
+			IsSlashed:              val.IsSlashed,
+			IsJailed:               val.IsJailed,
+			AssetWeights:           assetWeights,
+			MissedBlockCount:       val.MissedBlockCount,
+			SigningInfoStartHeight: val.SigningInfoStartHeight,
+			CommissionRate:         val.CommissionRate,
+			VotingPower:            val.VotingPower.String(),
+		}
+	}
+	return &rpctypes.EpochCompleteResponse{
+		Epoch:                res.Epoch,
+		EpochLength:          res.EpochLength,
+		StartHeight:          res.StartHeight,
+		EndHeight:            res.EndHeight,
+		CurrentHeight:        res.CurrentHeight,
+		BlocksValidated:      res.BlocksValidated,
+		BlocksRemaining:      res.BlocksRemaining,
+		BlocksUntilNextEpoch: res.BlocksUntilNextEpoch,
+		Validators:           validators,
+		TotalTokens:          res.TotalTokens.String(),
+		TotalVotingPower:     res.TotalVotingPower.String(),
+	}, nil
+}

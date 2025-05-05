@@ -217,3 +217,61 @@ type HyperionChainRPC struct {
 	Logo                    string `json:"logo"`
 	HyperionId              uint64 `json:"hyperionId"`
 }
+
+// ValidatorSignature struct for block signature information
+type ValidatorSignature struct {
+	Address          string         `json:"address"`
+	Signed           bool           `json:"signed"`
+	IndexOffset      int64          `json:"indexOffset"`
+	TotalTokens      string         `json:"totalTokens"`
+	AssetWeights     []*AssetWeight `json:"assetWeights"`
+	EpochNumber      int64          `json:"epochNumber"`
+	Status           string         `json:"status"`
+	Jailed           bool           `json:"jailed"`
+	MissedBlockCount int64          `json:"missedBlockCount"`
+}
+
+// AssetWeight struct for asset weight information
+type AssetWeight struct {
+	Denom          string `json:"denom"`
+	BaseAmount     string `json:"baseAmount"`
+	WeightedAmount string `json:"weightedAmount"`
+}
+
+// EpochValidatorSignature represents a validator's signature at a specific height
+type EpochValidatorSignature struct {
+	Signature bool  `json:"signature"`
+	Height    int64 `json:"height"`
+}
+
+// EpochValidatorDetail contains complete information about a validator in an epoch
+type EpochValidatorDetail struct {
+	ValidatorAddress       string                     `json:"validatorAddress"`
+	OperatorAddress        string                     `json:"operatorAddress"`
+	BlocksSigned           []*EpochValidatorSignature `json:"blocksSigned"`
+	BlocksMissed           []int64                    `json:"blocksMissed"`
+	BondedTokens           string                     `json:"bondedTokens"`
+	Status                 string                     `json:"status"`
+	IsSlashed              bool                       `json:"isSlashed"`
+	IsJailed               bool                       `json:"isJailed"`
+	AssetWeights           []*AssetWeight             `json:"assetWeights"`
+	MissedBlockCount       int64                      `json:"missedBlockCount"`
+	SigningInfoStartHeight string                     `json:"signingInfoStartHeight"`
+	CommissionRate         string                     `json:"commissionRate"`
+	VotingPower            string                     `json:"votingPower"`
+}
+
+// EpochCompleteResponse contains complete information about an epoch
+type EpochCompleteResponse struct {
+	Epoch                uint64                  `json:"epoch"`
+	EpochLength          uint64                  `json:"epochLength"`
+	StartHeight          int64                   `json:"startHeight"`
+	EndHeight            int64                   `json:"endHeight"`
+	CurrentHeight        int64                   `json:"currentHeight"`
+	BlocksValidated      int64                   `json:"blocksValidated"`
+	BlocksRemaining      int64                   `json:"blocksRemaining"`
+	BlocksUntilNextEpoch int64                   `json:"blocksUntilNextEpoch"`
+	Validators           []*EpochValidatorDetail `json:"validators"`
+	TotalTokens          string                  `json:"totalTokens"`
+	TotalVotingPower     string                  `json:"totalVotingPower"`
+}
