@@ -873,6 +873,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authority,
 	)
 
+	app.StakingKeeper.SetSlashingKeeper(&app.SlashingKeeper)
+
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		app.codec,
 		runtime.NewKVStoreService(app.keys[crisistypes.StoreKey]),
