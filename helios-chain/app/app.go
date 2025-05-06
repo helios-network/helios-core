@@ -1152,6 +1152,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		),
 	)
 
+	app.EvmKeeper.SetErc20Keeper(app.Erc20Keeper)
+
 	// Finally, set up the static precompiles
 	app.EvmKeeper = app.EvmKeeper.WithStaticPrecompiles(
 		evmkeeper.NewAvailableStaticPrecompiles(
