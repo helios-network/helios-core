@@ -554,19 +554,10 @@ func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil
 	return transactions, nil
 }
 
-func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.ParsedRPCTransaction, error) {
-	if !(size > 0 && size <= 50) {
-		return nil, errors.New("size must be between 1 and 50")
-	}
+func (b *Backend) ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes.ParsedRPCTransaction, error) {
+	transactions := make([]*rpctypes.ParsedRPCTransaction, 0, len(txs))
 
-	rawTxs, err := b.GetTransactionsByPageAndSize(1, size)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get transactions: %w", err)
-	}
-
-	transactions := make([]*rpctypes.ParsedRPCTransaction, 0, size)
-
-	for _, transaction := range rawTxs {
+	for _, transaction := range txs {
 		if transaction == nil {
 			return nil, errors.New("transaction is nil")
 		}
@@ -623,6 +614,19 @@ func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.Pars
 	}
 
 	return transactions, nil
+}
+
+func (b *Backend) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.ParsedRPCTransaction, error) {
+	if !(size > 0 && size <= 50) {
+		return nil, errors.New("size must be between 1 and 50")
+	}
+
+	rawTxs, err := b.GetTransactionsByPageAndSize(1, size)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get transactions: %w", err)
+	}
+
+	return b.ParseTransactions(rawTxs)
 }
 
 func (b *Backend) decodeStakingTransaction(transaction *rpctypes.RPCTransaction) (map[string]interface{}, error) {

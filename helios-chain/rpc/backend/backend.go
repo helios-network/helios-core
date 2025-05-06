@@ -93,6 +93,7 @@ type EVMBackend interface {
 	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
 	GetAccountTokenBalance(address common.Address, tokenAddress common.Address) (*hexutil.Big, error)
 	GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) (*rpctypes.AccountTokensBalance, error)
+	GetAccountLastTransactionsInfo(address common.Address) ([]*rpctypes.ParsedRPCTransaction, error)
 
 	// Chain Info
 	ChainID() (*hexutil.Big, error)
@@ -171,6 +172,7 @@ type EVMBackend interface {
 
 	// hyperion
 	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
+	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
 }
 

@@ -115,6 +115,8 @@ var (
 	EthereumBlacklistKey = []byte{0x1c}
 
 	FinalizedTxKey = []byte{0x1d}
+
+	LastFinalizedTxIndexKey = []byte{0x1e}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {

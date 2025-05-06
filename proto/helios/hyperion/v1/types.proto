@@ -109,3 +109,7 @@ message Rpc {
   uint64 reputation = 2;
   uint64 last_height_used = 3;
 }
+
+message LastFinalizedTxIndex {
+  repeated TransferTx txs = 1;
+}

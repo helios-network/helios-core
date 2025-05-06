@@ -38,6 +38,27 @@ func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Addr
 	return res.Txs, nil
 }
 
+func (b *Backend) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+	if size == 0 || size > 100 {
+		return nil, errors.New("invalid size parameters")
+	}
+
+	req := &hyperiontypes.QueryGetTransactionsByPageAndSizeRequest{
+		Address: "",
+		Pagination: &query.PageRequest{
+			Offset: (uint64(1) - 1) * uint64(size),
+			Limit:  uint64(size),
+		},
+		FormatErc20: true,
+	}
+	res, err := b.queryClient.Hyperion.QueryGetTransactionsByPageAndSize(b.ctx, req)
+	if err != nil || res.Txs == nil {
+		return []*hyperiontypes.TransferTx{}, err
+	}
+
+	return res.Txs, nil
+}
+
 func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 	res, err := b.queryClient.Hyperion.Params(b.ctx, &hyperiontypes.QueryParamsRequest{})
 	if err != nil {

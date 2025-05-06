@@ -281,6 +281,15 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	if req.Pagination == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "pagination is required")
 	}
+	if req.Address == "" { // return all tx's
+		finalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to search finalized txs")
+		}
+		return &types.QueryGetTransactionsByPageAndSizeResponse{
+			Txs: finalizedTxs.Txs,
+		}, nil
+	}
 
 	startIndex := req.Pagination.Offset
 	endIndex := req.Pagination.Offset + req.Pagination.Limit

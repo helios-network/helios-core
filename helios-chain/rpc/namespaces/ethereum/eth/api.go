@@ -82,6 +82,7 @@ type EthereumAPI interface {
 	GetAccountTransactionsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
 	GetAccountTokenBalance(address common.Address, tokenAddress common.Address) (*hexutil.Big, error)
 	GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) (*rpctypes.AccountTokensBalance, error)
+	GetAccountLastTransactionsInfo(address common.Address) ([]*rpctypes.ParsedRPCTransaction, error)
 
 	// EVM/Smart Contract Execution
 	//
@@ -167,6 +168,7 @@ type EthereumAPI interface {
 
 	// hyperion
 	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
+	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
 }
 
@@ -371,6 +373,11 @@ func (e *PublicAPI) GetAccountTokenBalance(address common.Address, tokenAddress 
 func (e *PublicAPI) GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) (*rpctypes.AccountTokensBalance, error) {
 	e.logger.Debug("eth_getAccountTokensBalanceByPageAndSize", "address", address.String(), "page", page, "size", size)
 	return e.backend.GetAccountTokensBalanceByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetAccountLastTransactionsInfo(address common.Address) ([]*rpctypes.ParsedRPCTransaction, error) {
+	e.logger.Debug("eth_getAccountLastTransactionsInfo", "address", address.String())
+	return e.backend.GetAccountLastTransactionsInfo(address)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -770,6 +777,11 @@ func (e *PublicAPI) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes
 func (e *PublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
 	e.logger.Debug("eth_getHyperionAccountTransferTxsByPageAndSize", "address", address, "page", page, "size", size)
 	return e.backend.GetHyperionAccountTransferTxsByPageAndSize(address, page, size)
+}
+
+func (e *PublicAPI) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+	e.logger.Debug("eth_getAllHyperionTransferTxs", "size", size)
+	return e.backend.GetAllHyperionTransferTxs(size)
 }
 
 func (e *PublicAPI) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {

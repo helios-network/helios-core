@@ -1131,6 +1131,35 @@ func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
 	}
 }
 
+func (k *Keeper) StoreLastFinalizedTxIndex(ctx sdk.Context, tx *types.TransferTx) {
+	store := ctx.KVStore(k.storeKey)
+	lastFinalizedTxIndexStore := prefix.NewStore(store, types.LastFinalizedTxIndexKey)
+
+	lastFinalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
+	if err != nil {
+		return
+	}
+
+	lastFinalizedTxs.Txs = append(lastFinalizedTxs.Txs, tx)
+	if len(lastFinalizedTxs.Txs) > 100 { // save only the last 100 txs
+		lastFinalizedTxs.Txs = lastFinalizedTxs.Txs[len(lastFinalizedTxs.Txs)-100:]
+	}
+
+	lastFinalizedTxIndexStore.Set([]byte{0x0}, k.cdc.MustMarshal(&lastFinalizedTxs))
+}
+
+func (k *Keeper) GetLastFinalizedTxIndex(ctx sdk.Context) (types.LastFinalizedTxIndex, error) {
+	store := ctx.KVStore(k.storeKey)
+	lastFinalizedTxIndexStore := prefix.NewStore(store, types.LastFinalizedTxIndexKey)
+	lastFinalizedTxs := lastFinalizedTxIndexStore.Get([]byte{0x0})
+	if lastFinalizedTxs == nil {
+		return types.LastFinalizedTxIndex{}, nil
+	}
+	var txs types.LastFinalizedTxIndex
+	k.cdc.MustUnmarshal(lastFinalizedTxs, &txs)
+	return txs, nil
+}
+
 func (k *Keeper) FindLastFinalizedTxIndex(ctx sdk.Context, addr common.Address) (uint64, error) {
 	store := ctx.KVStore(k.storeKey)
 	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
