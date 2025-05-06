@@ -176,6 +176,8 @@ type EVMBackend interface {
 	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
+
+	ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes.ParsedRPCTransaction, error)
 }
 
 var _ BackendI = (*Backend)(nil)
