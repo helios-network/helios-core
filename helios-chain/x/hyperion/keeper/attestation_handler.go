@@ -169,11 +169,11 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 				metrics.ReportFuncError(a.svcTags)
 				return errors.Wrap(types.ErrSupplyOverflow, "invalid supply")
 			}
+		}
 
-			if err := a.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-				metrics.ReportFuncError(a.svcTags)
-				return errors.Wrapf(err, "mint vouchers coins: %s", coins)
-			}
+		if err := a.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+			metrics.ReportFuncError(a.svcTags)
+			return errors.Wrapf(err, "mint vouchers coins: %s", coins)
 		}
 
 		if !invalidAddress { // address appears valid, attempt to send minted/locked coins to receiver
