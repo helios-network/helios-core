@@ -21,6 +21,7 @@ import (
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -684,7 +685,15 @@ func (b *Backend) decodeStakingTransaction(transaction *rpctypes.RPCTransaction)
 			decodedValues["type"] = "STAKE_OUT"
 		}
 		decodedValues["amount"] = amount.String()
-		decodedValues["denom"] = denom
+
+		bankRes, _ := b.queryClient.Bank.DenomFullMetadata(b.ctx, &banktypes.QueryDenomFullMetadataRequest{
+			Denom: denom,
+		})
+
+		if bankRes != nil {
+			decodedValues["contractAddress"] = bankRes.Metadata.Metadata.ContractAddress
+			decodedValues["symbol"] = bankRes.Metadata.Metadata.Symbol
+		}
 		return decodedValues, nil
 	}
 	return decodedValues, nil
