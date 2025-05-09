@@ -98,7 +98,7 @@ func (p Precompile) AddCounterpartyChainParams(
 			SignedValsetsWindow:           25000,
 			SignedBatchesWindow:           25000,
 			SignedClaimsWindow:            25000,
-			TargetBatchTimeout:            43200000,
+			TargetBatchTimeout:            3600000, // 1 hour
 			AverageBlockTime:              2000,
 			AverageCounterpartyBlockTime:  15000,
 			SlashFractionValset:           cosmosmath.LegacyNewDecFromIntWithPrec(cosmosmath.NewInt(1), 3), // 0.001

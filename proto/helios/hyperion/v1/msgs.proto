@@ -46,6 +46,12 @@ service Msg {
       returns (MsgSetOrchestratorAddressesResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/set_orchestrator_address";
   }
+
+  rpc UnSetOrchestratorAddresses(MsgUnSetOrchestratorAddresses)
+      returns (MsgUnSetOrchestratorAddressesResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/unset_orchestrator_address";
+  }
+
   rpc CancelSendToChain(MsgCancelSendToChain) returns (MsgCancelSendToChainResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/cancel_send_to_chain";
   }
@@ -400,3 +406,14 @@ message MsgUpdateCounterpartyChainInfosParams {
 message MsgUpdateCounterpartyChainInfosParamsResponse {
   bool updated = 1;
 }
+
+message MsgUnSetOrchestratorAddresses {
+  option (amino.name) = "hyperion/MsgUnSetOrchestratorAddresses";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  uint64 hyperion_id = 2;
+  string eth_address = 3;
+}
+
+message MsgUnSetOrchestratorAddressesResponse {} 

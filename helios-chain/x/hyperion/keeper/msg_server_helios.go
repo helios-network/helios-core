@@ -76,6 +76,25 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	fmt.Println("SetOrchestratorAddresses success")
 
 	return &types.MsgSetOrchestratorAddressesResponse{}, nil
+}
+
+func (k msgServer) UnSetOrchestratorAddresses(c context.Context, msg *types.MsgUnSetOrchestratorAddresses) (*types.MsgUnSetOrchestratorAddressesResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	validatorAccountAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
+	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
+
+	fmt.Println("msg.EthAddress: ", msg.EthAddress)
+	ethAddr := common.HexToAddress(msg.EthAddress)
+	fmt.Println("ethAddr: ", ethAddr)
+
+	k.Keeper.DeleteOrchestratorValidator(ctx, msg.HyperionId, validatorAccountAddr)
+	k.Keeper.DeleteEthAddressForValidator(ctx, msg.HyperionId, validatorAddr, ethAddr)
+
+	return &types.MsgUnSetOrchestratorAddressesResponse{}, nil
 
 }
 

@@ -547,6 +547,15 @@ func (k *Keeper) GetOrchestratorValidator(ctx sdk.Context, hyperionId uint64, or
 	return sdk.ValAddress(bz), true
 }
 
+// DeleteOrchestratorValidator deletes the orchestrator validator
+func (k *Keeper) DeleteOrchestratorValidator(ctx sdk.Context, hyperionId uint64, orch sdk.AccAddress) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetOrchestratorAddressKey(hyperionId, orch))
+}
+
 /////////////////////////////
 //       ETH ADDRESS       //
 /////////////////////////////
@@ -574,6 +583,15 @@ func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, hyperionId uint64, va
 	}
 
 	return common.BytesToAddress(bz), true
+}
+
+func (k *Keeper) DeleteEthAddressForValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress, ethAddr common.Address) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetEthAddressByValidatorKey(hyperionId, validator))
+	store.Delete(types.GetValidatorByEthAddressKey(hyperionId, ethAddr))
 }
 
 // GetValidatorByEthAddress returns the validator for a given eth address

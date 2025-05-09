@@ -42,10 +42,10 @@ func DefaultLocalPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000, // 12 hours
-		TargetOutgoingTxTimeout:       600000,   // 10 minutes
-		AverageBlockTime:              2000,     // 2 seconds
-		AverageCounterpartyBlockTime:  2000,     // chain blocktime 2seconds
+		TargetBatchTimeout:            3600000, // 1 hour
+		TargetOutgoingTxTimeout:       600000,  // 10 minutes
+		AverageBlockTime:              2000,    // 2 seconds
+		AverageCounterpartyBlockTime:  2000,    // chain blocktime 2seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
@@ -127,10 +127,10 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000, // 12 hours
-		TargetOutgoingTxTimeout:       600000,   // 10 minutes
-		AverageBlockTime:              2000,     // 2 seconds
-		AverageCounterpartyBlockTime:  2000,     // chain blocktime 2seconds
+		TargetBatchTimeout:            3600000, // 1 hour
+		TargetOutgoingTxTimeout:       600000,  // 10 minutes
+		AverageBlockTime:              2000,    // 2 seconds
+		AverageCounterpartyBlockTime:  2000,    // chain blocktime 2seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
@@ -212,10 +212,10 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 		SignedValsetsWindow:           25000,
 		SignedBatchesWindow:           25000,
 		SignedClaimsWindow:            25000,
-		TargetBatchTimeout:            43200000, // 12 hours
-		TargetOutgoingTxTimeout:       600000,   // 10 minutes
-		AverageBlockTime:              2000,     // 2 seconds
-		AverageCounterpartyBlockTime:  12000,    // chain blocktime 12seconds
+		TargetBatchTimeout:            3600000, // 1 hour
+		TargetOutgoingTxTimeout:       600000,  // 10 minutes
+		AverageBlockTime:              2000,    // 2 seconds
+		AverageCounterpartyBlockTime:  12000,   // chain blocktime 12seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
