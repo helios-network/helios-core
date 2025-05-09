@@ -18,9 +18,12 @@ import (
 // to be sent via IBC.
 type Keeper struct {
 	*keeper.Keeper
-	bankKeeper    types.BankKeeper
-	erc20Keeper   types.ERC20Keeper
-	accountKeeper types.AccountKeeper
+	bankKeeper       types.BankKeeper
+	erc20Keeper      types.ERC20Keeper
+	accountKeeper    types.AccountKeeper
+	channelKeeper    transfertypes.ChannelKeeper
+	connectionKeeper transfertypes.ConnectionKeeper
+	clientKeeper     transfertypes.ClientKeeper
 }
 
 // NewKeeper creates a new IBC transfer Keeper instance
@@ -51,5 +54,18 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		erc20Keeper:   erc20Keeper,
 		accountKeeper: accountKeeper,
+		channelKeeper: channelKeeper,
 	}
+}
+
+func (k *Keeper) ChannelKeeper() transfertypes.ChannelKeeper {
+	return k.channelKeeper
+}
+
+func (k *Keeper) ConnectionKeeper() transfertypes.ConnectionKeeper {
+	return k.connectionKeeper
+}
+
+func (k *Keeper) ClientKeeper() transfertypes.ClientKeeper {
+	return k.clientKeeper
 }
