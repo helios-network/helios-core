@@ -138,13 +138,23 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 		tokenAddressToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
 		tokenAddressToDenomFee, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
 
+		tokenAddress := ""
+		if tokenAddressToDenom != nil {
+			tokenAddress = tokenAddressToDenom.Denom
+		}
+
+		tokenAddressFee := ""
+		if tokenAddressToDenomFee != nil {
+			tokenAddressFee = tokenAddressToDenomFee.Denom
+		}
+
 		k.StoreFinalizedTx(ctx, &types.TransferTx{
 			HyperionId:    tx.HyperionId,
 			Id:            tx.Id,
 			Sender:        cmn.AnyToHexAddress(tx.Sender).String(),
 			DestAddress:   cmn.AnyToHexAddress(tx.DestAddress).String(),
-			SentToken:     &types.Token{Amount: tx.Token.Amount, Contract: tokenAddressToDenom.Denom},
-			SentFee:       &types.Token{Amount: tx.Fee.Amount, Contract: tokenAddressToDenomFee.Denom},
+			SentToken:     &types.Token{Amount: tx.Token.Amount, Contract: tokenAddress},
+			SentFee:       &types.Token{Amount: tx.Fee.Amount, Contract: tokenAddressFee},
 			ReceivedToken: tx.Token,
 			ReceivedFee:   tx.Fee,
 			Status:        "BRIDGED",

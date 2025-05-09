@@ -139,6 +139,11 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 
 							tokenToDenom, _ := h.k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
 
+							tokenAddress := ""
+							if tokenToDenom != nil {
+								tokenAddress = tokenToDenom.Denom
+							}
+
 							h.k.StoreFinalizedTx(ctx, &types.TransferTx{
 								HyperionId:  claim.HyperionId,
 								Id:          claim.EventNonce,
@@ -155,7 +160,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context) {
 								},
 								ReceivedToken: &types.Token{
 									Amount:   claim.Amount,
-									Contract: tokenToDenom.TokenAddress,
+									Contract: tokenAddress,
 								},
 								ReceivedFee: &types.Token{
 									Amount:   math.NewInt(0),
