@@ -115,7 +115,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) e
 					Name:        name,
 					Symbol:      symbol,
 					Decimals:    uint32(decimals),
-					Display:     name,
+					Display:     symbol,
 					DenomUnits: []*banktypes.DenomUnit{
 						{
 							Denom:    denom,
