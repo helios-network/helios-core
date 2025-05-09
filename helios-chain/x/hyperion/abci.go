@@ -39,9 +39,9 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 	defer doneFn()
 
 	params := h.k.GetParams(ctx)
-	// for _, counterpartyChainParams := range params.CounterpartyChainParams {
-	// 	h.slashing(ctx, counterpartyChainParams)
-	// }
+	for _, counterpartyChainParams := range params.CounterpartyChainParams {
+		h.slashing(ctx, counterpartyChainParams)
+	}
 	h.attestationTally(ctx)
 	h.cleanupTimedOutBatches(ctx)
 	h.cleanupTimedOutOutgoingTx(ctx)
@@ -191,7 +191,7 @@ func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChain
 
 	// Slash validator for not confirming valset requests, batch requests and not attesting claims rightfully
 	h.valsetSlashing(ctx, params)
-	// h.batchSlashing(ctx, params)
+	h.batchSlashing(ctx, params)
 
 	// See https://github.com/Gravity-Bridge/Gravity-Bridge/blob/main/spec/slashing-spec.md#gravslash-05-failure-to-submit-eth-oracle-claims---intentionally-not-implemented
 	// if params.ClaimSlashingEnabled {
@@ -345,6 +345,11 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 		currentBondedSet, _ := h.k.StakingKeeper.GetBondedValidatorsByPower(ctx)
 
 		for i := range currentBondedSet {
+			if currentBondedSet[i].IsJailed() {
+				// if the validator is jailed, we can skip the validator
+				continue
+			}
+
 			consAddr, _ := currentBondedSet[i].GetConsAddr()
 			valSigningInfo, err := h.k.SlashingKeeper.GetValidatorSigningInfo(ctx, consAddr)
 
@@ -353,8 +358,17 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 			if exist && valSigningInfo.StartHeight < int64(vs.Height) {
 				// Check if validator has confirmed valset or not
 				found := false
+				accAddr, _ := sdk.AccAddressFromBech32(currentBondedSet[i].GetOperator())
+
+				valAddr, exists := h.k.GetOrchestratorValidator(ctx, vs.HyperionId, accAddr)
+
+				if !exists {
+					// if the validator is not found, it means that the validator is not an orchestrator
+					// so we can skip the validator
+					continue
+				}
+
 				for _, conf := range confirms {
-					valAddr, _ := sdk.ValAddressFromBech32(currentBondedSet[i].GetOperator())
 					ethAddress, exists := h.k.GetEthAddressByValidator(ctx, vs.HyperionId, valAddr)
 					// This may have an issue if the validator changes their eth address
 					// TODO this presents problems for delegate key rotation see issue #344
@@ -405,6 +419,13 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 			unbondingValidators := h.k.DeserializeValidatorIterator(unbondingValIterator.Value())
 			for _, valAddr := range unbondingValidators.Addresses {
 				addr, err := sdk.ValAddressFromBech32(valAddr)
+				accAddr, _ := sdk.AccAddressFromBech32(valAddr)
+				_, exists := h.k.GetOrchestratorValidator(ctx, vs.HyperionId, accAddr)
+				if !exists {
+					// if the validator is not found, it means that the validator is not an orchestrator
+					// so we can skip the validator
+					continue
+				}
 				if err != nil {
 					metrics.ReportFuncError(h.svcTags)
 					panic(err)
@@ -482,6 +503,13 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 		for i := range currentBondedSet {
 			// Don't slash validators who joined after batch is created
 			consAddr, _ := currentBondedSet[i].GetConsAddr()
+			accAddr, _ := sdk.AccAddressFromBech32(currentBondedSet[i].GetOperator())
+			_, exists := h.k.GetOrchestratorValidator(ctx, batch.HyperionId, accAddr)
+			if !exists {
+				// if the validator is not found, it means that the validator is not an orchestrator
+				// so we can skip the validator
+				continue
+			}
 
 			valSigningInfo, err := h.k.SlashingKeeper.GetValidatorSigningInfo(ctx, consAddr)
 			if exist := err == nil; exist && valSigningInfo.StartHeight > int64(batch.Block) {
