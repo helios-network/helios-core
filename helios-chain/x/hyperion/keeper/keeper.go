@@ -1129,6 +1129,7 @@ func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
 		tx.Index = lastIndex + 1
 		finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index), k.cdc.MustMarshal(tx))
 	}
+	k.StoreLastFinalizedTxIndex(ctx, tx)
 }
 
 func (k *Keeper) StoreLastFinalizedTxIndex(ctx sdk.Context, tx *types.TransferTx) {

@@ -191,7 +191,7 @@ func (h *BlockHandler) slashing(ctx sdk.Context, params *types.CounterpartyChain
 
 	// Slash validator for not confirming valset requests, batch requests and not attesting claims rightfully
 	h.valsetSlashing(ctx, params)
-	h.batchSlashing(ctx, params)
+	// h.batchSlashing(ctx, params)
 
 	// See https://github.com/Gravity-Bridge/Gravity-Bridge/blob/main/spec/slashing-spec.md#gravslash-05-failure-to-submit-eth-oracle-claims---intentionally-not-implemented
 	// if params.ClaimSlashingEnabled {
