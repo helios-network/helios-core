@@ -163,12 +163,13 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 			MaxRate:       math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
 			MaxChangeRate: math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
 		},
-		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
-		DelegatorAddress:  cmn.AccAddressFromHexAddress(validatorAddress).String(),
-		ValidatorAddress:  cmn.ValAddressFromHexAddress(validatorAddress).String(),
-		Pubkey:            pubkey,
-		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
-		MinDelegation:     math.NewIntFromBigInt(minDelegation),
+		MinSelfDelegation:     math.NewIntFromBigInt(minSelfDelegation),
+		DelegatorAddress:      cmn.AccAddressFromHexAddress(validatorAddress).String(),
+		ValidatorAddress:      cmn.ValAddressFromHexAddress(validatorAddress).String(),
+		Pubkey:                pubkey,
+		Value:                 sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
+		MinDelegation:         math.NewIntFromBigInt(minDelegation),
+		DelegateAuthorization: true, // default true
 	}
 
 	return msg, validatorAddress, nil
