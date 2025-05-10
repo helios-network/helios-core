@@ -44,7 +44,7 @@ func DefaultLocalPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SignedClaimsWindow:            25000,
 		TargetBatchTimeout:            3600000, // 1 hour
 		TargetOutgoingTxTimeout:       600000,  // 10 minutes
-		AverageBlockTime:              2000,    // 2 seconds
+		AverageBlockTime:              4000,    // 4 seconds
 		AverageCounterpartyBlockTime:  1000,    // chain blocktime 2seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
@@ -129,7 +129,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SignedClaimsWindow:            25000,
 		TargetBatchTimeout:            3600000, // 1 hour
 		TargetOutgoingTxTimeout:       600000,  // 10 minutes
-		AverageBlockTime:              2000,    // 2 seconds
+		AverageBlockTime:              4000,    // 4 seconds
 		AverageCounterpartyBlockTime:  1000,    // chain blocktime 1seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
@@ -214,7 +214,7 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 		SignedClaimsWindow:            25000,
 		TargetBatchTimeout:            3600000, // 1 hour
 		TargetOutgoingTxTimeout:       600000,  // 10 minutes
-		AverageBlockTime:              2000,    // 2 seconds
+		AverageBlockTime:              4000,    // 4 seconds
 		AverageCounterpartyBlockTime:  12000,   // chain blocktime 12seconds
 		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
