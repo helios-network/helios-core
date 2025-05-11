@@ -252,7 +252,7 @@ func (k *Keeper) QueryGetDelegateKeysByAddress(c context.Context, req *types.Que
 	chainWhereKeyIsRegistered := make([]uint64, 0)
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
-		keys := k.GetOrchestratorAddresses(ctx, counterpartyChainParam.BridgeChainId)
+		keys := k.GetOrchestratorAddresses(ctx, counterpartyChainParam.HyperionId)
 		for _, key := range keys {
 			if common.HexToAddress(key.EthAddress).Hex() == common.HexToAddress(req.EthAddress).Hex() {
 				chainWhereKeyIsRegistered = append(chainWhereKeyIsRegistered, counterpartyChainParam.BridgeChainId)
