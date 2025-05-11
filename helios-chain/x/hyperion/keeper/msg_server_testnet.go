@@ -148,6 +148,7 @@ func (k msgServer) ForceSetValsetAndLastObservedEventNonce(c context.Context, ms
 	k.Keeper.setLastObservedEventNonce(ctx, msg.HyperionId, msg.LastObservedEventNonce)
 	k.Keeper.SetLastObservedEthereumBlockHeight(ctx, msg.HyperionId, msg.LastObservedEthereumBlockHeight, uint64(ctx.BlockHeight()))
 	k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(msg.HyperionId), msg.LastObservedEventNonce)
+	k.Keeper.SetLastUnbondingBlockHeight(ctx, uint64(ctx.BlockHeight()))
 
 	return &types.MsgForceSetValsetAndLastObservedEventNonceResponse{}, nil
 }
