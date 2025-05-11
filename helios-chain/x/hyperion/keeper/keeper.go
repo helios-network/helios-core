@@ -108,7 +108,7 @@ func NewKeeper(
 
 // SetValsetRequest returns a new instance of the Hyperion BridgeValidatorSet
 // i.e. {"nonce": 1, "memebers": [{"eth_addr": "foo", "power": 11223}]}
-func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64) *types.Valset {
+func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64, offsetValsetNonce uint64) *types.Valset {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -127,7 +127,7 @@ func (k *Keeper) SetValsetRequest(ctx sdk.Context, hyperionId uint64) *types.Val
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetUpdateRequest{
 		HyperionId:    hyperionId,
-		ValsetNonce:   valset.Nonce,
+		ValsetNonce:   valset.Nonce + offsetValsetNonce,
 		ValsetHeight:  valset.Height,
 		ValsetMembers: valset.Members,
 		RewardAmount:  valset.RewardAmount,

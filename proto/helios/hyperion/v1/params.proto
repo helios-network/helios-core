@@ -152,4 +152,6 @@ message CounterpartyChainParams {
   string initializer = 26;
 
   repeated Rpc rpcs = 27;
+
+  uint64 offset_valset_nonce = 28;
 }

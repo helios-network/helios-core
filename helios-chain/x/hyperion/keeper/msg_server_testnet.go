@@ -34,6 +34,7 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 			k.Keeper.setLastObservedEventNonce(ctx, counterpartyChainParam.HyperionId, 0)
 			k.Keeper.SetLastObservedEthereumBlockHeight(ctx, counterpartyChainParam.HyperionId, msg.BridgeContractStartHeight-1, uint64(ctx.BlockHeight()))
 			k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(counterpartyChainParam.HyperionId), 0)
+			counterpartyChainParam.OffsetValsetNonce = uint64(0)
 			break
 		}
 	}
@@ -149,6 +150,9 @@ func (k msgServer) ForceSetValsetAndLastObservedEventNonce(c context.Context, ms
 	k.Keeper.SetLastObservedEthereumBlockHeight(ctx, msg.HyperionId, msg.LastObservedEthereumBlockHeight, uint64(ctx.BlockHeight()))
 	k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(msg.HyperionId), msg.LastObservedEventNonce)
 	k.Keeper.SetLastUnbondingBlockHeight(ctx, uint64(ctx.BlockHeight()))
+
+	hyperionParams.OffsetValsetNonce = msg.Valset.Nonce
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.HyperionId, hyperionParams)
 
 	return &types.MsgForceSetValsetAndLastObservedEventNonceResponse{}, nil
 }
