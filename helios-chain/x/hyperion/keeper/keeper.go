@@ -682,8 +682,9 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Val
 			rewardToken = common.HexToAddress(tokenAddressToDenom.TokenAddress)
 		}
 	}
+	hyperionParams := k.GetCounterpartyChainParams(ctx)[hyperionId]
 	// TODO: make the nonce an incrementing one (i.e. fetch last nonce from state, increment, set here)
-	return types.NewValset(hyperionId, uint64(ctx.BlockHeight()), uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
+	return types.NewValset(hyperionId, uint64(ctx.BlockHeight())+hyperionParams.OffsetValsetNonce, uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
 }
 
 /////////////////////////////
