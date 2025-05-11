@@ -243,6 +243,28 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 	return nil, errors.Wrap(types.ErrInvalid, "No validator")
 }
 
+func (k *Keeper) QueryGetDelegateKeysByAddress(c context.Context, req *types.QueryGetDelegateKeysByAddressRequest) (*types.QueryGetDelegateKeysByAddressResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetParams(ctx)
+	chainWhereKeyIsRegistered := make([]uint64, 0)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		keys := k.GetOrchestratorAddresses(ctx, counterpartyChainParam.BridgeChainId)
+		for _, key := range keys {
+			if common.HexToAddress(key.EthAddress).Hex() == common.HexToAddress(req.EthAddress).Hex() {
+				chainWhereKeyIsRegistered = append(chainWhereKeyIsRegistered, counterpartyChainParam.BridgeChainId)
+			}
+		}
+	}
+
+	return &types.QueryGetDelegateKeysByAddressResponse{
+		ChainIds: chainWhereKeyIsRegistered,
+	}, nil
+}
+
 func (k *Keeper) QueryGetLastObservedEthereumBlockHeight(c context.Context, req *types.QueryGetLastObservedEthereumBlockHeightRequest) (*types.QueryGetLastObservedEthereumBlockHeightResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()

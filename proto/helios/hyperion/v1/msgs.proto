@@ -71,18 +71,56 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/update_counterparty_chain_infos_params";
   }
 
-  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_params";
+  }
 
   // BlacklistEthereumAddresses adds Ethereum addresses to the hyperion blacklist.
   rpc BlacklistEthereumAddresses(MsgBlacklistEthereumAddresses)
-      returns (MsgBlacklistEthereumAddressesResponse);
+      returns (MsgBlacklistEthereumAddressesResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/blacklist_ethereum_addresses";
+  }
 
   // RevokeEthereumBlacklist removes Ethereum addresses from the hyperion
   // blacklist.
   rpc RevokeEthereumBlacklist(MsgRevokeEthereumBlacklist)
-      returns (MsgRevokeEthereumBlacklistResponse);
+      returns (MsgRevokeEthereumBlacklistResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/revoke_ethereum_blacklist";
+  }
 
-  rpc ForceSetValsetAndLastObservedEventNonce(MsgForceSetValsetAndLastObservedEventNonce) returns (MsgForceSetValsetAndLastObservedEventNonceResponse);
+  // Testnet -->
+
+  rpc ForceSetValsetAndLastObservedEventNonce(MsgForceSetValsetAndLastObservedEventNonce)
+      returns (MsgForceSetValsetAndLastObservedEventNonceResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/force_set_valset_and_last_observed_event_nonce";
+  }
+
+  rpc UpdateChainSmartContract(MsgUpdateChainSmartContract)
+      returns (MsgUpdateChainSmartContractResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_chain_smart_contract";
+  }
+
+  rpc UpdateChainLogo(MsgUpdateChainLogo)
+      returns (MsgUpdateChainLogoResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_chain_logo";
+  }
+
+  rpc UpdateChainName(MsgUpdateChainName)
+      returns (MsgUpdateChainNameResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_chain_name";
+  }
+
+  rpc DeleteChain(MsgDeleteChain)
+      returns (MsgDeleteChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/delete_chain";
+  }
+
+  rpc ClearValset(MsgClearValset)
+      returns (MsgClearValsetResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/clear_valset";
+  }
+
+  // <-- Testnet
 }
 
 // MsgSetOrchestratorAddresses
@@ -417,3 +455,57 @@ message MsgUnSetOrchestratorAddresses {
 }
 
 message MsgUnSetOrchestratorAddressesResponse {} 
+
+message MsgUpdateChainSmartContract {
+  option (amino.name) = "hyperion/MsgUpdateChainSmartContract";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string bridge_contract_address = 3;
+  uint64 bridge_contract_start_height = 4;
+}
+
+message MsgUpdateChainSmartContractResponse {}
+
+message MsgUpdateChainLogo {
+  option (amino.name) = "hyperion/MsgUpdateChainLogo";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string logo = 3;
+}
+
+message MsgUpdateChainLogoResponse {}
+
+message MsgUpdateChainName {
+  option (amino.name) = "hyperion/MsgUpdateChainName";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string name = 3;
+}
+
+message MsgUpdateChainNameResponse {}
+
+message MsgDeleteChain {
+  option (amino.name) = "hyperion/MsgDeleteChain";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+}
+
+message MsgDeleteChainResponse {}
+
+message MsgClearValset {
+  option (amino.name) = "hyperion/MsgClearValset";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+}
+
+message MsgClearValsetResponse {}
