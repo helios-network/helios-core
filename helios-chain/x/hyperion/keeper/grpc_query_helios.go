@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/samber/lo/mutable"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	"cosmossdk.io/errors"
@@ -471,12 +473,15 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		} else {
 			finalizedStartIndex = 0
 		}
-		finalizedEndIndex := finalizedStartIndex + remainingSlots
+		finalizedEndIndex := finalizedStartIndex - remainingSlots
 
-		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedStartIndex, finalizedEndIndex)
+		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedEndIndex+1, finalizedStartIndex+1)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find finalized txs")
 		}
+
+		// reverse the txs
+		mutable.Reverse(finalizedTxs)
 
 		txs = append(txs, finalizedTxs...)
 	}
