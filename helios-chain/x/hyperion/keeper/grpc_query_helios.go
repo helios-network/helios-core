@@ -466,16 +466,17 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	// Adjust indices based on prior transactions
 	remainingSlots = req.Pagination.Limit - uint64(len(txs))
 	if remainingSlots > 0 {
-		// Calculate adjusted indices for finalized transactions
-		finalizedStartIndex := uint64(0)
-		if startIndex > currentCount {
-			finalizedStartIndex = startIndex - currentCount
-		} else {
+		lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(req.Address))
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to find last finalized tx index")
+		}
+		finalizedStartIndex := lastIndex - remainingSlots
+
+		if lastIndex < remainingSlots {
 			finalizedStartIndex = 0
 		}
-		finalizedEndIndex := finalizedStartIndex - remainingSlots
 
-		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedEndIndex+1, finalizedStartIndex+1)
+		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedStartIndex, lastIndex)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find finalized txs")
 		}
