@@ -56,6 +56,11 @@ echo "Signing genesis transaction"
 # Register as Validator genesis account and delegate 900000 ahelios
 heliades gentx user0 900000000000000000000ahelios --chain-id $CHAINID --keyring-backend="local" --gas-prices "1000000000ahelios"
 
+# Add treasury account
+TREASURY_ADDRESS="helios1aj2gcctecp874q90jclsuk6c2k6kvdthwek60l"
+echo "Adding funds to treasury address: ${TREASURY_ADDRESS}"
+heliades add-genesis-account --chain-id $CHAINID ${TREASURY_ADDRESS} 100ahelios --keyring-backend="local"
+
 echo "Collecting genesis transaction"
 # Collect genesis Validators tx
 heliades collect-gentxs
