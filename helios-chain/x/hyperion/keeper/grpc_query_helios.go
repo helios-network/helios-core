@@ -476,6 +476,8 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 			finalizedStartIndex = 0
 		}
 
+		k.Logger(ctx).Info("HYPERION - grpc_query_helios.go - QueryGetTransactionsByPageAndSize -> ", "finalizedStartIndex", finalizedStartIndex, "lastIndex", lastIndex)
+
 		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedStartIndex, lastIndex)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find finalized txs")
