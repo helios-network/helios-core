@@ -1222,7 +1222,9 @@ func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*type
 func (k *Keeper) FindFinalizedTxsByIndexToIndex(ctx sdk.Context, addr common.Address, startIndex uint64, endIndex uint64) ([]*types.TransferTx, error) {
 	store := ctx.KVStore(k.storeKey)
 	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
-	iter := finalizedTxStore.Iterator(PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, startIndex)))
+	start, _ := PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, startIndex))
+	end, _ := PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, endIndex))
+	iter := finalizedTxStore.Iterator(start, end)
 	defer iter.Close()
 
 	txs := make([]*types.TransferTx, 0)
