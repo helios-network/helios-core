@@ -1136,19 +1136,26 @@ func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
+	lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.Sender))
+	if err != nil {
+		return
+	}
+	tx.Index = lastIndex + 1
+
 	store := ctx.KVStore(k.storeKey)
 	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
 	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.Index), k.cdc.MustMarshal(tx))
 
+	k.StoreLastFinalizedTxIndex(ctx, tx)
+
 	if tx.DestAddress != tx.Sender {
-		lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.DestAddress))
+		lastIndexOfDestAddress, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.DestAddress))
 		if err != nil {
 			return
 		}
-		tx.Index = lastIndex + 1
+		tx.Index = lastIndexOfDestAddress + 1
 		finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index), k.cdc.MustMarshal(tx))
 	}
-	k.StoreLastFinalizedTxIndex(ctx, tx)
 }
 
 func (k *Keeper) StoreLastFinalizedTxIndex(ctx sdk.Context, tx *types.TransferTx) {
