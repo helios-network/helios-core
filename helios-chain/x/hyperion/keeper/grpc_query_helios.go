@@ -473,7 +473,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		}
 		finalizedEndIndex := finalizedStartIndex + remainingSlots
 
-		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedStartIndex+1, finalizedEndIndex+1)
+		finalizedTxs, err := k.FindFinalizedTxsByIndexToIndex(ctx, common.HexToAddress(req.Address), finalizedStartIndex, finalizedEndIndex)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find finalized txs")
 		}
