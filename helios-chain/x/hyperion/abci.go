@@ -383,10 +383,6 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 						params.SlashFractionValset,
 					)
 
-					if !currentBondedSet[i].IsJailed() {
-						_ = h.k.StakingKeeper.Jail(ctx, cons)
-					}
-
 					// nolint:errcheck //ignored on purpose
 					ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
 						HyperionId:       params.HyperionId,
@@ -446,11 +442,6 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 						consPower := validator.ConsensusPower(h.k.StakingKeeper.PowerReduction(ctx))
 
 						_, _ = h.k.StakingKeeper.Slash(ctx, valConsAddr, ctx.BlockHeight(), consPower, params.SlashFractionValset)
-
-						if !validator.IsJailed() {
-							_ = h.k.StakingKeeper.Jail(ctx, valConsAddr)
-						}
-
 						// nolint:errcheck //ignored on purpose
 						ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
 							HyperionId:       params.HyperionId,
@@ -526,10 +517,6 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 				consPower := currentBondedSet[i].ConsensusPower(h.k.StakingKeeper.PowerReduction(ctx))
 
 				_, _ = h.k.StakingKeeper.Slash(ctx, cons, ctx.BlockHeight(), consPower, params.SlashFractionBatch)
-
-				if !currentBondedSet[i].IsJailed() {
-					_ = h.k.StakingKeeper.Jail(ctx, cons)
-				}
 
 				// nolint:errcheck //ignored on purpose
 				ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
