@@ -110,7 +110,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, authzKeeper)
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, authzKeeper, bankKeeper, erc20Keeper, hyperionKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}

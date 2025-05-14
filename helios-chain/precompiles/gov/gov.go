@@ -4,10 +4,14 @@ import (
 	"embed"
 	"fmt"
 
+	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
+	hyperionkeeper "helios-core/helios-chain/x/hyperion/keeper"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -28,7 +32,10 @@ var f embed.FS
 // Precompile defines the precompiled contract for gov.
 type Precompile struct {
 	cmn.Precompile
-	govKeeper govkeeper.Keeper
+	govKeeper      govkeeper.Keeper
+	bankKeeper     bankkeeper.Keeper
+	erc20Keeper    erc20keeper.Keeper
+	hyperionKeeper hyperionkeeper.Keeper
 }
 
 // LoadABI loads the gov ABI from the embedded abi.json file
@@ -42,6 +49,9 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	govKeeper govkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	bankKeeper bankkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
+	hyperionKeeper hyperionkeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -56,7 +66,10 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		govKeeper: govKeeper,
+		govKeeper:      govKeeper,
+		bankKeeper:     bankKeeper,
+		erc20Keeper:    erc20Keeper,
+		hyperionKeeper: hyperionKeeper,
 	}
 
 	// SetAddress defines the address of the gov precompiled contract.

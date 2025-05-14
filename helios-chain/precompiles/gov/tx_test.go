@@ -373,7 +373,7 @@ func (s *PrecompileTestSuite) TestRemoveAssetProposal() {
 			ChainId:         "ethereum",
 			Decimals:        6,
 			BaseWeight:      100,
-			Metadata:        "Tether stablecoin",
+			Symbol:          "USDT",
 		}
 	}
 
@@ -448,7 +448,7 @@ func (s *PrecompileTestSuite) TestUpdateAssetProposal() {
 			ChainId:         "ethereum",
 			Decimals:        6,
 			BaseWeight:      100,
-			Metadata:        "Tether stablecoin",
+			Symbol:          "USDT",
 		}
 	}
 	usdtUpdate := []interface{}{struct {

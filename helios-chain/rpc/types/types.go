@@ -202,6 +202,7 @@ type WhitelistedAssetRPC struct {
 	Denom                         string                `json:"denom"`
 	BaseWeight                    uint64                `json:"baseWeight"`
 	ChainId                       string                `json:"chainId"`
+	ChainName                     string                `json:"chainName"`
 	Decimals                      uint64                `json:"decimals"`
 	Symbol                        string                `json:"symbol"`
 	ContractAddress               string                `json:"contractAddress"`

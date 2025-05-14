@@ -85,12 +85,8 @@
         },
         {
           "components": [
-            { "internalType": "string", "name": "denom", "type": "string" },
             { "internalType": "string", "name": "contractAddress", "type": "string" },
-            { "internalType": "string", "name": "chainId", "type": "string" },
-            { "internalType": "uint32", "name": "decimals", "type": "uint32" },
-            { "internalType": "uint64", "name": "baseWeight", "type": "uint64" },
-            { "internalType": "string", "name": "metadata", "type": "string" }
+            { "internalType": "uint64", "name": "baseWeight", "type": "uint64" }
           ],
           "internalType": "struct Asset[]",
           "name": "assets",

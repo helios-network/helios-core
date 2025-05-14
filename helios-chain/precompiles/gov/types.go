@@ -5,6 +5,7 @@ import (
 	"helios-core/helios-chain/utils"
 	"math/big"
 	"reflect"
+	"strconv"
 
 	"helios-core/helios-chain/x/erc20/types"
 
@@ -369,7 +370,7 @@ type ParsedAsset struct {
 	Metadata        string `json:"metadata"`
 }
 
-func ParseAddNewAssetProposalArgs(args []interface{}) (*types.AddNewAssetConsensusProposal, error) {
+func ParseAddNewAssetProposalArgs(ctx sdk.Context, args []interface{}, p *Precompile) (*types.AddNewAssetConsensusProposal, error) {
 	// Validate the number of arguments; the method expects exactly 3.
 	if len(args) != 4 {
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
@@ -400,41 +401,67 @@ func ParseAddNewAssetProposalArgs(args []interface{}) (*types.AddNewAssetConsens
 
 		// Ensure the rawAsset is a struct and extract its fields
 		assetStruct, ok := rawAsset.(struct {
-			Denom           string `json:"denom"`
 			ContractAddress string `json:"contractAddress"`
-			ChainId         string `json:"chainId"`
-			Decimals        uint32 `json:"decimals"`
 			BaseWeight      uint64 `json:"baseWeight"`
-			Metadata        string `json:"metadata"`
 		})
 		if !ok {
 			return nil, fmt.Errorf("invalid asset structure at index %d: %v", i, rawAsset)
 		}
-
-		// Validate fields in the struct.
-		if assetStruct.Denom == "" {
-			return nil, fmt.Errorf("invalid denom for asset at index %d: %+v", i, assetStruct)
-		}
 		if assetStruct.ContractAddress == "" {
 			return nil, fmt.Errorf("invalid contractAddress for asset at index %d: %+v", i, assetStruct)
-		}
-		if assetStruct.ChainId == "" {
-			return nil, fmt.Errorf("invalid chainId for asset at index %d: %+v", i, assetStruct)
-		}
-		if assetStruct.Decimals == 0 {
-			return nil, fmt.Errorf("invalid decimals for asset at index %d: %+v", i, assetStruct)
 		}
 		if assetStruct.BaseWeight == 0 {
 			return nil, fmt.Errorf("invalid baseWeight for asset at index %d: %+v", i, assetStruct)
 		}
+
+		fmt.Println("ParseAddNewAssetProposalArgs Before tokenDenom")
+
+		tokenDenom, err := p.erc20Keeper.GetTokenDenom(ctx, common.HexToAddress(assetStruct.ContractAddress))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get token denom for asset at index %d: %w", i, err)
+		}
+
+		fmt.Println("ParseAddNewAssetProposalArgs After tokenDenom")
+
+		metadata, ok := p.bankKeeper.GetDenomMetaData(ctx, tokenDenom)
+		if !ok {
+			return nil, fmt.Errorf("failed to get metadata for asset at index %d", i)
+		}
+
+		fmt.Println("ParseAddNewAssetProposalArgs After metadata")
+
+		chainName := "Helios"
+		chainId := utils.MainnetChainID
+
+		for _, attr := range metadata.ChainsMetadatas {
+			if attr.IsOriginated {
+				chainId = strconv.FormatUint(attr.ChainId, 10)
+				counterPartyChain := p.hyperionKeeper.GetHyperionParamsFromChainId(ctx, attr.ChainId)
+				if counterPartyChain == nil {
+					return nil, fmt.Errorf("failed to get counter party chain for asset at index %d", i)
+				}
+				chainName = counterPartyChain.BridgeChainName
+			}
+		}
+
+		fmt.Println("ParseAddNewAssetProposalArgs After chainName")
+
+		erc20Data, err := p.erc20Keeper.QueryERC20(ctx, common.HexToAddress(assetStruct.ContractAddress))
+		if err != nil {
+			return nil, fmt.Errorf("failed to query ERC20 data for asset at index %d: %w", i, err)
+		}
+
+		fmt.Println("ParseAddNewAssetProposalArgs After erc20Data")
+
 		// Add the validated asset to the list.
 		protoAssets[i] = &types.Asset{
-			Denom:           assetStruct.Denom,
+			Denom:           tokenDenom,
 			ContractAddress: assetStruct.ContractAddress,
-			ChainId:         assetStruct.ChainId,
-			Decimals:        uint64(assetStruct.Decimals),
+			ChainId:         chainId,
+			ChainName:       chainName,
+			Decimals:        uint64(erc20Data.Decimals),
 			BaseWeight:      assetStruct.BaseWeight,
-			Metadata:        assetStruct.Metadata,
+			Symbol:          erc20Data.Symbol,
 		}
 	}
 

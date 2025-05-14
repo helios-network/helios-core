@@ -187,7 +187,7 @@ const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 
 const tokenName = 'BTC2';
 const tokenSymbol = 'BTC2';
-const tokenDenom = 'uBTC2'; // denomination of one unit of the token
+const tokenDenom = 'uBTC222'; // denomination of one unit of the token
 const tokenTotalSupply = ethers.parseUnits('100', 18);
 const tokenDecimals = 18;
 
@@ -201,19 +201,8 @@ async function create(){
     const receipt = await tx.wait();
     console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
 
-    receipt.logs.forEach(log => {
-      try {
-        const parsedLog = contract.interface.parseLog(log);
-        if (parsedLog.name === 'ERC20Created') {
-          console.log('Token créé avec succès :');
-          console.log('Créateur :', parsedLog.args.creator);
-          console.log('Adresse du token :', parsedLog.args.tokenAddress);
-          console.log('Nom du token :', parsedLog.args.name);
-          console.log('Symbole du token :', parsedLog.args.symbol);
-        }
-      } catch (err) {
-      }
-    });
+    
+    console.log("Contract address :", receipt.logs[0].data);
   } catch (error) {
     console.error('Une erreur est survenue :', error);
   }
@@ -272,18 +261,15 @@ async function delegate() {
 }
 
 async function addNewConsensusProposal() {
-  const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", proposalAbi, wallet2);
+  const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", abi, wallet);
 
   const title = 'Whitelist WETH into the consensus with a base stake of power 100';
   const description = 'Explaining why WETH would be a good potential for Helios consensus and why it would secure the market';
   const assets = [
     {
-      denom: 'WETH',
-      contractAddress: '0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd', // Exact match to ABI
-      chainId: 'ethereum',                                          // Exact match to ABI
-      decimals: 6,
+      contractAddress: '0x5fd55a1b9fc24967c4db09c513c3ba0dfa7ff687',
       baseWeight: 100,
-      metadata: 'WETH stablecoin'
     }
   ];
 
@@ -378,7 +364,7 @@ async function vote(){
   try {
     console.log('Ajout d\'une nouvelle proposition au consensus...');
     
-    const tx = await contract.vote(wallet.address, 2, 1, "voting testtest");
+    const tx = await contract.vote(wallet.address, 1, 1, "voting testtest");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -515,9 +501,9 @@ async function sendToChain(amount) {
     const hyperionAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/hyperion/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000900', hyperionAbi, wallet);
     const tx = await contract.sendToChain( // I'm validator and
-      80002, // chainId
+      11155111, // chainId
       "0x17267eB1FEC301848d4B5140eDDCFC48945427Ab", // receiver
-      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", // token address (ex: USDT)
+      "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517", // token address (ex: USDT)
       ethers.parseEther(amount), // amount to transfer (ex: 10 USDT)
       ethers.parseEther("1"), // fee you want to pay (ex: 1 USDT)
       {
@@ -729,24 +715,24 @@ async function uploadLogo() {
 
 async function main() {
   // await createCronCallBackData();
-  await createCron();
+  // await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  // await create();
+  await create();
   //await fetch();
   // await delegate();
-  //await addNewConsensusProposal();
+  // await addNewConsensusProposal();
   //await updateConsensusProposal();
-  //await vote();
+  // await vote();
   // await undelegate();
 
   // await getEventsCronCreated();
 
   // await getRewards();
 
-  // await sendToChain("5");
+  // await sendToChain("12");
   // await sendToChain("5");
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();

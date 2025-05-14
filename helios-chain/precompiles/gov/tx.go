@@ -112,7 +112,7 @@ func (p *Precompile) AddNewAssetProposal(
 	args []interface{},
 ) ([]byte, error) {
 	// Parse arguments into the AddNewAssetConsensusProposal type.
-	addNewAssetProposalReq, err := ParseAddNewAssetProposalArgs(args)
+	addNewAssetProposalReq, err := ParseAddNewAssetProposalArgs(ctx, args, p)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse addNewAssetProposal arguments: %w", err)
 	}
@@ -120,7 +120,7 @@ func (p *Precompile) AddNewAssetProposal(
 	// check if baseWeight is well superior of zero
 	for _, asset := range addNewAssetProposalReq.Assets {
 		if asset.BaseWeight == uint64(0) {
-			return nil, fmt.Errorf("failed criterial BaseWeight of %s can't be equals to zero.", asset.Denom)
+			return nil, fmt.Errorf("failed criterial BaseWeight of %s can't be equals to zero", asset.Denom)
 		}
 	}
 

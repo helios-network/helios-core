@@ -305,6 +305,7 @@ func (b *Backend) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, err
 			Denom:                         asset.Denom,
 			BaseWeight:                    asset.BaseWeight,
 			ChainId:                       asset.ChainId,
+			ChainName:                     asset.ChainName,
 			Decimals:                      asset.Decimals,
 			Symbol:                        asset.Symbol,
 			ContractAddress:               asset.ContractAddress,

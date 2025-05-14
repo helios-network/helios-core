@@ -177,25 +177,10 @@ func (p *AddNewAssetConsensusProposal) ValidateBasic() error {
 	}
 
 	for _, asset := range p.Assets {
-		// Validate asset denom
-		if strings.TrimSpace(asset.Denom) == "" {
-			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset denom cannot be empty")
-		}
 
 		// Validate contract address
 		if strings.TrimSpace(asset.ContractAddress) == "" {
 			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset contract address cannot be empty")
-		}
-
-		// TODO: link with hyperion to know the list of authorized chains
-		// Validate chain ID
-		if strings.TrimSpace(asset.ChainId) == "" {
-			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset chain ID cannot be empty")
-		}
-
-		// Validate decimals
-		if asset.Decimals == 0 {
-			return errorsmod.Wrap(v1beta1.ErrInvalidLengthQuery, "asset decimals must be greater than zero")
 		}
 
 		// Validate base weight

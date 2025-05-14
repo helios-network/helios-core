@@ -23,10 +23,12 @@ import (
 	"math/big"
 	"strings"
 
-	"helios-core/helios-chain/utils"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -100,7 +102,7 @@ func (p Precompile) RequiredGas(_ []byte) uint64 {
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]byte, error) {
 
 	// Set up call context and arguments
-	ctx, _, _, method, _, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, _, method, _, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run setup for ERC20 precompile: %w", err)
 	}
@@ -216,20 +218,29 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	)
 
 	// TODO REMOVE AFTER
-	asset := types.Asset{
-		Denom:           denom,
-		ContractAddress: contractAddr.Hex(),
-		ChainId:         utils.MainnetChainID, // Exemple de chainId, à ajuster si nécessaire
-		ChainName:       "Helios",
-		Decimals:        uint64(decimals),
-		BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
-		Symbol:          symbol,
-	}
+	// asset := types.Asset{
+	// 	Denom:           denom,
+	// 	ContractAddress: contractAddr.Hex(),
+	// 	ChainId:         utils.MainnetChainID, // Exemple de chainId, à ajuster si nécessaire
+	// 	ChainName:       "Helios",
+	// 	Decimals:        uint64(decimals),
+	// 	BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
+	// 	Symbol:          symbol,
+	// }
 
 	// TODO : remove this !!
-	if err := p.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset); err != nil {
-		return nil, fmt.Errorf("failed to add ERC20 asset to whitelist: %w", err)
-	}
+	// if err := p.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset); err != nil {
+	// 	return nil, fmt.Errorf("failed to add ERC20 asset to whitelist: %w", err)
+	// }
+
+	// write the log to the stateDB
+	stateDB.AddLog(&ethtypes.Log{
+		Address: p.Address(), // ou une autre adresse
+		Topics: []common.Hash{
+			crypto.Keccak256Hash([]byte("createErc20(address)")),
+		},
+		Data: contractAddr.Bytes(), // ou encode en abi si besoin
+	})
 
 	return method.Outputs.Pack(contractAddr)
 }
