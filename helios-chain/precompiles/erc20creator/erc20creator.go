@@ -220,6 +220,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		Denom:           denom,
 		ContractAddress: contractAddr.Hex(),
 		ChainId:         utils.MainnetChainID, // Exemple de chainId, à ajuster si nécessaire
+		ChainName:       "Helios",
 		Decimals:        uint64(decimals),
 		BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
 		Symbol:          symbol,

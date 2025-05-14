@@ -129,10 +129,11 @@ message Asset {
   string denom = 1; // Asset denomination (e.g., USDT, DAI)
   string contract_address = 2; // Smart contract address of the asset
   string chain_id = 3; // Chain ID of the blockchain hosting the asset
-  uint64 decimals = 4; // Number of decimal places
-  uint64 base_weight = 5; // Base weight for rewards calculation
-  string symbol = 6; // Symbol of the asset
-  bool archived = 7; // Indicates if the asset is archived (removed from active staking but kept for undelegation)
+  string chain_name = 4; // Name of the chain
+  uint64 decimals = 5; // Number of decimal places
+  uint64 base_weight = 6; // Base weight for rewards calculation
+  string symbol = 7; // Symbol of the asset
+  bool archived = 8; // Indicates if the asset is archived (removed from active staking but kept for undelegation)
 }
 
 message WeightUpdate {

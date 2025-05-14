@@ -108,6 +108,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 					Denom:           token.TokenAddressToDenom.Denom,
 					ContractAddress: tokenPair.Erc20Address,
 					ChainId:         strconv.FormatUint(counterparty.BridgeChainId, 10), // Exemple de chainId, à ajuster si nécessaire
+					ChainName:       counterparty.BridgeChainName,
 					Decimals:        uint64(token.TokenAddressToDenom.Decimals),
 					BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
 					Symbol:          token.TokenAddressToDenom.Symbol,

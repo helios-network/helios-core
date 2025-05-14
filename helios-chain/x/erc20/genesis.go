@@ -37,6 +37,7 @@ func InitGenesis(
 			Denom:           pair.Denom,
 			ContractAddress: pair.Erc20Address,
 			ChainId:         utils.MainnetChainID,
+			ChainName:       "Helios",
 			Decimals:        uint64(18),
 			BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
 			Symbol:          "HLS",
