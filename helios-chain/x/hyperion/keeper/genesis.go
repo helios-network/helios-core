@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	"sort"
+	"strconv"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
@@ -106,10 +107,10 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 				asset := erc20types.Asset{
 					Denom:           token.TokenAddressToDenom.Denom,
 					ContractAddress: tokenPair.Erc20Address,
-					ChainId:         "ethereum", // Exemple de chainId, à ajuster si nécessaire
+					ChainId:         strconv.FormatUint(counterparty.BridgeChainId, 10), // Exemple de chainId, à ajuster si nécessaire
 					Decimals:        uint64(token.TokenAddressToDenom.Decimals),
 					BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
-					Metadata:        fmt.Sprintf("Token %s metadata", token.TokenAddressToDenom.Symbol),
+					Symbol:          token.TokenAddressToDenom.Symbol,
 				}
 				k.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset)
 			}

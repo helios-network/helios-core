@@ -203,7 +203,7 @@ type WhitelistedAssetRPC struct {
 	BaseWeight                    uint64                `json:"baseWeight"`
 	ChainId                       string                `json:"chainId"`
 	Decimals                      uint64                `json:"decimals"`
-	Metadata                      string                `json:"metadata"`
+	Symbol                        string                `json:"symbol"`
 	ContractAddress               string                `json:"contractAddress"`
 	TotalShares                   cosmossdk_io_math.Int `json:"totalShares"`
 	NetworkPercentageSecurisation string                `json:"networkPercentageSecurisation"`

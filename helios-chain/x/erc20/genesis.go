@@ -8,6 +8,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"helios-core/helios-chain/utils"
 	"helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
 )
@@ -35,10 +36,10 @@ func InitGenesis(
 		asset := types.Asset{
 			Denom:           pair.Denom,
 			ContractAddress: pair.Erc20Address,
-			ChainId:         "helios",
+			ChainId:         utils.MainnetChainID,
 			Decimals:        uint64(18),
 			BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
-			Metadata:        fmt.Sprintf("Token %s metadata", "ahelios"),
+			Symbol:          "HLS",
 		}
 
 		// TODO : remove this !!

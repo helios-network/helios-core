@@ -306,7 +306,7 @@ func (b *Backend) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, err
 			BaseWeight:                    asset.BaseWeight,
 			ChainId:                       asset.ChainId,
 			Decimals:                      asset.Decimals,
-			Metadata:                      asset.Metadata,
+			Symbol:                        asset.Symbol,
 			ContractAddress:               asset.ContractAddress,
 			TotalShares:                   repartitionMap.SharesRepartitionMap[asset.Denom].NetworkShares,
 			NetworkPercentageSecurisation: repartitionMap.SharesRepartitionMap[asset.Denom].NetworkPercentageSecurisation,

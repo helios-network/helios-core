@@ -131,7 +131,7 @@ message Asset {
   string chain_id = 3; // Chain ID of the blockchain hosting the asset
   uint64 decimals = 4; // Number of decimal places
   uint64 base_weight = 5; // Base weight for rewards calculation
-  string metadata = 6; // Additional metadata (e.g., description or URL)
+  string symbol = 6; // Symbol of the asset
   bool archived = 7; // Indicates if the asset is archived (removed from active staking but kept for undelegation)
 }
 

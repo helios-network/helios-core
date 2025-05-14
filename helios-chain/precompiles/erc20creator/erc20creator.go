@@ -23,6 +23,7 @@ import (
 	"math/big"
 	"strings"
 
+	"helios-core/helios-chain/utils"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	"helios-core/helios-chain/x/erc20/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -218,10 +219,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 	asset := types.Asset{
 		Denom:           denom,
 		ContractAddress: contractAddr.Hex(),
-		ChainId:         "ethereum", // Exemple de chainId, à ajuster si nécessaire
+		ChainId:         utils.MainnetChainID, // Exemple de chainId, à ajuster si nécessaire
 		Decimals:        uint64(decimals),
 		BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
-		Metadata:        fmt.Sprintf("Token %s metadata", symbol),
+		Symbol:          symbol,
 	}
 
 	// TODO : remove this !!
