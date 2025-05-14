@@ -32,6 +32,7 @@ var (
 		ChronosPrecompileAddress,      // Chronos precompile
 		HyperionPrecompileAddress,     // Hyperion precompile
 		LogosPrecompileAddress,        // Logos precompile
+		IBCTransferPrecompileAddress,  // IBCTransfer precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled

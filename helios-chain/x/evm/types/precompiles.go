@@ -16,6 +16,7 @@ const (
 	ChronosPrecompileAddress      = "0x0000000000000000000000000000000000000830"
 	HyperionPrecompileAddress     = "0x0000000000000000000000000000000000000900"
 	LogosPrecompileAddress        = "0x0000000000000000000000000000000000000901"
+	IBCTransferPrecompileAddress  = "0x0000000000000000000000000000000000000902"
 )
 
 // AvailableStaticPrecompiles defines the full list of all available EVM extension addresses.
@@ -35,4 +36,5 @@ var AvailableStaticPrecompiles = []string{
 	ChronosPrecompileAddress,
 	HyperionPrecompileAddress,
 	LogosPrecompileAddress,
+	IBCTransferPrecompileAddress,
 }

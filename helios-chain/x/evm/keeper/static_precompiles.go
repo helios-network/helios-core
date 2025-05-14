@@ -25,6 +25,8 @@ import (
 	logosKeeper "helios-core/helios-chain/x/logos/keeper"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 
+	"helios-core/helios-chain/precompiles/ibctransfer"
+
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -115,6 +117,14 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
+	transferPrecompile, err := ibctransfer.NewPrecompile(
+		transferKeeper,
+		authzKeeper,
+	)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate IBC transfer precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[erc20CreatorPrecompile.Address()] = erc20CreatorPrecompile
@@ -129,6 +139,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[chronosPrecompile.Address()] = chronosPrecompile
 	precompiles[hyperionPrecompile.Address()] = hyperionPrecompile
 	precompiles[logosPrecompile.Address()] = logosPrecompile
+	precompiles[transferPrecompile.Address()] = transferPrecompile
 	return precompiles
 }
 

@@ -1,0 +1,35 @@
+{
+	"_format": "hh-sol-artifact-1",
+	"contractName": "IBCTransfer",
+	"sourceName": "solidity/precompiles/ibcTransfer/IBCTransfer.sol",
+	"abi": [
+		{
+			"type": "function",
+			"name": "ibcTransfer",
+			"inputs": [
+			  { "name": "destinationChain", "type": "string" },
+			  { "name": "recipient", "type": "string" },
+			  { "name": "amount", "type": "uint256" },
+			  { "name": "denom", "type": "string" },
+			  { "name": "timeoutTimestamp", "type": "uint64" }
+			],
+			"outputs": [
+			  { "name": "success", "type": "bool" }
+			],
+			"stateMutability": "nonpayable"
+		  },
+		  {
+			"type": "function",
+			"name": "getSupportedChains",
+			"inputs": [],
+			"outputs": [
+			  { "name": "chains", "type": "string[]" }
+			],
+			"stateMutability": "view"
+		  }
+	],
+	"bytecode": "0x",
+	"deployedBytecode": "0x",
+	"linkReferences": {},
+	"deployedLinkReferences": {}
+  }
