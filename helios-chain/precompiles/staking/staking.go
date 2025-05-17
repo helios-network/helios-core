@@ -128,8 +128,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Validators(ctx, method, contract, args)
 	/*case RedelegationMethod:
 	bz, err = p.Redelegation(ctx, method, contract, args)*/
-	case RedelegationsMethod:
-		bz, err = p.Redelegations(ctx, method, contract, args)
 	// Authorization queries
 	case authorization.AllowanceMethod:
 		bz, err = p.Allowance(ctx, method, contract, args)
