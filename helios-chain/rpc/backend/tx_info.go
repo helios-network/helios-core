@@ -890,7 +890,7 @@ func (b *Backend) decodeBridgeTransaction(transaction *rpctypes.RPCTransaction) 
 			return decodedValues, nil
 		}
 		// Create a map to hold the decoded values
-		decodedValues["type"] = "BRIDGE_IN"
+		decodedValues["type"] = "BRIDGE_OUT"
 		decodedValues["chainId"] = chainId
 		decodedValues["destAddress"] = destAddress
 		decodedValues["contractAddress"] = contractAddress.String()
