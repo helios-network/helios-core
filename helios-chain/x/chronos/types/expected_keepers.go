@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"cosmossdk.io/core/address"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -22,7 +21,7 @@ type AccountKeeper interface {
 	// Methods imported from account should be defined here
 }
 
-type WasmMsgServer interface {
-	ExecuteContract(context.Context, *wasmtypes.MsgExecuteContract) (*wasmtypes.MsgExecuteContractResponse, error)
-	// Methods imported from account should be defined here
-}
+// type WasmMsgServer interface {
+// 	ExecuteContract(context.Context, *wasmtypes.MsgExecuteContract) (*wasmtypes.MsgExecuteContractResponse, error)
+// 	// Methods imported from account should be defined here
+// }

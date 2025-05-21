@@ -44,7 +44,7 @@ type Keeper struct {
 	storeKey      storetypes.StoreKey
 	memKey        storetypes.StoreKey
 	accountKeeper types.AccountKeeper
-	evmKeeper     types.EVMKeeper
+	EvmKeeper     types.EVMKeeper
 	bankKeeper    bankkeeper.Keeper
 }
 
@@ -61,7 +61,7 @@ func NewKeeper(
 		storeKey:      storeKey,
 		memKey:        memKey,
 		accountKeeper: accountKeeper,
-		evmKeeper:     evmKeeper,
+		EvmKeeper:     evmKeeper,
 		bankKeeper:    bankKeeper,
 	}
 }
@@ -104,7 +104,7 @@ func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.Executi
 
 func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
-	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, k.EvmKeeper)
 	if err != nil {
 		return err
 	}
@@ -126,6 +126,10 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 		if cron.ExpirationBlock != 0 && cron.ExpirationBlock <= uint64(ctx.BlockHeight()) {
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+
+		if cron.CronType == types.CALLBACK_CONDITIONED_CRON { // it's free for callback conditioned crons
 			continue
 		}
 
@@ -154,7 +158,7 @@ func (k *Keeper) UpdateCronTotalFeesPaid(ctx sdk.Context, cron types.Cron, fees 
 }
 
 func (k *Keeper) CronInTransfer(ctx sdk.Context, cron types.Cron, amount *big.Int) error {
-	account := k.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.OwnerAddress))
+	account := k.EvmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.OwnerAddress))
 	balance := sdkmath.NewIntFromBigInt(account.Balance)
 
 	if balance.IsNegative() && balance.BigInt().Cmp(amount) < 0 {
@@ -195,7 +199,7 @@ func (k *Keeper) CronOutTransfer(ctx sdk.Context, cron types.Cron, amount *big.I
 }
 
 func (k *Keeper) CronBalance(ctx sdk.Context, cron types.Cron) sdkmath.Int {
-	account := k.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.Address))
+	account := k.EvmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.Address))
 	balance := sdkmath.NewIntFromBigInt(account.Balance)
 
 	return balance
@@ -529,7 +533,7 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 	}
 
 	// get BaseFee
-	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, k.EvmKeeper)
 	if err != nil {
 		return nil, err
 	}
@@ -635,7 +639,7 @@ func (k *Keeper) deductFees(
 
 	k.Logger(ctx).Debug("DeductFees", "fees", fees, "feePayer", cmn.AnyToHexAddress(feePayer.String()), "cronId", cron.Id)
 
-	if err := k.evmKeeper.DeductTxCostsFromUserBalance(
+	if err := k.EvmKeeper.DeductTxCostsFromUserBalance(
 		ctx,
 		fees,
 		common.BytesToAddress(feePayer),
@@ -675,7 +679,7 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	ownerAddress := cmn.AnyToHexAddress(cron.OwnerAddress)
 	baseDenom := evmtypes.GetEVMCoinDenom()
 
-	account := k.evmKeeper.GetAccount(ctx, ownerAddress)
+	account := k.EvmKeeper.GetAccount(ctx, ownerAddress)
 	balance := sdkmath.NewIntFromBigInt(account.Balance)
 	cost := tx.Cost()
 
@@ -687,7 +691,7 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	}
 
 	// 1. get BaseFee
-	decUtils, err := NewMonoDecoratorUtils(ctx, k.evmKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, k.EvmKeeper)
 	if err != nil {
 		return nil, err
 	}
@@ -723,7 +727,7 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	// 5. prepare tx for evm
 	msg := k.TxAsMessage(tx, decUtils.BaseFee, ownerAddress)
 	// 6. execute tx
-	res, err := k.evmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), true)
+	res, err := k.EvmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), true)
 	if err != nil {
 		k.Logger(ctx).Error("EVM execution failed", "cron_id", cron.Id, "error", err)
 		return nil, err
@@ -739,7 +743,7 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	refundCoinsR := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remainingR))}
 	k.Logger(ctx).Info("RefundFees", "fees", refundCoinsR, "receiver", msgForRefund.From().String())
 
-	if err = k.evmKeeper.RefundGas(ctx, msgForRefund, msgForRefund.Gas()-res.GasUsed, baseDenom); err != nil {
+	if err = k.EvmKeeper.RefundGas(ctx, msgForRefund, msgForRefund.Gas()-res.GasUsed, baseDenom); err != nil {
 		return nil, errors.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
 	}
 	if refundCoinsR[0].Amount.GT(sdkmath.NewInt(0)) { // update cron fees paid
@@ -764,8 +768,10 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 			hexutil.Encode(callBackData.Data),
 			hexutil.Encode(callBackData.Error),
 		}
+		k.Logger(ctx).Info("CRON ", "type", types.CALLBACK_CONDITIONED_CRON, "params", cron.Params)
 		// set new expiration
 		cron.ExpirationBlock = uint64(ctx.BlockHeight())
+		k.StoreSetCron(ctx, cron)
 	}
 
 	tx, err := k.GetCronTransaction(ctx, cron, nonce)

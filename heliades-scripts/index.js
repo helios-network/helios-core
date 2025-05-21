@@ -264,8 +264,8 @@ async function addNewConsensusProposal() {
   const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
   const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", abi, wallet);
 
-  const title = 'Whitelist WETH into the consensus with a base stake of power 100';
-  const description = 'Explaining why WETH would be a good potential for Helios consensus and why it would secure the market';
+  const title = 'Whitelist BTC2 into the consensus with a base stake of power 100';
+  const description = 'Explaining why BTC2 would be a good potential for Helios consensus and why it would secure the market';
   const assets = [
     {
       contractAddress: '0x5fd55a1b9fc24967c4db09c513c3ba0dfa7ff687',
@@ -532,17 +532,20 @@ async function createCron() {
     // });
     // await x.wait();
 
+    const block = await wallet.provider.getBlockNumber();
+    console.log("block", block);
+
     const chronosAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/chronos/abi.json').toString()).abi;
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000830', chronosAbi, wallet);
     const tx = await contract.createCron(
-      "0xd1dB19022B1cB701Cf25FA55a7d52a9b0dd771C7",
-      `[ { "inputs": [], "name": "increment", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
-      "increment", // methodName
+      "0x6aB9fC2b6C9fF779d0799a4Ad806D31Af18723fa",
+      `[ { "inputs": [], "name": "fetchETHPrice", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]`,
+      "fetchETHPrice", // methodName
       [], // params
-      1, // frequency
-      0, // expirationBlock
-      400000, // gasLimit
-      ethers.parseUnits("2", "gwei"), // maxGasPrice
+      100, // frequency
+      block +1000, // expirationBlock
+      1000000, // gasLimit
+      ethers.parseUnits("10", "gwei"), // maxGasPrice
       ethers.parseEther("1")
     );
     console.log('Transaction envoyée, hash :', tx.hash);
@@ -715,12 +718,12 @@ async function uploadLogo() {
 
 async function main() {
   // await createCronCallBackData();
-  // await createCron();
+  await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  await create();
+  // await create();
   //await fetch();
   // await delegate();
   // await addNewConsensusProposal();
@@ -737,6 +740,22 @@ async function main() {
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   // await uploadLogo();
+
+  // const balance = await wallet.provider.getBalance(wallet.address);
+  // console.log("Balance :", ethers.formatEther(balance));
+
+  // let nonce = await wallet.getNonce();
+
+  // const tx = await wallet.sendTransaction({
+  //   to: "0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A",
+  //   value: ethers.parseEther("10"),
+  //   gasLimit: 1000000,
+  //   gasPrice: ethers.parseUnits("10", "gwei"),
+  //   nonce: nonce++,
+  // })
+
+  // const receipt = await tx.wait();
+  // console.log("Transaction confirmée dans le bloc :", receipt.blockNumber);
 }
 
 main();

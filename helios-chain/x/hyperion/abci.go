@@ -1,6 +1,7 @@
 package hyperion
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -50,6 +51,7 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 		h.pruneValsets(ctx, counterpartyChainParams)
 	}
 	h.pruneAttestations(ctx)
+	h.executeAllExternalDataTxs(ctx)
 }
 
 func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.CounterpartyChainParams) {
@@ -560,6 +562,116 @@ func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyC
 				if set.Nonce < lastObserved.Nonce && set.Height < earliestToPrune {
 					h.k.DeleteValset(ctx, set.HyperionId, set.Nonce)
 				}
+			}
+		}
+	}
+}
+
+func (h *BlockHandler) selectBestClaimFromListOfClaims(claims []*types.MsgExternalDataClaim) *types.MsgExternalDataClaim {
+	// If no claims, return nil
+	if len(claims) == 0 {
+		return nil
+	}
+
+	// If only one claim, return it
+	if len(claims) == 1 {
+		return claims[0]
+	}
+
+	// Map to store frequency of each combination
+	frequencies := make(map[string]int)
+	claimsByKey := make(map[string]*types.MsgExternalDataClaim)
+
+	// Count frequencies of each unique combination
+	for _, claim := range claims {
+		// Create a unique key combining the relevant fields
+		key := fmt.Sprintf("%d|%s|%s",
+			claim.TxNonce,
+			claim.CallDataResult,
+			claim.CallDataResultError,
+		)
+
+		frequencies[key]++
+		claimsByKey[key] = claim
+	}
+
+	// Find the key with highest frequency
+	var maxFreq int
+	var bestKey string
+	for key, freq := range frequencies {
+		if freq > maxFreq {
+			maxFreq = freq
+			bestKey = key
+		}
+	}
+
+	// Return the claim corresponding to the most frequent combination
+	return claimsByKey[bestKey]
+}
+
+func (h *BlockHandler) executeAllExternalDataTxs(ctx sdk.Context) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
+	defer doneFn()
+
+	txs := h.k.GetAllOutgoingExternalDataTXs(ctx)
+	totalPower, err := h.k.StakingKeeper.GetLastTotalPower(ctx)
+	if err != nil {
+		metrics.ReportFuncError(h.svcTags)
+		return
+	}
+	requiredPower := h.k.GetRequiredPower(totalPower)
+	attestationPower := math.ZeroInt()
+
+	for _, tx := range txs {
+
+		if tx.Timeout < uint64(ctx.BlockHeight()) {
+			h.k.RefundExternalData(ctx, *tx)
+			h.k.DeleteExternalData(ctx, *tx)
+			h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> deleted tx", "tx", tx)
+			continue
+		}
+
+		if tx.Timeout-50 > uint64(ctx.BlockHeight()) {
+			h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> waiting reasonable time for the tx to be executed", "tx", tx)
+			continue
+		}
+
+		// check all claims and range the similar results in on map with the result as key and the count as value
+		bestClaim := h.selectBestClaimFromListOfClaims(tx.Claims)
+
+		if bestClaim == nil {
+			h.k.Logger(ctx).Error("HYPERION - ABCI.go - executeAllExternalDataTxs -> no best claim found yet", "tx", tx)
+			continue
+		}
+
+		for _, vote := range tx.Votes {
+			val := cmn.ValAddressFromHexAddressString(vote)
+			validatorPower, err := h.k.StakingKeeper.GetLastValidatorPower(ctx, val)
+			if err != nil {
+				metrics.ReportFuncError(h.svcTags)
+				h.k.Logger(ctx).Error("HYPERION - ABCI.go - executeAllExternalDataTxs -> GetLastValidatorPower", "error", err)
+				break
+			}
+			// Add it to the attestation power's sum
+			attestationPower = attestationPower.Add(math.NewInt(validatorPower))
+
+			h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> attestationPower", "attestationPower", attestationPower, "requiredPower", requiredPower)
+
+			if true || attestationPower.GTE(requiredPower) { // TODO: HYPERION TESTNET - remove true
+
+				//todo check claims Results
+				h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> attestationPower", "attestationPower", attestationPower)
+
+				h.k.OutgoingExternalDataTxExecuted(ctx, tx, bestClaim, &types.Attestation{
+					Observed: true,
+					Votes:    tx.Votes, // maybe exclude the false claims from attestation to do not reward them
+				})
+
+				// update the rpc used
+				if strings.Contains(bestClaim.RpcUsed, "https://") {
+					h.k.UpdateRpcUsed(ctx, tx.HyperionId, bestClaim.RpcUsed, bestClaim.BlockHeight)
+				}
+				break
 			}
 		}
 	}

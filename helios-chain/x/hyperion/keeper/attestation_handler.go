@@ -37,7 +37,7 @@ func NewAttestationHandler(bankKeeper types.BankKeeper, keeper Keeper) Attestati
 }
 
 // Handle is the entry point for Attestation processing.
-func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim) error {
+func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, att *types.Attestation) error {
 	metrics.ReportFuncCall(a.svcTags)
 	doneFn := metrics.ReportFuncTiming(a.svcTags)
 	defer doneFn()

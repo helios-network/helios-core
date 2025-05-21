@@ -57,6 +57,7 @@ func DefaultLocalPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
 		OffsetValsetNonce:             0,
+		MinCallExternalDataGas:        10000000, // 10M Gas
 		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
@@ -143,6 +144,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
 		OffsetValsetNonce:             0,
+		MinCallExternalDataGas:        10000000, // 10M Gas
 		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
@@ -229,6 +231,7 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
 		OffsetValsetNonce:             0,
+		MinCallExternalDataGas:        10000000, // 10M Gas
 		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{

@@ -117,6 +117,10 @@ var (
 	FinalizedTxKey = []byte{0x1d}
 
 	LastFinalizedTxIndexKey = []byte{0x1e}
+
+	OutgoingExternalDataKey = []byte{0x1f}
+
+	OutgoingExternalDataBlockKey = []byte{0x20}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
@@ -371,5 +375,31 @@ func GetFinalizedTxAddressAndTxIndexPrefixKey(ethereumAddress common.Address, tx
 	buf := make([]byte, 0, ETHContractAddressLen+8)
 	buf = append(buf, ethereumAddress.Bytes()...)
 	buf = append(buf, UInt64Bytes(txIndex)...)
+	return buf
+}
+
+// external data
+
+// GetOutgoingExternalDataKey returns the following key format
+// prefix      hyperionId                nonce                     eth-contract-address
+// [0xa][0 0 0 0 0 0 0 1][0 0 0 0 0 0 0 1][0xc783df8a850f42e7F7e57013759C285caa701eB6]
+func GetOutgoingExternalDataKey(hyperionId uint64, nonce uint64, contractAddress common.Address) []byte {
+	buf := make([]byte, 0, len(OutgoingExternalDataKey)+8+8+ETHContractAddressLen)
+	buf = append(buf, OutgoingExternalDataKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+	buf = append(buf, contractAddress.Bytes()...)
+
+	return buf
+}
+
+// GetOutgoingExternalDataBlockKey returns the following key format
+// prefix  hyperionId   blockheight
+// [0xb][0 0 0 0 0 0 0 1][0 0 0 0 2 1 4 3]
+func GetOutgoingExternalDataBlockKey(hyperionId uint64, block uint64) []byte {
+	buf := make([]byte, 0, len(OutgoingExternalDataBlockKey)+8+8)
+	buf = append(buf, OutgoingExternalDataBlockKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(block)...)
 	return buf
 }

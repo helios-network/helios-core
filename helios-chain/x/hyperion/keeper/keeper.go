@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	cmn "helios-core/helios-chain/precompiles/common"
+	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	logoskeeper "helios-core/helios-chain/x/logos/keeper"
 
@@ -39,9 +40,10 @@ type Keeper struct {
 	SlashingKeeper types.SlashingKeeper
 	erc20Keeper    erc20keeper.Keeper
 	logosKeeper    logoskeeper.Keeper
+	chronosKeeper  chronoskeeper.Keeper
 
 	AttestationHandler interface {
-		Handle(sdk.Context, types.EthereumClaim) error
+		Handle(sdk.Context, types.EthereumClaim, *types.Attestation) error
 	}
 
 	svcTags  metrics.Tags
@@ -70,6 +72,7 @@ func NewKeeper(
 	accountKeeper keeper.AccountKeeper,
 	erc20Keeper erc20keeper.Keeper,
 	logosKeeper logoskeeper.Keeper,
+	chronosKeeper chronoskeeper.Keeper,
 ) Keeper {
 
 	txConfig, err := authtx.NewTxConfigWithOptions(cdc, authtx.ConfigOptions{})
@@ -94,6 +97,7 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		erc20Keeper:   erc20Keeper,
 		logosKeeper:   logosKeeper,
+		chronosKeeper: chronosKeeper,
 		txDecoder:     txConfig.TxDecoder(),
 	}
 

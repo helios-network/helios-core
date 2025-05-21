@@ -52,7 +52,6 @@ func NewAvailableStaticPrecompiles(
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
-
 	// secp256r1 precompile as per EIP-7212
 	p256Precompile := &p256.Precompile{}
 
@@ -66,7 +65,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate erc20Creator precompile: %w", err))
 	}
 
-	chronosPrecompile, err := chronos.NewPrecompile(chronosKeeper, authzKeeper)
+	chronosPrecompile, err := chronos.NewPrecompile(chronosKeeper, authzKeeper, hyperionKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}

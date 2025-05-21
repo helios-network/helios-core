@@ -34,6 +34,9 @@ service Msg {
   rpc WithdrawClaim(MsgWithdrawClaim) returns (MsgWithdrawClaimResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/withdraw_claim";
   }
+  rpc ExternalDataClaim(MsgExternalDataClaim) returns (MsgExternalDataClaimResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/external_data_claim";
+  }
   rpc ValsetUpdateClaim(MsgValsetUpdatedClaim)
       returns (MsgValsetUpdatedClaimResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/valset_updated_claim";
@@ -286,6 +289,22 @@ message MsgWithdrawClaim {
 }
 
 message MsgWithdrawClaimResponse {}
+
+message MsgExternalDataClaim {
+  option (amino.name) = "hyperion/MsgExternalDataClaim";
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
+  uint64 hyperion_id = 1;
+  uint64 block_height = 2;
+  uint64 tx_nonce = 3;
+  string external_contract_address = 4;
+  string orchestrator = 5;
+  string call_data_result = 6;
+  string call_data_result_error = 7;
+  string rpc_used = 8;
+}
+
+message MsgExternalDataClaimResponse {}
 
 // ERC20DeployedClaim allows the Cosmos module
 // to learn about an ERC20 that someone deployed

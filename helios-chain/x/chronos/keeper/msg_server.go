@@ -49,10 +49,10 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 	amount := req.AmountToDeposit.BigInt() // ahelios
 
 	// check Balance of OwnerAddress
-	account := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
+	account := k.keeper.EvmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
 
-	contractAccount := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.ContractAddress))
-	contractCode := k.keeper.evmKeeper.GetCode(ctx, common.BytesToHash(contractAccount.CodeHash))
+	contractAccount := k.keeper.EvmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.ContractAddress))
+	contractCode := k.keeper.EvmKeeper.GetCode(ctx, common.BytesToHash(contractAccount.CodeHash))
 	if len(contractCode) == 0 {
 		return nil, errors.Wrap(errortypes.ErrInvalidRequest, "The specified address is not a smart contract")
 	}
@@ -173,7 +173,7 @@ func (k msgServer) CreateCallBackConditionedCron(goCtx context.Context, req *typ
 	amount := req.AmountToDeposit.BigInt() // ahelios
 
 	// check Balance of OwnerAddress
-	account := k.keeper.evmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
+	account := k.keeper.EvmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(req.OwnerAddress))
 	balance := sdkmath.NewIntFromBigInt(account.Balance)
 
 	if balance.IsNegative() || balance.BigInt().Cmp(amount) < 0 {

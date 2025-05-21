@@ -8,6 +8,7 @@ import (
 	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
 	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+	hyperionkeeper "helios-core/helios-chain/x/hyperion/keeper"
 
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -26,7 +27,8 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
-	chronosKeeper chronoskeeper.Keeper
+	chronosKeeper  chronoskeeper.Keeper
+	hyperionKeeper hyperionkeeper.Keeper
 }
 
 // LoadABI loads the gov ABI from the embedded abi.json file
@@ -38,6 +40,7 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	chronosKeeper chronoskeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	hyperionKeeper hyperionkeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -52,7 +55,8 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		chronosKeeper: chronosKeeper,
+		chronosKeeper:  chronosKeeper,
+		hyperionKeeper: hyperionKeeper,
 	}
 
 	// SetAddress defines the address of the gov precompiled contract.

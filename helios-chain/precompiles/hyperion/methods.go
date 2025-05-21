@@ -1,8 +1,10 @@
 package hyperion
 
 import (
+	"encoding/hex"
 	"fmt"
 	"math/big"
+	"strconv"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
@@ -15,7 +17,10 @@ import (
 
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 
+	evmtypes "helios-core/helios-chain/x/evm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -112,6 +117,9 @@ func (p Precompile) AddCounterpartyChainParams(
 			ValsetReward:                  sdk.Coin{Denom: "ahelios", Amount: cosmosmath.NewInt(0)},
 			Initializer:                   cmn.AccAddressFromHexAddress(origin).String(),
 			DefaultTokens:                 []*hyperiontypes.TokenAddressToDenomWithGenesisInfos{},
+			Rpcs:                          []*hyperiontypes.Rpc{},
+			OffsetValsetNonce:             0,
+			MinCallExternalDataGas:        10000000, // 10M Gas
 		},
 	}
 
@@ -238,6 +246,13 @@ func (p Precompile) SendToChain(
 	return method.Outputs.Pack(true)
 }
 
+// RequestData is the function that will be called by the precompile to request data from the hyperion
+//
+// example payable call in solidity:
+//
+//	function requestData(address _source, bytes _abiCall, uint256 _chainId, string memory _callbackSelector, uint256 _maxGasPrice, uint256 _gasLimit) external payable {
+//	    hyperion.requestData(_source, _abiCall, _chainId, _callbackSelector, _maxGasPrice, _gasLimit);
+//	}
 func (p Precompile) RequestData(
 	ctx sdk.Context,
 	origin common.Address,
@@ -246,54 +261,89 @@ func (p Precompile) RequestData(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	// value sent to the precompile for overall execution fee
-	value := contract.Value()
-
-	if value.Cmp(big.NewInt(0)) == 0 {
-		return nil, fmt.Errorf("insufficient funds for execution")
-	}
-
 	// Extract args
-	_, ok := args[0].(uint64)
+	chainId, ok := args[0].(uint64)
 	if !ok {
 		return nil, fmt.Errorf("invalid chainId type")
 	}
 
-	source, ok := args[1].(common.Address) // the contract to callback
+	externalContract, ok := args[1].(common.Address)
 	if !ok {
 		return nil, fmt.Errorf("invalid source address type")
 	}
 
-	// TODO: send to hyperion for calling on external chains
-	// abiCall, ok := args[2].([]byte)
-	// if !ok {
-	// 	return nil, fmt.Errorf("invalid abiCall type")
-	// }
+	abiCall, ok := args[2].([]byte)
+	if !ok {
+		return nil, fmt.Errorf("invalid abiCall type")
+	}
+	if len(abiCall) == 0 {
+		return nil, fmt.Errorf("invalid abiCall type empty")
+	}
 
-	//TODO: check if callbackSelector exist
 	callbackSelector, ok := args[3].(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid callbackSelector function name")
 	}
 
-	maxCallbackGas, ok := args[4].(*big.Int)
-	if !ok {
-		return nil, fmt.Errorf("invalid maxCallbackGas type")
+	code := stateDB.GetCode(contract.CallerAddress)
+	if !evmtypes.FunctionExists(code, callbackSelector+"(bytes,bytes)") {
+		return nil, fmt.Errorf("invalid callbackSelector function %s does not exist", callbackSelector)
 	}
 
-	gasLimit, ok := args[5].(*big.Int)
+	maxGasPrice, ok := args[4].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid gasPrice type")
+	}
+
+	baseGasLimit, ok := args[5].(*big.Int)
 	if !ok {
 		return nil, fmt.Errorf("invalid gasLimit type")
 	}
 
+	cronGasLimit := big.NewInt(0).Div(baseGasLimit, big.NewInt(2)) // TODO: get from hyperion params
+	hyperionMaxGasLimit := big.NewInt(0).Div(baseGasLimit, big.NewInt(2))
+
+	hyperionParams := p.hyperionKeeper.GetHyperionParamsFromChainId(ctx, chainId)
+
+	if hyperionParams == nil {
+		return nil, fmt.Errorf("invalid chainId")
+	}
+
+	if hyperionMaxGasLimit.Cmp(big.NewInt(int64(hyperionParams.MinCallExternalDataGas))) < 0 {
+		return nil, fmt.Errorf("invalid hyperionMaxGasLimit")
+	}
+
 	// Create parameters for chronos cron job
 	expirationBlock := ctx.BlockHeight() + 100 // Set reasonable expiration
+	actualGasPrice := p.chronosKeeper.EvmKeeper.GetBaseFee(ctx)
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
-	hyperionFee := new(big.Int).Div(value, big.NewInt(2))
-	evmExecutionFee := new(big.Int).Div(value, big.NewInt(2))
+	heliosTokenAddress, err := p.erc20Keeper.GetCoinAddress(ctx, baseDenom)
+	if err != nil {
+		return nil, err
+	}
+
+	if maxGasPrice.Cmp(actualGasPrice) < 0 {
+		return nil, fmt.Errorf("gasPrice is too low")
+	}
+
+	hyperionFee := big.NewInt(0).Mul(hyperionMaxGasLimit, maxGasPrice)
+	evmExecutionFee := big.NewInt(0).Mul(cronGasLimit, maxGasPrice)
+
+	balance, err := p.bankKeeper.Balance(ctx, &banktypes.QueryBalanceRequest{
+		Address: cmn.AccAddressFromHexAddress(origin).String(),
+		Denom:   baseDenom,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if balance.Balance.Amount.LT(cosmosmath.NewIntFromBigInt(hyperionFee).Add(cosmosmath.NewIntFromBigInt(evmExecutionFee))) {
+		return nil, fmt.Errorf("insufficient balance for hyperion fee and evm execution fee %s needed", cosmosmath.NewIntFromBigInt(hyperionFee).Add(cosmosmath.NewIntFromBigInt(evmExecutionFee)).Sub(balance.Balance.Amount))
+	}
 
 	// Transfert des fonds au module Hyperion
-	hyperionFeeCoins := sdk.NewCoins(sdk.NewCoin("ahelios", cosmosmath.NewIntFromBigInt(hyperionFee)))
+	hyperionFeeCoins := sdk.NewCoins(sdk.NewCoin(baseDenom, cosmosmath.NewIntFromBigInt(hyperionFee)))
 	if err := p.bankKeeper.SendCoinsFromAccountToModule(
 		ctx,
 		cmn.AccAddressFromHexAddress(origin),
@@ -303,7 +353,7 @@ func (p Precompile) RequestData(
 		return nil, err
 	}
 
-	maxGasPrice := cosmosmath.NewIntFromBigInt(maxCallbackGas)
+	ptMaxGasPrice := cosmosmath.NewIntFromBigInt(maxGasPrice)
 	maxExecutionFee := cosmosmath.NewIntFromBigInt(evmExecutionFee)
 
 	// Create the chronos message
@@ -312,8 +362,8 @@ func (p Precompile) RequestData(
 		ContractAddress: contract.CallerAddress.String(),
 		MethodName:      callbackSelector,
 		ExpirationBlock: uint64(expirationBlock),
-		GasLimit:        gasLimit.Uint64(),
-		MaxGasPrice:     &maxGasPrice,
+		GasLimit:        cronGasLimit.Uint64(),
+		MaxGasPrice:     &ptMaxGasPrice,
 		Sender:          cmn.AccAddressFromHexAddress(origin).String(),
 		AmountToDeposit: &maxExecutionFee,
 	}
@@ -324,24 +374,19 @@ func (p Precompile) RequestData(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create cron job: %w", err)
 	}
-
 	// Generate a task ID - convert the cron ID to uint256
 	taskId := new(big.Int).SetUint64(response.CronId)
 
-	//TODO: REMOVE TEST
-	// Simple mock price
-	ethPrice := big.NewInt(2000) // Mock price of $2000
+	hyperionFeeToken := hyperiontypes.Token{
+		Contract: heliosTokenAddress.Hex(),
+		Amount:   cosmosmath.NewIntFromBigInt(hyperionFee),
+	}
+	abiCallHex := hex.EncodeToString(abiCall)
 
-	// Convert price to bytes (as uint256)
-	priceBytes := common.BigToHash(ethPrice).Bytes()
-	p.chronosKeeper.StoreCronCallBackData(ctx, response.CronId, &chronostypes.CronCallBackData{
-		Data:  priceBytes,
-		Error: []byte{}, //[]byte(fmt.Sprintf("JSON parse error: %v", err)),
-	})
-
-	//TODO: REMOVE TEST
-
-	//TODO: instead call Hyperion with Task ID to execute with chain_id and abiCall and source(contract hash to call)
+	outgoingTx, err := p.hyperionKeeper.BuildOutgoingExternalDataTX(ctx, hyperionParams.HyperionId, strconv.FormatUint(response.CronId, 10), externalContract, abiCallHex, origin.Hex(), &hyperionFeeToken, uint64(expirationBlock)-1)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create hyperionoutgoing tx: %w", err)
+	}
 
 	ctx.Logger().Debug("Created conditional cron job",
 		"taskId", taskId.String(),
@@ -349,8 +394,9 @@ func (p Precompile) RequestData(
 		"callerAddress", contract.CallerAddress.String(),
 		"contract.Address()", contract.Address().String(),
 		"cronId", response.CronId,
-		"source", source.Hex(),
-		"methodName", callbackSelector)
+		"methodName", callbackSelector,
+		"outgoingTxId", outgoingTx.Id,
+	)
 
 	// Return the task ID as uint256
 	return method.Outputs.Pack(taskId)

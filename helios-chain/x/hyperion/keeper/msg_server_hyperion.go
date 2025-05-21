@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"slices"
 
 	evmtypes "helios-core/helios-chain/x/evm/types"
+
+	cmn "helios-core/helios-chain/precompiles/common"
 
 	"cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -405,6 +408,52 @@ func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim)
 	k.Keeper.Logger(ctx).Info("WithdrawClaim Received with success", "msg", msg)
 
 	return &types.MsgWithdrawClaimResponse{}, nil
+}
+
+func (k msgServer) ExternalDataClaim(c context.Context, msg *types.MsgExternalDataClaim) (*types.MsgExternalDataClaimResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	orchestrator, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, msg.HyperionId, orchestrator)
+	if !found {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrUnknown, "validator")
+	}
+	orchestratorHexAddress := cmn.AnyToHexAddress(msg.Orchestrator)
+
+	// return an error if the validator isn't in the active set
+	val, err := k.Keeper.StakingKeeper.Validator(ctx, validator)
+	if err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(err, "validator can't be retrieved")
+	}
+	if val == nil || !val.IsBonded() {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(sdkerrors.ErrorInvalidSigner, "validator not in active set")
+	}
+	externalContractAddress := common.HexToAddress(msg.ExternalContractAddress)
+	tx := k.Keeper.GetOutgoingExternalDataTX(ctx, externalContractAddress, msg.TxNonce, msg.HyperionId)
+
+	if tx == nil {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrInvalid, "tx not found or already executed")
+	}
+
+	if slices.Contains(tx.Votes, orchestratorHexAddress.Hex()) {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrInvalid, "already voted")
+	}
+
+	tx.Votes = append(tx.Votes, orchestratorHexAddress.Hex())
+	tx.Claims = append(tx.Claims, msg)
+
+	k.Keeper.StoreExternalData(ctx, tx)
+	k.Keeper.Logger(ctx).Info("ExternalDataClaim Received with success", "msg", msg)
+
+	return &types.MsgExternalDataClaimResponse{}, nil
 }
 
 // [Used In Hyperion] ERC20DeployedClaim handles MsgERC20Deployed

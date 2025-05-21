@@ -20,6 +20,7 @@ var (
 	_ sdk.Msg = &MsgERC20DeployedClaim{}
 	_ sdk.Msg = &MsgDepositClaim{}
 	_ sdk.Msg = &MsgWithdrawClaim{}
+	_ sdk.Msg = &MsgExternalDataClaim{}
 	_ sdk.Msg = &MsgCancelSendToChain{}
 	_ sdk.Msg = &MsgValsetUpdatedClaim{}
 	_ sdk.Msg = &MsgSubmitBadSignatureEvidence{}
@@ -301,6 +302,61 @@ var (
 	_ EthereumClaim = &MsgWithdrawClaim{}
 	_ EthereumClaim = &MsgERC20DeployedClaim{}
 )
+
+// GetType returns the claim type
+func (msg *MsgExternalDataClaim) GetType() ClaimType {
+	return CLAIM_TYPE_WITHDRAW
+}
+
+// ValidateBasic performs stateless checks
+func (msg *MsgExternalDataClaim) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Orchestrator); err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Orchestrator)
+	}
+	if err := ValidateEthAddress(msg.ExternalContractAddress); err != nil {
+		return errors.Wrap(err, "external contract address")
+	}
+	if msg.TxNonce == 0 {
+		return fmt.Errorf("nonce == 0")
+	}
+	return nil
+}
+
+// Hash implements WithdrawBatch.Hash
+func (msg *MsgExternalDataClaim) ClaimHash() []byte {
+	path := fmt.Sprintf("%s/%d/%d/%d/%s/%s/%s", msg.ExternalContractAddress, msg.BlockHeight, msg.TxNonce, msg.HyperionId, msg.Orchestrator, msg.CallDataResult, msg.CallDataResultError)
+	return tmhash.Sum([]byte(path))
+}
+
+// GetSignBytes encodes the message for signing
+func (msg MsgExternalDataClaim) GetSignBytes() []byte {
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
+}
+
+func (msg MsgExternalDataClaim) GetClaimer() sdk.AccAddress {
+	err := msg.ValidateBasic()
+	if err != nil {
+		panic("MsgExternalDataClaim failed ValidateBasic! Should have been handled earlier")
+	}
+	val, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
+	return val
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgExternalDataClaim) GetSigners() []sdk.AccAddress {
+	acc, err := sdk.AccAddressFromBech32(msg.Orchestrator)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{acc}
+}
+
+// Route should return the name of the module
+func (msg MsgExternalDataClaim) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgExternalDataClaim) Type() string { return "external_data_claim" }
 
 // GetType returns the type of the claim
 func (msg *MsgDepositClaim) GetType() ClaimType {

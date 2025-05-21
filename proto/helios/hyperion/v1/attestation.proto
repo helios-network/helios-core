@@ -23,6 +23,8 @@ enum ClaimType {
       [ (gogoproto.enumvalue_customname) = "CLAIM_TYPE_ERC20_DEPLOYED" ];
   CLAIM_TYPE_VALSET_UPDATED = 4
       [ (gogoproto.enumvalue_customname) = "CLAIM_TYPE_VALSET_UPDATED" ];
+  CLAIM_TYPE_EXTERNAL_DATA = 5
+      [ (gogoproto.enumvalue_customname) = "CLAIM_TYPE_EXTERNAL_DATA" ];
 }
 
 // Attestation is an aggregate of `claims` that eventually becomes `observed` by

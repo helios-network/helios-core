@@ -33,7 +33,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 	// but checking it here gives individual eth signers a chance to retry,
 	// and prevents validators from submitting two claims with the same nonce
 	lastEvent := k.GetLastEventByValidatorAndHyperionId(ctx, claim.GetHyperionId(), valAddr)
-	blockHeight := k.GetLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId()).EthereumBlockHeight
+	lastObservedBlockHeight := k.GetLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId()).EthereumBlockHeight
 
 	if lastEvent.EthereumEventNonce == 0 && lastEvent.EthereumEventHeight == 0 {
 		// if hyperion happens to query too early without a bonded validator even existing setup the base event
@@ -44,19 +44,19 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 			claim.GetHyperionId(),
 			valAddr,
 			lowestObservedNonce,
-			blockHeight,
+			lastObservedBlockHeight,
 		)
 		lastEvent = k.GetLastEventByValidatorAndHyperionId(ctx, claim.GetHyperionId(), valAddr)
 	}
 
-	if claim.GetBlockHeight() < blockHeight {
+	if claim.GetBlockHeight() < lastObservedBlockHeight {
 		// test
 		// 3 april 2025
 		// maybe exclude claim.GetBlockHeight() < GetLastObservedEthereumBlockHeight for increase security
 		// not sure if we have some number of tx detected can stuck some hyperions
 		metrics.ReportFuncError(k.svcTags)
-		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d , ethHeight=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce(), blockHeight))
-		return nil, errors.Wrap(types.ErrNonContiguousEthEventBlockHeight, fmt.Sprintf("ErrNonContiguousEthEventBlockHeight %d < %d for Validator=%s", claim.GetBlockHeight(), blockHeight, valAddr.String()))
+		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d , ethHeight=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce(), lastObservedBlockHeight))
+		return nil, errors.Wrap(types.ErrNonContiguousEthEventBlockHeight, fmt.Sprintf("ErrNonContiguousEthEventBlockHeight %d < %d for Validator=%s", claim.GetBlockHeight(), lastObservedBlockHeight, valAddr.String()))
 	}
 
 	if claim.GetEventNonce() < lastEvent.EthereumEventNonce+1 { // accept superior and same
@@ -165,7 +165,7 @@ func emitNewClaimEvent(ctx sdk.Context, claim types.EthereumClaim, attestationId
 	}
 }
 
-func getRequiredPower(totalPower math.Int) math.Int {
+func (k *Keeper) GetRequiredPower(totalPower math.Int) math.Int {
 	return totalPower.Mul(math.NewInt(66)).Quo(math.NewInt(100))
 }
 
@@ -192,7 +192,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			metrics.ReportFuncError(k.svcTags)
 			panic("can't get total power: " + err.Error())
 		}
-		requiredPower := getRequiredPower(totalPower)
+		requiredPower := k.GetRequiredPower(totalPower)
 		attestationPower := math.ZeroInt()
 		for _, validatorAndTxProof := range att.Votes {
 			validatorAndTxProofSplitted := strings.Split(validatorAndTxProof, ":")
@@ -212,7 +212,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			attestationPower = attestationPower.Add(math.NewInt(validatorPower))
 			// If the power of all the validators that have voted on the attestation is higher or equal to the threshold,
 			// process the attestation, set Observed to true, and break
-			if true || attestationPower.GTE(requiredPower) {
+			if true || attestationPower.GTE(requiredPower) { // TODO: HYPERION TESTNET - remove true
 				lastEventNonce := k.GetLastObservedEventNonce(ctx, claim.GetHyperionId())
 				// this check is performed at the next level up so this should never panic
 				// outside of programmer error.
@@ -226,7 +226,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)
 
-				k.processAttestation(ctx, claim)
+				k.processAttestation(ctx, claim, att)
 				k.emitObservedEvent(ctx, att, claim)
 
 				// update the rpc used
@@ -247,14 +247,14 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 }
 
 // processAttestation actually applies the attestation to the consensus state
-func (k *Keeper) processAttestation(ctx sdk.Context, claim types.EthereumClaim) {
+func (k *Keeper) processAttestation(ctx sdk.Context, claim types.EthereumClaim, att *types.Attestation) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 	fmt.Println("processAttestation=======================")
 
 	// then execute in a new Tx so that we can store state on failure
 	xCtx, commit := ctx.CacheContext()
-	if err := k.AttestationHandler.Handle(xCtx, claim); err != nil { // execute with a transient storage
+	if err := k.AttestationHandler.Handle(xCtx, claim, att); err != nil { // execute with a transient storage
 		// If the attestation fails, something has gone wrong and we can't recover it. Log and move on
 		// The attestation will still be marked "Observed", and validators can still be slashed for not
 		// having voted for it.

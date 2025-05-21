@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -160,6 +159,22 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	return &types.QueryOutgoingTxBatchesResponse{Batches: batches}, nil
 }
 
+// [Used In Hyperion] OutgoingExternalDataTxs queries the OutgoingExternalDataTxs of the hyperion module
+func (k *Keeper) OutgoingExternalDataTxs(c context.Context, req *types.QueryOutgoingExternalDataTxsRequest) (*types.QueryOutgoingExternalDataTxsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	MaxResults := 100 // todo: impl pagination
+
+	txs := make([]*types.OutgoingExternalDataTx, 0)
+	k.IterateOutgoingExternalDataTXs(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, tx *types.OutgoingExternalDataTx) bool {
+		txs = append(txs, tx)
+		return len(txs) == MaxResults
+	})
+
+	return &types.QueryOutgoingExternalDataTxsResponse{Txs: txs}, nil
+}
+
 // [Used In Hyperion] BatchConfirms returns the batch confirmations by nonce and token contract
 func (k *Keeper) BatchConfirms(c context.Context, req *types.QueryBatchConfirmsRequest) (*types.QueryBatchConfirmsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
@@ -182,8 +197,6 @@ func (k *Keeper) LastEventByAddr(c context.Context, req *types.QueryLastEventByA
 
 	ctx := sdk.UnwrapSDKContext(c)
 	var ret types.QueryLastEventByAddrResponse
-
-	k.Logger(ctx).Info("LastEventByAddr")
 
 	addr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
@@ -226,7 +239,6 @@ func (k *Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegate
 	ctx := sdk.UnwrapSDKContext(c)
 
 	keys := k.GetOrchestratorAddresses(ctx, req.HyperionId)
-	fmt.Println("keys: ", keys)
 	if err := types.ValidateEthAddress(req.EthAddress); err != nil {
 		return nil, errors.Wrap(err, "invalid eth address")
 	}

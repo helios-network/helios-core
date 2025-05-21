@@ -1,0 +1,23 @@
+syntax = "proto3";
+package helios.hyperion.v1;
+
+import "helios/hyperion/v1/attestation.proto";
+import "helios/hyperion/v1/msgs.proto";
+
+option go_package = "helios-core/helios-chain/x/hyperion/types";
+
+// OutgoingExternalDataTx represents an individual send from Hyperion to external contract
+message OutgoingExternalDataTx {
+  uint64 hyperion_id = 1;
+  uint64 id = 2;
+  string sender = 3;
+  string cron_id = 4;
+  string external_contract_address = 5;
+  string abi_call_hex = 6;
+  Token fee = 7;
+  uint64 timeout = 8;
+  uint64 nonce = 9;
+  uint64 block = 10;
+  repeated MsgExternalDataClaim claims = 11;
+  repeated string votes = 12;
+}

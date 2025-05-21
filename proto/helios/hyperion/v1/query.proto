@@ -9,6 +9,7 @@ import "helios/hyperion/v1/types.proto";
 import "helios/hyperion/v1/msgs.proto";
 import "helios/hyperion/v1/pool.proto";
 import "helios/hyperion/v1/batch.proto";
+import "helios/hyperion/v1/external_data.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
@@ -152,6 +153,11 @@ service Query {
   rpc QueryGetDelegateKeysByAddress(QueryGetDelegateKeysByAddressRequest)
       returns (QueryGetDelegateKeysByAddressResponse) {
     option (google.api.http).get = "/hyperion/v1/chains/delegate_keys";
+  }
+
+  rpc OutgoingExternalDataTxs(QueryOutgoingExternalDataTxsRequest)
+      returns (QueryOutgoingExternalDataTxsResponse) {
+    option (google.api.http).get = "/hyperion/v1/chains/outgoing_external_data_txs";
   }
 }
 
@@ -377,4 +383,12 @@ message QueryGetDelegateKeysByAddressRequest {
 
 message QueryGetDelegateKeysByAddressResponse {
   repeated uint64 chain_ids = 1;
+}
+
+message QueryOutgoingExternalDataTxsRequest {
+  uint64 hyperion_id = 1;
+}
+
+message QueryOutgoingExternalDataTxsResponse {
+  repeated OutgoingExternalDataTx txs = 1;
 }

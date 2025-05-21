@@ -1105,6 +1105,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.AccountKeeper,
 		app.Erc20Keeper,
 		app.LogosKeeper,
+		app.ChronosKeeper,
 	)
 
 	app.LogosKeeper = *logosKeeper.NewKeeper(
