@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // Legacy Amino Codec for JSON Serialization
@@ -43,6 +44,15 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateParams{},
 		&MsgBlacklistEthereumAddresses{},
 		&MsgRevokeEthereumBlacklist{},
+
+		&MsgAddCounterpartyChainParams{},
+		&MsgUpdateChainSmartContract{},
+		&MsgUpdateChainLogo{},
+		&MsgUpdateChainName{},
+		&MsgDeleteChain{},
+		&MsgChangeInitializer{},
+		&MsgAddRpc{},
+		&MsgRemoveRpc{},
 	)
 
 	registry.RegisterInterface(
@@ -52,6 +62,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgWithdrawClaim{},
 		&MsgERC20DeployedClaim{},
 		&MsgValsetUpdatedClaim{},
+	)
+
+	registry.RegisterImplementations(
+		(*govv1beta1.Content)(nil),
+		&HyperionProposal{},
 	)
 
 	// Register MsgService Descriptor
@@ -80,5 +95,15 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "hyperion/MsgUpdateParams", nil)
 	cdc.RegisterConcrete(&MsgBlacklistEthereumAddresses{}, "hyperion/MsgBlacklistEthereumAddresses", nil)
 	cdc.RegisterConcrete(&MsgRevokeEthereumBlacklist{}, "hyperion/MsgRevokeEthereumBlacklist", nil)
+
+	cdc.RegisterConcrete(&MsgAddCounterpartyChainParams{}, "hyperion/MsgAddCounterpartyChainParams", nil)
+	cdc.RegisterConcrete(&MsgUpdateChainSmartContract{}, "hyperion/MsgUpdateChainSmartContract", nil)
+	cdc.RegisterConcrete(&MsgUpdateChainLogo{}, "hyperion/MsgUpdateChainLogo", nil)
+	cdc.RegisterConcrete(&MsgUpdateChainName{}, "hyperion/MsgUpdateChainName", nil)
+	cdc.RegisterConcrete(&MsgDeleteChain{}, "hyperion/MsgDeleteChain", nil)
+	cdc.RegisterConcrete(&MsgChangeInitializer{}, "hyperion/MsgChangeInitializer", nil)
+	cdc.RegisterConcrete(&MsgAddRpc{}, "hyperion/MsgAddRpc", nil)
+	cdc.RegisterConcrete(&MsgRemoveRpc{}, "hyperion/MsgRemoveRpc", nil)
+
 	cdc.RegisterConcrete(&Params{}, "hyperion/Params", nil)
 }

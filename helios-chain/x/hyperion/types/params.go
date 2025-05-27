@@ -23,8 +23,8 @@ const (
 func DefaultParams() *Params {
 	return &Params{
 		CounterpartyChainParams: []*CounterpartyChainParams{
-			DefaultPolygonAmoyTestnet21ChainParams(),
-			DefaultEthereumSepoliaTestnet22ChainParams(),
+			// DefaultPolygonAmoyTestnet21ChainParams(),
+			// DefaultEthereumSepoliaTestnet22ChainParams(),
 			// DefaultLocalPolygonAmoyTestnet21ChainParams(),
 		},
 		Admins: []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
@@ -52,7 +52,6 @@ func DefaultLocalPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		UnbondSlashingValsetsWindow:   25000,
-		ClaimSlashingEnabled:          false,
 		BridgeContractStartHeight:     20193284,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
@@ -139,12 +138,12 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		UnbondSlashingValsetsWindow:   25000,
-		ClaimSlashingEnabled:          false,
 		BridgeContractStartHeight:     20101217,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
 		OffsetValsetNonce:             0,
 		MinCallExternalDataGas:        10000000, // 10M Gas
+		Paused:                        false,
 		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
@@ -157,7 +156,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 				},
 				DefaultHolders: []*HolderWithAmount{
 					{
-						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Address: common.HexToAddress("0x882f8a95409c127f0de7ba83b4dfa0096c3d8d79").Hex(),
 						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
 					},
 				},
@@ -173,23 +172,7 @@ func DefaultPolygonAmoyTestnet21ChainParams() *CounterpartyChainParams {
 				},
 				DefaultHolders: []*HolderWithAmount{
 					{
-						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0x17267eb1fec301848d4b5140eddcfc48945427ab").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0xd1cfbbb140972530a3798fe1ba11312eb8c99582").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0xc9728bfb36f8d2f9d39a5e7ce19aa11af27db440").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0x5eb1275822495570f48b8e573431d217d5708197").Hex(),
+						Address: common.HexToAddress("0x882f8a95409c127f0de7ba83b4dfa0096c3d8d79").Hex(),
 						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
 					},
 				},
@@ -226,12 +209,12 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		UnbondSlashingValsetsWindow:   25000, // 25000 blocks
-		ClaimSlashingEnabled:          false,
 		BridgeContractStartHeight:     8062855,
 		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
 		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
 		OffsetValsetNonce:             0,
 		MinCallExternalDataGas:        10000000, // 10M Gas
+		Paused:                        false,
 		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
 			{
 				TokenAddressToDenom: &TokenAddressToDenom{
@@ -244,7 +227,7 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 				},
 				DefaultHolders: []*HolderWithAmount{
 					{
-						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
+						Address: common.HexToAddress("0x882f8a95409c127f0de7ba83b4dfa0096c3d8d79").Hex(),
 						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
 					},
 				},
@@ -260,27 +243,83 @@ func DefaultEthereumSepoliaTestnet22ChainParams() *CounterpartyChainParams {
 				},
 				DefaultHolders: []*HolderWithAmount{
 					{
-						Address: common.HexToAddress("0x9bFE7f4Aae74EF013e821ef93c092c2d42eac4dd").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0x17267eB1FEC301848d4B5140eDDCFC48945427Ab").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0xd1cfbbb140972530a3798fe1ba11312eb8c99582").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0xc9728bfb36f8d2f9d39a5e7ce19aa11af27db440").Hex(),
-						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
-					},
-					{
-						Address: common.HexToAddress("0x5eb1275822495570f48b8e573431d217d5708197").Hex(),
+						Address: common.HexToAddress("0x882f8a95409c127f0de7ba83b4dfa0096c3d8d79").Hex(),
 						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
 					},
 				},
 				Logo: "45fa0204dcbb461f9899168a8b56162ecc832919b0c8b81b85f7de2abba408aa",
+			},
+		},
+		Rpcs: []*Rpc{
+			{
+				Url:            "https://0xrpc.io/sep",
+				Reputation:     0,
+				LastHeightUsed: 0,
+			},
+		},
+	}
+}
+
+func DefaultFujiTestnet23ChainParams() *CounterpartyChainParams {
+	return &CounterpartyChainParams{
+		HyperionId:                    23,
+		BridgeCounterpartyAddress:     common.HexToAddress("0xEE40f268487f9c2D664Aa66Cf5fD1B01d8b9fC3F").Hex(),
+		BridgeChainId:                 43113,
+		BridgeChainName:               "Avalanche Fuji C-Chain",
+		BridgeChainLogo:               "d7903a5f39adc94975d84821e64b3eb37a9ea1607699ade587f0d3abfdc2c889",
+		BridgeChainType:               "evm",
+		SignedValsetsWindow:           25000,
+		SignedBatchesWindow:           25000,
+		SignedClaimsWindow:            25000,
+		TargetBatchTimeout:            3600000, // 1 hour
+		TargetOutgoingTxTimeout:       600000,  // 10 minutes
+		AverageBlockTime:              4000,    // 4 seconds
+		AverageCounterpartyBlockTime:  2700,    // chain blocktime 2.7seconds
+		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		UnbondSlashingValsetsWindow:   25000, // 25000 blocks
+		BridgeContractStartHeight:     8062855,
+		ValsetReward:                  sdktypes.Coin{Denom: "ahelios", Amount: math.NewInt(0)},
+		Initializer:                   "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf",
+		OffsetValsetNonce:             0,
+		MinCallExternalDataGas:        10000000, // 10M Gas
+		Paused:                        false,
+		DefaultTokens: []*TokenAddressToDenomWithGenesisInfos{
+			{
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "ahelios",
+					TokenAddress:       common.HexToAddress("0x462D63407eb86531dce7f948F2145382bc269E7C").Hex(),
+					IsCosmosOriginated: true,
+					IsConcensusToken:   true,
+					Symbol:             "HLS",
+					Decimals:           18,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x882f8a95409c127f0de7ba83b4dfa0096c3d8d79").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+			},
+			{
+				TokenAddressToDenom: &TokenAddressToDenom{
+					Denom:              "uavax",
+					TokenAddress:       "0xe0dc6cad46f380c179622f4e85e744fc55e1373b",
+					IsCosmosOriginated: false,
+					Symbol:             "AVAX",
+					Decimals:           18,
+					IsConcensusToken:   true,
+				},
+				DefaultHolders: []*HolderWithAmount{
+					{
+						Address: common.HexToAddress("0x882f8a95409c127f0de7ba83b4dfa0096c3d8d79").Hex(),
+						Amount:  math.LegacyNewDec(100).Mul(math.LegacyNewDec(10).Power(18)).RoundInt(),
+					},
+				},
+				Logo: "d7903a5f39adc94975d84821e64b3eb37a9ea1607699ade587f0d3abfdc2c889",
 			},
 		},
 		Rpcs: []*Rpc{
@@ -373,9 +412,6 @@ func validateCounterpartyChainParams(i interface{}) error {
 	}
 	if err := validateUnbondSlashingValsetsWindow(v.UnbondSlashingValsetsWindow); err != nil {
 		return errors.Wrap(err, "unbond Slashing valset window")
-	}
-	if err := validateClaimSlashingEnabled(v.ClaimSlashingEnabled); err != nil {
-		return errors.Wrap(err, "claim slashing enabled")
 	}
 
 	return nil
@@ -518,14 +554,6 @@ func strToFixByteArray(s string) ([32]byte, error) {
 	return out, nil
 }
 
-func validateClaimSlashingEnabled(i interface{}) error {
-	_, ok := i.(bool)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
-}
-
 func validateSlashFractionBadEthSignature(i interface{}) error {
 	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -558,4 +586,13 @@ func validateAdmins(i interface{}) error {
 	}
 
 	return nil
+}
+
+func RemoveRpcFromSlice(slice []*Rpc, value string) []*Rpc {
+	for i, v := range slice {
+		if v.Url == value {
+			return append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return slice
 }

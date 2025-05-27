@@ -216,4 +216,19 @@ interface IGov {
         int64 maxBytes,
         uint256 initialDepositAmount
     ) external payable returns (uint64 proposalId);
+
+    /**
+     * @dev Submits a proposal to update hyperion parameters.
+     * @param title The title of the proposal
+     * @param description The description of the proposal
+     * @param msg The json message to be executed
+     * @param initialDepositAmount The initial deposit amount in ahelios
+     * @return proposalId The ID of the created proposal
+     */
+    function hyperionProposal(
+        string memory title,
+        string memory description,
+        string memory msg,
+        uint256 initialDepositAmount
+    ) external payable returns (uint64 proposalId);
 }

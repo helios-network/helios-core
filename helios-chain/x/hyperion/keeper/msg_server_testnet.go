@@ -3,41 +3,73 @@ package keeper
 import (
 	"context"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
+	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/x/hyperion/types"
 )
+
+func (k msgServer) ChangeInitializer(c context.Context, msg *types.MsgChangeInitializer) (*types.MsgChangeInitializerResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	if msg.NewInitializer == "" {
+		return nil, errors.Wrap(types.ErrInvalid, "NewInitializer cannot be empty")
+	}
+
+	params := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if cmn.AnyToHexAddress(params.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+	params.Initializer = common.HexToAddress(msg.NewInitializer).Hex()
+
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, params)
+
+	return &types.MsgChangeInitializerResponse{}, nil
+}
 
 func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpdateChainSmartContract) (*types.MsgUpdateChainSmartContractResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	// validatorAccountAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
-	// todo check msg.Sender is testnet admin
-
-	params := k.Keeper.GetParams(ctx)
 
 	if msg.ChainId == 0 {
 		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
 	}
 
-	for _, counterpartyChainParam := range params.CounterpartyChainParams {
-		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			counterpartyChainParam.BridgeCounterpartyAddress = msg.BridgeContractAddress
-			counterpartyChainParam.BridgeContractStartHeight = msg.BridgeContractStartHeight
-			k.Keeper.SetCounterpartyChainParams(ctx, counterpartyChainParam.HyperionId, counterpartyChainParam)
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
 
-			k.Keeper.setLastObservedEventNonce(ctx, counterpartyChainParam.HyperionId, 0)
-			k.Keeper.SetLastObservedEthereumBlockHeight(ctx, counterpartyChainParam.HyperionId, msg.BridgeContractStartHeight-1, uint64(ctx.BlockHeight()))
-			k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(counterpartyChainParam.HyperionId), 0)
-			counterpartyChainParam.OffsetValsetNonce = uint64(0)
-			break
-		}
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.BridgeCounterpartyAddress = msg.BridgeContractAddress
+	hyperionParams.BridgeContractStartHeight = msg.BridgeContractStartHeight
+	hyperionParams.ContractSourceHash = msg.ContractSourceHash
+
+	k.Keeper.setLastObservedEventNonce(ctx, hyperionParams.HyperionId, 0)
+	k.Keeper.SetLastObservedEthereumBlockHeight(ctx, hyperionParams.HyperionId, msg.BridgeContractStartHeight-1, uint64(ctx.BlockHeight()))
+	k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(hyperionParams.HyperionId), 0)
+	hyperionParams.OffsetValsetNonce = uint64(0)
+
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
 	return &types.MsgUpdateChainSmartContractResponse{}, nil
 }
@@ -47,19 +79,23 @@ func (k msgServer) UpdateChainLogo(c context.Context, msg *types.MsgUpdateChainL
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.Keeper.GetParams(ctx)
 
 	if msg.ChainId == 0 {
 		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
 	}
 
-	for _, counterpartyChainParam := range params.CounterpartyChainParams {
-		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			counterpartyChainParam.BridgeChainLogo = msg.Logo
-			k.Keeper.SetCounterpartyChainParams(ctx, counterpartyChainParam.HyperionId, counterpartyChainParam)
-			break
-		}
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.BridgeChainLogo = msg.Logo
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
 	return &types.MsgUpdateChainLogoResponse{}, nil
 }
@@ -69,19 +105,23 @@ func (k msgServer) UpdateChainName(c context.Context, msg *types.MsgUpdateChainN
 	defer doneFn()
 
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.Keeper.GetParams(ctx)
 
 	if msg.ChainId == 0 {
 		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
 	}
 
-	for _, counterpartyChainParam := range params.CounterpartyChainParams {
-		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			counterpartyChainParam.BridgeChainName = msg.Name
-			k.Keeper.SetCounterpartyChainParams(ctx, counterpartyChainParam.HyperionId, counterpartyChainParam)
-			break
-		}
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.BridgeChainName = msg.Name
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
 	return &types.MsgUpdateChainNameResponse{}, nil
 }
@@ -90,12 +130,39 @@ func (k msgServer) DeleteChain(c context.Context, msg *types.MsgDeleteChain) (*t
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
+	ctx := sdk.UnwrapSDKContext(c)
+
 	if msg.ChainId == 0 {
 		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
 	params := k.Keeper.GetParams(ctx)
+
+	// Clean all datas for the chain
+	k.Keeper.CleanValsetConfirms(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanValsets(ctx, hyperionParams.HyperionId)
+	k.Keeper.DeleteBatchs(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanBatchConfirms(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanPoolTransactions(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanAttestations(ctx, hyperionParams.HyperionId)
+
+	// Set the last observed event nonce to 0
+	k.Keeper.setLastObservedEventNonce(ctx, hyperionParams.HyperionId, 0)
+	k.Keeper.SetLastObservedEthereumBlockHeight(ctx, hyperionParams.HyperionId, 0, 0)
+	k.Keeper.SetLastOutgoingBatchID(ctx, hyperionParams.HyperionId, 0)
+	k.Keeper.SetLastOutgoingPoolID(ctx, hyperionParams.HyperionId, 0)
+	k.Keeper.SetLastObservedValset(ctx, hyperionParams.HyperionId, types.Valset{
+		HyperionId: hyperionParams.HyperionId,
+	})
 
 	for i, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.ChainId {
@@ -107,6 +174,55 @@ func (k msgServer) DeleteChain(c context.Context, msg *types.MsgDeleteChain) (*t
 	k.Keeper.SetParams(ctx, params)
 
 	return &types.MsgDeleteChainResponse{}, nil
+}
+
+func (k msgServer) PauseChain(c context.Context, msg *types.MsgPauseChain) (*types.MsgPauseChainResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	params := k.Keeper.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == msg.ChainId {
+			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+				continue
+			}
+			counterpartyChainParam.Paused = true
+			break
+		}
+	}
+	k.Keeper.SetParams(ctx, params)
+	return &types.MsgPauseChainResponse{}, nil
+}
+
+func (k msgServer) UnpauseChain(c context.Context, msg *types.MsgUnpauseChain) (*types.MsgUnpauseChainResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	params := k.Keeper.GetParams(ctx)
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == msg.ChainId {
+			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+				continue
+			}
+			counterpartyChainParam.Paused = false
+			break
+		}
+	}
+	k.Keeper.SetParams(ctx, params)
+	return &types.MsgUnpauseChainResponse{}, nil
 }
 
 func (k msgServer) ClearValset(c context.Context, msg *types.MsgClearValset) (*types.MsgClearValsetResponse, error) {
@@ -122,7 +238,11 @@ func (k msgServer) ClearValset(c context.Context, msg *types.MsgClearValset) (*t
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.ChainId {
+			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+				continue
+			}
 			k.Keeper.setLastObservedEventNonce(ctx, counterpartyChainParam.HyperionId, 0)
+			break
 		}
 	}
 
@@ -137,7 +257,7 @@ func (k msgServer) ForceSetValsetAndLastObservedEventNonce(c context.Context, ms
 
 	hyperionParams := k.Keeper.GetCounterpartyChainParams(ctx)[msg.HyperionId]
 
-	if hyperionParams.Initializer != msg.Signer {
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -155,4 +275,261 @@ func (k msgServer) ForceSetValsetAndLastObservedEventNonce(c context.Context, ms
 	k.Keeper.SetCounterpartyChainParams(ctx, msg.HyperionId, hyperionParams)
 
 	return &types.MsgForceSetValsetAndLastObservedEventNonceResponse{}, nil
+}
+
+func (k msgServer) AddRpc(c context.Context, msg *types.MsgAddRpc) (*types.MsgAddRpcResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	lastObservedEthereumBlockHeight := k.Keeper.GetLastObservedEthereumBlockHeight(ctx, hyperionParams.HyperionId)
+
+	if lastObservedEthereumBlockHeight.EthereumBlockHeight == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "LastObservedBlockHeight not found")
+	}
+
+	k.Keeper.UpdateRpcUsed(ctx, hyperionParams.HyperionId, msg.RpcUrl, lastObservedEthereumBlockHeight.EthereumBlockHeight)
+
+	return &types.MsgAddRpcResponse{}, nil
+}
+
+func (k msgServer) RemoveRpc(c context.Context, msg *types.MsgRemoveRpc) (*types.MsgRemoveRpcResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	params := k.Keeper.GetParams(ctx)
+
+	for _, counterpartyChainParam := range params.CounterpartyChainParams {
+		if counterpartyChainParam.BridgeChainId == msg.ChainId {
+			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+				continue
+			}
+			counterpartyChainParam.Rpcs = types.RemoveRpcFromSlice(counterpartyChainParam.Rpcs, msg.RpcUrl)
+			break
+		}
+	}
+
+	k.Keeper.SetParams(ctx, params)
+
+	return &types.MsgRemoveRpcResponse{}, nil
+}
+
+func (k msgServer) SetTokenToChain(c context.Context, msg *types.MsgSetTokenToChain) (*types.MsgSetTokenToChainResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	k.Keeper.SetDenomToken(ctx, hyperionParams.HyperionId, msg.Token)
+
+	return &types.MsgSetTokenToChainResponse{}, nil
+}
+
+func (k msgServer) MintToken(c context.Context, msg *types.MsgMintToken) (*types.MsgMintTokenResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	err := k.Keeper.MintToken(ctx, hyperionParams.HyperionId, common.HexToAddress(msg.TokenAddress), msg.Amount, common.HexToAddress(msg.ReceiverAddress))
+
+	if err != nil {
+		return nil, errors.Wrap(err, "MintToken failed")
+	}
+
+	return &types.MsgMintTokenResponse{}, nil
+}
+
+func (k msgServer) BurnToken(c context.Context, msg *types.MsgBurnToken) (*types.MsgBurnTokenResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	err := k.Keeper.BurnToken(ctx, hyperionParams.HyperionId, common.HexToAddress(msg.TokenAddress), msg.Amount, cmn.AnyToHexAddress(msg.Signer))
+
+	if err != nil {
+		return nil, errors.Wrap(err, "BurnToken failed")
+	}
+
+	return &types.MsgBurnTokenResponse{}, nil
+}
+
+func (k msgServer) SetValsetNonce(c context.Context, msg *types.MsgSetValsetNonce) (*types.MsgSetValsetNonceResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.OffsetValsetNonce = msg.ValsetNonce
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	return &types.MsgSetValsetNonceResponse{}, nil
+}
+
+func (k msgServer) SetMinCallExternalDataGas(c context.Context, msg *types.MsgSetMinCallExternalDataGas) (*types.MsgSetMinCallExternalDataGasResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.MinCallExternalDataGas = msg.MinCallExternalDataGas
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	return &types.MsgSetMinCallExternalDataGasResponse{}, nil
+}
+
+func (k msgServer) SetValsetReward(c context.Context, msg *types.MsgSetValsetReward) (*types.MsgSetValsetRewardResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	tokenAddress := common.HexToAddress(msg.TokenAddress)
+
+	tokenDenom, err := k.Keeper.erc20Keeper.GetTokenDenom(ctx, tokenAddress)
+	if err != nil {
+		return nil, errors.Wrap(err, "Token not found in the ERC20Keeper")
+	}
+
+	_, exists := k.Keeper.GetTokenFromDenom(ctx, hyperionParams.HyperionId, tokenDenom)
+	if !exists { // force the reward to be zero
+		return nil, errors.Wrap(types.ErrInvalid, "Token Denom not found in the Hyperion associated tokens list")
+	}
+
+	hyperionParams.ValsetReward = sdk.Coin{Denom: tokenDenom, Amount: msg.Amount}
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	return &types.MsgSetValsetRewardResponse{}, nil
+}
+
+func (k msgServer) SetUnbondSlashingValsetsWindow(c context.Context, msg *types.MsgSetUnbondSlashingValsetsWindow) (*types.MsgSetUnbondSlashingValsetsWindowResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.UnbondSlashingValsetsWindow = msg.UnbondSlashingValsetsWindow
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	return &types.MsgSetUnbondSlashingValsetsWindowResponse{}, nil
 }

@@ -25,6 +25,7 @@ import (
 	logosKeeper "helios-core/helios-chain/x/logos/keeper"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -38,6 +39,7 @@ const bech32PrecompileBaseGas = 6_000
 // AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func NewAvailableStaticPrecompiles(
+	cdc codec.Codec,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -109,7 +111,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, authzKeeper, bankKeeper, erc20Keeper, hyperionKeeper)
+	govPrecompile, err := govprecompile.NewPrecompile(cdc, govKeeper, authzKeeper, bankKeeper, erc20Keeper, hyperionKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}

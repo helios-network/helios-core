@@ -9,6 +9,7 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -32,6 +33,7 @@ var f embed.FS
 // Precompile defines the precompiled contract for gov.
 type Precompile struct {
 	cmn.Precompile
+	cdc            codec.Codec
 	govKeeper      govkeeper.Keeper
 	bankKeeper     bankkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
@@ -47,6 +49,7 @@ func LoadABI() (abi.ABI, error) {
 // NewPrecompile creates a new gov Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	cdc codec.Codec,
 	govKeeper govkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -66,6 +69,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
+		cdc:            cdc,
 		govKeeper:      govKeeper,
 		bankKeeper:     bankKeeper,
 		erc20Keeper:    erc20Keeper,
@@ -150,6 +154,11 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 			contract,
 			method,
 			args)
+	case HyperionProposalMethod:
+		bz, err = p.HyperionProposal(
+			evm.Origin,
+			p.govKeeper,
+			ctx, method, contract, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}

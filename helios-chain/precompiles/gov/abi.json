@@ -45,6 +45,40 @@
           "type": "string"
         },
         {
+          "internalType": "string",
+          "name": "msg",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initialDepositAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "hyperionProposal",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
           "components": [
             { "internalType": "string", "name": "denom", "type": "string" },
             { "internalType": "string", "name": "magnitude", "type": "string" },

@@ -142,7 +142,6 @@ message CounterpartyChainParams {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  bool claim_slashing_enabled = 22;
   uint64 bridge_contract_start_height = 23;
 
   cosmos.base.v1beta1.Coin valset_reward = 24 [ (gogoproto.nullable) = false ];
@@ -156,4 +155,6 @@ message CounterpartyChainParams {
   uint64 offset_valset_nonce = 28;
 
   uint64 min_call_external_data_gas = 29;
+
+  bool paused = 30;
 }

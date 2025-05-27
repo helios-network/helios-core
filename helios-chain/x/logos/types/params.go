@@ -22,11 +22,13 @@ func DefaultParams() *Params {
 //go:embed default-logos/80002.json
 //go:embed default-logos/HLS.json
 //go:embed default-logos/ETH.json
+//go:embed default-logos/BNB.json
+//go:embed default-logos/AVAX.json
 var defaultLogos embed.FS
 
 func DefaultLogo() []*Logo {
 
-	files := []string{"default-logos/80002.json", "default-logos/HLS.json", "default-logos/ETH.json"}
+	files := []string{"default-logos/80002.json", "default-logos/HLS.json", "default-logos/ETH.json", "default-logos/BNB.json", "default-logos/AVAX.json"}
 
 	lstLogos := []*Logo{}
 

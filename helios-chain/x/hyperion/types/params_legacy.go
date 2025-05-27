@@ -60,9 +60,6 @@ var (
 	// ParamStoreUnbondSlashingValsetsWindow stores unbond slashing valset window
 	ParamStoreUnbondSlashingValsetsWindow = []byte("UnbondSlashingValsetsWindow")
 
-	// ParamStoreClaimSlashingEnabled stores ClaimSlashing is enabled or not
-	ParamStoreClaimSlashingEnabled = []byte("ClaimSlashingEnabled")
-
 	// ParamStoreSlashFractionBadEthSignature stores the amount by which a validator making a fraudulent eth signature will be slashed
 	ParamStoreSlashFractionBadEthSignature = []byte("SlashFractionBadEthSignature")
 

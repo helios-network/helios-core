@@ -123,6 +123,66 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/clear_valset";
   }
 
+  rpc ChangeInitializer(MsgChangeInitializer)
+      returns (MsgChangeInitializerResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/change_initializer";
+  }
+
+  rpc PauseChain(MsgPauseChain)
+      returns (MsgPauseChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/pause_chain";
+  }
+
+  rpc UnpauseChain(MsgUnpauseChain)
+      returns (MsgUnpauseChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/unpause_chain";
+  }
+
+  rpc AddRpc(MsgAddRpc)
+      returns (MsgAddRpcResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/add_rpc";
+  }
+
+  rpc RemoveRpc(MsgRemoveRpc)
+      returns (MsgRemoveRpcResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/remove_rpc";
+  }
+
+  rpc SetTokenToChain(MsgSetTokenToChain)
+      returns (MsgSetTokenToChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_token_to_chain";
+  }
+
+  rpc MintToken(MsgMintToken)
+      returns (MsgMintTokenResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/mint_token";
+  }
+
+  rpc BurnToken(MsgBurnToken)
+      returns (MsgBurnTokenResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/burn_token";
+  }
+
+  rpc SetValsetNonce(MsgSetValsetNonce)
+      returns (MsgSetValsetNonceResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_valset_nonce";
+  }
+
+  rpc SetMinCallExternalDataGas(MsgSetMinCallExternalDataGas)
+      returns (MsgSetMinCallExternalDataGasResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_min_call_external_data_gas";
+  }
+
+  rpc SetValsetReward(MsgSetValsetReward)
+      returns (MsgSetValsetRewardResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_valset_reward";
+  }
+
+  rpc SetUnbondSlashingValsetsWindow(MsgSetUnbondSlashingValsetsWindow)
+      returns (MsgSetUnbondSlashingValsetsWindowResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_unbond_slashing_valsets_window";
+  }
+
   // <-- Testnet
 }
 
@@ -379,10 +439,10 @@ message MsgValsetUpdatedClaimResponse {}
 
 message MsgAddCounterpartyChainParams {
   option (amino.name) = "hyperion/MsgAddChainToParams";
-  option (cosmos.msg.v1.signer) = "orchestrator";
+  option (cosmos.msg.v1.signer) = "authority";
 
   // orchestrator is the address of the first orchestrator of the new chain
-  string orchestrator = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
   CounterpartyChainParams counterparty_chain_params = 2;
 }
@@ -483,6 +543,7 @@ message MsgUpdateChainSmartContract {
   uint64 chain_id = 2;
   string bridge_contract_address = 3;
   uint64 bridge_contract_start_height = 4;
+  string contract_source_hash = 5;
 }
 
 message MsgUpdateChainSmartContractResponse {}
@@ -528,3 +589,146 @@ message MsgClearValset {
 }
 
 message MsgClearValsetResponse {}
+
+message MsgChangeInitializer {
+  option (amino.name) = "hyperion/MsgChangeInitializer";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string new_initializer = 3;
+}
+
+message MsgChangeInitializerResponse {}
+
+message MsgPauseChain {
+  option (amino.name) = "hyperion/MsgPauseChain";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+}
+
+message MsgPauseChainResponse {}
+
+message MsgUnpauseChain {
+  option (amino.name) = "hyperion/MsgUnpauseChain";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+}
+
+message MsgUnpauseChainResponse {}
+
+message MsgAddRpc {
+  option (amino.name) = "hyperion/MsgAddRpc";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string rpc_url = 3;
+}
+
+message MsgAddRpcResponse {}
+
+message MsgRemoveRpc {
+  option (amino.name) = "hyperion/MsgRemoveRpc";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string rpc_url = 3;
+}
+
+message MsgRemoveRpcResponse {}
+
+message MsgSetTokenToChain {
+  option (amino.name) = "hyperion/MsgSetTokenToChain";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  TokenAddressToDenom token = 3;
+}
+
+message MsgSetTokenToChainResponse {}
+
+message MsgMintToken {
+  option (amino.name) = "hyperion/MsgMintToken";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string token_address = 3;
+  string amount = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string receiver_address = 5;
+}
+
+message MsgMintTokenResponse {}
+
+message MsgBurnToken {
+  option (amino.name) = "hyperion/MsgBurnToken";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string token_address = 3;
+  string amount = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MsgBurnTokenResponse {}
+
+message MsgSetValsetNonce {
+  option (amino.name) = "hyperion/MsgSetValsetNonce";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  uint64 valset_nonce = 3;
+}
+
+message MsgSetValsetNonceResponse {}
+
+message MsgSetMinCallExternalDataGas {
+  option (amino.name) = "hyperion/MsgSetMinCallExternalDataGas";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  uint64 min_call_external_data_gas = 3;
+}
+
+message MsgSetMinCallExternalDataGasResponse {}
+
+message MsgSetValsetReward {
+  option (amino.name) = "hyperion/MsgSetValsetReward";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string token_address = 3;
+  string amount = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MsgSetValsetRewardResponse {}
+
+message MsgSetUnbondSlashingValsetsWindow {
+  option (amino.name) = "hyperion/MsgSetUnbondSlashingValsetsWindow";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  uint64 unbond_slashing_valsets_window = 3;
+}
+
+message MsgSetUnbondSlashingValsetsWindowResponse {}

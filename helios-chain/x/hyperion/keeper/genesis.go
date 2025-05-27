@@ -16,6 +16,60 @@ import (
 	erc20types "helios-core/helios-chain/x/erc20/types"
 )
 
+func (k *Keeper) SetDefaultToken(ctx sdk.Context, counterparty *types.CounterpartyChainParams, token *types.TokenAddressToDenomWithGenesisInfos) {
+	tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
+
+	if !ok {
+		coinMetadata := banktypes.Metadata{
+			Description: fmt.Sprintf("Token %s created with Hyperion", token.TokenAddressToDenom.Denom),
+			Base:        token.TokenAddressToDenom.Denom,
+			Name:        token.TokenAddressToDenom.Symbol,
+			Symbol:      token.TokenAddressToDenom.Symbol,
+			Decimals:    uint32(token.TokenAddressToDenom.Decimals),
+			Display:     token.TokenAddressToDenom.Symbol,
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    token.TokenAddressToDenom.Denom,
+					Exponent: 0,
+				},
+				{
+					Denom:    token.TokenAddressToDenom.Symbol,
+					Exponent: uint32(token.TokenAddressToDenom.Decimals),
+				},
+			},
+			Logo: token.Logo,
+		}
+
+		contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
+		if err != nil {
+			panic(fmt.Errorf("failed to deploy ERC20 contract: %w", err))
+		}
+		tokenPair = erc20types.NewTokenPair(contractAddr, token.TokenAddressToDenom.Denom, erc20types.OWNER_MODULE)
+		k.erc20Keeper.SetToken(ctx, tokenPair)
+		k.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+	}
+
+	if token.TokenAddressToDenom.IsConcensusToken && !k.erc20Keeper.IsAssetWhitelisted(ctx, token.TokenAddressToDenom.Denom) {
+		asset := erc20types.Asset{
+			Denom:           token.TokenAddressToDenom.Denom,
+			ContractAddress: tokenPair.Erc20Address,
+			ChainId:         strconv.FormatUint(counterparty.BridgeChainId, 10), // Exemple de chainId, à ajuster si nécessaire
+			ChainName:       counterparty.BridgeChainName,
+			Decimals:        uint64(token.TokenAddressToDenom.Decimals),
+			BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
+			Symbol:          token.TokenAddressToDenom.Symbol,
+		}
+		k.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset)
+	}
+
+	for _, holder := range token.DefaultHolders {
+		holder.Address = common.HexToAddress(holder.Address).Hex()
+
+		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
+		k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(holder.Address), sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
+	}
+}
+
 // NormalizeGenesis takes care of formatting in the internal structures, as they're used as values
 // in the keeper eventually, while having raw strings in them.
 func NormalizeGenesis(data *types.GenesisState) {
@@ -70,58 +124,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 
 	for _, counterparty := range data.Params.CounterpartyChainParams {
 		for _, token := range counterparty.DefaultTokens {
-
-			tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
-
-			if !ok {
-				coinMetadata := banktypes.Metadata{
-					Description: fmt.Sprintf("Token %s created with Hyperion", token.TokenAddressToDenom.Denom),
-					Base:        token.TokenAddressToDenom.Denom,
-					Name:        token.TokenAddressToDenom.Symbol,
-					Symbol:      token.TokenAddressToDenom.Symbol,
-					Decimals:    uint32(token.TokenAddressToDenom.Decimals),
-					Display:     token.TokenAddressToDenom.Symbol,
-					DenomUnits: []*banktypes.DenomUnit{
-						{
-							Denom:    token.TokenAddressToDenom.Denom,
-							Exponent: 0,
-						},
-						{
-							Denom:    token.TokenAddressToDenom.Symbol,
-							Exponent: uint32(token.TokenAddressToDenom.Decimals),
-						},
-					},
-					Logo: token.Logo,
-				}
-
-				contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
-				if err != nil {
-					panic(fmt.Errorf("failed to deploy ERC20 contract: %w", err))
-				}
-				tokenPair = erc20types.NewTokenPair(contractAddr, token.TokenAddressToDenom.Denom, erc20types.OWNER_MODULE)
-				k.erc20Keeper.SetToken(ctx, tokenPair)
-				k.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
-			}
-
-			if token.TokenAddressToDenom.IsConcensusToken && !k.erc20Keeper.IsAssetWhitelisted(ctx, token.TokenAddressToDenom.Denom) {
-				asset := erc20types.Asset{
-					Denom:           token.TokenAddressToDenom.Denom,
-					ContractAddress: tokenPair.Erc20Address,
-					ChainId:         strconv.FormatUint(counterparty.BridgeChainId, 10), // Exemple de chainId, à ajuster si nécessaire
-					ChainName:       counterparty.BridgeChainName,
-					Decimals:        uint64(token.TokenAddressToDenom.Decimals),
-					BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
-					Symbol:          token.TokenAddressToDenom.Symbol,
-				}
-				k.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset)
-			}
-
-			for _, holder := range token.DefaultHolders {
-				holder.Address = common.HexToAddress(holder.Address).Hex()
-
-				k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
-				k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(holder.Address), sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
-			}
+			k.SetDefaultToken(ctx, counterparty, token)
 		}
 	}
 
@@ -221,30 +224,11 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		}
 
 		// populate state with cosmos originated denom-erc20 mapping
-		chainId := k.GetChainIdFromHyperionId(ctx, subState.HyperionId)
 
 		for _, item := range subState.TokenAddressToDenoms {
-			k.SetToken(ctx, subState.HyperionId, item)
-			metadata, found := k.bankKeeper.GetDenomMetaData(ctx, item.Denom)
-
-			chainMetadata := &banktypes.ChainMetadata{
-				ChainId:         chainId,
-				ContractAddress: common.HexToAddress(item.TokenAddress).String(),
-				Symbol:          metadata.Symbol,
-				Decimals:        uint32(metadata.Decimals),
-				IsOriginated:    !item.IsCosmosOriginated,
-			}
-
-			if found {
-				metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, chainMetadata)
-				k.bankKeeper.SetDenomMetaData(ctx, metadata)
-			} else {
-				k.bankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
-					Base: item.Denom,
-					ChainsMetadatas: []*banktypes.ChainMetadata{
-						chainMetadata,
-					},
-				})
+			err := k.SetDenomToken(ctx, subState.HyperionId, item)
+			if err != nil {
+				panic(err)
 			}
 		}
 

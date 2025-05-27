@@ -11,6 +11,7 @@ import (
 
 	"helios-core/helios-chain/x/erc20/types"
 	"helios-core/helios-chain/x/evm/core/vm"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -34,6 +35,8 @@ const (
 	RemoveAssetProposalMethod = "removeAssetProposal"
 	// UpdateBlockParamsProposalMethod defines the method name for updating consensus parameters
 	UpdateBlockParamsProposalMethod = "updateBlockParamsProposal"
+	// HyperionProposalMethod defines the method name for hyperion proposal
+	HyperionProposalMethod = "hyperionProposal"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -341,4 +344,66 @@ func (p *Precompile) UpdateBlockParamsProposal(
 	}
 
 	return method.Outputs.Pack(res.ProposalId)
+}
+
+func (p *Precompile) HyperionProposal(
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	hyperionProposalArgs, err := ParseHyperionProposalArgs(p.cdc, args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse addCounterpartyChainParamsProposal arguments: %w", err)
+	}
+
+	proposer := sdk.AccAddress(origin.Bytes())
+
+	proposalContent := &hyperiontypes.HyperionProposal{
+		Title:       hyperionProposalArgs.Title,
+		Description: hyperionProposalArgs.Description,
+		Msg:         hyperionProposalArgs.Msg,
+	}
+
+	fmt.Println("proposalContent: ", proposalContent)
+
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	if err != nil {
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+	}
+
+	fmt.Println("contentMsg: ", contentMsg)
+
+	contentAny, err := codectypes.NewAnyWithValue(contentMsg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack content message: %w", err)
+	}
+
+	fmt.Println("contentAny: ", contentAny)
+
+	msg := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{contentAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewIntFromBigInt(hyperionProposalArgs.InitialDeposit)), // todo: change ahelios by default var
+		),
+		Proposer: proposer.String(),
+		Metadata: "Optional metadata", // todo update !!
+		Title:    hyperionProposalArgs.Title,
+		Summary:  hyperionProposalArgs.Description,
+	}
+
+	fmt.Println("msg: ", msg)
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	proposal, err := msgSrv.SubmitProposal(ctx, msg)
+	if err != nil {
+		fmt.Println("error: ", err)
+		return nil, err
+	}
+
+	fmt.Println("proposal: ", proposal)
+
+	return method.Outputs.Pack(proposal.ProposalId)
 }

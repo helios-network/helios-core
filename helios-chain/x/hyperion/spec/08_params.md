@@ -26,8 +26,7 @@ type Params struct {
 	UnbondSlashingValsetsWindow   uint64  
 	SlashFractionBadEthSignature  math.LegacyDec 
 	CosmosCoinDenom               string  
-	CosmosCoinErc20Contract       string  
-	ClaimSlashingEnabled          bool    
+	CosmosCoinErc20Contract       string   
 	BridgeContractStartHeight     uint64  
 	ValsetReward                  types.Coin
 }

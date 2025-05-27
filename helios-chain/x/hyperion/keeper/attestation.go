@@ -212,7 +212,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			attestationPower = attestationPower.Add(math.NewInt(validatorPower))
 			// If the power of all the validators that have voted on the attestation is higher or equal to the threshold,
 			// process the attestation, set Observed to true, and break
-			if true || attestationPower.GTE(requiredPower) { // TODO: HYPERION TESTNET - remove true
+			if attestationPower.GTE(requiredPower) {
 				lastEventNonce := k.GetLastObservedEventNonce(ctx, claim.GetHyperionId())
 				// this check is performed at the next level up so this should never panic
 				// outside of programmer error.
@@ -331,22 +331,22 @@ func (k *Keeper) ProcessClaimData(ctx sdk.Context, claim types.EthereumClaim) {
 }
 
 func (k *Keeper) HandleMsg(ctx sdk.Context, msg sdk.Msg) error {
-	// Tenter de caster le message en *MsgSendToChain
-	if msgCasted, ok := msg.(*types.MsgSendToChain); ok {
-		// Le casting a réussi, vous pouvez maintenant utiliser msgCasted
-		// Traitez le message ici
-		k.Logger(ctx).Info("Received MsgSendToChain", "data", msgCasted)
+	// Tenter de caster le message en *MsgSendToChain TODO in the future
+	// if msgCasted, ok := msg.(*types.MsgSendToChain); ok {
+	// 	// Le casting a réussi, vous pouvez maintenant utiliser msgCasted
+	// 	// Traitez le message ici
+	// 	k.Logger(ctx).Info("Received MsgSendToChain", "data", msgCasted)
 
-		msgSrv := NewMsgServerImpl(*k)
-		_, err := msgSrv.SendToChain(ctx, msgCasted)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
+	// 	msgSrv := NewMsgServerImpl(*k)
+	// 	_, err := msgSrv.SendToChain(ctx, msgCasted)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	return nil
+	// }
 
 	// Si le casting échoue, vous pouvez gérer l'erreur
-	k.Logger(ctx).Error("Failed to cast msg to MsgSendToChain")
+	// k.Logger(ctx).Error("Failed to cast msg to MsgSendToChain")
 	return types.ErrUnknown // Ou une autre erreur appropriée
 }
 
@@ -391,6 +391,19 @@ func (k *Keeper) DeleteAttestation(ctx sdk.Context, hyperionId uint64, att *type
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.OracleAttestationKey, sdk.Uint64ToBigEndian(hyperionId)...))
 	store.Delete(types.GetAttestationKeyWithHash(claim.GetEventNonce(), claim.ClaimHash()))
+}
+
+func (k *Keeper) CleanAttestations(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.OracleAttestationKey, sdk.Uint64ToBigEndian(hyperionId)...))
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		store.Delete(iter.Key())
+	}
 }
 
 func (k Keeper) GetAttestationMapping(ctx sdk.Context, hyperionId uint64) map[uint64][]*types.Attestation {

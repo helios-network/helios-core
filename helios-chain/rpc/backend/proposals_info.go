@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	govprecompilestypes "helios-core/helios-chain/x/erc20/types"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -41,6 +42,33 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params) (map
 			details = append(details, map[string]interface{}{
 				"type":   "AddNewAssetConsensusProposal",
 				"assets": newAssetConsensusProposal.Assets,
+			})
+			continue
+		}
+		updateAssetConsensusProposal := &govprecompilestypes.UpdateAssetConsensusProposal{}
+		err = proto.Unmarshal(msg.Content.Value, updateAssetConsensusProposal)
+		if err == nil {
+			details = append(details, map[string]interface{}{
+				"type":    "UpdateAssetConsensusProposal",
+				"updates": updateAssetConsensusProposal.Updates,
+			})
+			continue
+		}
+		removeAssetConsensusProposal := &govprecompilestypes.RemoveAssetConsensusProposal{}
+		err = proto.Unmarshal(msg.Content.Value, removeAssetConsensusProposal)
+		if err == nil {
+			details = append(details, map[string]interface{}{
+				"type":   "RemoveAssetConsensusProposal",
+				"denoms": removeAssetConsensusProposal.Denoms,
+			})
+			continue
+		}
+		hyperionProposal := &hyperiontypes.HyperionProposal{}
+		err = proto.Unmarshal(msg.Content.Value, hyperionProposal)
+		if err == nil {
+			details = append(details, map[string]interface{}{
+				"type": "HyperionProposal",
+				"msg":  hyperionProposal.Msg,
 			})
 			continue
 		}

@@ -91,6 +91,21 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	return nextID, nil
 }
 
+func (k *Keeper) CleanPoolTransactions(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	poolTx := k.GetPoolTransactions(ctx, hyperionId)
+	for _, tx := range poolTx {
+		txSender, err := sdk.AccAddressFromBech32(tx.Sender)
+		if err != nil {
+			metrics.ReportFuncError(k.svcTags)
+			continue
+		}
+		k.RemoveFromOutgoingPoolAndRefund(ctx, hyperionId, tx.Id, txSender)
+	}
+}
+
 // RemoveFromOutgoingPoolAndRefund
 // - checks that the provided tx actually exists
 // - deletes the unbatched tx from the pool

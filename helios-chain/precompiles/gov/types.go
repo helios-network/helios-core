@@ -9,6 +9,7 @@ import (
 
 	"helios-core/helios-chain/x/erc20/types"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -616,6 +617,51 @@ func ParseRemoveAssetProposalArgs(args []interface{}) (*types.RemoveAssetConsens
 	}, nil
 }
 
+func ParseHyperionProposalArgs(cdc codec.Codec, args []interface{}) (*HyperionProposalArgs, error) {
+	if len(args) != 4 {
+		return nil, fmt.Errorf("invalid number of arguments, expected 4, got %d", len(args))
+	}
+
+	title, ok := args[0].(string)
+	if !ok || title == "" {
+		return nil, fmt.Errorf("invalid title argument: %v", args[0])
+	}
+
+	description, ok := args[1].(string)
+	if !ok || description == "" {
+		return nil, fmt.Errorf("invalid description argument: %v", args[1])
+	}
+
+	msgContent, ok := args[2].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid msg argument: %v", args[2])
+	}
+
+	var msg sdk.Msg
+
+	if err := cdc.UnmarshalInterfaceJSON([]byte(msgContent), &msg); err != nil {
+		return nil, err
+	}
+
+	// Extract and validate the initialDeposit (must be a non-negative *big.Int).
+	initialDeposit, ok := args[3].(*big.Int)
+	if !ok || initialDeposit == nil || initialDeposit.Sign() < 0 {
+		return nil, fmt.Errorf("invalid or missing initialDeposit argument: %v", args[3])
+	}
+
+	// Ensure the initialDeposit value fits within a uint64.
+	if initialDeposit.BitLen() > 64 {
+		return nil, fmt.Errorf("initialDeposit value out of range for uint64: %v", initialDeposit)
+	}
+
+	return &HyperionProposalArgs{
+		Title:          title,
+		Description:    description,
+		Msg:            msgContent,
+		InitialDeposit: initialDeposit,
+	}, nil
+}
+
 func (do *DepositOutput) FromResponse(res *govv1.QueryDepositResponse) *DepositOutput {
 	hexDepositor, err := utils.Bech32ToHexAddr(res.Deposit.Depositor)
 	if err != nil {
@@ -681,6 +727,13 @@ type UpdateParamsProposalArgs struct {
 	Description    string
 	MaxGas         int64
 	MaxBytes       int64
+	InitialDeposit *big.Int
+}
+
+type HyperionProposalArgs struct {
+	Title          string
+	Description    string
+	Msg            string
 	InitialDeposit *big.Int
 }
 

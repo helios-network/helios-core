@@ -209,6 +209,16 @@ func (k *Keeper) DeleteBatch(ctx sdk.Context, batch types.OutgoingTxBatch) {
 	store.Delete(types.GetOutgoingTxBatchBlockKey(batch.HyperionId, batch.Block))
 }
 
+func (k *Keeper) DeleteBatchs(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	batches := k.GetOutgoingTxBatches(ctx, hyperionId)
+	for _, batch := range batches {
+		k.DeleteBatch(ctx, *batch)
+	}
+}
+
 // pickUnbatchedTX find TX in pool and remove from "available" second index
 func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
 	fmt.Println("pickUnbatchedTX for hyperionId: ", hyperionId)

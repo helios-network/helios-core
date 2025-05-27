@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"cosmossdk.io/errors"
@@ -106,6 +107,14 @@ func NewKeeper(
 	return k
 }
 
+func (k *Keeper) GetAuthority() string {
+	return k.authority
+}
+
+func (k *Keeper) Cdc() codec.Codec {
+	return k.cdc
+}
+
 /////////////////////////////
 //     VALSET REQUESTS     //
 /////////////////////////////
@@ -186,6 +195,19 @@ func (k *Keeper) DeleteValset(ctx sdk.Context, hyperionId uint64, nonce uint64) 
 	defer doneFn()
 
 	ctx.KVStore(k.storeKey).Delete(types.GetValsetKey(hyperionId, nonce))
+}
+
+func (k *Keeper) CleanValsets(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.ValsetRequestKey, sdk.Uint64ToBigEndian(hyperionId)...))
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		store.Delete(iter.Key())
+	}
 }
 
 // GetLatestValsetNonce returns the latest valset nonce
@@ -395,6 +417,19 @@ func (k *Keeper) SetValsetConfirm(ctx sdk.Context, valset *types.MsgValsetConfir
 	return key
 }
 
+func (k *Keeper) CleanValsetConfirms(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), sdk.Uint64ToBigEndian(hyperionId))
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		store.Delete(iter.Key())
+	}
+}
+
 // GetValsetConfirms returns all validator set confirmations by nonce
 func (k *Keeper) GetValsetConfirms(ctx sdk.Context, hyperionId uint64, nonce uint64) (valsetConfirms []*types.MsgValsetConfirm) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
@@ -477,6 +512,19 @@ func (k *Keeper) SetBatchConfirm(ctx sdk.Context, batch *types.MsgConfirmBatch) 
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	return key
+}
+
+func (k *Keeper) CleanBatchConfirms(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.BatchConfirmKey, sdk.Uint64ToBigEndian(hyperionId)...))
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		store.Delete(iter.Key())
+	}
 }
 
 // IterateBatchConfirmByNonceAndTokenContract iterates through all batch confirmations
@@ -1277,4 +1325,90 @@ func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed strin
 	}
 	counterpartyChainParams.Rpcs = rpcList
 	k.SetCounterpartyChainParams(ctx, hyperionId, counterpartyChainParams)
+}
+
+func (k *Keeper) SetDenomToken(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	chainId := k.GetChainIdFromHyperionId(ctx, hyperionId)
+
+	if chainId == 0 {
+		return errors.Wrap(types.ErrEmpty, "chain id not found")
+	}
+
+	k.SetToken(ctx, hyperionId, token)
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
+
+	chainMetadata := &banktypes.ChainMetadata{
+		ChainId:         chainId,
+		ContractAddress: common.HexToAddress(token.TokenAddress).String(),
+		Symbol:          metadata.Symbol,
+		Decimals:        uint32(metadata.Decimals),
+		IsOriginated:    !token.IsCosmosOriginated,
+	}
+
+	if found {
+		asChainMetadata := false
+		for _, chainMetadata := range metadata.ChainsMetadatas {
+			if chainMetadata.ChainId == chainId {
+				chainMetadata.ContractAddress = chainMetadata.ContractAddress
+				chainMetadata.Symbol = chainMetadata.Symbol
+				chainMetadata.Decimals = chainMetadata.Decimals
+				chainMetadata.IsOriginated = chainMetadata.IsOriginated
+				asChainMetadata = true
+			}
+		}
+		if !asChainMetadata {
+			metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, chainMetadata)
+		}
+		k.bankKeeper.SetDenomMetaData(ctx, metadata)
+	} else {
+		k.bankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
+			Base: token.Denom,
+			ChainsMetadatas: []*banktypes.ChainMetadata{
+				chainMetadata,
+			},
+		})
+	}
+
+	return nil
+}
+
+func (k *Keeper) MintToken(ctx sdk.Context, hyperionId uint64, tokenAddress common.Address, amount math.Int, receiver common.Address) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	token, found := k.GetTokenFromAddress(ctx, hyperionId, tokenAddress)
+	if !found {
+		return errors.Wrap(types.ErrEmpty, "token not found")
+	}
+
+	if token.IsCosmosOriginated {
+		return errors.Wrap(types.ErrEmpty, "token is cosmos originated")
+	}
+
+	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddress(receiver), sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+
+	return nil
+}
+
+func (k *Keeper) BurnToken(ctx sdk.Context, hyperionId uint64, tokenAddress common.Address, amount math.Int, sender common.Address) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	token, found := k.GetTokenFromAddress(ctx, hyperionId, tokenAddress)
+	if !found {
+		return errors.Wrap(types.ErrEmpty, "token not found")
+	}
+
+	if token.IsCosmosOriginated {
+		return errors.Wrap(types.ErrEmpty, "token is cosmos originated")
+	}
+
+	k.bankKeeper.SendCoinsFromAccountToModule(ctx, cmn.AccAddressFromHexAddress(sender), types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+	k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+
+	return nil
 }

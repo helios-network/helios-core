@@ -1135,7 +1135,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
-		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper))
+		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper)).
+		AddRoute(hyperiontypes.RouterKey, hyperion.NewHyperionProposalHandler(app.HyperionKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
 
@@ -1158,6 +1159,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	// Finally, set up the static precompiles
 	app.EvmKeeper = app.EvmKeeper.WithStaticPrecompiles(
 		evmkeeper.NewAvailableStaticPrecompiles(
+			app.codec,
 			*app.StakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,

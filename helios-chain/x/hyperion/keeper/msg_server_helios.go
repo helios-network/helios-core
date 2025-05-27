@@ -13,6 +13,7 @@ import (
 
 	"github.com/Helios-Chain-Labs/metrics"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/x/hyperion/types"
 )
 
@@ -116,6 +117,13 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 
 	// todo check msg.orchestrator funds and pay the cost of AddCounterpartyChain to the fundation
 
+	fmt.Println("msg.Orchestrator: ", msg.Authority)
+	fmt.Println("k.Keeper.GetAuthority(): ", k.Keeper.GetAuthority())
+
+	if msg.Authority != cmn.AnyToHexAddress(k.Keeper.GetAuthority()).Hex() {
+		return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the authority")
+	}
+
 	if err := msg.CounterpartyChainParams.ValidateBasic(); err != nil {
 		return nil, err
 	}
@@ -138,6 +146,9 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	params.CounterpartyChainParams = append(params.CounterpartyChainParams, msg.CounterpartyChainParams)
 	k.Keeper.SetParams(ctx, params)
 
+	for _, token := range msg.CounterpartyChainParams.DefaultTokens {
+		k.Keeper.SetDefaultToken(ctx, msg.CounterpartyChainParams, token)
+	}
 	// setup a default value LastObservedEthereumBlockHeight
 	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
 
@@ -161,7 +172,7 @@ func (k msgServer) UpdateCounterpartyChainInfosParams(c context.Context, msg *ty
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.BridgeChainId {
 
-			if msg.Signer != counterpartyChainParam.Initializer {
+			if cmn.AccAddressFromHexAddressString(counterpartyChainParam.Initializer).String() != msg.Signer {
 				return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the initializer")
 			}
 
