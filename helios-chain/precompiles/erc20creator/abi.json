@@ -10,7 +10,10 @@
         { "internalType": "string", "name": "denom", "type": "string" },
         { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
         { "internalType": "uint8", "name": "decimals", "type": "uint8" },
-        { "internalType": "string", "name": "logoBase64", "type": "string" }
+        { "internalType": "string", "name": "logoBase64", "type": "string" },
+        { "internalType": "address", "name": "mintAuthority", "type": "address" },
+        { "internalType": "address", "name": "pauseAuthority", "type": "address" },
+        { "internalType": "address", "name": "burnAuthority", "type": "address" }
       ],
       "name": "createErc20",
       "outputs": [
