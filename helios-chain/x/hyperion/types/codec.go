@@ -53,6 +53,18 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgChangeInitializer{},
 		&MsgAddRpc{},
 		&MsgRemoveRpc{},
+
+		&MsgClearValset{},
+		&MsgForceSetValsetAndLastObservedEventNonce{},
+		&MsgSetTokenToChain{},
+		&MsgMintToken{},
+		&MsgBurnToken{},
+		&MsgSetMinCallExternalDataGas{},
+		&MsgSetValsetNonce{},
+		&MsgSetValsetReward{},
+		&MsgSetUnbondSlashingValsetsWindow{},
+		&MsgUnpauseChain{},
+		&MsgPauseChain{},
 	)
 
 	registry.RegisterInterface(
@@ -104,6 +116,17 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgChangeInitializer{}, "hyperion/MsgChangeInitializer", nil)
 	cdc.RegisterConcrete(&MsgAddRpc{}, "hyperion/MsgAddRpc", nil)
 	cdc.RegisterConcrete(&MsgRemoveRpc{}, "hyperion/MsgRemoveRpc", nil)
+
+	cdc.RegisterConcrete(&MsgClearValset{}, "hyperion/MsgClearValset", nil)
+	cdc.RegisterConcrete(&MsgForceSetValsetAndLastObservedEventNonce{}, "hyperion/MsgForceSetValsetAndLastObservedEventNonce", nil)
+	cdc.RegisterConcrete(&MsgSetTokenToChain{}, "hyperion/MsgSetTokenToChain", nil)
+	cdc.RegisterConcrete(&MsgMintToken{}, "hyperion/MsgMintToken", nil)
+	cdc.RegisterConcrete(&MsgBurnToken{}, "hyperion/MsgBurnToken", nil)
+	cdc.RegisterConcrete(&MsgSetMinCallExternalDataGas{}, "hyperion/MsgSetMinCallExternalDataGas", nil)
+	cdc.RegisterConcrete(&MsgSetValsetReward{}, "hyperion/MsgSetValsetReward", nil)
+	cdc.RegisterConcrete(&MsgSetUnbondSlashingValsetsWindow{}, "hyperion/MsgSetUnbondSlashingValsetsWindow", nil)
+	cdc.RegisterConcrete(&MsgUnpauseChain{}, "hyperion/MsgUnpauseChain", nil)
+	cdc.RegisterConcrete(&MsgPauseChain{}, "hyperion/MsgPauseChain", nil)
 
 	cdc.RegisterConcrete(&Params{}, "hyperion/Params", nil)
 }
