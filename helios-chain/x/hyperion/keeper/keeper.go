@@ -1350,12 +1350,12 @@ func (k *Keeper) SetDenomToken(ctx sdk.Context, hyperionId uint64, token *types.
 
 	if found {
 		asChainMetadata := false
-		for _, chainMetadata := range metadata.ChainsMetadatas {
-			if chainMetadata.ChainId == chainId {
-				chainMetadata.ContractAddress = chainMetadata.ContractAddress
-				chainMetadata.Symbol = chainMetadata.Symbol
-				chainMetadata.Decimals = chainMetadata.Decimals
-				chainMetadata.IsOriginated = chainMetadata.IsOriginated
+		for _, chainM := range metadata.ChainsMetadatas {
+			if chainM.ChainId == chainId {
+				chainMetadata.ContractAddress = chainM.ContractAddress
+				chainMetadata.Symbol = chainM.Symbol
+				chainMetadata.Decimals = chainM.Decimals
+				chainMetadata.IsOriginated = chainM.IsOriginated
 				asChainMetadata = true
 			}
 		}
