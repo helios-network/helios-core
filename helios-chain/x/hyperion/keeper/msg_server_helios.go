@@ -120,7 +120,7 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	fmt.Println("msg.Orchestrator: ", msg.Authority)
 	fmt.Println("k.Keeper.GetAuthority(): ", k.Keeper.GetAuthority())
 
-	if msg.Authority != cmn.AnyToHexAddress(k.Keeper.GetAuthority()).Hex() {
+	if cmn.AnyToHexAddress(msg.Authority).Hex() != cmn.AnyToHexAddress(k.Keeper.GetAuthority()).Hex() {
 		return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the authority")
 	}
 
@@ -172,7 +172,7 @@ func (k msgServer) UpdateCounterpartyChainInfosParams(c context.Context, msg *ty
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.BridgeChainId {
 
-			if cmn.AccAddressFromHexAddressString(counterpartyChainParam.Initializer).String() != msg.Signer {
+			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 				return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the initializer")
 			}
 

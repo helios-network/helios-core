@@ -73,7 +73,7 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 			return err
 		}
 	case *types.MsgUpdateParams:
-		// msg.Signer = k.GetAuthority()
+		msg.Authority = k.GetAuthority()
 		_, err := keeper.NewMsgServerImpl(k).UpdateParams(ctx, msg)
 		if err != nil {
 			return err
@@ -99,6 +99,72 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 	case *types.MsgRemoveRpc:
 		msg.Signer = k.GetAuthority()
 		_, err := keeper.NewMsgServerImpl(k).RemoveRpc(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgPauseChain:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).PauseChain(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgUnpauseChain:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).UnpauseChain(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgSetUnbondSlashingValsetsWindow:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).SetUnbondSlashingValsetsWindow(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgSetValsetReward:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).SetValsetReward(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgSetMinCallExternalDataGas:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).SetMinCallExternalDataGas(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgSetValsetNonce:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).SetValsetNonce(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgBurnToken:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).BurnToken(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgMintToken:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).MintToken(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgSetTokenToChain:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).SetTokenToChain(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgForceSetValsetAndLastObservedEventNonce:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).ForceSetValsetAndLastObservedEventNonce(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgClearValset:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).ClearValset(ctx, msg)
 		if err != nil {
 			return err
 		}

@@ -30,10 +30,10 @@ func (k msgServer) ChangeInitializer(c context.Context, msg *types.MsgChangeInit
 
 	params := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
 
-	if cmn.AnyToHexAddress(params.Initializer).String() != msg.Signer {
+	if cmn.AnyToHexAddress(params.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
-	params.Initializer = common.HexToAddress(msg.NewInitializer).Hex()
+	params.Initializer = msg.NewInitializer
 
 	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, params)
 
@@ -56,7 +56,7 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -90,7 +90,7 @@ func (k msgServer) UpdateChainLogo(c context.Context, msg *types.MsgUpdateChainL
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -116,7 +116,7 @@ func (k msgServer) UpdateChainName(c context.Context, msg *types.MsgUpdateChainN
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -142,7 +142,7 @@ func (k msgServer) DeleteChain(c context.Context, msg *types.MsgDeleteChain) (*t
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 	params := k.Keeper.GetParams(ctx)
@@ -190,7 +190,7 @@ func (k msgServer) PauseChain(c context.Context, msg *types.MsgPauseChain) (*typ
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+			if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(counterpartyChainParam.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 				continue
 			}
 			counterpartyChainParam.Paused = true
@@ -214,7 +214,7 @@ func (k msgServer) UnpauseChain(c context.Context, msg *types.MsgUnpauseChain) (
 	params := k.Keeper.GetParams(ctx)
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+			if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(counterpartyChainParam.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 				continue
 			}
 			counterpartyChainParam.Paused = false
@@ -238,7 +238,7 @@ func (k msgServer) ClearValset(c context.Context, msg *types.MsgClearValset) (*t
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+			if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(counterpartyChainParam.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 				continue
 			}
 			k.Keeper.setLastObservedEventNonce(ctx, counterpartyChainParam.HyperionId, 0)
@@ -257,7 +257,7 @@ func (k msgServer) ForceSetValsetAndLastObservedEventNonce(c context.Context, ms
 
 	hyperionParams := k.Keeper.GetCounterpartyChainParams(ctx)[msg.HyperionId]
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -293,7 +293,7 @@ func (k msgServer) AddRpc(c context.Context, msg *types.MsgAddRpc) (*types.MsgAd
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -322,7 +322,7 @@ func (k msgServer) RemoveRpc(c context.Context, msg *types.MsgRemoveRpc) (*types
 
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.BridgeChainId == msg.ChainId {
-			if cmn.AnyToHexAddress(counterpartyChainParam.Initializer).String() != msg.Signer {
+			if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(counterpartyChainParam.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 				continue
 			}
 			counterpartyChainParam.Rpcs = types.RemoveRpcFromSlice(counterpartyChainParam.Rpcs, msg.RpcUrl)
@@ -351,7 +351,7 @@ func (k msgServer) SetTokenToChain(c context.Context, msg *types.MsgSetTokenToCh
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -376,7 +376,7 @@ func (k msgServer) MintToken(c context.Context, msg *types.MsgMintToken) (*types
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -405,7 +405,7 @@ func (k msgServer) BurnToken(c context.Context, msg *types.MsgBurnToken) (*types
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -434,7 +434,7 @@ func (k msgServer) SetValsetNonce(c context.Context, msg *types.MsgSetValsetNonc
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -460,7 +460,7 @@ func (k msgServer) SetMinCallExternalDataGas(c context.Context, msg *types.MsgSe
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -486,7 +486,7 @@ func (k msgServer) SetValsetReward(c context.Context, msg *types.MsgSetValsetRew
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
@@ -524,7 +524,7 @@ func (k msgServer) SetUnbondSlashingValsetsWindow(c context.Context, msg *types.
 		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
 	}
 
-	if cmn.AnyToHexAddress(hyperionParams.Initializer).String() != msg.Signer {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
