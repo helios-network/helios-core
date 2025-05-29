@@ -91,7 +91,7 @@ func (p Precompile) AddCounterpartyChainParams(
 	}
 
 	msg := &hyperiontypes.MsgAddCounterpartyChainParams{
-		Orchestrator: cmn.AccAddressFromHexAddress(origin).String(),
+		Authority: cmn.AccAddressFromHexAddress(origin).String(),
 		CounterpartyChainParams: &hyperiontypes.CounterpartyChainParams{
 			HyperionId:                    hyperionId,
 			ContractSourceHash:            contractSourceHash, // hash of the BridgeCounterparty Smart Contract
