@@ -609,6 +609,11 @@
           "type": "int256"
         },
         {
+          "internalType": "int256",
+          "name": "minDelegation",
+          "type": "int256"
+        },
+        {
           "internalType": "bool",
           "name": "delegateAuthorization",
           "type": "bool"
