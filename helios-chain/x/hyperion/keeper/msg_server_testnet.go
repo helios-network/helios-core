@@ -30,7 +30,7 @@ func (k msgServer) ChangeInitializer(c context.Context, msg *types.MsgChangeInit
 
 	params := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
 
-	if cmn.AnyToHexAddress(params.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(params.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 	params.Initializer = msg.NewInitializer
