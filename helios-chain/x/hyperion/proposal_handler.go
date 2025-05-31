@@ -36,6 +36,12 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 	}
 
 	switch msg := msg.(type) {
+	case *types.MsgUpdateParams:
+		msg.Authority = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).UpdateParams(ctx, msg)
+		if err != nil {
+			return err
+		}
 	case *types.MsgAddCounterpartyChainParams:
 		msg.Authority = cmn.AnyToHexAddress(k.GetAuthority()).Hex()
 		_, err := keeper.NewMsgServerImpl(k).AddCounterpartyChainParams(ctx, msg)
@@ -69,12 +75,6 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 	case *types.MsgChangeInitializer:
 		msg.Signer = k.GetAuthority()
 		_, err := keeper.NewMsgServerImpl(k).ChangeInitializer(ctx, msg)
-		if err != nil {
-			return err
-		}
-	case *types.MsgUpdateParams:
-		msg.Authority = k.GetAuthority()
-		_, err := keeper.NewMsgServerImpl(k).UpdateParams(ctx, msg)
 		if err != nil {
 			return err
 		}

@@ -492,25 +492,25 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	// Format ERC20 tokens if requested
 	if req.FormatErc20 {
 		for _, tx := range txs {
-			if strings.Contains(tx.SentToken.Contract, "hyperion-") {
+			if tx.SentToken.Contract != "" {
 				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentToken.Contract))
 				if exists {
 					tx.SentToken.Contract = tokenPair.Erc20Address
 				}
 			}
-			if strings.Contains(tx.ReceivedToken.Contract, "hyperion-") {
+			if tx.ReceivedToken.Contract != "" {
 				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedToken.Contract))
 				if exists {
 					tx.ReceivedToken.Contract = tokenPair.Erc20Address
 				}
 			}
-			if strings.Contains(tx.SentFee.Contract, "hyperion-") {
+			if tx.SentFee.Contract != "" {
 				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentFee.Contract))
 				if exists {
 					tx.SentFee.Contract = tokenPair.Erc20Address
 				}
 			}
-			if strings.Contains(tx.ReceivedFee.Contract, "hyperion-") {
+			if tx.ReceivedFee.Contract != "" {
 				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedFee.Contract))
 				if exists {
 					tx.ReceivedFee.Contract = tokenPair.Erc20Address

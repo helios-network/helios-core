@@ -331,6 +331,7 @@ func (k *Keeper) ProcessClaimData(ctx sdk.Context, claim types.EthereumClaim) {
 }
 
 func (k *Keeper) HandleMsg(ctx sdk.Context, msg sdk.Msg) error {
+	// TODO: creer un message qui emglobe tous les messages potentiels avec r,v,s et content pour verifier la signature.
 	// Tenter de caster le message en *MsgSendToChain TODO in the future
 	// if msgCasted, ok := msg.(*types.MsgSendToChain); ok {
 	// 	// Le casting a réussi, vous pouvez maintenant utiliser msgCasted
