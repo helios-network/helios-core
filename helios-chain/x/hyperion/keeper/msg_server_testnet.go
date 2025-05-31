@@ -597,3 +597,57 @@ func (k msgServer) UpdateOutTxTimeout(c context.Context, msg *types.MsgUpdateOut
 
 	return &types.MsgUpdateOutTxTimeoutResponse{}, nil
 }
+
+func (k msgServer) CancelAllPendingOutgoingTxs(c context.Context, msg *types.MsgCancelAllPendingOutgoingTxs) (*types.MsgCancelAllPendingOutgoingTxsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	batches := k.Keeper.GetOutgoingTxBatches(ctx, hyperionParams.HyperionId)
+
+	for _, batch := range batches {
+		err := k.Keeper.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
+		if err != nil {
+			ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
+		}
+	}
+
+	txs := k.Keeper.GetPoolTransactions(ctx, hyperionParams.HyperionId)
+
+	for _, tx := range txs {
+		alreadyInBatch := false
+		batches := k.Keeper.GetOutgoingTxBatches(ctx, hyperionParams.HyperionId)
+		for _, batch := range batches {
+			for _, batchTx := range batch.Transactions {
+				if batchTx.Id == tx.Id {
+					alreadyInBatch = true
+					break
+				}
+			}
+		}
+
+		if !alreadyInBatch { // we can process cancel
+			sender, _ := sdk.AccAddressFromBech32(tx.Sender)
+			err := k.Keeper.RemoveFromOutgoingPoolAndRefund(ctx, hyperionParams.HyperionId, tx.Id, sender)
+			if err != nil {
+				ctx.Logger().Error("failed to cancel outgoing tx", "error", err, "txId", tx.Id, "sender", tx.Sender)
+			}
+		}
+	}
+	return &types.MsgCancelAllPendingOutgoingTxsResponse{}, nil
+}
