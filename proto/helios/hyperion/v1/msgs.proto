@@ -183,6 +183,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/set_unbond_slashing_valsets_window";
   }
 
+  rpc UpdateDefaultToken(MsgUpdateDefaultToken)
+      returns (MsgUpdateDefaultTokenResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_default_token";
+  }
+
   // <-- Testnet
 }
 
@@ -732,3 +737,19 @@ message MsgSetUnbondSlashingValsetsWindow {
 }
 
 message MsgSetUnbondSlashingValsetsWindowResponse {}
+
+message MsgUpdateDefaultToken {
+  option (amino.name) = "hyperion/MsgUpdateDefaultToken";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string token_address = 3;
+  string denom = 4;
+  string symbol = 5;
+  uint64 decimals = 6;
+  bool is_concensus_token = 7;
+  bool is_cosmos_originated = 8;
+}
+
+message MsgUpdateDefaultTokenResponse {}

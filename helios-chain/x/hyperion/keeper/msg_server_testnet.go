@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strconv"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
@@ -532,4 +533,36 @@ func (k msgServer) SetUnbondSlashingValsetsWindow(c context.Context, msg *types.
 	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
 	return &types.MsgSetUnbondSlashingValsetsWindowResponse{}, nil
+}
+
+func (k msgServer) UpdateDefaultToken(c context.Context, msg *types.MsgUpdateDefaultToken) (*types.MsgUpdateDefaultTokenResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	for _, token := range hyperionParams.DefaultTokens {
+		if token.TokenAddressToDenom.TokenAddress == msg.TokenAddress {
+			token.TokenAddressToDenom.IsConcensusToken = msg.IsConcensusToken
+			token.TokenAddressToDenom.Decimals = msg.Decimals
+			token.TokenAddressToDenom.Symbol = msg.Symbol
+			token.TokenAddressToDenom.ChainId = strconv.FormatUint(msg.ChainId, 10)
+			token.TokenAddressToDenom.IsCosmosOriginated = msg.IsCosmosOriginated
+			token.TokenAddressToDenom.Denom = msg.Denom
+			break
+		}
+	}
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	return &types.MsgUpdateDefaultTokenResponse{}, nil
 }
