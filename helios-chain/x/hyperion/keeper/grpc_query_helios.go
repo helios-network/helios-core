@@ -273,6 +273,36 @@ func (k Keeper) Attestation(c context.Context, req *types.QueryAttestationReques
 	}, nil
 }
 
+func formatErc20TransferTxs(ctx sdk.Context, k *Keeper, txs []*types.TransferTx) []*types.TransferTx {
+	for _, tx := range txs {
+		if tx.SentToken.Contract != "" {
+			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentToken.Contract))
+			if exists {
+				tx.SentToken.Contract = tokenPair.Erc20Address
+			}
+		}
+		if tx.ReceivedToken.Contract != "" {
+			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedToken.Contract))
+			if exists {
+				tx.ReceivedToken.Contract = tokenPair.Erc20Address
+			}
+		}
+		if tx.SentFee.Contract != "" {
+			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentFee.Contract))
+			if exists {
+				tx.SentFee.Contract = tokenPair.Erc20Address
+			}
+		}
+		if tx.ReceivedFee.Contract != "" {
+			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedFee.Contract))
+			if exists {
+				tx.ReceivedFee.Contract = tokenPair.Erc20Address
+			}
+		}
+	}
+	return txs
+}
+
 func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types.QueryGetTransactionsByPageAndSizeRequest) (*types.QueryGetTransactionsByPageAndSizeResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
@@ -288,6 +318,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to search finalized txs")
 		}
+		formatErc20TransferTxs(ctx, k, finalizedTxs.Txs)
 		return &types.QueryGetTransactionsByPageAndSizeResponse{
 			Txs: finalizedTxs.Txs,
 		}, nil
@@ -491,32 +522,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 
 	// Format ERC20 tokens if requested
 	if req.FormatErc20 {
-		for _, tx := range txs {
-			if tx.SentToken.Contract != "" {
-				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentToken.Contract))
-				if exists {
-					tx.SentToken.Contract = tokenPair.Erc20Address
-				}
-			}
-			if tx.ReceivedToken.Contract != "" {
-				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedToken.Contract))
-				if exists {
-					tx.ReceivedToken.Contract = tokenPair.Erc20Address
-				}
-			}
-			if tx.SentFee.Contract != "" {
-				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentFee.Contract))
-				if exists {
-					tx.SentFee.Contract = tokenPair.Erc20Address
-				}
-			}
-			if tx.ReceivedFee.Contract != "" {
-				tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedFee.Contract))
-				if exists {
-					tx.ReceivedFee.Contract = tokenPair.Erc20Address
-				}
-			}
-		}
+		formatErc20TransferTxs(ctx, k, txs)
 	}
 
 	return &types.QueryGetTransactionsByPageAndSizeResponse{
