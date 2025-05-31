@@ -12,6 +12,8 @@ import (
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
 
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -29,8 +31,9 @@ var f embed.FS
 // Precompile defines the precompiled contract for staking.
 type Precompile struct {
 	cmn.Precompile
-	stakingKeeper stakingkeeper.Keeper
-	erc20Keeper   erc20keeper.Keeper
+	stakingKeeper  stakingkeeper.Keeper
+	slashingKeeper slashingkeeper.Keeper
+	erc20Keeper    erc20keeper.Keeper
 }
 
 // LoadABI loads the staking ABI from the embedded abi.json file
@@ -45,6 +48,7 @@ func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	slashingKeeper slashingkeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -59,8 +63,9 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		stakingKeeper: stakingKeeper,
-		erc20Keeper:   erc20Keeper,
+		stakingKeeper:  stakingKeeper,
+		erc20Keeper:    erc20Keeper,
+		slashingKeeper: slashingKeeper,
 	}
 	// SetAddress defines the address of the staking precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.StakingPrecompileAddress))
@@ -126,6 +131,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Validator(ctx, method, contract, args)
 	case ValidatorsMethod:
 		bz, err = p.Validators(ctx, method, contract, args)
+	case UnjailMethod:
+		bz, err = p.Unjail(ctx, evm.Origin, contract, stateDB, method, args)
 	/*case RedelegationMethod:
 	bz, err = p.Redelegation(ctx, method, contract, args)*/
 	// Authorization queries
@@ -176,7 +183,8 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 		authorization.ApproveMethod,
 		authorization.RevokeMethod,
 		authorization.IncreaseAllowanceMethod,
-		authorization.DecreaseAllowanceMethod:
+		authorization.DecreaseAllowanceMethod,
+		UnjailMethod:
 		return true
 	default:
 		return false

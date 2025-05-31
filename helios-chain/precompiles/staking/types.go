@@ -15,6 +15,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -436,6 +437,22 @@ func NewValidatorsRequest(method *abi.Method, args []interface{}) (*stakingtypes
 		Status:     input.Status,
 		Pagination: &input.PageRequest,
 	}, nil
+}
+
+// NewUnjailRequest create a new QueryUnjailRequest instance and does sanity checks
+// on the given arguments before populating the request.
+func NewUnjailRequest(args []interface{}) (*slashingtypes.MsgUnjail, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
+	}
+
+	validatorAddr, ok := args[0].(common.Address)
+	if !ok || validatorAddr == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
+	}
+	validatorAccAddr := cmn.ValAddressFromHexAddressString(validatorAddr.Hex())
+
+	return &slashingtypes.MsgUnjail{ValidatorAddr: validatorAccAddr.String()}, nil
 }
 
 // NewRedelegationRequest create a new QueryRedelegationRequest instance and does sanity checks

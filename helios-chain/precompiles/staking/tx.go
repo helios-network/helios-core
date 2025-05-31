@@ -16,6 +16,8 @@ import (
 	"helios-core/helios-chain/x/evm/core/vm"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 	stakingkeeper "helios-core/helios-chain/x/staking/keeper"
+
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 )
 
 const (
@@ -35,6 +37,9 @@ const (
 	// CancelUnbondingDelegationMethod defines the ABI method name for the staking
 	// CancelUnbondingDelegation transaction.
 	CancelUnbondingDelegationMethod = "cancelUnbondingDelegation"
+
+	// UnjailMethod defines the ABI method name for the staking Unjail
+	UnjailMethod = "unjail"
 )
 
 const (
@@ -494,6 +499,33 @@ func (p Precompile) CancelUnbondingDelegation(
 	}
 
 	if err = p.EmitCancelUnbondingDelegationEvent(ctx, stateDB, msg, delegatorHexAddr); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) Unjail(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	msg, err := NewUnjailRequest(args)
+	if err != nil {
+		return nil, err
+	}
+
+	p.Logger(ctx).Debug(
+		"tx called",
+		"method", method.Name,
+		"args", fmt.Sprintf("{ validator_address: %s }", msg.ValidatorAddr),
+	)
+
+	msgSrv := slashingkeeper.NewMsgServerImpl(p.slashingKeeper)
+	if _, err := msgSrv.Unjail(ctx, msg); err != nil {
 		return nil, err
 	}
 

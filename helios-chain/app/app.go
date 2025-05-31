@@ -1171,6 +1171,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 			app.ChronosKeeper,
 			app.HyperionKeeper,
 			app.LogosKeeper,
+			app.SlashingKeeper,
 		),
 	)
 }

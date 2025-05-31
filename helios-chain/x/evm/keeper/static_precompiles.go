@@ -30,6 +30,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	slashingKeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -51,6 +52,7 @@ func NewAvailableStaticPrecompiles(
 	chronosKeeper chronosKeeper.Keeper,
 	hyperionKeeper hyperionKeeper.Keeper,
 	logosKeeper logosKeeper.Keeper,
+	slashingKeeper slashingKeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -82,7 +84,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate chronos precompile: %w", err))
 	}
 
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper, erc20Keeper)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper, erc20Keeper, slashingKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}

@@ -145,8 +145,8 @@ interface StakingI is authorization.AuthorizationI {
         uint256 minSelfDelegation,
         address validatorAddress,
         string memory pubkey,
-        uint256 value
-        uint256 minDelegation,
+        uint256 value,
+        uint256 minDelegation
     ) external returns (bool success);
 
     /// @dev Defines a method for edit a validator.
@@ -161,9 +161,9 @@ interface StakingI is authorization.AuthorizationI {
         Description calldata description,
         address validatorAddress,
         int256 commissionRate,
-        int256 minSelfDelegation
+        int256 minSelfDelegation,
         uint256 minDelegation,
-        bool delegateAuthorization,
+        bool delegateAuthorization
     ) external returns (bool success);
 
     /// @dev Defines a method for performing a delegation of coins from a delegator to a validator.
@@ -176,7 +176,7 @@ interface StakingI is authorization.AuthorizationI {
         address delegatorAddress,
         address validatorAddress,
         uint256 amount,
-        string denom
+        string memory denom
     ) external returns (bool success);
 
     /// @dev Defines a method for performing an undelegation from a delegate and a validator.
@@ -189,7 +189,7 @@ interface StakingI is authorization.AuthorizationI {
         address delegatorAddress,
         address validatorAddress,
         uint256 amount,
-        string denom
+        string memory denom
     ) external returns (int64 completionTime);
 
     /// @dev Defines a method for performing a redelegation
@@ -205,7 +205,7 @@ interface StakingI is authorization.AuthorizationI {
         address validatorSrcAddress,
         address validatorDstAddress,
         uint256 amount,
-        string denom
+        string memory denom
     ) external returns (int64 completionTime);
 
     /// @dev Allows delegators to cancel the unbondingDelegation entry
@@ -301,6 +301,13 @@ interface StakingI is authorization.AuthorizationI {
             RedelegationResponse[] calldata response,
             PageResponse calldata pageResponse
         );
+
+    /// @dev Allows a validator to unjail itself.
+    /// @param validatorAddress The address of the validator.
+    /// @return success Whether or not the unjail was successful
+    function unjail(
+        address validatorAddress
+    ) external returns (bool success);
 
     /// @dev CreateValidator defines an Event emitted when a create a new validator.
     /// @param validatorAddress The address of the validator
