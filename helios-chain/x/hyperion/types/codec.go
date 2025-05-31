@@ -66,6 +66,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUnpauseChain{},
 		&MsgPauseChain{},
 		&MsgUpdateDefaultToken{},
+		&MsgUpdateOutTxTimeout{},
 	)
 
 	registry.RegisterInterface(
@@ -129,6 +130,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUnpauseChain{}, "hyperion/MsgUnpauseChain", nil)
 	cdc.RegisterConcrete(&MsgPauseChain{}, "hyperion/MsgPauseChain", nil)
 	cdc.RegisterConcrete(&MsgUpdateDefaultToken{}, "hyperion/MsgUpdateDefaultToken", nil)
+	cdc.RegisterConcrete(&MsgUpdateOutTxTimeout{}, "hyperion/MsgUpdateOutTxTimeout", nil)
 
 	cdc.RegisterConcrete(&Params{}, "hyperion/Params", nil)
 }

@@ -174,6 +174,12 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 		if err != nil {
 			return err
 		}
+	case *types.MsgUpdateOutTxTimeout:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).UpdateOutTxTimeout(ctx, msg)
+		if err != nil {
+			return err
+		}
 
 	default:
 		return errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized hyperion proposal message type: %T", msg)

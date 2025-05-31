@@ -541,6 +541,10 @@ func (k msgServer) UpdateDefaultToken(c context.Context, msg *types.MsgUpdateDef
 
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
 	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
 
 	if hyperionParams == nil {
@@ -565,4 +569,31 @@ func (k msgServer) UpdateDefaultToken(c context.Context, msg *types.MsgUpdateDef
 	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
 	return &types.MsgUpdateDefaultTokenResponse{}, nil
+}
+
+func (k msgServer) UpdateOutTxTimeout(c context.Context, msg *types.MsgUpdateOutTxTimeout) (*types.MsgUpdateOutTxTimeoutResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.TargetBatchTimeout = msg.TargetBatchTimeout
+	hyperionParams.TargetOutgoingTxTimeout = msg.TargetOutgoingTxTimeout
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	return &types.MsgUpdateOutTxTimeoutResponse{}, nil
 }
