@@ -446,17 +446,6 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	validatorBech32Addr := sdk.AccAddress(validatorAddress.Bytes())
 	valAddr := sdk.ValAddress(validatorBech32Addr)
 
-	queryMsg := &stakingtypes.QueryDelegationRequest{
-		DelegatorAddr: sdk.AccAddress(address.Bytes()).String(),
-		ValidatorAddr: valAddr.String(),
-	}
-	res, err := b.queryClient.Staking.Delegation(b.ctx, queryMsg)
-	if err != nil {
-		b.logger.Error("GetDelegation", "err", err)
-		return nil, nil
-	}
-	delegation := res.DelegationResponse.Delegation
-
 	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
 	if err != nil {
 		b.logger.Error("GetDelegation", "err", err)
@@ -468,6 +457,36 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	if idx != -1 {
 		heliosContractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
 	}
+
+	queryMsg := &stakingtypes.QueryDelegationRequest{
+		DelegatorAddr: sdk.AccAddress(address.Bytes()).String(),
+		ValidatorAddr: valAddr.String(),
+	}
+	res, err := b.queryClient.Staking.Delegation(b.ctx, queryMsg)
+	if err != nil {
+		boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+			ValidatorAddr: valAddr.String(),
+			DelegatorAddr: sdk.AccAddress(address.Bytes()).String(),
+		}
+
+		boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+		if err == nil { // if the delegation doesnt exists and boost exists, return the boost
+			return &rpctypes.DelegationRPC{
+				ValidatorAddress: validatorAddress.String(),
+				Shares:           "0",
+				Assets:           []rpctypes.DelegationAsset{},
+				Rewards: rpctypes.DelegationRewardRPC{
+					Denom:           sdk.DefaultBondDenom,
+					Amount:          math.NewInt(0),
+					ContractAddress: heliosContractAddress,
+				},
+				TotalBoost: boostRes.TotalBoost,
+			}, nil
+		}
+
+		return nil, nil
+	}
+	delegation := res.DelegationResponse.Delegation
 
 	assets := make([]rpctypes.DelegationAsset, 0)
 	for _, asset := range delegation.AssetWeights {
