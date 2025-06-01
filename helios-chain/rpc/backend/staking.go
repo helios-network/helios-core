@@ -94,11 +94,11 @@ func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, 
 	}
 
 	boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
-	if err != nil {
-		b.logger.Error("TotalBoostedDelegation", "err", err)
-		return nil, err
+	totalBoost := "0"
+	if err == nil {
+		totalBoost = boostRes.TotalBoost
 	}
-	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr, boostRes.TotalBoost)
+	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr, totalBoost)
 	return &formattedValidatorResp, nil
 }
 
@@ -232,12 +232,12 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		}
 
 		boostRes, err := b.queryClient.Staking.TotalBoostedValidator(b.ctx, boostQuery)
-		if err != nil {
-			b.logger.Error("TotalBoostedDelegation", "err", err)
-			return nil, err
+		totalBoost := "0"
+		if err == nil {
+			totalBoost = boostRes.TotalBoost
 		}
 
-		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr, boostRes.TotalBoost))
+		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr, totalBoost))
 	}
 	return validatorsResult, nil
 }
