@@ -161,6 +161,7 @@ type DelegationRPC struct {
 	Shares           string              `json:"shares"`
 	Assets           []DelegationAsset   `json:"assets"`
 	Rewards          DelegationRewardRPC `json:"rewards"`
+	TotalBoost       string              `json:"totalBoost"`
 }
 
 type ValidatorRPC struct {

@@ -227,11 +227,11 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		validatorCosmosAddress := sdk.AccAddress(valAddr.Bytes())
 		validatorEVMAddress := common.BytesToAddress(validatorCosmosAddress.Bytes()).String()
 
-		boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+		boostQuery := &stakingtypes.QueryTotalBoostedValidatorRequest{
 			ValidatorAddr: validator.OperatorAddress,
 		}
 
-		boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+		boostRes, err := b.queryClient.Staking.TotalBoostedValidator(b.ctx, boostQuery)
 		if err != nil {
 			b.logger.Error("TotalBoostedDelegation", "err", err)
 			return nil, err
@@ -379,6 +379,17 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 			return delegations, err
 		}
 
+		boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+			ValidatorAddr: delegation.ValidatorAddress,
+			DelegatorAddr: sdk.AccAddress(delegatorAddress.Bytes()).String(),
+		}
+
+		boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+		totalBoost := "0"
+		if err == nil {
+			totalBoost = boostRes.TotalBoost
+		}
+
 		delegations = append(delegations, rpctypes.DelegationRPC{
 			ValidatorAddress: evmAddressOfTheValidator,
 			Shares:           delegation.Shares.TruncateInt().String(),
@@ -388,7 +399,42 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 				Amount:          delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
 				ContractAddress: heliosContractAddress,
 			},
+			TotalBoost: totalBoost,
 		})
+	}
+
+	boostQuery := &stakingtypes.QueryTotalBoostedDelegationsRequest{
+		DelegatorAddr: sdk.AccAddress(delegatorAddress.Bytes()).String(),
+	}
+
+	boostRes, err := b.queryClient.Staking.TotalBoostedDelegations(b.ctx, boostQuery)
+	if err != nil {
+		b.logger.Error("TotalBoostedDelegation", "err", err)
+		return delegations, err
+	}
+
+	for _, boost := range boostRes.DelegationBoosts {
+		found := false
+		for _, delegation := range delegations {
+			if delegation.ValidatorAddress == cmn.AnyToHexAddress(boost.ValidatorAddress).Hex() {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			delegations = append(delegations, rpctypes.DelegationRPC{
+				ValidatorAddress: cmn.AnyToHexAddress(boost.ValidatorAddress).Hex(),
+				Shares:           "0",
+				Assets:           []rpctypes.DelegationAsset{},
+				Rewards: rpctypes.DelegationRewardRPC{
+					Denom:           sdk.DefaultBondDenom,
+					Amount:          math.NewInt(0),
+					ContractAddress: heliosContractAddress,
+				},
+				TotalBoost: boost.Amount.String(),
+			})
+		}
 	}
 
 	return delegations, nil
@@ -460,6 +506,17 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		delegationRewardsResponse.Rewards = append(delegationRewardsResponse.Rewards, sdk.DecCoin{Denom: "ahelios", Amount: math.NewInt(0).ToLegacyDec()})
 	}
 
+	boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+		ValidatorAddr: delegation.ValidatorAddress,
+		DelegatorAddr: sdk.AccAddress(address.Bytes()).String(),
+	}
+
+	boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+	totalBoost := "0"
+	if err == nil {
+		totalBoost = boostRes.TotalBoost
+	}
+
 	return &rpctypes.DelegationRPC{
 		ValidatorAddress: validatorAddress.String(),
 		Shares:           delegation.Shares.TruncateInt().String(),
@@ -469,6 +526,7 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 			Amount:          delegationRewardsResponse.Rewards[0].Amount.TruncateInt(),
 			ContractAddress: heliosContractAddress,
 		},
+		TotalBoost: totalBoost,
 	}, nil
 }
 
