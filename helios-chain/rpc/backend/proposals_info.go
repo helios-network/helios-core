@@ -77,6 +77,7 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params) (map
 			"type": "UnknownProposalType",
 		})
 	}
+
 	return map[string]interface{}{
 		"id":         proposal.Id,
 		"statusCode": proposal.Status,
@@ -92,12 +93,13 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params) (map
 			{Option: govtypes.OptionNo, Weight: "No"},
 			{Option: govtypes.OptionNoWithVeto, Weight: "No With Veto"},
 		},
-		"votingStartTime":  proposal.VotingStartTime,
-		"votingEndTime":    proposal.VotingEndTime,
-		"submitTime":       proposal.SubmitTime,
-		"totalDeposit":     proposal.TotalDeposit,
-		"minDeposit":       proposal.GetMinDepositFromParams(*govParams),
-		"finalTallyResult": proposal.FinalTallyResult,
+		"votingStartTime":    proposal.VotingStartTime,
+		"votingEndTime":      proposal.VotingEndTime,
+		"submitTime":         proposal.SubmitTime,
+		"totalDeposit":       proposal.TotalDeposit,
+		"minDeposit":         proposal.GetMinDepositFromParams(*govParams),
+		"finalTallyResult":   proposal.FinalTallyResult,
+		"currentTallyResult": proposal.CurrentTallyResult,
 	}, nil
 }
 
