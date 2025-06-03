@@ -2,6 +2,7 @@ package keeper
 
 import (
 	gomath "math"
+	"math/big"
 	"sort"
 
 	cmn "helios-core/helios-chain/precompiles/common"
@@ -1411,4 +1412,19 @@ func (k *Keeper) BurnToken(ctx sdk.Context, hyperionId uint64, tokenAddress comm
 	k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
 
 	return nil
+}
+
+func (k *Keeper) GetHyperionContractBalance(ctx sdk.Context, hyperionId uint64, tokenContract common.Address) math.Int {
+	store := ctx.KVStore(k.storeKey)
+	hyperionContractBalanceStore := prefix.NewStore(store, types.HyperionContractBalanceKey)
+	balance := hyperionContractBalanceStore.Get(types.GetHyperionContractBalanceKey(hyperionId, tokenContract))
+	if balance == nil {
+		return math.ZeroInt()
+	}
+	return math.NewIntFromBigInt(big.NewInt(0).SetBytes(balance))
+}
+
+func (k *Keeper) SetHyperionContractBalance(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, balance math.Int) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetHyperionContractBalanceKey(hyperionId, tokenContract), balance.BigInt().Bytes())
 }

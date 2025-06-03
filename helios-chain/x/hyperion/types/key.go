@@ -121,6 +121,8 @@ var (
 	OutgoingExternalDataKey = []byte{0x1f}
 
 	OutgoingExternalDataBlockKey = []byte{0x20}
+
+	HyperionContractBalanceKey = []byte{0x21}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
@@ -401,5 +403,13 @@ func GetOutgoingExternalDataBlockKey(hyperionId uint64, block uint64) []byte {
 	buf = append(buf, OutgoingExternalDataBlockKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(block)...)
+	return buf
+}
+
+func GetHyperionContractBalanceKey(hyperionId uint64, tokenContract common.Address) []byte {
+	buf := make([]byte, 0, len(HyperionContractBalanceKey)+8+ETHContractAddressLen)
+	buf = append(buf, HyperionContractBalanceKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, tokenContract.Bytes()...)
 	return buf
 }

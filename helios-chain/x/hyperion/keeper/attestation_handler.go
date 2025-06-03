@@ -169,6 +169,15 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 				metrics.ReportFuncError(a.svcTags)
 				return errors.Wrap(types.ErrSupplyOverflow, "invalid supply")
 			}
+		} else {
+			// multichain security
+			hyperionContractBalance := a.keeper.GetHyperionContractBalance(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+			// Check if supply overflows with claim amount
+			if hyperionContractBalance.LT(claim.Amount) {
+				metrics.ReportFuncError(a.svcTags)
+				return errors.Wrap(types.ErrSupplyOverflow, "invalid supply on the source network")
+			}
+			a.keeper.SetHyperionContractBalance(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract), hyperionContractBalance.Sub(claim.Amount))
 		}
 
 		if err := a.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {

@@ -39,24 +39,19 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	isCosmosOriginated := tokenAddressToDenom.IsCosmosOriginated
 	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
-	// If it is a cosmos-originated asset we lock it
 	if isCosmosOriginated {
-		// lock coins in module
-		if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalInVouchers); err != nil {
-			return 0, err
-		}
-	} else {
-		// If it is an ethereum-originated asset we burn it
-		// send coins to module in prep for burn
-		if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalInVouchers); err != nil {
-			return 0, err
-		}
+		k.SetHyperionContractBalance(ctx, hyperionId, tokenContract, totalAmount.Amount)
+	}
 
-		// burn vouchers to send them back to ETH
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, totalInVouchers); err != nil {
-			metrics.ReportFuncError(k.svcTags)
-			panic(err)
-		}
+	// send coins to module in prep for burn
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalInVouchers); err != nil {
+		return 0, err
+	}
+
+	// burn vouchers to send them back to ETH
+	if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, totalInVouchers); err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		panic(err)
 	}
 
 	// get next tx id from keeper
