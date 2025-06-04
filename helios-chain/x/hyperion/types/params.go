@@ -8,7 +8,6 @@ import (
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -27,7 +26,6 @@ func DefaultParams() *Params {
 			// DefaultEthereumSepoliaTestnet22ChainParams(),
 			// DefaultLocalPolygonAmoyTestnet21ChainParams(),
 		},
-		Admins: []string{"helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf"}, // for whitelisting and blacklisting
 	}
 }
 
@@ -339,9 +337,6 @@ func (p Params) ValidateBasic() error {
 			return err
 		}
 	}
-	if err := validateAdmins(p.Admins); err != nil {
-		return errors.Wrap(err, "admins")
-	}
 	return nil
 }
 
@@ -558,33 +553,6 @@ func validateSlashFractionBadEthSignature(i interface{}) error {
 	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	return nil
-}
-
-func validateValsetReward(i interface{}) error {
-	return nil
-}
-
-func validateAdmins(i interface{}) error {
-	v, ok := i.([]string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	admins := make(map[string]struct{})
-
-	for _, admin := range v {
-		adminAddr, err := sdk.AccAddressFromBech32(admin)
-		if err != nil {
-			return fmt.Errorf("invalid admin address: %s", admin)
-		}
-
-		if _, found := admins[adminAddr.String()]; found {
-			return fmt.Errorf("duplicate admin: %s", admin)
-		}
-		admins[adminAddr.String()] = struct{}{}
-	}
-
 	return nil
 }
 

@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	"math/big"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -12,10 +13,6 @@ import (
 	"helios-core/helios-chain/x/hyperion/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
-
-	erc20types "helios-core/helios-chain/x/erc20/types"
-
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // AttestationHandler processes `observed` Attestations
@@ -55,22 +52,6 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 			return errors.Wrap(types.ErrInvalidEthSender, "invalid ethereum sender on claim")
 		}
 
-		// Check if coin is Cosmos-originated asset and get denom
-		tokenAddressToDenom, exists := a.keeper.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
-		if !exists {
-			hyperionDenom := types.NewHyperionDenom(claim.HyperionId, common.HexToAddress(claim.TokenContract))
-			tokenAddressToDenom = a.keeper.SetToken(ctx, claim.HyperionId, &types.TokenAddressToDenom{
-				TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
-				Denom:              hyperionDenom,
-				IsCosmosOriginated: false,
-			})
-		}
-		denom := tokenAddressToDenom.Denom
-
-		coins := sdk.Coins{
-			sdk.NewCoin(denom, claim.Amount),
-		}
-
 		addr, err := sdk.AccAddressFromBech32(claim.CosmosReceiver)
 		if err != nil {
 			metrics.ReportFuncError(a.svcTags)
@@ -83,88 +64,47 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 			metrics.ReportFuncError(a.svcTags)
 			invalidAddress = true
 		}
-		fmt.Println("isCosmosOriginated", tokenAddressToDenom.IsCosmosOriginated)
+
+		denom := ""
+		// Check if coin is Cosmos-originated asset and get denom
+		tokenAddressToDenom, exists := a.keeper.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+		if !exists {
+			denom = types.NewHyperionDenom(claim.HyperionId, common.HexToAddress(claim.TokenContract))
+			counterparty := a.keeper.GetCounterpartyChainParams(ctx)[claim.HyperionId]
+
+			tokenMetadata := a.keeper.extractTokenMetadataInClaimDataWithDefault(ctx, claim.Data, &types.TokenMetadata{
+				Name:     denom,
+				Symbol:   denom,
+				Decimals: uint64(18),
+			})
+			tokenAddressToDenom = a.keeper.CreateOrLinkTokenToChain(ctx, counterparty.BridgeChainId, counterparty.BridgeChainName, &types.TokenAddressToDenomWithGenesisInfos{
+				TokenAddressToDenom: &types.TokenAddressToDenom{
+					ChainId:            strconv.FormatUint(counterparty.BridgeChainId, 10),
+					TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
+					Symbol:             tokenMetadata.Symbol,
+					Denom:              denom,
+					IsCosmosOriginated: false,
+					IsConcensusToken:   false,
+				},
+				DefaultHolders: make([]*types.HolderWithAmount, 0),
+				Logo:           "",
+			})
+			if tokenAddressToDenom == nil {
+				metrics.ReportFuncError(a.svcTags)
+				return errors.Wrap(types.ErrInvalid, "failed to create or link token to chain")
+			}
+		} else {
+			denom = tokenAddressToDenom.Denom
+		}
+
+		coins := sdk.Coins{
+			sdk.NewCoin(denom, claim.Amount),
+		}
 
 		if !tokenAddressToDenom.IsCosmosOriginated {
-
-			name := denom
-			symbol := denom
-			decimals := uint64(18)
-
-			if claim.Data != "" {
-				metadata, _, _ := a.keeper.parseClaimData(ctx, claim.Data)
-				if metadata != nil {
-					name = metadata.Name
-					symbol = metadata.Symbol
-					decimals = metadata.Decimals
-
-					if symbol == "" {
-						symbol = denom
-					}
-				}
-			}
-
-			_, ok := a.keeper.erc20Keeper.GetTokenPair(ctx, a.keeper.erc20Keeper.GetTokenPairID(ctx, denom))
-
-			// if pair doens't exists creation of the erc20 token and link it to denom
-			if !ok {
-
-				coinMetadata := banktypes.Metadata{
-					Description: fmt.Sprintf("Token %s created with Hyperion", denom),
-					Base:        denom,
-					Name:        name,
-					Symbol:      symbol,
-					Decimals:    uint32(decimals),
-					Display:     symbol,
-					DenomUnits: []*banktypes.DenomUnit{
-						{
-							Denom:    denom,
-							Exponent: 0,
-						},
-						{
-							Denom:    symbol,
-							Exponent: uint32(decimals),
-						},
-					},
-					ChainsMetadatas: []*banktypes.ChainMetadata{
-						{
-							ChainId:         a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId),
-							ContractAddress: common.HexToAddress(claim.TokenContract).String(),
-							Symbol:          symbol,
-							Decimals:        uint32(decimals),
-							IsOriginated:    true,
-						},
-					},
-				}
-
-				if err := coinMetadata.Validate(); err != nil {
-					return fmt.Errorf("invalid coin metadata: %w", err)
-				}
-				////////////////////////////////////////////////////////
-				// Generate logo
-				// base64Logo, err := rpctypes.GenerateTokenLogoBase64(symbol)
-				// if err == nil {
-				// 	logoHash, err := a.keeper.logosKeeper.StoreLogo(ctx, base64Logo)
-				// 	if err == nil {
-				// 		coinMetadata.Logo = logoHash
-				// 	}
-				// }
-				////////////////////////////////////////////////////////
-				contractAddr, err := a.keeper.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
-				if err != nil {
-					return fmt.Errorf("failed to deploy ERC20 contract: %w", err)
-				}
-				tokenPair := erc20types.NewTokenPair(contractAddr, denom, erc20types.OWNER_MODULE)
-				a.keeper.erc20Keeper.SetToken(ctx, tokenPair)
-				a.keeper.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
-			}
-
 			// Check if supply overflows with claim amount
 			currentSupply := a.bankKeeper.GetSupply(ctx, denom)
-
-			fmt.Println("currentSupply", currentSupply)
 			newSupply := new(big.Int).Add(currentSupply.Amount.BigInt(), claim.Amount.BigInt())
-			fmt.Println("newSupply", newSupply)
 			if newSupply.BitLen() > 256 {
 				metrics.ReportFuncError(a.svcTags)
 				return errors.Wrap(types.ErrSupplyOverflow, "invalid supply")
@@ -239,15 +179,6 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 				fmt.Sprintf("ERC20 symbol %s does not match denom display %s", claim.Symbol, metadata.Display))
 		}
 
-		for _, chainMetadata := range metadata.ChainsMetadatas {
-			if chainMetadata.ChainId == a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId) {
-				metrics.ReportFuncError(a.svcTags)
-				return errors.Wrap(
-					types.ErrInvalid,
-					fmt.Sprintf("ERC20 %s already exists for chain %d", claim.CosmosDenom, chainMetadata.ChainId))
-			}
-		}
-
 		// Token addresses use a very simple mechanism to tell you where to display the decimal point.
 		// The "decimals" field simply tells you how many decimal places there will be.
 		// Cosmos denoms have a system that is much more full featured, with enterprise-ready token denominations.
@@ -276,20 +207,18 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 				fmt.Sprintf("ERC20 decimals %d does not match denom decimals %d", claim.Decimals, decimals))
 		}
 
+		counterparty := a.keeper.GetCounterpartyChainParams(ctx)[claim.HyperionId]
 		// Add to denom-token address mapping
-		a.keeper.SetToken(ctx, claim.HyperionId, &types.TokenAddressToDenom{
-			TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
-			Denom:              claim.CosmosDenom,
-			IsCosmosOriginated: true,
+		a.keeper.CreateOrLinkTokenToChain(ctx, counterparty.BridgeChainId, counterparty.BridgeChainName, &types.TokenAddressToDenomWithGenesisInfos{
+			TokenAddressToDenom: &types.TokenAddressToDenom{
+				TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
+				Denom:              claim.CosmosDenom,
+				IsCosmosOriginated: true,
+				IsConcensusToken:   false,
+			},
+			DefaultHolders: make([]*types.HolderWithAmount, 0),
+			Logo:           "",
 		})
-		metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, &banktypes.ChainMetadata{
-			ChainId:         a.keeper.GetChainIdFromHyperionId(ctx, claim.HyperionId),
-			ContractAddress: common.HexToAddress(claim.TokenContract).String(),
-			Symbol:          claim.Symbol,
-			Decimals:        uint32(decimals),
-			IsOriginated:    false,
-		})
-		a.keeper.bankKeeper.SetDenomMetaData(ctx, metadata)
 	case *types.MsgValsetUpdatedClaim:
 		// TODO here we should check the contents of the validator set against
 		// the store, if they differ we should take some action to indicate to the

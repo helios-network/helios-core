@@ -20,17 +20,16 @@ message GenesisHyperionState {
   repeated MsgConfirmBatch batch_confirms = 6;
   repeated Attestation attestations = 7;
   repeated MsgSetOrchestratorAddresses orchestrator_addresses = 8;
-  repeated TokenAddressToDenom token_address_to_denoms = 9;
-  repeated OutgoingTransferTx unbatched_transfers = 10;
-  LastObservedEthereumBlockHeight last_observed_ethereum_height = 11;
-  uint64 last_outgoing_batch_id = 12;
-  uint64 last_outgoing_pool_id = 13;
-  Valset last_observed_valset = 14 [ (gogoproto.nullable) = false ];
-  repeated string ethereum_blacklist = 15;
+  repeated OutgoingTransferTx unbatched_transfers = 9;
+  LastObservedEthereumBlockHeight last_observed_ethereum_height = 10;
+  uint64 last_outgoing_batch_id = 11;
+  uint64 last_outgoing_pool_id = 12;
+  Valset last_observed_valset = 13 [ (gogoproto.nullable) = false ];
 }
 
 // GenesisState struct
 message GenesisState {
   Params params = 1;
   repeated GenesisHyperionState sub_states = 2;
+  repeated string blacklist_addresses = 3;
 }

@@ -1,80 +1,13 @@
 package keeper
 
 import (
-	"fmt"
 	"sort"
-	"strconv"
 
-	cmn "helios-core/helios-chain/precompiles/common"
-
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	"helios-core/helios-chain/x/hyperion/types"
-
-	erc20types "helios-core/helios-chain/x/erc20/types"
 )
-
-func (k *Keeper) SetDefaultToken(ctx sdk.Context, counterparty *types.CounterpartyChainParams, token *types.TokenAddressToDenomWithGenesisInfos) {
-	fmt.Println("Setting default token for hyperion id", token.TokenAddressToDenom.Denom)
-	tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
-
-	if !ok {
-		coinMetadata := banktypes.Metadata{
-			Description: fmt.Sprintf("Token %s created with Hyperion", token.TokenAddressToDenom.Denom),
-			Base:        token.TokenAddressToDenom.Denom,
-			Name:        token.TokenAddressToDenom.Symbol,
-			Symbol:      token.TokenAddressToDenom.Symbol,
-			Decimals:    uint32(token.TokenAddressToDenom.Decimals),
-			Display:     token.TokenAddressToDenom.Symbol,
-			DenomUnits: []*banktypes.DenomUnit{
-				{
-					Denom:    token.TokenAddressToDenom.Denom,
-					Exponent: 0,
-				},
-				{
-					Denom:    token.TokenAddressToDenom.Symbol,
-					Exponent: uint32(token.TokenAddressToDenom.Decimals),
-				},
-			},
-			Logo: token.Logo,
-		}
-
-		contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
-		if err != nil {
-			panic(fmt.Errorf("failed to deploy ERC20 contract: %w", err))
-		}
-		tokenPair = erc20types.NewTokenPair(contractAddr, token.TokenAddressToDenom.Denom, erc20types.OWNER_MODULE)
-		k.erc20Keeper.SetToken(ctx, tokenPair)
-		k.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
-
-		// init one token for the module
-		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, math.NewInt(1))})
-	}
-
-	if token.TokenAddressToDenom.IsConcensusToken && !k.erc20Keeper.IsAssetWhitelisted(ctx, token.TokenAddressToDenom.Denom) {
-		asset := erc20types.Asset{
-			Denom:           token.TokenAddressToDenom.Denom,
-			ContractAddress: tokenPair.Erc20Address,
-			ChainId:         strconv.FormatUint(counterparty.BridgeChainId, 10), // Exemple de chainId, à ajuster si nécessaire
-			ChainName:       counterparty.BridgeChainName,
-			Decimals:        uint64(token.TokenAddressToDenom.Decimals),
-			BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
-			Symbol:          token.TokenAddressToDenom.Symbol,
-		}
-		k.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset)
-	}
-
-	for _, holder := range token.DefaultHolders {
-		holder.Address = common.HexToAddress(holder.Address).Hex()
-
-		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
-		k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(holder.Address), sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
-	}
-	k.SetDenomToken(ctx, counterparty.HyperionId, token.TokenAddressToDenom)
-}
 
 // NormalizeGenesis takes care of formatting in the internal structures, as they're used as values
 // in the keeper eventually, while having raw strings in them.
@@ -113,10 +46,6 @@ func NormalizeGenesis(data *types.GenesisState) {
 		for _, orchestrator := range subState.OrchestratorAddresses {
 			orchestrator.EthAddress = common.HexToAddress(orchestrator.EthAddress).Hex()
 		}
-
-		for _, token := range subState.TokenAddressToDenoms {
-			token.TokenAddress = common.HexToAddress(token.TokenAddress).Hex()
-		}
 	}
 }
 
@@ -130,8 +59,13 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 
 	for _, counterparty := range data.Params.CounterpartyChainParams {
 		for _, token := range counterparty.DefaultTokens {
-			k.SetDefaultToken(ctx, counterparty, token)
+			k.CreateOrLinkTokenToChain(ctx, counterparty.BridgeChainId, counterparty.BridgeChainName, token)
 		}
+	}
+
+	for _, blacklistAddress := range data.BlacklistAddresses {
+		blacklistAddr := common.HexToAddress(blacklistAddress)
+		k.SetBlacklistAddress(ctx, blacklistAddr)
 	}
 
 	for _, subState := range data.SubStates {
@@ -228,21 +162,6 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 			// set the orchestrator Ethereum address
 			k.SetEthAddressForValidator(ctx, keys.HyperionId, valAddress, common.HexToAddress(keys.EthAddress))
 		}
-
-		// populate state with cosmos originated denom-erc20 mapping
-
-		for _, item := range subState.TokenAddressToDenoms {
-			err := k.SetDenomToken(ctx, subState.HyperionId, item)
-			if err != nil {
-				panic(err)
-			}
-		}
-
-		for _, blacklistAddress := range subState.EthereumBlacklist {
-			blacklistAddr := common.HexToAddress(blacklistAddress)
-			k.SetEthereumBlacklistAddress(ctx, blacklistAddr)
-		}
-
 	}
 }
 
@@ -250,6 +169,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 // from the current state of the chain
 func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 	p := k.GetParams(ctx)
+
+	blacklistAddresses := k.GetAllBlacklistAddresses(ctx)
 
 	subStates := make([]*types.GenesisHyperionState, 0)
 
@@ -265,9 +186,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 			orchestratorAddresses           = k.GetOrchestratorAddresses(ctx, param.HyperionId)
 			lastObservedEventNonce          = k.GetLastObservedEventNonce(ctx, param.HyperionId)
 			lastObservedEthereumBlockHeight = k.GetLastObservedEthereumBlockHeight(ctx, param.HyperionId)
-			tokens                          = k.GetAllTokens(ctx, param.HyperionId)
 			unbatchedTransfers              = k.GetPoolTransactions(ctx, param.HyperionId)
-			ethereumBlacklistAddresses      = k.GetAllEthereumBlacklistAddresses(ctx) // same for all
 		)
 
 		// export valset confirmations from state
@@ -307,17 +226,16 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 			BatchConfirms:              batchconfs,
 			Attestations:               attestations,
 			OrchestratorAddresses:      orchestratorAddresses,
-			TokenAddressToDenoms:       tokens,
 			UnbatchedTransfers:         unbatchedTransfers,
 			LastOutgoingBatchId:        lastOutgoingBatchID,
 			LastOutgoingPoolId:         lastOutgoingPoolID,
 			LastObservedValset:         *lastObservedValset,
-			EthereumBlacklist:          ethereumBlacklistAddresses,
 		})
 	}
 
 	return types.GenesisState{
-		Params:    p,
-		SubStates: subStates,
+		Params:             p,
+		SubStates:          subStates,
+		BlacklistAddresses: blacklistAddresses,
 	}
 }

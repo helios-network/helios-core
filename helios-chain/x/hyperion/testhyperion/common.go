@@ -68,8 +68,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
+	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
+	chronostypes "helios-core/helios-chain/x/chronos/types"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
 	erc20types "helios-core/helios-chain/x/erc20/types"
+	logoskeeper "helios-core/helios-chain/x/logos/keeper"
+	logostypes "helios-core/helios-chain/x/logos/types"
 
 	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
 	"helios-core/helios-chain/x/hyperion/types"
@@ -203,8 +207,6 @@ var (
 		HyperionId:                    0,
 		ContractSourceHash:            "62328f7bc12efb28f86111d08c29b39285680a906ea0e524e0209d6f6657b713",
 		BridgeCounterpartyAddress:     common.HexToAddress("0x8858eeb3dfffa017d4bce9801d340d36cf895ccf").Hex(),
-		CosmosCoinErc20Contract:       common.HexToAddress("0x8f3798462111bd6d7fa4d32ba0ab4ee4899bd4b7").Hex(),
-		CosmosCoinDenom:               "helios",
 		BridgeChainId:                 11,
 		SignedBatchesWindow:           10,
 		SignedValsetsWindow:           10,
@@ -369,6 +371,9 @@ func CreateTestEnv(t *testing.T) TestInput {
 	keyGov := storetypes.NewKVStoreKey(govtypes.StoreKey)
 	keySlashing := storetypes.NewKVStoreKey(slashingtypes.StoreKey)
 	keyCapability := storetypes.NewKVStoreKey(capabilitytypes.StoreKey)
+	keyLogos := storetypes.NewKVStoreKey(logostypes.StoreKey)
+	keyChronos := storetypes.NewKVStoreKey(chronostypes.StoreKey)
+	memChronos := storetypes.NewMemoryStoreKey(chronostypes.MemStoreKey)
 
 	// Initialize memory database and mount stores on it
 	db := dbm.NewMemDB()
@@ -531,6 +536,21 @@ func CreateTestEnv(t *testing.T) TestInput {
 		authority,
 	)
 
+	logosKeeper := logoskeeper.NewKeeper(
+		marshaler,
+		keyLogos,
+		sdk.MustAccAddressFromBech32(authority),
+	)
+
+	chronosKeeper := chronoskeeper.NewKeeper(
+		marshaler,
+		keyChronos,
+		memChronos,
+		accountKeeper,
+		nil,
+		bankKeeper,
+	)
+
 	k := hyperionKeeper.NewKeeper(
 		marshaler,
 		hyperionKey,
@@ -541,6 +561,8 @@ func CreateTestEnv(t *testing.T) TestInput {
 		authority,
 		accountKeeper,
 		erc20Keeper,
+		*logosKeeper,
+		*chronosKeeper,
 	)
 
 	stakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(

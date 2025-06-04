@@ -2,7 +2,6 @@ package keeper
 
 import (
 	gomath "math"
-	"math/big"
 	"sort"
 
 	cmn "helios-core/helios-chain/precompiles/common"
@@ -13,7 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"cosmossdk.io/errors"
@@ -1042,31 +1040,31 @@ func PrefixRange(proposedPrefix []byte) (PrefixStart, PrefixEnd) {
 	return proposedPrefix, end
 }
 
-// IsOnBlacklist checks that the Ethereum Address is black listed.
+// IsOnBlacklist checks that the address is black listed.
 func (k *Keeper) IsOnBlacklist(ctx sdk.Context, addr common.Address) bool {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	return k.getStore(ctx).Has(types.GetEthereumBlacklistStoreKey(addr))
+	return k.getStore(ctx).Has(types.GetBlacklistStoreKey(addr))
 }
 
-// SetEthereumBlacklistAddress sets the ethereum blacklist address.
-func (k *Keeper) SetEthereumBlacklistAddress(ctx sdk.Context, addr common.Address) {
+// SetBlacklistAddress sets the blacklist address.
+func (k *Keeper) SetBlacklistAddress(ctx sdk.Context, addr common.Address) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	// set boolean indicator
-	k.getStore(ctx).Set(types.GetEthereumBlacklistStoreKey(addr), []byte{})
+	k.getStore(ctx).Set(types.GetBlacklistStoreKey(addr), []byte{})
 }
 
-// GetAllEthereumBlacklistAddresses fetches all etheruem blacklisted addresses.
-func (k *Keeper) GetAllEthereumBlacklistAddresses(ctx sdk.Context) []string {
+// GetAllBlacklistAddresses fetches all blacklisted addresses.
+func (k *Keeper) GetAllBlacklistAddresses(ctx sdk.Context) []string {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	blacklistedAddresses := make([]string, 0)
 	store := ctx.KVStore(k.storeKey)
-	blacklistAddressStore := prefix.NewStore(store, types.EthereumBlacklistKey)
+	blacklistAddressStore := prefix.NewStore(store, types.BlacklistKey)
 
 	iterator := blacklistAddressStore.Iterator(nil, nil)
 	defer iterator.Close()
@@ -1079,12 +1077,12 @@ func (k *Keeper) GetAllEthereumBlacklistAddresses(ctx sdk.Context) []string {
 	return blacklistedAddresses
 }
 
-// DeleteEthereumBlacklistAddress deletes the address from blacklist.
-func (k *Keeper) DeleteEthereumBlacklistAddress(ctx sdk.Context, addr common.Address) {
+// DeleteBlacklistAddress deletes the address from blacklist.
+func (k *Keeper) DeleteBlacklistAddress(ctx sdk.Context, addr common.Address) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	k.getStore(ctx).Delete(types.GetEthereumBlacklistStoreKey(addr))
+	k.getStore(ctx).Delete(types.GetBlacklistStoreKey(addr))
 }
 
 // InvalidSendToChainAddress Returns true if the provided address is invalid to send to EVM chain this could be
@@ -1095,15 +1093,6 @@ func (k *Keeper) DeleteEthereumBlacklistAddress(ctx sdk.Context, addr common.Add
 // becomes impossible to execute.
 func (k *Keeper) InvalidSendToChainAddress(ctx sdk.Context, addr common.Address) bool {
 	return k.IsOnBlacklist(ctx, addr) || addr == types.ZeroAddress()
-}
-
-func (k *Keeper) isAdmin(ctx sdk.Context, addr string) bool {
-	for _, adminAddress := range k.GetParams(ctx).Admins {
-		if adminAddress == addr {
-			return true
-		}
-	}
-	return false
 }
 
 // CreateModuleAccount creates a module account with minting and burning capabilities
@@ -1326,120 +1315,4 @@ func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed strin
 	}
 	counterpartyChainParams.Rpcs = rpcList
 	k.SetCounterpartyChainParams(ctx, hyperionId, counterpartyChainParams)
-}
-
-func (k *Keeper) RemoveDenomToken(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	k.RemoveToken(ctx, hyperionId, token)
-
-	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
-	if !found {
-		return
-	}
-	// remove the token from the metadata
-	for i, chainM := range metadata.ChainsMetadatas {
-		if chainM.ChainId == k.GetChainIdFromHyperionId(ctx, hyperionId) {
-			metadata.ChainsMetadatas = append(metadata.ChainsMetadatas[:i], metadata.ChainsMetadatas[i+1:]...)
-			break
-		}
-	}
-	k.bankKeeper.SetDenomMetaData(ctx, metadata)
-}
-
-func (k *Keeper) SetDenomToken(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) error {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	chainId := k.GetChainIdFromHyperionId(ctx, hyperionId)
-
-	if chainId == 0 {
-		return errors.Wrap(types.ErrEmpty, "chain id not found")
-	}
-	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
-
-	chainMetadata := &banktypes.ChainMetadata{
-		ChainId:         chainId,
-		ContractAddress: common.HexToAddress(token.TokenAddress).String(),
-		Symbol:          metadata.Symbol,
-		Decimals:        uint32(metadata.Decimals),
-		IsOriginated:    !token.IsCosmosOriginated,
-	}
-
-	if found {
-		asChainMetadata := false
-		for _, chainM := range metadata.ChainsMetadatas {
-			if chainM.ChainId == chainId {
-				chainMetadata.ContractAddress = chainM.ContractAddress
-				chainMetadata.Symbol = chainM.Symbol
-				chainMetadata.Decimals = chainM.Decimals
-				chainMetadata.IsOriginated = chainM.IsOriginated
-				asChainMetadata = true
-			}
-		}
-		if !asChainMetadata {
-			metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, chainMetadata)
-		}
-		k.bankKeeper.SetDenomMetaData(ctx, metadata)
-	} else {
-		return errors.Wrap(types.ErrEmpty, "token not found")
-	}
-
-	k.SetToken(ctx, hyperionId, token)
-
-	return nil
-}
-
-func (k *Keeper) MintToken(ctx sdk.Context, hyperionId uint64, tokenAddress common.Address, amount math.Int, receiver common.Address) error {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	token, found := k.GetTokenFromAddress(ctx, hyperionId, tokenAddress)
-	if !found {
-		return errors.Wrap(types.ErrEmpty, "token not found")
-	}
-
-	if token.IsCosmosOriginated {
-		return errors.Wrap(types.ErrEmpty, "token is cosmos originated")
-	}
-
-	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
-	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddress(receiver), sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
-
-	return nil
-}
-
-func (k *Keeper) BurnToken(ctx sdk.Context, hyperionId uint64, tokenAddress common.Address, amount math.Int, sender common.Address) error {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	token, found := k.GetTokenFromAddress(ctx, hyperionId, tokenAddress)
-	if !found {
-		return errors.Wrap(types.ErrEmpty, "token not found")
-	}
-
-	if token.IsCosmosOriginated {
-		return errors.Wrap(types.ErrEmpty, "token is cosmos originated")
-	}
-
-	k.bankKeeper.SendCoinsFromAccountToModule(ctx, cmn.AccAddressFromHexAddress(sender), types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
-	k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
-
-	return nil
-}
-
-func (k *Keeper) GetHyperionContractBalance(ctx sdk.Context, hyperionId uint64, tokenContract common.Address) math.Int {
-	store := ctx.KVStore(k.storeKey)
-	hyperionContractBalanceStore := prefix.NewStore(store, types.HyperionContractBalanceKey)
-	balance := hyperionContractBalanceStore.Get(types.GetHyperionContractBalanceKey(hyperionId, tokenContract))
-	if balance == nil {
-		return math.ZeroInt()
-	}
-	return math.NewIntFromBigInt(big.NewInt(0).SetBytes(balance))
-}
-
-func (k *Keeper) SetHyperionContractBalance(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, balance math.Int) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetHyperionContractBalanceKey(hyperionId, tokenContract), balance.BigInt().Bytes())
 }

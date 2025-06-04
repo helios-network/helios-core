@@ -78,15 +78,15 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 		if err != nil {
 			return err
 		}
-	case *types.MsgBlacklistEthereumAddresses:
+	case *types.MsgBlacklistAddresses:
 		msg.Signer = k.GetAuthority()
-		_, err := keeper.NewMsgServerImpl(k).BlacklistEthereumAddresses(ctx, msg)
+		_, err := keeper.NewMsgServerImpl(k).BlacklistAddresses(ctx, msg)
 		if err != nil {
 			return err
 		}
-	case *types.MsgRevokeEthereumBlacklist:
+	case *types.MsgRevokeBlacklist:
 		msg.Signer = k.GetAuthority()
-		_, err := keeper.NewMsgServerImpl(k).RevokeEthereumBlacklist(ctx, msg)
+		_, err := keeper.NewMsgServerImpl(k).RevokeBlacklist(ctx, msg)
 		if err != nil {
 			return err
 		}

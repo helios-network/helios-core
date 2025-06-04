@@ -78,17 +78,17 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/update_params";
   }
 
-  // BlacklistEthereumAddresses adds Ethereum addresses to the hyperion blacklist.
-  rpc BlacklistEthereumAddresses(MsgBlacklistEthereumAddresses)
-      returns (MsgBlacklistEthereumAddressesResponse) {
-    option (google.api.http).post = "/helios/hyperion/v1/blacklist_ethereum_addresses";
+  // BlacklistAddresses adds addresses to the hyperion blacklist.
+  rpc BlacklistAddresses(MsgBlacklistAddresses)
+      returns (MsgBlacklistAddressesResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/blacklist_addresses";
   }
 
-  // RevokeEthereumBlacklist removes Ethereum addresses from the hyperion
+  // RevokeBlacklist removes addresses from the hyperion
   // blacklist.
-  rpc RevokeEthereumBlacklist(MsgRevokeEthereumBlacklist)
-      returns (MsgRevokeEthereumBlacklistResponse) {
-    option (google.api.http).post = "/helios/hyperion/v1/revoke_ethereum_blacklist";
+  rpc RevokeBlacklist(MsgRevokeBlacklist)
+      returns (MsgRevokeBlacklistResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/revoke_blacklist";
   }
 
   // Testnet -->
@@ -484,37 +484,34 @@ message MsgUpdateParams {
 
 message MsgUpdateParamsResponse {}
 
-// MsgBlacklistEthereumAddresses defines the message used to add Ethereum
-// addresses to hyperion blacklist.
-message MsgBlacklistEthereumAddresses {
-  option (amino.name) = "hyperion/MsgBlacklistEthereumAddresses";
+// MsgBlacklistAddresses defines the message used to add addresses to hyperion blacklist.
+message MsgBlacklistAddresses {
+  option (amino.name) = "hyperion/MsgBlacklistAddresses";
   option (cosmos.msg.v1.signer) = "signer";
 
   // signer address
   string signer = 1;
-  // Ethereum addresses to include in the blacklist
+  // addresses to include in the blacklist
   repeated string blacklist_addresses = 2;
 }
 
-// MsgBlacklistEthereumAddressesResponse defines the
-// MsgBlacklistEthereumAddresses response type.
-message MsgBlacklistEthereumAddressesResponse {}
+// MsgBlacklistAddressesResponse defines the
+// MsgBlacklistAddresses response type.
+message MsgBlacklistAddressesResponse {}
 
-// MsgRevokeEthereumBlacklist defines the message used to remove Ethereum
-// addresses from hyperion blacklist.
-message MsgRevokeEthereumBlacklist {
-  option (amino.name) = "hyperion/MsgRevokeEthereumBlacklist";
+// MsgRevokeBlacklist defines the message used to remove addresses from hyperion blacklist.
+message MsgRevokeBlacklist {
+  option (amino.name) = "hyperion/MsgRevokeBlacklist";
   option (cosmos.msg.v1.signer) = "signer";
 
   // signer address
   string signer = 1;
-  // Ethereum addresses to include in the blacklist
+  // addresses to include in the blacklist
   repeated string blacklist_addresses = 2;
 }
 
-// MsgRevokeEthereumBlacklistResponse defines the MsgRevokeEthereumBlacklist
-// response type.
-message MsgRevokeEthereumBlacklistResponse {}
+// MsgRevokeBlacklistResponse defines the MsgRevokeBlacklist response type.
+message MsgRevokeBlacklistResponse {}
 
 message MsgForceSetValsetAndLastObservedEventNonce {
   option (amino.name) = "hyperion/MsgForceSetValsetAndLastObservedEventNonce";

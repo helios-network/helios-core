@@ -16,7 +16,8 @@ func DefaultGenesisState() *GenesisState {
 	params := DefaultParams()
 
 	return &GenesisState{
-		Params:    params,
-		SubStates: DefaultSubStates(params),
+		Params:             params,
+		SubStates:          DefaultSubStates(params),
+		BlacklistAddresses: []string{},
 	}
 }

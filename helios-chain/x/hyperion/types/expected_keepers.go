@@ -42,6 +42,7 @@ type BankKeeper interface {
 	GetDenomMetaData(ctx context.Context, denom string) (bank.Metadata, bool)
 	SetDenomMetaData(ctx context.Context, denomMetaData bank.Metadata)
 	GetSupply(ctx context.Context, denom string) sdk.Coin
+	GetDenomFromChainIdAndContractAddress(ctx context.Context, chainId uint64, contractAddress string) (string, bool)
 }
 
 type SlashingKeeper interface {

@@ -266,7 +266,7 @@ func BlacklistEthereumAddresses() *cobra.Command {
 				return err
 			}
 			addressList := strings.Split(args[0], ",")
-			msg := types.MsgBlacklistEthereumAddresses{
+			msg := types.MsgBlacklistAddresses{
 				Signer:             cliCtx.GetFromAddress().String(),
 				BlacklistAddresses: addressList,
 			}
@@ -294,7 +294,7 @@ func RevokeBlacklistEthereumAddresses() *cobra.Command {
 				return err
 			}
 			addressList := strings.Split(args[0], ",")
-			msg := types.MsgRevokeEthereumBlacklist{
+			msg := types.MsgRevokeBlacklist{
 				Signer:             cliCtx.GetFromAddress().String(),
 				BlacklistAddresses: addressList,
 			}

@@ -147,7 +147,7 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	k.Keeper.SetParams(ctx, params)
 
 	for _, token := range msg.CounterpartyChainParams.DefaultTokens {
-		k.Keeper.SetDefaultToken(ctx, msg.CounterpartyChainParams, token)
+		k.Keeper.CreateOrLinkTokenToChain(ctx, msg.CounterpartyChainParams.BridgeChainId, msg.CounterpartyChainParams.BridgeChainName, token)
 	}
 	// setup a default value LastObservedEthereumBlockHeight
 	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
@@ -288,18 +288,18 @@ func (k msgServer) UpdateParams(c context.Context, msg *types.MsgUpdateParams) (
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
-// [Not Used In Hyperion] BlacklistEthereumAddresses
+// [Not Used In Hyperion] BlacklistAddresses
 // -------------
-// MsgBlacklistEthereumAddresses
-// Defines the message used to add Ethereum addresses to all hyperion blacklists.
+// MsgBlacklistAddresses
+// Defines the message used to add addresses to all hyperion blacklists.
 // TODO: adding this call on proposals and remove authority
 // -------------
-func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.MsgBlacklistEthereumAddresses) (*types.MsgBlacklistEthereumAddressesResponse, error) {
+func (k msgServer) BlacklistAddresses(ctx context.Context, msg *types.MsgBlacklistAddresses) (*types.MsgBlacklistAddressesResponse, error) {
 	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
 	sdkContext := sdk.UnwrapSDKContext(ctx)
 
-	isValidSigner := k.Keeper.authority == msg.Signer || k.Keeper.isAdmin(sdkContext, msg.Signer)
+	isValidSigner := k.Keeper.authority == msg.Signer
 	if !isValidSigner {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Hyperion module admins", msg.Signer)
 	}
@@ -309,24 +309,24 @@ func (k msgServer) BlacklistEthereumAddresses(ctx context.Context, msg *types.Ms
 		if err != nil {
 			return nil, errors.Wrapf(err, "invalid blacklist address %s", address)
 		}
-		k.Keeper.SetEthereumBlacklistAddress(sdkContext, *blacklistAddr)
+		k.Keeper.SetBlacklistAddress(sdkContext, *blacklistAddr)
 	}
 
-	return &types.MsgBlacklistEthereumAddressesResponse{}, nil
+	return &types.MsgBlacklistAddressesResponse{}, nil
 }
 
-// [Not Used In Hyperion] RevokeEthereumBlacklist
+// [Not Used In Hyperion] RevokeBlacklist
 // -------------
-// MsgRevokeEthereumBlacklist
-// Defines the message used to remove Ethereum addresses from hyperion blacklist.
+// MsgRevokeBlacklist
+// Defines the message used to remove addresses from hyperion blacklist.
 // TODO: adding this call on proposals and remove authority
 // -------------
-func (k msgServer) RevokeEthereumBlacklist(ctx context.Context, msg *types.MsgRevokeEthereumBlacklist) (*types.MsgRevokeEthereumBlacklistResponse, error) {
+func (k msgServer) RevokeBlacklist(ctx context.Context, msg *types.MsgRevokeBlacklist) (*types.MsgRevokeBlacklistResponse, error) {
 	defer metrics.ReportFuncCallAndTiming(k.svcTags)()
 
 	sdkContext := sdk.UnwrapSDKContext(ctx)
 
-	isValidSigner := k.Keeper.authority == msg.Signer || k.Keeper.isAdmin(sdkContext, msg.Signer)
+	isValidSigner := k.Keeper.authority == msg.Signer
 	if !isValidSigner {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "the signer %s is not the valid authority or one of the Hyperion module admins", msg.Signer)
 	}
@@ -341,9 +341,9 @@ func (k msgServer) RevokeEthereumBlacklist(ctx context.Context, msg *types.MsgRe
 		if !k.Keeper.IsOnBlacklist(sdkContext, *blacklistAddr) {
 			return nil, fmt.Errorf("invalid blacklist address")
 		} else {
-			k.Keeper.DeleteEthereumBlacklistAddress(sdkContext, *blacklistAddr)
+			k.Keeper.DeleteBlacklistAddress(sdkContext, *blacklistAddr)
 		}
 	}
 
-	return &types.MsgRevokeEthereumBlacklistResponse{}, nil
+	return &types.MsgRevokeBlacklistResponse{}, nil
 }

@@ -2,70 +2,254 @@ package keeper
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
+	"strconv"
 
-	"cosmossdk.io/store/prefix"
+	erc20types "helios-core/helios-chain/x/erc20/types"
+
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 
 	"github.com/Helios-Chain-Labs/metrics"
 
+	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/x/hyperion/types"
 )
 
 func (k *Keeper) GetTokenFromAddress(ctx sdk.Context, hyperionId uint64, tokenContract common.Address) (*types.TokenAddressToDenom, bool) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	store := ctx.KVStore(k.storeKey)
-
-	bz := store.Get(types.GetTokenAddressToCosmosDenomKey(hyperionId, tokenContract))
-	if bz == nil {
+	chainId := k.GetChainIdFromHyperionId(ctx, hyperionId)
+	denom, exists := k.bankKeeper.GetDenomFromChainIdAndContractAddress(ctx, chainId, tokenContract.Hex())
+	if !exists {
 		return nil, false
 	}
 
-	tokenAddressToDenom := types.TokenAddressToDenom{}
-	k.cdc.MustUnmarshal(bz, &tokenAddressToDenom)
-	return &tokenAddressToDenom, true
+	metadata, exists := k.bankKeeper.GetDenomMetaData(ctx, denom)
+	if !exists {
+		return nil, false
+	}
+
+	isCosmosOriginated := true
+
+	for _, chainMetadata := range metadata.ChainsMetadatas {
+		if chainMetadata.IsOriginated {
+			isCosmosOriginated = false
+			break
+		}
+	}
+
+	isConcensusToken := k.erc20Keeper.IsAssetWhitelisted(ctx, denom)
+
+	for _, chainMetadata := range metadata.ChainsMetadatas {
+		if chainMetadata.ChainId == chainId {
+			return &types.TokenAddressToDenom{
+				ChainId:            strconv.FormatUint(chainId, 10),
+				TokenAddress:       chainMetadata.ContractAddress,
+				Symbol:             chainMetadata.Symbol,
+				Decimals:           uint64(chainMetadata.Decimals),
+				Denom:              denom,
+				IsCosmosOriginated: isCosmosOriginated,
+				IsConcensusToken:   isConcensusToken,
+			}, true
+		}
+	}
+
+	// If the token is not found in the metadata, return nil
+	return nil, false
 }
 
 func (k *Keeper) GetTokenFromDenom(ctx sdk.Context, hyperionId uint64, denom string) (*types.TokenAddressToDenom, bool) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	store := ctx.KVStore(k.storeKey)
-
-	bz := store.Get(types.GetCosmosDenomToTokenAddressKey(hyperionId, denom))
-	if bz == nil {
+	chainId := k.GetChainIdFromHyperionId(ctx, hyperionId)
+	metadata, exists := k.bankKeeper.GetDenomMetaData(ctx, denom)
+	if !exists {
 		return nil, false
 	}
 
-	tokenAddressToDenom := types.TokenAddressToDenom{}
-	k.cdc.MustUnmarshal(bz, &tokenAddressToDenom)
-	return &tokenAddressToDenom, true
+	isCosmosOriginated := true
+
+	for _, chainMetadata := range metadata.ChainsMetadatas {
+		if chainMetadata.IsOriginated {
+			isCosmosOriginated = false
+			break
+		}
+	}
+
+	isConcensusToken := k.erc20Keeper.IsAssetWhitelisted(ctx, denom)
+
+	for _, chainMetadata := range metadata.ChainsMetadatas {
+		if chainMetadata.ChainId == chainId {
+			return &types.TokenAddressToDenom{
+				ChainId:            strconv.FormatUint(chainId, 10),
+				TokenAddress:       chainMetadata.ContractAddress,
+				Symbol:             chainMetadata.Symbol,
+				Decimals:           uint64(chainMetadata.Decimals),
+				Denom:              denom,
+				IsCosmosOriginated: isCosmosOriginated,
+				IsConcensusToken:   isConcensusToken,
+			}, true
+		}
+	}
+
+	// If the token is not found in the metadata, return nil
+	return nil, false
 }
 
-func (k *Keeper) SetToken(ctx sdk.Context, hyperionId uint64, tokenAddressToDenom *types.TokenAddressToDenom) *types.TokenAddressToDenom {
+func (k *Keeper) RemoveTokenFromChainMetadata(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetCosmosDenomToTokenAddressKey(hyperionId, tokenAddressToDenom.Denom), k.cdc.MustMarshal(tokenAddressToDenom))
-	store.Set(types.GetTokenAddressToCosmosDenomKey(hyperionId, common.HexToAddress(tokenAddressToDenom.TokenAddress)), k.cdc.MustMarshal(tokenAddressToDenom))
-
-	return tokenAddressToDenom
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
+	if !found {
+		return
+	}
+	// remove the token from the metadata
+	for i, chainM := range metadata.ChainsMetadatas {
+		if chainM.ChainId == k.GetChainIdFromHyperionId(ctx, hyperionId) {
+			metadata.ChainsMetadatas = append(metadata.ChainsMetadatas[:i], metadata.ChainsMetadatas[i+1:]...)
+			break
+		}
+	}
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
 }
 
-func (k *Keeper) RemoveToken(ctx sdk.Context, hyperionId uint64, tokenAddressToDenom *types.TokenAddressToDenom) *types.TokenAddressToDenom {
+func (k *Keeper) SetTokenToChainMetadata(ctx sdk.Context, chainId uint64, token *types.TokenAddressToDenom) *types.TokenAddressToDenom {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetCosmosDenomToTokenAddressKey(hyperionId, tokenAddressToDenom.Denom))
-	store.Delete(types.GetTokenAddressToCosmosDenomKey(hyperionId, common.HexToAddress(tokenAddressToDenom.TokenAddress)))
+	metadata, _ := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
+	chainMetadata := &banktypes.ChainMetadata{
+		ChainId:         chainId,
+		ContractAddress: common.HexToAddress(token.TokenAddress).String(),
+		Symbol:          metadata.Symbol,
+		Decimals:        uint32(metadata.Decimals),
+		IsOriginated:    !token.IsCosmosOriginated,
+		TotalSupply:     nil,
+	}
 
-	return tokenAddressToDenom
+	if !chainMetadata.IsOriginated {
+		totalSupply := math.NewInt(0)
+		chainMetadata.TotalSupply = &totalSupply
+	}
+
+	asChainMetadata := false
+	for _, chainM := range metadata.ChainsMetadatas {
+		if chainM.ChainId == chainId {
+			chainMetadata.ContractAddress = chainM.ContractAddress
+			chainMetadata.Symbol = chainM.Symbol
+			chainMetadata.Decimals = chainM.Decimals
+			chainMetadata.IsOriginated = chainM.IsOriginated
+			chainMetadata.TotalSupply = chainM.TotalSupply
+			asChainMetadata = true
+		}
+	}
+	if !asChainMetadata {
+		metadata.ChainsMetadatas = append(metadata.ChainsMetadatas, chainMetadata)
+	}
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
+	return token
+}
+
+func (k *Keeper) MintToken(ctx sdk.Context, hyperionId uint64, tokenAddress common.Address, amount math.Int, receiver common.Address) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	token, found := k.GetTokenFromAddress(ctx, hyperionId, tokenAddress)
+	if !found {
+		return errors.Wrap(types.ErrEmpty, "token not found")
+	}
+
+	if token.IsCosmosOriginated {
+		return errors.Wrap(types.ErrEmpty, "token is cosmos originated")
+	}
+
+	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddress(receiver), sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+
+	return nil
+}
+
+func (k *Keeper) BurnToken(ctx sdk.Context, hyperionId uint64, tokenAddress common.Address, amount math.Int, sender common.Address) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	token, found := k.GetTokenFromAddress(ctx, hyperionId, tokenAddress)
+	if !found {
+		return errors.Wrap(types.ErrEmpty, "token not found")
+	}
+
+	if token.IsCosmosOriginated {
+		return errors.Wrap(types.ErrEmpty, "token is cosmos originated")
+	}
+
+	k.bankKeeper.SendCoinsFromAccountToModule(ctx, cmn.AccAddressFromHexAddress(sender), types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+	k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(token.Denom, amount)))
+
+	return nil
+}
+
+func (k *Keeper) CreateOrLinkTokenToChain(ctx sdk.Context, chainId uint64, chainName string, token *types.TokenAddressToDenomWithGenesisInfos) *types.TokenAddressToDenom {
+	tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
+
+	if !ok {
+		coinMetadata := banktypes.Metadata{
+			Description: fmt.Sprintf("Token %s created with Hyperion", token.TokenAddressToDenom.Denom),
+			Base:        token.TokenAddressToDenom.Denom,
+			Name:        token.TokenAddressToDenom.Symbol,
+			Symbol:      token.TokenAddressToDenom.Symbol,
+			Decimals:    uint32(token.TokenAddressToDenom.Decimals),
+			Display:     token.TokenAddressToDenom.Symbol,
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    token.TokenAddressToDenom.Denom,
+					Exponent: 0,
+				},
+				{
+					Denom:    token.TokenAddressToDenom.Symbol,
+					Exponent: uint32(token.TokenAddressToDenom.Decimals),
+				},
+			},
+			Logo: token.Logo,
+		}
+
+		if err := coinMetadata.Validate(); err != nil {
+			return nil
+		}
+
+		contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
+		if err != nil {
+			panic(fmt.Errorf("failed to deploy ERC20 contract: %w", err))
+		}
+		tokenPair = erc20types.NewTokenPair(contractAddr, token.TokenAddressToDenom.Denom, erc20types.OWNER_MODULE)
+		k.erc20Keeper.SetToken(ctx, tokenPair)
+		k.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+
+		// init one token for the module
+		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, math.NewInt(1))})
+	}
+
+	if token.TokenAddressToDenom.IsConcensusToken && !k.erc20Keeper.IsAssetWhitelisted(ctx, token.TokenAddressToDenom.Denom) {
+		asset := erc20types.Asset{
+			Denom:           token.TokenAddressToDenom.Denom,
+			ContractAddress: tokenPair.Erc20Address,
+			ChainId:         strconv.FormatUint(chainId, 10), // Exemple de chainId, à ajuster si nécessaire
+			ChainName:       chainName,
+			Decimals:        uint64(token.TokenAddressToDenom.Decimals),
+			BaseWeight:      100, // Valeur par défaut, ajustable selon les besoins
+			Symbol:          token.TokenAddressToDenom.Symbol,
+		}
+		k.erc20Keeper.AddAssetToConsensusWhitelist(ctx, asset)
+	}
+
+	for _, holder := range token.DefaultHolders {
+		holder.Address = common.HexToAddress(holder.Address).Hex()
+
+		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
+		k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(holder.Address), sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
+	}
+	return k.SetTokenToChainMetadata(ctx, chainId, token.TokenAddressToDenom)
 }
 
 func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMetadata) (*types.TokenMetadata, error) {
@@ -87,6 +271,21 @@ func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMet
 	}
 
 	return metadata, nil
+}
+
+func (k *Keeper) extractTokenMetadataInClaimDataWithDefault(ctx sdk.Context, claimData string, defaultMetadata *types.TokenMetadata) *types.TokenMetadata {
+	if claimData == "" {
+		return defaultMetadata
+	}
+	tokenMetadata, _, _ := k.parseClaimData(ctx, claimData)
+	if tokenMetadata == nil {
+		return defaultMetadata
+	}
+
+	if tokenMetadata.Symbol == "" {
+		return defaultMetadata
+	}
+	return tokenMetadata
 }
 
 func (k *Keeper) parseClaimData(ctx sdk.Context, claimData string) (*types.TokenMetadata, *sdk.Msg, error) {
@@ -124,33 +323,36 @@ func (k *Keeper) handleValidateMsg(_ sdk.Context, msg *sdk.Msg) (bool, error) {
 	return false, errors.Errorf("Message %s not managed", reflect.TypeOf(msg))
 }
 
-// IterateTokenAddressToDenom iterates over token address to denom relations
-func (k *Keeper) IterateTokens(ctx sdk.Context, hyperionId uint64, cb func(k []byte, v *types.TokenAddressToDenom) (stop bool)) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	prefixKey := append(types.TokenAddressToDenomKey, types.UInt64Bytes(hyperionId)...)
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixKey)
-	iter := prefixStore.Iterator(nil, nil)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		tokenAddressToDenom := types.TokenAddressToDenom{}
-		k.cdc.MustUnmarshal(iter.Value(), &tokenAddressToDenom)
-
-		if cb(iter.Key(), &tokenAddressToDenom) {
-			break
+func (k *Keeper) GetHyperionContractBalance(ctx sdk.Context, hyperionId uint64, tokenContract common.Address) math.Int {
+	denom, found := k.bankKeeper.GetDenomFromChainIdAndContractAddress(ctx, k.GetChainIdFromHyperionId(ctx, hyperionId), tokenContract.Hex())
+	if !found {
+		return math.ZeroInt()
+	}
+	metadata, exists := k.bankKeeper.GetDenomMetaData(ctx, denom)
+	if !exists {
+		return math.ZeroInt()
+	}
+	for _, chainMetadata := range metadata.ChainsMetadatas {
+		if chainMetadata.ChainId == k.GetChainIdFromHyperionId(ctx, hyperionId) && chainMetadata.TotalSupply != nil {
+			return *chainMetadata.TotalSupply
 		}
 	}
+	return math.ZeroInt()
 }
 
-func (k *Keeper) GetAllTokens(ctx sdk.Context, hyperionId uint64) []*types.TokenAddressToDenom {
-	tokenAddressToDenoms := []*types.TokenAddressToDenom{}
-
-	k.IterateTokens(ctx, hyperionId, func(_ []byte, tokenAddressToDenom *types.TokenAddressToDenom) bool {
-		tokenAddressToDenoms = append(tokenAddressToDenoms, tokenAddressToDenom)
-		return false
-	})
-
-	return tokenAddressToDenoms
+func (k *Keeper) SetHyperionContractBalance(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, balance math.Int) {
+	denom, found := k.bankKeeper.GetDenomFromChainIdAndContractAddress(ctx, k.GetChainIdFromHyperionId(ctx, hyperionId), tokenContract.Hex())
+	if !found {
+		return
+	}
+	metadata, exists := k.bankKeeper.GetDenomMetaData(ctx, denom)
+	if !exists {
+		return
+	}
+	for _, chainMetadata := range metadata.ChainsMetadatas {
+		if chainMetadata.ChainId == k.GetChainIdFromHyperionId(ctx, hyperionId) {
+			chainMetadata.TotalSupply = &balance
+		}
+	}
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
 }

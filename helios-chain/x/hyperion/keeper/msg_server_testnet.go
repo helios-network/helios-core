@@ -356,7 +356,11 @@ func (k msgServer) SetTokenToChain(c context.Context, msg *types.MsgSetTokenToCh
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
-	k.Keeper.SetDenomToken(ctx, hyperionParams.HyperionId, msg.Token)
+	k.Keeper.CreateOrLinkTokenToChain(ctx, hyperionParams.BridgeChainId, hyperionParams.BridgeChainName, &types.TokenAddressToDenomWithGenesisInfos{
+		TokenAddressToDenom: msg.Token,
+		DefaultHolders:      make([]*types.HolderWithAmount, 0),
+		Logo:                "",
+	})
 
 	return &types.MsgSetTokenToChainResponse{}, nil
 }
@@ -381,7 +385,7 @@ func (k msgServer) RemoveTokenFromChain(c context.Context, msg *types.MsgRemoveT
 		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
 	}
 
-	k.Keeper.RemoveDenomToken(ctx, hyperionParams.HyperionId, msg.Token)
+	k.Keeper.RemoveTokenFromChainMetadata(ctx, hyperionParams.HyperionId, msg.Token)
 
 	return &types.MsgRemoveTokenFromChainResponse{}, nil
 }

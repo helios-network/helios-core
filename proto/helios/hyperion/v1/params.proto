@@ -15,8 +15,6 @@ message Params {
   option (gogoproto.stringer) = false;
 
   repeated CounterpartyChainParams counterparty_chain_params = 1;
-
-  repeated string admins = 2;
 }
 
 // CounterpartyChainParams represent the hyperion genesis and store parameters 

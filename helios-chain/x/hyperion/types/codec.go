@@ -42,8 +42,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelSendToChain{},
 		&MsgSubmitBadSignatureEvidence{},
 		&MsgUpdateParams{},
-		&MsgBlacklistEthereumAddresses{},
-		&MsgRevokeEthereumBlacklist{},
+		&MsgBlacklistAddresses{},
+		&MsgRevokeBlacklist{},
 
 		&MsgAddCounterpartyChainParams{},
 		&MsgUpdateChainSmartContract{},
@@ -109,8 +109,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&Attestation{}, "hyperion/Attestation", nil)
 	cdc.RegisterConcrete(&MsgSubmitBadSignatureEvidence{}, "hyperion/MsgSubmitBadSignatureEvidence", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "hyperion/MsgUpdateParams", nil)
-	cdc.RegisterConcrete(&MsgBlacklistEthereumAddresses{}, "hyperion/MsgBlacklistEthereumAddresses", nil)
-	cdc.RegisterConcrete(&MsgRevokeEthereumBlacklist{}, "hyperion/MsgRevokeEthereumBlacklist", nil)
+	cdc.RegisterConcrete(&MsgBlacklistAddresses{}, "hyperion/MsgBlacklistAddresses", nil)
+	cdc.RegisterConcrete(&MsgRevokeBlacklist{}, "hyperion/MsgRevokeBlacklist", nil)
 
 	cdc.RegisterConcrete(&MsgAddCounterpartyChainParams{}, "hyperion/MsgAddCounterpartyChainParams", nil)
 	cdc.RegisterConcrete(&MsgUpdateChainSmartContract{}, "hyperion/MsgUpdateChainSmartContract", nil)

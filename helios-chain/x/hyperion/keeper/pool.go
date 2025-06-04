@@ -161,38 +161,29 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 		metrics.ReportFuncError(k.svcTags)
 		return errors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
 	}
-	isCosmosOriginated := tokenAddressToDenom.IsCosmosOriginated
-	denom := tokenAddressToDenom.Denom
 	// native cosmos coin denom
-	if isCosmosOriginated {
-		// native denom
-		totalToRefund := sdk.NewCoin(denom, tx.Token.Amount)
-		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Fee.Amount)
-		totalToRefundCoins = sdk.NewCoins(totalToRefund)
-	} else {
-		// hyperion denom
-		totalToRefund := sdk.NewCoin(types.NewHyperionDenom(tx.HyperionId, common.HexToAddress(tx.Token.Contract)), tx.Token.Amount)
-		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Fee.Amount)
-		totalToRefundCoins = sdk.NewCoins(totalToRefund)
+	totalToRefund := sdk.NewCoin(tokenAddressToDenom.Denom, tx.Token.Amount)
+	totalToRefund.Amount = totalToRefund.Amount.Add(tx.Fee.Amount)
+	totalToRefundCoins = sdk.NewCoins(totalToRefund)
+
+	if tokenAddressToDenom.IsCosmosOriginated { // update the contract balance
+		contractBalance := k.GetHyperionContractBalance(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
+
+		if contractBalance.LT(tx.Token.Amount.Add(tx.Fee.Amount)) {
+			metrics.ReportFuncError(k.svcTags)
+			return errors.Wrap(types.ErrSupplyOverflow, "invalid supply on the source network")
+		}
+		k.SetHyperionContractBalance(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract), contractBalance.Sub(tx.Token.Amount.Add(tx.Fee.Amount)))
 	}
 
-	// If it is a cosmos-originated the coins are in the module (see AddToOutgoingPool) so we can just take them out
-	if isCosmosOriginated {
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, totalToRefundCoins); err != nil {
-			metrics.ReportFuncError(k.svcTags)
-			return err
-		}
-	} else {
-		// If it is an ethereum-originated asset we have to mint it (see Handle in attestation_handler.go)
-		// mint coins in module for prep to send
-		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, totalToRefundCoins); err != nil {
-			metrics.ReportFuncError(k.svcTags)
-			return errors.Wrapf(err, "mint vouchers coins: %s", totalToRefundCoins)
-		}
-		if err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, totalToRefundCoins); err != nil {
-			metrics.ReportFuncError(k.svcTags)
-			return errors.Wrap(err, "transfer vouchers")
-		}
+	// mint coins in module for prep to send
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, totalToRefundCoins); err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		return errors.Wrapf(err, "mint vouchers coins: %s", totalToRefundCoins)
+	}
+	if err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, totalToRefundCoins); err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		return errors.Wrap(err, "transfer vouchers")
 	}
 
 	// nolint:errcheck //ignored on purpose
