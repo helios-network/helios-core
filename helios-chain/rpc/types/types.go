@@ -181,6 +181,7 @@ type ValidatorRPC struct {
 	MinDelegation           cosmossdk_io_math.Int    `json:"minDelegation"`
 	DelegationAuthorization bool                     `json:"delegationAuthorization"`
 	TotalBoost              string                   `json:"totalBoost"`
+	BoostPercentage         string                   `json:"boostPercentage"`
 }
 
 type ValidatorWithDelegationRPC struct {

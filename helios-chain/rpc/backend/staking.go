@@ -89,16 +89,18 @@ func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, 
 		return nil, err
 	}
 
-	boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
+	boostQuery := &stakingtypes.QueryTotalBoostedValidatorRequest{
 		ValidatorAddr: validator.OperatorAddress,
 	}
 
-	boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
+	boostRes, err := b.queryClient.Staking.TotalBoostedValidator(b.ctx, boostQuery)
 	totalBoost := "0"
+	boostPercentage := "0"
 	if err == nil {
 		totalBoost = boostRes.TotalBoost
+		boostPercentage = boostRes.BoostPercentage
 	}
-	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr, totalBoost)
+	formattedValidatorResp := formatValidatorResponse(validator, evmAddressOfTheValidator, apr, totalBoost, boostPercentage)
 	return &formattedValidatorResp, nil
 }
 
@@ -233,11 +235,13 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 
 		boostRes, err := b.queryClient.Staking.TotalBoostedValidator(b.ctx, boostQuery)
 		totalBoost := "0"
+		boostPercentage := "0"
 		if err == nil {
 			totalBoost = boostRes.TotalBoost
+			boostPercentage = boostRes.BoostPercentage
 		}
 
-		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr, totalBoost))
+		validatorsResult = append(validatorsResult, formatValidatorResponse(validator, validatorEVMAddress, apr, totalBoost, boostPercentage))
 	}
 	return validatorsResult, nil
 }
@@ -267,7 +271,7 @@ func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) 
 }
 
 // Helper function to format validator response
-func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string, totalBoost string) rpctypes.ValidatorRPC {
+func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string, totalBoost string, boostPercentage string) rpctypes.ValidatorRPC {
 	return rpctypes.ValidatorRPC{
 		ValidatorAddress:        evmAddress,
 		Shares:                  validator.DelegatorShares.String(),
@@ -285,6 +289,7 @@ func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string
 		MinDelegation:           validator.MinDelegation,
 		DelegationAuthorization: validator.DelegateAuthorization,
 		TotalBoost:              totalBoost,
+		BoostPercentage:         boostPercentage,
 	}
 }
 
