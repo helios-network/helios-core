@@ -61,7 +61,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 			hyperionDenom := types.NewHyperionDenom(claim.HyperionId, common.HexToAddress(claim.TokenContract))
 			tokenAddressToDenom = a.keeper.SetToken(ctx, claim.HyperionId, &types.TokenAddressToDenom{
 				TokenAddress:       common.HexToAddress(claim.TokenContract).String(),
-				Denom:              hyperionDenom.String(),
+				Denom:              hyperionDenom,
 				IsCosmosOriginated: false,
 			})
 		}

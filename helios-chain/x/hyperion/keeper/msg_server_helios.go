@@ -151,6 +151,9 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	}
 	// setup a default value LastObservedEthereumBlockHeight
 	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
+	k.Keeper.SetLastObservedValset(ctx, msg.CounterpartyChainParams.HyperionId, types.Valset{
+		HyperionId: msg.CounterpartyChainParams.HyperionId,
+	})
 
 	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
 }

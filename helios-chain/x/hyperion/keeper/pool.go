@@ -171,7 +171,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	} else {
 		// hyperion denom
-		totalToRefund := tx.Token.HyperionCoin(tx.HyperionId)
+		totalToRefund := sdk.NewCoin(types.NewHyperionDenom(tx.HyperionId, common.HexToAddress(tx.Token.Contract)), tx.Token.Amount)
 		totalToRefund.Amount = totalToRefund.Amount.Add(tx.Fee.Amount)
 		totalToRefundCoins = sdk.NewCoins(totalToRefund)
 	}

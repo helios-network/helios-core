@@ -68,60 +68,6 @@ func (k *Keeper) RemoveToken(ctx sdk.Context, hyperionId uint64, tokenAddressToD
 	return tokenAddressToDenom
 }
 
-// func (k *Keeper) SearchTokenFromDenom(ctx sdk.Context, denomStr string, hyperionId uint64) (tokenAddressToDenom *types.TokenAddressToDenom, err error) {
-// 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-// 	defer doneFn()
-
-// 	// First try parsing the ERC20 out of the denom
-// 	// hyperionDenom, denomErr := types.NewHyperionDenomFromString(hyperionId, denomStr)
-// 	// if denomErr == nil {
-// 	// 	// This is an Ethereum-originated asset
-// 	// 	tokenContractFromDenom, _ := hyperionDenom.TokenContract()
-// 	// 	return false, tokenContractFromDenom, nil
-// 	// }
-
-// 	// Look up ERC20 contract in index and error if it's not in there
-// 	tokenAddressToDenom, exists := k.GetTokenFromDenom(ctx, hyperionId, denomStr)
-// 	if !exists {
-// 		err = errors.Errorf(
-// 			"denom (%s) not a hyperion voucher coin, and also not in cosmos-originated token address index",
-// 			denomStr,
-// 		)
-// 		metrics.ReportFuncError(k.svcTags)
-// 		return nil, err
-// 	}
-
-// 	return tokenAddressToDenom, nil
-// }
-
-// RewardToTokenAddressLookup is a specialized function wrapping DenomToERC20Lookup designed to validate
-// the validator set reward any time we generate a validator set
-// func (k *Keeper) RewardToTokenAddressLookup(ctx sdk.Context, coin sdk.Coin, hyperionId uint64) (common.Address, math.Int) {
-// 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-// 	defer doneFn()
-
-// 	if coin.Denom == "" || coin.Amount.BigInt() == nil || coin.Amount == math.NewInt(0) {
-// 		metrics.ReportFuncError(k.svcTags)
-// 		panic("Bad validator set relaying reward!")
-// 	} else {
-// 		// reward case, pass to DenomToERC20Lookup
-// 		_, addressStr, err := k.DenomToTokenAddressLookup(ctx, coin.Denom, hyperionId)
-// 		if err != nil {
-// 			// This can only ever happen if governance sets a value for the reward
-// 			// which is not a valid ERC20 that as been bridged before (either from or to Cosmos)
-// 			// We'll classify that as operator error and just panic
-// 			metrics.ReportFuncError(k.svcTags)
-// 			panic("Invalid Valset reward! Correct or remove the paramater value")
-// 		}
-// 		err = types.ValidateEthAddress(addressStr.Hex())
-// 		if err != nil {
-// 			metrics.ReportFuncError(k.svcTags)
-// 			panic("Invalid Valset reward! Correct or remove the paramater value")
-// 		}
-// 		return addressStr, coin.Amount
-// 	}
-// }
-
 func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMetadata) (*types.TokenMetadata, error) {
 
 	if metadata == nil {
@@ -178,22 +124,6 @@ func (k *Keeper) handleValidateMsg(_ sdk.Context, msg *sdk.Msg) (bool, error) {
 	return false, errors.Errorf("Message %s not managed", reflect.TypeOf(msg))
 }
 
-// TokenAddressToDenom returns if a token address represents an asset is native to Cosmos or Ethereum,
-// and get its corresponding hyperion denom.
-// func (k *Keeper) TokenAddressToDenomLookup(ctx sdk.Context, tokenContract common.Address, hyperionId uint64) (*types.TokenAddressToDenom, error) {
-// 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-// 	defer doneFn()
-
-// 	// First try looking up tokenContract in index
-// 	tokenAddressToDenom, exists := k.GetCosmosOriginatedDenom(ctx, hyperionId, tokenContract)
-// 	if exists {
-// 		return tokenAddressToDenom, nil
-// 	}
-
-// 	// If it is not in there, it is not a cosmos originated token, turn the ERC20 into a hyperion denom
-// 	return false, types.NewHyperionDenom(hyperionId, tokenContract).String()
-// }
-
 // IterateTokenAddressToDenom iterates over token address to denom relations
 func (k *Keeper) IterateTokens(ctx sdk.Context, hyperionId uint64, cb func(k []byte, v *types.TokenAddressToDenom) (stop bool)) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
@@ -205,10 +135,8 @@ func (k *Keeper) IterateTokens(ctx sdk.Context, hyperionId uint64, cb func(k []b
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
-		tokenAddressToDenom := types.TokenAddressToDenom{
-			TokenAddress: common.BytesToAddress(iter.Key()).Hex(),
-			Denom:        string(iter.Value()),
-		}
+		tokenAddressToDenom := types.TokenAddressToDenom{}
+		k.cdc.MustUnmarshal(iter.Value(), &tokenAddressToDenom)
 
 		if cb(iter.Key(), &tokenAddressToDenom) {
 			break

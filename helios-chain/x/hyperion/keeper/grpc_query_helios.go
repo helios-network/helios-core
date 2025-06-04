@@ -85,7 +85,7 @@ func (k *Keeper) TokenAddressToDenom(c context.Context, req *types.QueryTokenAdd
 
 		tokenAddressToDenom = &types.TokenAddressToDenom{
 			TokenAddress:       common.HexToAddress(req.TokenAddress).String(),
-			Denom:              hyperionDenom.String(),
+			Denom:              hyperionDenom,
 			IsCosmosOriginated: false,
 		}
 	}

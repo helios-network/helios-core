@@ -7,6 +7,7 @@ import (
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -17,6 +18,7 @@ import (
 )
 
 func (k *Keeper) SetDefaultToken(ctx sdk.Context, counterparty *types.CounterpartyChainParams, token *types.TokenAddressToDenomWithGenesisInfos) {
+	fmt.Println("Setting default token for hyperion id", token.TokenAddressToDenom.Denom)
 	tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
 
 	if !ok {
@@ -47,6 +49,9 @@ func (k *Keeper) SetDefaultToken(ctx sdk.Context, counterparty *types.Counterpar
 		tokenPair = erc20types.NewTokenPair(contractAddr, token.TokenAddressToDenom.Denom, erc20types.OWNER_MODULE)
 		k.erc20Keeper.SetToken(ctx, tokenPair)
 		k.erc20Keeper.EnableDynamicPrecompiles(ctx, tokenPair.GetERC20Contract())
+
+		// init one token for the module
+		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, math.NewInt(1))})
 	}
 
 	if token.TokenAddressToDenom.IsConcensusToken && !k.erc20Keeper.IsAssetWhitelisted(ctx, token.TokenAddressToDenom.Denom) {
@@ -68,6 +73,7 @@ func (k *Keeper) SetDefaultToken(ctx sdk.Context, counterparty *types.Counterpar
 		k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
 		k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(holder.Address), sdk.Coins{sdk.NewCoin(token.TokenAddressToDenom.Denom, holder.Amount)})
 	}
+	k.SetDenomToken(ctx, counterparty.HyperionId, token.TokenAddressToDenom)
 }
 
 // NormalizeGenesis takes care of formatting in the internal structures, as they're used as values
