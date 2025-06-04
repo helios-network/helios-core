@@ -1328,6 +1328,26 @@ func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed strin
 	k.SetCounterpartyChainParams(ctx, hyperionId, counterpartyChainParams)
 }
 
+func (k *Keeper) RemoveDenomToken(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	k.RemoveToken(ctx, hyperionId, token)
+
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
+	if !found {
+		return
+	}
+	// remove the token from the metadata
+	for i, chainM := range metadata.ChainsMetadatas {
+		if chainM.ChainId == k.GetChainIdFromHyperionId(ctx, hyperionId) {
+			metadata.ChainsMetadatas = append(metadata.ChainsMetadatas[:i], metadata.ChainsMetadatas[i+1:]...)
+			break
+		}
+	}
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
+}
+
 func (k *Keeper) SetDenomToken(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) error {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
@@ -1337,8 +1357,6 @@ func (k *Keeper) SetDenomToken(ctx sdk.Context, hyperionId uint64, token *types.
 	if chainId == 0 {
 		return errors.Wrap(types.ErrEmpty, "chain id not found")
 	}
-
-	k.SetToken(ctx, hyperionId, token)
 	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
 
 	chainMetadata := &banktypes.ChainMetadata{
@@ -1365,13 +1383,10 @@ func (k *Keeper) SetDenomToken(ctx sdk.Context, hyperionId uint64, token *types.
 		}
 		k.bankKeeper.SetDenomMetaData(ctx, metadata)
 	} else {
-		k.bankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
-			Base: token.Denom,
-			ChainsMetadatas: []*banktypes.ChainMetadata{
-				chainMetadata,
-			},
-		})
+		return errors.Wrap(types.ErrEmpty, "token not found")
 	}
+
+	k.SetToken(ctx, hyperionId, token)
 
 	return nil
 }

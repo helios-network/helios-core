@@ -156,6 +156,12 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 		if err != nil {
 			return err
 		}
+	case *types.MsgRemoveTokenFromChain:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).RemoveTokenFromChain(ctx, msg)
+		if err != nil {
+			return err
+		}
 	case *types.MsgForceSetValsetAndLastObservedEventNonce:
 		msg.Signer = k.GetAuthority()
 		_, err := keeper.NewMsgServerImpl(k).ForceSetValsetAndLastObservedEventNonce(ctx, msg)

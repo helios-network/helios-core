@@ -153,6 +153,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/set_token_to_chain";
   }
 
+  rpc RemoveTokenFromChain(MsgRemoveTokenFromChain)
+      returns (MsgRemoveTokenFromChainResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/remove_token_from_chain";
+  }
+
   rpc MintToken(MsgMintToken)
       returns (MsgMintTokenResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/mint_token";
@@ -668,6 +673,17 @@ message MsgSetTokenToChain {
 }
 
 message MsgSetTokenToChainResponse {}
+
+message MsgRemoveTokenFromChain {
+  option (amino.name) = "hyperion/MsgRemoveTokenFromChain";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  TokenAddressToDenom token = 3;
+}
+
+message MsgRemoveTokenFromChainResponse {}
 
 message MsgMintToken {
   option (amino.name) = "hyperion/MsgMintToken";

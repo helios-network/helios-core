@@ -361,6 +361,31 @@ func (k msgServer) SetTokenToChain(c context.Context, msg *types.MsgSetTokenToCh
 	return &types.MsgSetTokenToChainResponse{}, nil
 }
 
+func (k msgServer) RemoveTokenFromChain(c context.Context, msg *types.MsgRemoveTokenFromChain) (*types.MsgRemoveTokenFromChainResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	k.Keeper.RemoveDenomToken(ctx, hyperionParams.HyperionId, msg.Token)
+
+	return &types.MsgRemoveTokenFromChainResponse{}, nil
+}
+
 func (k msgServer) MintToken(c context.Context, msg *types.MsgMintToken) (*types.MsgMintTokenResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()

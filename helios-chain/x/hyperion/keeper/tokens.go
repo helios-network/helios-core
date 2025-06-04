@@ -57,6 +57,17 @@ func (k *Keeper) SetToken(ctx sdk.Context, hyperionId uint64, tokenAddressToDeno
 	return tokenAddressToDenom
 }
 
+func (k *Keeper) RemoveToken(ctx sdk.Context, hyperionId uint64, tokenAddressToDenom *types.TokenAddressToDenom) *types.TokenAddressToDenom {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetCosmosDenomToTokenAddressKey(hyperionId, tokenAddressToDenom.Denom))
+	store.Delete(types.GetTokenAddressToCosmosDenomKey(hyperionId, common.HexToAddress(tokenAddressToDenom.TokenAddress)))
+
+	return tokenAddressToDenom
+}
+
 // func (k *Keeper) SearchTokenFromDenom(ctx sdk.Context, denomStr string, hyperionId uint64) (tokenAddressToDenom *types.TokenAddressToDenom, err error) {
 // 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 // 	defer doneFn()

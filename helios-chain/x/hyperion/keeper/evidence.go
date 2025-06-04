@@ -89,14 +89,6 @@ func (k *Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject type
 		return errors.Wrap(err, "Could not slash validator")
 	}
 
-	if !val.IsJailed() {
-		err = k.StakingKeeper.Jail(ctx, cons)
-		if err != nil {
-			metrics.ReportFuncError(k.svcTags)
-			return errors.Wrap(err, "Could not jail validator")
-		}
-	}
-
 	return nil
 }
 
