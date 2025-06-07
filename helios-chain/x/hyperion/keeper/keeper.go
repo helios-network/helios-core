@@ -738,6 +738,15 @@ func (k *Keeper) GetCurrentValset(ctx sdk.Context, hyperionId uint64) *types.Val
 	return types.NewValset(hyperionId, uint64(ctx.BlockHeight())+hyperionParams.OffsetValsetNonce, uint64(ctx.BlockHeight()), bridgeValidators, rewardAmount, rewardToken)
 }
 
+func (k *Keeper) GetLastValidatorPower(ctx sdk.Context, validator common.Address) (uint64, error) {
+	val := cmn.ValAddressFromHexAddress(validator)
+	vp, err := k.StakingKeeper.GetLastValidatorPower(ctx, val)
+	if err != nil {
+		return 0, err
+	}
+	return uint64(vp), nil
+}
+
 /////////////////////////////
 //       HELPERS           //
 /////////////////////////////

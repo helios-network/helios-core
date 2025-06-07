@@ -7,6 +7,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -124,6 +125,14 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 		return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the authority")
 	}
 
+	vp, err := k.Keeper.GetLastValidatorPower(ctx, cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer))
+	if err != nil {
+		return nil, err
+	}
+	if vp == 0 {
+		return nil, errors.Wrap(types.ErrInvalidSigner, "initializer is not a validator")
+	}
+
 	if err := msg.CounterpartyChainParams.ValidateBasic(); err != nil {
 		return nil, err
 	}
@@ -151,8 +160,23 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	}
 	// setup a default value LastObservedEthereumBlockHeight
 	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
+
+	// set proposer as first validator
+	k.Keeper.SetEthAddressForValidator(ctx, msg.CounterpartyChainParams.HyperionId, cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)), cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer))
+
+	// set first valset
 	k.Keeper.SetLastObservedValset(ctx, msg.CounterpartyChainParams.HyperionId, types.Valset{
 		HyperionId: msg.CounterpartyChainParams.HyperionId,
+		Nonce:      0,
+		Members: []*types.BridgeValidator{
+			{
+				Power:           1431655765,
+				EthereumAddress: cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer).Hex(),
+			},
+		},
+		Height:       msg.CounterpartyChainParams.BridgeContractStartHeight - 1,
+		RewardAmount: math.NewIntFromUint64(0),
+		RewardToken:  common.Address{0x0000000000000000000000000000000000000000}.Hex(),
 	})
 
 	return &types.MsgAddCounterpartyChainParamsResponse{}, nil
