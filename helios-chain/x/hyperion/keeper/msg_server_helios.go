@@ -167,7 +167,7 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	// set first valset
 	k.Keeper.SetLastObservedValset(ctx, msg.CounterpartyChainParams.HyperionId, types.Valset{
 		HyperionId: msg.CounterpartyChainParams.HyperionId,
-		Nonce:      0,
+		Nonce:      1,
 		Members: []*types.BridgeValidator{
 			{
 				Power:           1431655765,
