@@ -143,6 +143,10 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 		return nil, errors.Wrap(types.ErrInvalidHyperionId, "HyperionId cannot be 0")
 	}
 
+	if msg.CounterpartyChainParams.HyperionId != msg.CounterpartyChainParams.BridgeChainId {
+		return nil, errors.Wrap(types.ErrInvalidHyperionId, "HyperionId and BridgeChainId must be the same")
+	}
+
 	for _, counterpartyChainParam := range params.CounterpartyChainParams {
 		if counterpartyChainParam.HyperionId == msg.CounterpartyChainParams.HyperionId {
 			return nil, errors.Wrap(types.ErrDuplicate, "HyperionId already exists")
