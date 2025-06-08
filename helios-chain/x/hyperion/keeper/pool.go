@@ -516,6 +516,8 @@ func (k *Keeper) AutoIncrementID(ctx sdk.Context, idKey []byte) uint64 {
 	var id uint64
 	if bz != nil {
 		id = binary.BigEndian.Uint64(bz) + 1
+	} else {
+		id = 1
 	}
 
 	bz = sdk.Uint64ToBigEndian(id)

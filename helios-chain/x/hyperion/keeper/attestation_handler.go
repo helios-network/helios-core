@@ -165,7 +165,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 		}
 
 		// Check if attributes of ERC20 match Cosmos denom
-		if claim.Name != metadata.Display {
+		if claim.Name != metadata.Name {
 			metrics.ReportFuncError(a.svcTags)
 			return errors.Wrap(
 				types.ErrInvalid,
