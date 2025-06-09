@@ -8,6 +8,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -43,6 +44,7 @@ type BankKeeper interface {
 	SetDenomMetaData(ctx context.Context, denomMetaData bank.Metadata)
 	GetSupply(ctx context.Context, denom string) sdk.Coin
 	GetDenomFromChainIdAndContractAddress(ctx context.Context, chainId uint64, contractAddress string) (string, bool)
+	DenomsByChainId(ctx context.Context, req *banktypes.QueryDenomsByChainIdRequest) (*banktypes.QueryDenomsByChainIdResponse, error)
 }
 
 type SlashingKeeper interface {

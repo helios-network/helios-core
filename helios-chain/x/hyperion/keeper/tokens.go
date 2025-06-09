@@ -215,6 +215,7 @@ func (k *Keeper) CreateOrLinkTokenToChain(ctx sdk.Context, chainId uint64, chain
 		}
 
 		if err := coinMetadata.Validate(); err != nil {
+			fmt.Println("error", err)
 			return nil
 		}
 

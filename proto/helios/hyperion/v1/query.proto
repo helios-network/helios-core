@@ -159,6 +159,11 @@ service Query {
       returns (QueryOutgoingExternalDataTxsResponse) {
     option (google.api.http).get = "/hyperion/v1/chains/outgoing_external_data_txs";
   }
+
+  rpc QueryGetTokensOfChain(QueryGetTokensOfChainRequest)
+      returns (QueryGetTokensOfChainResponse) {
+    option (google.api.http).get = "/hyperion/v1/chains/tokens";
+  }
 }
 
 message QueryParamsRequest {}
@@ -391,4 +396,15 @@ message QueryOutgoingExternalDataTxsRequest {
 
 message QueryOutgoingExternalDataTxsResponse {
   repeated OutgoingExternalDataTx txs = 1;
+}
+
+message QueryGetTokensOfChainRequest {
+  uint64 page = 1;
+  uint64 size = 2;
+  uint64 chain_id = 3;
+}
+
+message QueryGetTokensOfChainResponse {
+  repeated FullMetadataToken tokens = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

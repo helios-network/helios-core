@@ -1,6 +1,7 @@
 syntax = "proto3";
 package helios.hyperion.v1;
 import "gogoproto/gogo.proto";
+import "cosmos/bank/v1beta1/bank.proto";
 import "helios/hyperion/v1/attestation.proto";
 
 option go_package = "helios-core/helios-chain/x/hyperion/types";
@@ -112,4 +113,13 @@ message Rpc {
 
 message LastFinalizedTxIndex {
   repeated TransferTx txs = 1;
+}
+
+message FullMetadataToken {
+  cosmos.bank.v1beta1.Metadata metadata = 1;
+  uint64   holders_count = 2 [(gogoproto.jsontag) = "holdersCount"];
+  string   total_supply  = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
 }

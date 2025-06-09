@@ -85,6 +85,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 					Denom:              denom,
 					IsCosmosOriginated: false,
 					IsConcensusToken:   false,
+					Decimals:           uint64(tokenMetadata.Decimals),
 				},
 				DefaultHolders: make([]*types.HolderWithAmount, 0),
 				Logo:           "",

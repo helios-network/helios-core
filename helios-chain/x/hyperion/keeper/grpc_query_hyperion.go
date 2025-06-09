@@ -8,6 +8,8 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
 
@@ -300,5 +302,43 @@ func (k *Keeper) QueryGetLastObservedEventNonce(c context.Context, req *types.Qu
 
 	return &types.QueryGetLastObservedEventNonceResponse{
 		LastObservedEventNonce: lastObservedEventNonce,
+	}, nil
+}
+
+func (k *Keeper) QueryGetTokensOfChain(c context.Context, req *types.QueryGetTokensOfChainRequest) (*types.QueryGetTokensOfChainResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	pageReq := &query.PageRequest{
+		Offset:     uint64((req.Page - 1) * uint64(req.Size_)),
+		Limit:      uint64(req.Size_),
+		CountTotal: true,
+	}
+
+	res, err := k.bankKeeper.DenomsByChainId(ctx, &banktypes.QueryDenomsByChainIdRequest{
+		ChainId:             req.ChainId,
+		Pagination:          pageReq,
+		OrderByHoldersCount: true,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	formattedTokens := make([]*types.FullMetadataToken, 0)
+
+	for _, token := range res.Metadatas {
+		formattedTokens = append(formattedTokens, &types.FullMetadataToken{
+			Metadata:     token.Metadata,
+			HoldersCount: token.HoldersCount,
+			TotalSupply:  token.TotalSupply,
+		})
+	}
+
+	return &types.QueryGetTokensOfChainResponse{
+		Tokens:     formattedTokens,
+		Pagination: res.Pagination,
 	}, nil
 }
