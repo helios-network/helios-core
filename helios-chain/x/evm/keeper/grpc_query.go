@@ -724,10 +724,20 @@ func (k Keeper) GlobalMinGasPrice(c context.Context, _ *types.QueryGlobalMinGasP
 }
 
 // Config implements the Query/Config gRPC method
-func (k Keeper) Config(_ context.Context, _ *types.QueryConfigRequest) (*types.QueryConfigResponse, error) {
+func (k Keeper) Config(c context.Context, _ *types.QueryConfigRequest) (*types.QueryConfigResponse, error) {
 	config := types.GetChainConfig()
 	config.Denom = types.GetEVMCoinDenom()
 	config.Decimals = uint64(types.GetEVMCoinDecimals())
 
 	return &types.QueryConfigResponse{Config: config}, nil
+}
+
+// TotalTransactionCount returns the total number of transactions in the blockchain.
+func (k Keeper) TotalTransactionCount(c context.Context, _ *types.QueryTotalTransactionCountRequest) (*types.QueryTotalTransactionCountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	totalCount := k.GetTotalTransactionCount(ctx)
+
+	return &types.QueryTotalTransactionCountResponse{
+		TotalCount: totalCount,
+	}, nil
 }

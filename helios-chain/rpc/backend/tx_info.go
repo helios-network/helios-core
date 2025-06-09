@@ -1052,3 +1052,21 @@ func (b *Backend) decodeCronTransaction(transaction *rpctypes.RPCTransaction) (m
 	}
 	return decodedValues, nil
 }
+
+func (b *Backend) GetTotalTransactionCount() (*hexutil.Uint64, error) {
+	totalCount, err := b.getTotalTransactionCountFromEVM()
+	if err != nil {
+		return nil, fmt.Errorf("failed to query transaction count: %w", err)
+	}
+
+	result := hexutil.Uint64(totalCount)
+	return &result, nil
+}
+
+func (b *Backend) getTotalTransactionCountFromEVM() (uint64, error) {
+	res, err := b.queryClient.TotalTransactionCount(b.ctx, &evmtypes.QueryTotalTransactionCountRequest{})
+	if err != nil {
+		return 0, err
+	}
+	return res.TotalCount, nil
+}

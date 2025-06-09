@@ -90,6 +90,11 @@ service Query {
   rpc Config(QueryConfigRequest) returns (QueryConfigResponse) {
     option (google.api.http).get = "/evmos/evm/v1/config";
   }
+
+  // TotalTransactionCount queries the total number of transactions
+  rpc TotalTransactionCount(QueryTotalTransactionCountRequest) returns (QueryTotalTransactionCountResponse) {
+    option (google.api.http).get = "/evmos/evm/v1/total_transaction_count";
+  }
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
@@ -340,4 +345,13 @@ message QueryConfigRequest {}
 message QueryConfigResponse {
   // config is the evm configuration
   ChainConfig config = 1;
+}
+
+// QueryTotalTransactionCountRequest is the request type for the Query/TotalTransactionCount RPC method.
+message QueryTotalTransactionCountRequest {}
+
+// QueryTotalTransactionCountResponse is the response type for the Query/TotalTransactionCount RPC method.
+message QueryTotalTransactionCountResponse {
+  // total_count is the total number of transactions in the blockchain
+  uint64 total_count = 1;
 }

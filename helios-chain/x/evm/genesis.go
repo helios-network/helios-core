@@ -54,6 +54,9 @@ func InitGenesis(
 		}
 	}
 
+	// Initialize total transaction count from genesis
+	k.SetTotalTransactionCount(ctx, data.TotalTransactionCount)
+
 	return []abci.ValidatorUpdate{}
 }
 
@@ -74,7 +77,8 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	})
 
 	return &types.GenesisState{
-		Accounts: ethGenAccounts,
-		Params:   k.GetParams(ctx),
+		Accounts:              ethGenAccounts,
+		Params:                k.GetParams(ctx),
+		TotalTransactionCount: k.GetTotalTransactionCount(ctx),
 	}
 }

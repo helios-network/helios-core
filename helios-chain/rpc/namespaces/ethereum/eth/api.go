@@ -52,6 +52,7 @@ type EthereumAPI interface {
 	// it is a user or a smart contract.
 	GetTransactionByHash(hash common.Hash) (*rpctypes.RPCTransaction, error)
 	GetTransactionCount(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Uint64, error)
+	GetTotalTransactionCount() (*hexutil.Uint64, error)
 	GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error)
 	GetTransactionByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNumber, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
@@ -251,6 +252,12 @@ func (e *PublicAPI) GetTransactionCount(address common.Address, blockNrOrHash rp
 		return nil, err
 	}
 	return e.backend.GetTransactionCount(address, blockNum)
+}
+
+// GetTotalTransactionCount returns the total number of transactions in the blockchain.
+func (e *PublicAPI) GetTotalTransactionCount() (*hexutil.Uint64, error) {
+	e.logger.Debug("eth_getTotalTransactionCount")
+	return e.backend.GetTotalTransactionCount()
 }
 
 // GetTransactionReceipt returns the transaction receipt identified by hash.

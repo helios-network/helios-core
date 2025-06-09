@@ -27,6 +27,7 @@ const (
 	prefixStorage
 	prefixParams
 	prefixCodeHash
+	prefixTotalTxCount
 )
 
 // prefix bytes for the EVM transient store
@@ -39,10 +40,11 @@ const (
 
 // KVStore key prefixes
 var (
-	KeyPrefixCode     = []byte{prefixCode}
-	KeyPrefixStorage  = []byte{prefixStorage}
-	KeyPrefixParams   = []byte{prefixParams}
-	KeyPrefixCodeHash = []byte{prefixCodeHash}
+	KeyPrefixCode         = []byte{prefixCode}
+	KeyPrefixStorage      = []byte{prefixStorage}
+	KeyPrefixParams       = []byte{prefixParams}
+	KeyPrefixCodeHash     = []byte{prefixCodeHash}
+	KeyPrefixTotalTxCount = []byte{prefixTotalTxCount}
 )
 
 // Transient Store key prefixes

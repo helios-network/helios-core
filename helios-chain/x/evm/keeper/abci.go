@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"helios-core/helios-chain/x/evm/types"
+
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"helios-core/helios-chain/x/evm/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -41,6 +42,8 @@ func (k *Keeper) EndBlock(ctx sdk.Context) error {
 
 	bloom := ethtypes.BytesToBloom(k.GetBlockBloomTransient(infCtx).Bytes())
 	k.EmitBlockBloomEvent(infCtx, bloom)
+
+	k.UpdateTransactionCountForBlock(infCtx)
 
 	return nil
 }

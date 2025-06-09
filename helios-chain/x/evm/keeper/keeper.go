@@ -361,3 +361,58 @@ func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *et
 	fmt.Fprintf(logFile, "======> EVM Keeper: Calling hooks.PostTxProcessing with gas used: %d\n", receipt.GasUsed)
 	return k.hooks.PostTxProcessing(ctx, msg, receipt)
 }
+
+// GetTotalTransactionCount returns the total number of transactions in the blockchain
+func (k Keeper) GetTotalTransactionCount(ctx sdk.Context) uint64 {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTotalTxCount)
+	bz := store.Get([]byte("total_tx_count"))
+	if bz == nil {
+		return 0
+	}
+	return sdk.BigEndianToUint64(bz)
+}
+
+// SetTotalTransactionCount sets the total number of transactions in the blockchain
+func (k Keeper) SetTotalTransactionCount(ctx sdk.Context, count uint64) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTotalTxCount)
+	store.Set([]byte("total_tx_count"), sdk.Uint64ToBigEndian(count))
+}
+
+func (k Keeper) IncrementTotalTransactionCount(ctx sdk.Context, increment uint64) error {
+	if increment == 0 {
+		return nil
+	}
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTotalTxCount)
+	key := []byte("total_tx_count")
+
+	bz := store.Get(key)
+	var currentCount uint64 = 0
+	if bz != nil {
+		currentCount = sdk.BigEndianToUint64(bz)
+	}
+
+	newCount := currentCount + increment
+	store.Set(key, sdk.Uint64ToBigEndian(newCount))
+
+	return nil
+}
+
+func (k Keeper) UpdateTransactionCountForBlock(ctx sdk.Context) {
+	blockHeight := ctx.BlockHeight()
+
+	if blockHeight <= 0 {
+		return
+	}
+
+	txCount := k.GetTxIndexTransient(ctx)
+
+	if txCount > 0 {
+		if err := k.IncrementTotalTransactionCount(ctx, txCount); err != nil {
+			k.Logger(ctx).Error("Failed to increment transaction count",
+				"error", err,
+				"block_height", blockHeight,
+				"tx_count", txCount)
+		}
+	}
+}
