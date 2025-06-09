@@ -165,8 +165,8 @@ func emitNewClaimEvent(ctx sdk.Context, claim types.EthereumClaim, attestationId
 	}
 }
 
-func (k *Keeper) GetRequiredPower(totalPower math.Int) math.Int {
-	return totalPower.Mul(math.NewInt(66)).Quo(math.NewInt(100))
+func (k *Keeper) GetRequiredPower(totalPower math.Int, powerPercentage uint64) math.Int {
+	return totalPower.Mul(math.NewInt(int64(powerPercentage))).Quo(math.NewInt(100))
 }
 
 // TryAttestation checks if an attestation has enough votes to be applied to the consensus state
@@ -187,12 +187,8 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 	if !att.Observed {
 		fmt.Println("TryAttestation=======================")
 		// Sum the current powers of all validators who have voted and see if it passes the current threshold
-		totalPower, err := k.StakingKeeper.GetLastTotalPower(ctx)
-		if err != nil {
-			metrics.ReportFuncError(k.svcTags)
-			panic("can't get total power: " + err.Error())
-		}
-		requiredPower := k.GetRequiredPower(totalPower)
+		totalPower := k.GetCurrentValsetTotalPower(ctx, claim.GetHyperionId())
+		requiredPower := k.GetRequiredPower(totalPower, 66)
 		attestationPower := math.ZeroInt()
 		for _, validatorAndTxProof := range att.Votes {
 			validatorAndTxProofSplitted := strings.Split(validatorAndTxProof, ":")

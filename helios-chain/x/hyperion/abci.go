@@ -603,12 +603,9 @@ func (h *BlockHandler) executeExternalDataTxs(ctx sdk.Context, counterParty *typ
 	}
 
 	txs := h.k.GetOutgoingExternalDataTXs(ctx, counterParty.HyperionId)
-	totalPower, err := h.k.StakingKeeper.GetLastTotalPower(ctx)
-	if err != nil {
-		metrics.ReportFuncError(h.svcTags)
-		return
-	}
-	requiredPower := h.k.GetRequiredPower(totalPower)
+
+	totalPower := h.k.GetCurrentValsetTotalPower(ctx, counterParty.HyperionId)
+	requiredPower := h.k.GetRequiredPower(totalPower, 33)
 	attestationPower := math.ZeroInt()
 
 	for _, tx := range txs {

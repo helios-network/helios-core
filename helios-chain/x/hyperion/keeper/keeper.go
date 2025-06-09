@@ -663,6 +663,28 @@ func (k *Keeper) GetValidatorByEthAddress(ctx sdk.Context, hyperionId uint64, et
 	return validator, true
 }
 
+func (k *Keeper) GetCurrentValsetTotalPower(ctx sdk.Context, hyperionId uint64) math.Int {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	validators, _ := k.StakingKeeper.GetBondedValidatorsByPower(ctx)
+	// allocate enough space for all validators, but len zero, we then append
+	// so that we have an array with extra capacity but the correct length depending
+	// on how many validators have keys set.
+	totalPower := math.ZeroInt()
+	for i := range validators {
+		val, _ := sdk.ValAddressFromBech32(validators[i].GetOperator())
+		vp, _ := k.StakingKeeper.GetLastValidatorPower(ctx, val)
+		p := uint64(vp)
+
+		if _, found := k.GetEthAddressByValidator(ctx, hyperionId, val); found {
+			totalPower = totalPower.Add(math.NewInt(int64(p)))
+		}
+	}
+
+	return totalPower
+}
+
 // GetCurrentValset gets powers from the store and normalizes them
 // into an integer percentage with a resolution of uint32 Max meaning
 // a given validators 'Hyperion power' is computed as
