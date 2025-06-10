@@ -46,6 +46,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 			lowestObservedNonce,
 			lastObservedBlockHeight,
 		)
+
 		lastEvent = k.GetLastEventByValidatorAndHyperionId(ctx, claim.GetHyperionId(), valAddr)
 	}
 

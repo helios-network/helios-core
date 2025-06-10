@@ -69,6 +69,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateOutTxTimeout{},
 		&MsgCancelAllPendingOutgoingTxs{},
 		&MsgRemoveTokenFromChain{},
+		&MsgUpdateChainTokenLogo{},
 	)
 
 	registry.RegisterInterface(
@@ -135,6 +136,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateOutTxTimeout{}, "hyperion/MsgUpdateOutTxTimeout", nil)
 	cdc.RegisterConcrete(&MsgCancelAllPendingOutgoingTxs{}, "hyperion/MsgCancelAllPendingOutgoingTxs", nil)
 	cdc.RegisterConcrete(&MsgRemoveTokenFromChain{}, "hyperion/MsgRemoveTokenFromChain", nil)
+	cdc.RegisterConcrete(&MsgUpdateChainTokenLogo{}, "hyperion/MsgUpdateChainTokenLogo", nil)
 
 	cdc.RegisterConcrete(&Params{}, "hyperion/Params", nil)
 }

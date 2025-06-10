@@ -680,3 +680,31 @@ func (k msgServer) CancelAllPendingOutgoingTxs(c context.Context, msg *types.Msg
 	}
 	return &types.MsgCancelAllPendingOutgoingTxsResponse{}, nil
 }
+
+func (k msgServer) UpdateChainTokenLogo(c context.Context, msg *types.MsgUpdateChainTokenLogo) (*types.MsgUpdateChainTokenLogoResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	err := k.Keeper.UpdateChainTokenLogo(ctx, msg.ChainId, common.HexToAddress(msg.TokenAddress), msg.Logo)
+	if err != nil {
+		return nil, errors.Wrap(err, "UpdateChainTokenLogo failed")
+	}
+
+	return &types.MsgUpdateChainTokenLogoResponse{}, nil
+}

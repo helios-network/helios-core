@@ -253,6 +253,26 @@ func (k *Keeper) CreateOrLinkTokenToChain(ctx sdk.Context, chainId uint64, chain
 	return k.SetTokenToChainMetadata(ctx, chainId, token.TokenAddressToDenom)
 }
 
+func (k *Keeper) UpdateChainTokenLogo(ctx sdk.Context, chainId uint64, tokenAddress common.Address, logo string) error {
+	denom, err := k.erc20Keeper.GetTokenDenom(ctx, tokenAddress)
+	if err != nil {
+		return err
+	}
+	metadata, exists := k.bankKeeper.GetDenomMetaData(ctx, denom)
+	if !exists {
+		return errors.Errorf("token metadata not found")
+	}
+
+	metadata.Logo = logo
+
+	if err := metadata.Validate(); err != nil {
+		return err
+	}
+
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
+	return nil
+}
+
 func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMetadata) (*types.TokenMetadata, error) {
 
 	if metadata == nil {

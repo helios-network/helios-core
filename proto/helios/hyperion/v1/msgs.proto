@@ -203,6 +203,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/cancel_all_pending_outgoing_txs";
   }
 
+  rpc UpdateChainTokenLogo(MsgUpdateChainTokenLogo)
+      returns (MsgUpdateChainTokenLogoResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_chain_token_logo";
+  }
+
   // <-- Testnet
 }
 
@@ -798,3 +803,15 @@ message MsgCancelAllPendingOutgoingTxs {
 }
 
 message MsgCancelAllPendingOutgoingTxsResponse {}
+
+message MsgUpdateChainTokenLogo {
+  option (amino.name) = "hyperion/MsgUpdateChainTokenLogo";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  string token_address = 3;
+  string logo = 4;
+}
+
+message MsgUpdateChainTokenLogoResponse {}
