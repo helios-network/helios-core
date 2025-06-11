@@ -278,3 +278,14 @@ type EpochCompleteResponse struct {
 	TotalTokens          string                  `json:"totalTokens"`
 	TotalVotingPower     string                  `json:"totalVotingPower"`
 }
+
+type ProposalVoteOptionRPC struct {
+	Option string `json:"option"`
+	Weight string `json:"weight"`
+}
+
+type ProposalVoteRPC struct {
+	Voter    string                  `json:"voter"`
+	Options  []ProposalVoteOptionRPC `json:"options"`
+	Metadata string                  `json:"metadata"`
+}

@@ -5,6 +5,10 @@ package backend
 import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/pkg/errors"
+
+	cmn "helios-core/helios-chain/precompiles/common"
+	rpctypes "helios-core/helios-chain/rpc/types"
 
 	govprecompilestypes "helios-core/helios-chain/x/erc20/types"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
@@ -151,4 +155,42 @@ func (b *Backend) GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 		return nil, err
 	}
 	return formattedProposal, nil
+}
+
+func (b *Backend) GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalVoteRPC, error) {
+	proposalResponse, err := b.queryClient.Gov.Proposal(b.ctx, &govtypes.QueryProposalRequest{
+		ProposalId: uint64(id),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if proposalResponse.Proposal == nil {
+		return nil, errors.New("proposal not found")
+	}
+	proposalVotes, err := b.queryClient.Gov.Votes(b.ctx, &govtypes.QueryVotesRequest{
+		ProposalId: uint64(id),
+		Pagination: &query.PageRequest{
+			Offset: (uint64(page) - 1) * uint64(size),
+			Limit:  uint64(size),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	proposalVotesResult := make([]*rpctypes.ProposalVoteRPC, 0)
+	for _, vote := range proposalVotes.Votes {
+		options := make([]rpctypes.ProposalVoteOptionRPC, 0)
+		for _, option := range vote.Options {
+			options = append(options, rpctypes.ProposalVoteOptionRPC{
+				Option: option.Option.String(),
+				Weight: option.Weight,
+			})
+		}
+		proposalVotesResult = append(proposalVotesResult, &rpctypes.ProposalVoteRPC{
+			Voter:    cmn.AnyToHexAddress(vote.Voter).Hex(),
+			Options:  options,
+			Metadata: vote.Metadata,
+		})
+	}
+	return proposalVotesResult, nil
 }
