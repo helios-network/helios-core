@@ -1195,7 +1195,7 @@ func (k *Keeper) SearchAttestationsByEthereumAddress(ctx sdk.Context, hyperionId
 			// Check if the claim contains the specified Ethereum address
 			switch claim := claim.(type) {
 			case *types.MsgDepositClaim:
-				if claim.EthereumSender == ethereumAddress {
+				if claim.EthereumSender == ethereumAddress || ethereumAddress == "" {
 					matchingAttestations = append(matchingAttestations, attestation)
 				}
 			}

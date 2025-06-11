@@ -313,16 +313,6 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	if req.Pagination == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "pagination is required")
 	}
-	if req.Address == "" { // return all tx's
-		finalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to search finalized txs")
-		}
-		formatErc20TransferTxs(ctx, k, finalizedTxs.Txs)
-		return &types.QueryGetTransactionsByPageAndSizeResponse{
-			Txs: finalizedTxs.Txs,
-		}, nil
-	}
 
 	startIndex := req.Pagination.Offset
 	endIndex := req.Pagination.Offset + req.Pagination.Limit
@@ -335,91 +325,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	// Collect all incoming transactions first (to process newest first)
 	incomingTxs := make([]*types.TransferTx, 0)
 
-	for _, counterpartyChainParam := range params.CounterpartyChainParams {
-		attestations, err := k.SearchAttestationsByEthereumAddress(ctx, counterpartyChainParam.HyperionId, req.Address)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to search attestations by Ethereum address")
-		}
-
-		for _, attestation := range attestations {
-			claim, err := k.UnpackAttestationClaim(attestation)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to unpack attestation claim")
-			}
-
-			switch claim := claim.(type) {
-			case *types.MsgDepositClaim:
-				status := "PROGRESS"
-				proof := &types.Proof{}
-				if attestation.Observed {
-					status = "BRIDGED"
-
-					validators := []string{}
-					proofs := []string{}
-					for _, validator := range attestation.Votes {
-						validatorSplitted := strings.Split(validator, ":")
-						validators = append(validators, cmn.AnyToHexAddress(validatorSplitted[0]).String())
-						proofs = append(proofs, validatorSplitted[1])
-					}
-					proof = &types.Proof{
-						Orchestrators: strings.Join(validators, ","),
-						Hashs:         strings.Join(proofs, ","),
-					}
-				}
-
-				receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
-
-				incomingTxs = append(incomingTxs, &types.TransferTx{
-					HyperionId:  claim.HyperionId,
-					Id:          claim.EventNonce,
-					Height:      claim.BlockHeight,
-					Sender:      cmn.AnyToHexAddress(claim.EthereumSender).String(),
-					DestAddress: cmn.AnyToHexAddress(claim.CosmosReceiver).String(),
-					SentToken: &types.Token{
-						Amount:   claim.Amount,
-						Contract: claim.TokenContract,
-					},
-					SentFee: &types.Token{
-						Amount:   math.NewInt(0),
-						Contract: "",
-					},
-					ReceivedToken: &types.Token{
-						Amount:   claim.Amount,
-						Contract: receivedTokenToDenom.Denom,
-					},
-					ReceivedFee: &types.Token{
-						Amount:   math.NewInt(0),
-						Contract: "",
-					},
-					Status:    status,
-					Direction: "IN",
-					ChainId:   counterpartyChainParam.BridgeChainId,
-					Proof:     proof,
-					TxHash:    claim.TxHash,
-				})
-			}
-		}
-	}
-
-	// Sort incoming transactions by height (newest first)
-	sort.Slice(incomingTxs, func(i, j int) bool {
-		return incomingTxs[i].Height > incomingTxs[j].Height
-	})
-
-	// Add incoming transactions to result with pagination
-	for i, tx := range incomingTxs {
-		if uint64(i) >= startIndex && uint64(i) < endIndex {
-			txs = append(txs, tx)
-		}
-		currentCount++
-
-		// If we've filled our page, return early
-		if uint64(len(txs)) >= req.Pagination.Limit {
-			break
-		}
-	}
-
-	// 2. SECOND PRIORITY: Process outgoing transactions
+	// 1. SECOND PRIORITY: Process outgoing transactions
 	// Adjust indices based on incoming transactions
 	remainingSlots := req.Pagination.Limit - uint64(len(txs))
 	if remainingSlots > 0 {
@@ -436,7 +342,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		// Filter by address and convert to TransferTx
 		outgoingTxs := make([]*types.TransferTx, 0)
 		for _, tx := range allOuts {
-			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address {
+			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address || req.Address == "" {
 				receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
 				receivedFeeToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
 
@@ -493,10 +399,98 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		}
 	}
 
+	// 2. SECOND PRIORITY: Process incoming transactions
+	remainingSlots = req.Pagination.Limit - uint64(len(txs))
+	if remainingSlots > 0 {
+		for _, counterpartyChainParam := range params.CounterpartyChainParams {
+			attestations, err := k.SearchAttestationsByEthereumAddress(ctx, counterpartyChainParam.HyperionId, req.Address)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to search attestations by Ethereum address")
+			}
+
+			for _, attestation := range attestations {
+				claim, err := k.UnpackAttestationClaim(attestation)
+				if err != nil {
+					return nil, errors.Wrap(err, "failed to unpack attestation claim")
+				}
+
+				switch claim := claim.(type) {
+				case *types.MsgDepositClaim:
+					status := "PROGRESS"
+					proof := &types.Proof{}
+					if attestation.Observed {
+						status = "BRIDGED"
+
+						validators := []string{}
+						proofs := []string{}
+						for _, validator := range attestation.Votes {
+							validatorSplitted := strings.Split(validator, ":")
+							validators = append(validators, cmn.AnyToHexAddress(validatorSplitted[0]).String())
+							proofs = append(proofs, validatorSplitted[1])
+						}
+						proof = &types.Proof{
+							Orchestrators: strings.Join(validators, ","),
+							Hashs:         strings.Join(proofs, ","),
+						}
+					}
+
+					receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+
+					incomingTxs = append(incomingTxs, &types.TransferTx{
+						HyperionId:  claim.HyperionId,
+						Id:          claim.EventNonce,
+						Height:      claim.BlockHeight,
+						Sender:      cmn.AnyToHexAddress(claim.EthereumSender).String(),
+						DestAddress: cmn.AnyToHexAddress(claim.CosmosReceiver).String(),
+						SentToken: &types.Token{
+							Amount:   claim.Amount,
+							Contract: claim.TokenContract,
+						},
+						SentFee: &types.Token{
+							Amount:   math.NewInt(0),
+							Contract: "",
+						},
+						ReceivedToken: &types.Token{
+							Amount:   claim.Amount,
+							Contract: receivedTokenToDenom.Denom,
+						},
+						ReceivedFee: &types.Token{
+							Amount:   math.NewInt(0),
+							Contract: "",
+						},
+						Status:    status,
+						Direction: "IN",
+						ChainId:   counterpartyChainParam.BridgeChainId,
+						Proof:     proof,
+						TxHash:    claim.TxHash,
+					})
+				}
+			}
+		}
+
+		// Sort incoming transactions by height (newest first)
+		sort.Slice(incomingTxs, func(i, j int) bool {
+			return incomingTxs[i].Height > incomingTxs[j].Height
+		})
+
+		// Add incoming transactions to result with pagination
+		for i, tx := range incomingTxs {
+			if uint64(i) >= startIndex && uint64(i) < endIndex {
+				txs = append(txs, tx)
+			}
+			currentCount++
+
+			// If we've filled our page, return early
+			if uint64(len(txs)) >= req.Pagination.Limit {
+				break
+			}
+		}
+	}
+
 	// 3. LOWEST PRIORITY: Get finalized transactions
 	// Adjust indices based on prior transactions
 	remainingSlots = req.Pagination.Limit - uint64(len(txs))
-	if remainingSlots > 0 {
+	if remainingSlots > 0 && req.Address != "" {
 		lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(req.Address))
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find last finalized tx index")
@@ -518,6 +512,13 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		mutable.Reverse(finalizedTxs)
 
 		txs = append(txs, finalizedTxs...)
+	} else if req.Address == "" {
+		finalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to search finalized txs")
+		}
+		mutable.Reverse(finalizedTxs.Txs)
+		txs = append(txs, finalizedTxs.Txs...)
 	}
 
 	// Format ERC20 tokens if requested
