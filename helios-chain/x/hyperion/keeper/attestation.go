@@ -173,7 +173,7 @@ func (k *Keeper) GetRequiredPower(totalPower math.Int, powerPercentage uint64) m
 // TryAttestation checks if an attestation has enough votes to be applied to the consensus state
 // and has not already been marked Observed, then calls processAttestation to actually apply it to the state,
 // and then marks it Observed and emits an event.
-func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
+func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 	fmt.Println("TryAttestation=======================")
@@ -211,14 +211,16 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 			// process the attestation, set Observed to true, and break
 			if attestationPower.GTE(requiredPower) {
 				lastEventNonce := k.GetLastObservedEventNonce(ctx, claim.GetHyperionId())
-				// this check is performed at the next level up so this should never panic
-				// outside of programmer error.
-				if claim.GetEventNonce() != lastEventNonce+1 {
-					metrics.ReportFuncError(k.svcTags)
-					panic("attempting to apply events to state out of order")
+				// // this check is performed at the next level up so this should never panic
+				// // outside of programmer error.
+				// if claim.GetEventNonce() != lastEventNonce+1 {
+				// 	metrics.ReportFuncError(k.svcTags)
+				// 	panic("attempting to apply events to state out of order")
+				// }
+				if lastEventNonce < claim.GetEventNonce() {
+					k.setLastObservedEventNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
+					k.SetNewLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
 				}
-				k.setLastObservedEventNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
-				k.SetNewLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
 
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)

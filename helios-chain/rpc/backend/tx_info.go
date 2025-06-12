@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"encoding/json"
+	"encoding/hex"
 	"fmt"
 	"math"
 	"math/big"
@@ -100,7 +100,14 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 }
 
 func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.RPCTransaction, error) {
-	tx, err := b.rpcClient.Tx(b.ctx, []byte(txHash), false)
+
+	txHashDecoded, err := hex.DecodeString(txHash)
+	if err != nil {
+		b.logger.Debug("failed to decode tx hash", "error", err.Error())
+		return nil, err
+	}
+
+	tx, err := b.rpcClient.Tx(b.ctx, txHashDecoded, false)
 	if err != nil {
 		return nil, err
 	}
@@ -127,10 +134,10 @@ func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.
 		gasPrice := block["baseFeePerGas"].(hexutil.Big)
 		to := cmn.AnyToHexAddress(evmtypes.HyperionPrecompileAddress)
 
-		stringifiedMsg, err := json.Marshal(hyperionDepositClaimMsg)
-		if err != nil {
-			return nil, err
-		}
+		// stringifiedMsg, err := json.Marshal(hyperionDepositClaimMsg)
+		// if err != nil {
+		// 	return nil, err
+		// }
 
 		return &rpctypes.RPCTransaction{
 			BlockHash:   &blockHash,
@@ -139,9 +146,9 @@ func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.
 			Gas:         hexutil.Uint64(0),
 			GasPrice:    &gasPrice,
 			Hash:        common.HexToHash(tx.Hash.String()),
-			Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
-			Nonce:       hexutil.Uint64(0),
-			To:          &to,
+			// Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
+			Nonce: hexutil.Uint64(0),
+			To:    &to,
 		}, nil
 	}
 

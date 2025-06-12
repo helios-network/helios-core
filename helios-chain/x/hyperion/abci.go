@@ -230,9 +230,10 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context, counterParty *types.Cou
 			// If no attestation becomes observed, when we get to the next nonce, every attestation in
 			// it will be skipped. The same will happen for every nonce after that.
 			h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId))
-			// if nonce == h.k.GetLastObservedEventNonce(ctx)+1 {
-			h.k.TryAttestation(ctx, attestation)
+			// if nonce == h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId)+1 {
+			// 	h.k.TryAttestation(ctx, attestation, false)
 			// }
+			h.k.TryAttestation(ctx, attestation, false)
 		}
 	}
 }
