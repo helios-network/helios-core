@@ -708,3 +708,37 @@ func (k msgServer) UpdateChainTokenLogo(c context.Context, msg *types.MsgUpdateC
 
 	return &types.MsgUpdateChainTokenLogoResponse{}, nil
 }
+
+func (k msgServer) UpdateAverageBlockTime(c context.Context, msg *types.MsgUpdateAverageBlockTime) (*types.MsgUpdateAverageBlockTimeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if msg.ChainId == 0 {
+		return nil, errors.Wrap(types.ErrInvalid, "ChainId cannot be 0")
+	}
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.ChainId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	hyperionParams.AverageBlockTime = msg.AverageBlockTime
+	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
+
+	_, err := k.CancelAllPendingOutgoingTxs(ctx, &types.MsgCancelAllPendingOutgoingTxs{
+		ChainId: hyperionParams.BridgeChainId,
+		Signer:  msg.Signer,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "CancelAllPendingOutgoingTxs failed")
+	}
+
+	return &types.MsgUpdateAverageBlockTimeResponse{}, nil
+}

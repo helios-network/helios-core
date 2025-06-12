@@ -174,6 +174,8 @@ type EthereumAPI interface {
 	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
+
+	GetCosmosTransactionByHashFormatted(txHash common.Hash) (*rpctypes.RPCTransaction, error)
 }
 
 var _ EthereumAPI = (*PublicAPI)(nil)
@@ -814,4 +816,9 @@ func (e *PublicAPI) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.
 func (e *PublicAPI) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error) {
 	e.logger.Debug("eth_getEpochComplete", "epochId", epochId)
 	return e.backend.GetEpochComplete(epochId)
+}
+
+func (e *PublicAPI) GetCosmosTransactionByHashFormatted(txHash common.Hash) (*rpctypes.RPCTransaction, error) {
+	e.logger.Debug("eth_getCosmosTransactionByHash", "txHash", txHash)
+	return e.backend.GetCosmosTransactionByHashFormatted(txHash)
 }

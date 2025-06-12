@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"math/big"
@@ -10,8 +11,10 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	"helios-core/helios-chain/precompiles/chronos"
+	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/precompiles/distribution"
 	"helios-core/helios-chain/precompiles/erc20creator"
 	"helios-core/helios-chain/precompiles/gov"
@@ -94,6 +97,55 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 		baseFee,
 		b.chainID,
 	)
+}
+
+func (b *Backend) GetCosmosTransactionByHashFormatted(txHash common.Hash) (*rpctypes.RPCTransaction, error) {
+	tx, err := b.rpcClient.Tx(b.ctx, txHash.Bytes(), false)
+	if err != nil {
+		return nil, err
+	}
+
+	txDecoded, err := b.clientCtx.TxConfig.TxDecoder()(tx.Tx)
+	if err != nil {
+		b.logger.Debug("failed to decode transaction in block", "height", tx.Height, "error", err.Error())
+		return nil, err
+	}
+
+	block, err := b.GetBlockByNumber(rpctypes.BlockNumber(tx.Height), false)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, msg := range txDecoded.GetMsgs() {
+		hyperionDepositClaimMsg, ok := msg.(*hyperiontypes.MsgDepositClaim)
+		if !ok {
+			continue
+		}
+		blockHash := block["hash"].(common.Hash)
+		blockNumber := block["number"].(hexutil.Big)
+		from := cmn.AnyToHexAddress(hyperionDepositClaimMsg.Orchestrator)
+		gasPrice := block["baseFeePerGas"].(hexutil.Big)
+		to := cmn.AnyToHexAddress(evmtypes.HyperionPrecompileAddress)
+
+		stringifiedMsg, err := json.Marshal(hyperionDepositClaimMsg)
+		if err != nil {
+			return nil, err
+		}
+
+		return &rpctypes.RPCTransaction{
+			BlockHash:   &blockHash,
+			BlockNumber: &blockNumber,
+			From:        from,
+			Gas:         hexutil.Uint64(0),
+			GasPrice:    &gasPrice,
+			Hash:        txHash,
+			Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
+			Nonce:       hexutil.Uint64(0),
+			To:          &to,
+		}, nil
+	}
+
+	return nil, nil
 }
 
 // getTransactionByHashPending find pending tx from mempool

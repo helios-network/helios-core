@@ -208,6 +208,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/update_chain_token_logo";
   }
 
+  rpc UpdateAverageBlockTime(MsgUpdateAverageBlockTime)
+      returns (MsgUpdateAverageBlockTimeResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_average_block_time";
+  }
+
   // <-- Testnet
 }
 
@@ -815,3 +820,14 @@ message MsgUpdateChainTokenLogo {
 }
 
 message MsgUpdateChainTokenLogoResponse {}
+
+message MsgUpdateAverageBlockTime {
+  option (amino.name) = "hyperion/MsgUpdateAverageBlockTime";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  uint64 average_block_time = 3;
+}
+
+message MsgUpdateAverageBlockTimeResponse {}
