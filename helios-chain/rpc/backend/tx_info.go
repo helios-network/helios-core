@@ -99,8 +99,8 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 	)
 }
 
-func (b *Backend) GetCosmosTransactionByHashFormatted(txHash common.Hash) (*rpctypes.RPCTransaction, error) {
-	tx, err := b.rpcClient.Tx(b.ctx, txHash.Bytes(), false)
+func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.RPCTransaction, error) {
+	tx, err := b.rpcClient.Tx(b.ctx, []byte(txHash), false)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (b *Backend) GetCosmosTransactionByHashFormatted(txHash common.Hash) (*rpct
 			From:        from,
 			Gas:         hexutil.Uint64(0),
 			GasPrice:    &gasPrice,
-			Hash:        txHash,
+			Hash:        common.HexToHash(tx.Hash.String()),
 			Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
 			Nonce:       hexutil.Uint64(0),
 			To:          &to,
