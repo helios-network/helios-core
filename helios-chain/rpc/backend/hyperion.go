@@ -76,6 +76,7 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 			ChainType:               chain.BridgeChainType,
 			Logo:                    chain.BridgeChainLogo,
 			HyperionId:              chain.HyperionId,
+			Paused:                  chain.Paused,
 		})
 	}
 
@@ -90,6 +91,7 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 		ChainType:               "evm",
 		Logo:                    bankRes.Metadata.Metadata.Logo,
 		HyperionId:              0,
+		Paused:                  false,
 	})
 
 	return counterpartyChainParams, nil

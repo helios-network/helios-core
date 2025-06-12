@@ -219,6 +219,7 @@ type HyperionChainRPC struct {
 	ChainType               string `json:"chainType"`
 	Logo                    string `json:"logo"`
 	HyperionId              uint64 `json:"hyperionId"`
+	Paused                  bool   `json:"paused"`
 }
 
 // ValidatorSignature struct for block signature information

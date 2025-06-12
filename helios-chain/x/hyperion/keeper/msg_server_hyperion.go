@@ -148,6 +148,9 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	if hyperionParams == nil {
 		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination chainId doesn't exists")
 	}
+	if hyperionParams.Paused {
+		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination chain is paused")
+	}
 	hyperionId := hyperionParams.HyperionId
 
 	txID, err := k.Keeper.AddToOutgoingPool(ctx, sender, common.HexToAddress(msg.Dest), msg.Amount, msg.BridgeFee, hyperionId, txHash)
