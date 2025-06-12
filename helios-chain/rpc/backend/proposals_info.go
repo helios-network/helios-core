@@ -111,8 +111,9 @@ func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Ui
 	proposalsResult := make([]map[string]interface{}, 0)
 	proposals, err := b.queryClient.Gov.Proposals(b.ctx, &govtypes.QueryProposalsRequest{
 		Pagination: &query.PageRequest{
-			Offset: (uint64(page) - 1) * uint64(size),
-			Limit:  uint64(size),
+			Offset:  (uint64(page) - 1) * uint64(size),
+			Limit:   uint64(size),
+			Reverse: true,
 		},
 	})
 	if err != nil {
