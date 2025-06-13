@@ -81,7 +81,7 @@ type EVMBackend interface {
 	RPCBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults, fullTx bool) (map[string]interface{}, error)
 	EthBlockByNumber(blockNum rpctypes.BlockNumber) (*ethtypes.Block, error)
 	EthBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults) (*ethtypes.Block, error)
-	GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.RPCTransaction, error)
+	GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error)
 
 	// Account Info
 	GetAccountType(address common.Address) (string, error)

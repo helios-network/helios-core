@@ -2,6 +2,7 @@ package backend
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"math"
 	"math/big"
@@ -11,10 +12,8 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
-	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	"helios-core/helios-chain/precompiles/chronos"
-	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/precompiles/distribution"
 	"helios-core/helios-chain/precompiles/erc20creator"
 	"helios-core/helios-chain/precompiles/gov"
@@ -99,7 +98,7 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 	)
 }
 
-func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.RPCTransaction, error) {
+func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error) {
 
 	txHashDecoded, err := hex.DecodeString(txHash)
 	if err != nil {
@@ -114,43 +113,82 @@ func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*rpctypes.
 
 	txDecoded, err := b.clientCtx.TxConfig.TxDecoder()(tx.Tx)
 	if err != nil {
-		b.logger.Debug("failed to decode transaction in block", "height", tx.Height, "error", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("tx decode error: %w", err)
 	}
 
-	block, err := b.GetBlockByNumber(rpctypes.BlockNumber(tx.Height), false)
-	if err != nil {
-		return nil, err
-	}
+	// 4. Récupérer les messages
+	msgs := txDecoded.GetMsgs()
 
-	for _, msg := range txDecoded.GetMsgs() {
-		hyperionDepositClaimMsg, ok := msg.(*hyperiontypes.MsgDepositClaim)
-		if !ok {
-			continue
+	// 5. Les encoder un par un proprement
+	var jsonMsgs []interface{}
+	for _, msg := range msgs {
+
+		msgJSON, err := b.clientCtx.Codec.MarshalInterfaceJSON(msg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal message to JSON: %w", err)
 		}
-		blockHash := block["hash"].(common.Hash)
-		blockNumber := block["number"].(hexutil.Big)
-		from := cmn.AnyToHexAddress(hyperionDepositClaimMsg.Orchestrator)
-		gasPrice := block["baseFeePerGas"].(hexutil.Big)
-		to := cmn.AnyToHexAddress(evmtypes.HyperionPrecompileAddress)
-
-		// stringifiedMsg, err := json.Marshal(hyperionDepositClaimMsg)
-		// if err != nil {
-		// 	return nil, err
-		// }
-
-		return &rpctypes.RPCTransaction{
-			BlockHash:   &blockHash,
-			BlockNumber: &blockNumber,
-			From:        from,
-			Gas:         hexutil.Uint64(0),
-			GasPrice:    &gasPrice,
-			Hash:        common.HexToHash(tx.Hash.String()),
-			// Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
-			Nonce: hexutil.Uint64(0),
-			To:    &to,
-		}, nil
+		jsonMsgs = append(jsonMsgs, json.RawMessage(msgJSON))
 	}
+
+	return &map[string]interface{}{
+		"hash":   tx.Hash,
+		"height": tx.Height,
+		"index":  tx.Index,
+		"msgs":   jsonMsgs,
+		"result": tx.TxResult,
+	}, nil
+
+	// return &rpctypes.RPCTransaction{
+	// 	// BlockHash:   &blockHash,
+	// 	// BlockNumber: &blockNumber,
+	// 	// From:        from,
+	// 	// Gas:         hexutil.Uint64(0),
+	// 	// GasPrice:    &gasPrice,
+	// 	// Hash:        common.HexToHash(tx.Hash.String()),
+	// 	// Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
+	// 	Nonce: hexutil.Uint64(found),
+	// 	// To:    &to,
+	// }, nil
+
+	// txDecoded, err := b.clientCtx.TxConfig.TxDecoder()(tx.Tx)
+	// if err != nil {
+	// 	b.logger.Debug("failed to decode transaction in block", "height", tx.Height, "error", err.Error())
+	// 	return nil, err
+	// }
+
+	// block, err := b.GetBlockByNumber(rpctypes.BlockNumber(tx.Height), false)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// for _, msg := range txDecoded.GetMsgs() {
+	// 	hyperionDepositClaimMsg, ok := msg.(*hyperiontypes.MsgDepositClaim)
+	// 	if !ok {
+	// 		continue
+	// 	}
+	// 	blockHash := block["hash"].(common.Hash)
+	// 	blockNumber := block["number"].(hexutil.Big)
+	// 	from := cmn.AnyToHexAddress(hyperionDepositClaimMsg.Orchestrator)
+	// 	gasPrice := block["baseFeePerGas"].(hexutil.Big)
+	// 	to := cmn.AnyToHexAddress(evmtypes.HyperionPrecompileAddress)
+
+	// 	// stringifiedMsg, err := json.Marshal(hyperionDepositClaimMsg)
+	// 	// if err != nil {
+	// 	// 	return nil, err
+	// 	// }
+
+	// 	return &rpctypes.RPCTransaction{
+	// 		BlockHash:   &blockHash,
+	// 		BlockNumber: &blockNumber,
+	// 		From:        from,
+	// 		Gas:         hexutil.Uint64(0),
+	// 		GasPrice:    &gasPrice,
+	// 		Hash:        common.HexToHash(tx.Hash.String()),
+	// 		// Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
+	// 		Nonce: hexutil.Uint64(0),
+	// 		To:    &to,
+	// 	}, nil
+	// }
 
 	return nil, nil
 }
