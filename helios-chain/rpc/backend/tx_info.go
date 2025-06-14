@@ -665,6 +665,14 @@ func (b *Backend) ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes
 		}
 		to := transaction.To
 
+		if to == nil {
+			txData := make(map[string]interface{})
+			txData["type"] = "UNKNOWN"
+			tx.ParsedInfo = txData
+			transactions = append(transactions, tx)
+			continue
+		}
+
 		switch to.Hex() {
 		case "0x0000000000000000000000000000000000000800": // Staking Tx
 			txData, err := b.decodeStakingTransaction(transaction)
