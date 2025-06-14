@@ -40,7 +40,8 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
 	if isCosmosOriginated {
-		k.SetHyperionContractBalance(ctx, hyperionId, tokenContract, totalAmount.Amount)
+		contractBalance := k.GetHyperionContractBalance(ctx, hyperionId, tokenContract)
+		k.SetHyperionContractBalance(ctx, hyperionId, tokenContract, contractBalance.Add(totalAmount.Amount))
 	}
 
 	// send coins to module in prep for burn
