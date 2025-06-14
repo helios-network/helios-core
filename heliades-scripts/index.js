@@ -26,7 +26,10 @@ const abi = [
       { "internalType": "string", "name": "denom", "type": "string" },
       { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
       { "internalType": "uint8", "name": "decimals", "type": "uint8" },
-      { "internalType": "string", "name": "logoBase64", "type": "string" }
+      { "internalType": "string", "name": "logoBase64", "type": "string" },
+      { "internalType": "address", "name": "mintAuthority", "type": "address" },
+      { "internalType": "address", "name": "pauseAuthority", "type": "address" },
+      { "internalType": "address", "name": "burnAuthority", "type": "address" }
     ],
     "name": "createErc20",
     "outputs": [
@@ -36,6 +39,8 @@ const abi = [
     "type": "function"
   }
 ];
+
+
 
 const delegateAbi = [
   {
@@ -188,23 +193,38 @@ const contract = new ethers.Contract(PRECOMPILE_CONTRACT_ADDRESS, abi, wallet);
 const tokenName = 'BTC2';
 const tokenSymbol = 'BTC2';
 const tokenDenom = 'uBTC222'; // denomination of one unit of the token
-const tokenTotalSupply = ethers.parseUnits('100', 18);
+const tokenTotalSupply = ethers.parseUnits('1000', 18);
 const tokenDecimals = 18;
 
-async function create(){
+const mintAuthority = "0x0000000000000000000000000000000000000000";  // address(0) = non-mintable
+const pauseAuthority = "0x0000000000000000000000000000000000000000"; // address(0) = non-pausable  
+const burnAuthority = "0x0000000000000000000000000000000000000000";  // address(0) = no special burn authority
+
+
+async function create() {
   try {
-    console.log('Création du token ERC20...');
-    
-    const tx = await contract.createErc20(tokenName, tokenSymbol, tokenDenom, tokenTotalSupply, tokenDecimals, "");
-    console.log('Transaction envoyée, hash :', tx.hash);
-
-    const receipt = await tx.wait();
-    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
-
-    
-    console.log("Contract address :", receipt.logs[0].data);
+      console.log('Creating ERC20 token...');
+      
+      // Updated call with 9 parameters instead of 6
+      const tx = await contract.createErc20(
+          tokenName,
+          tokenSymbol, 
+          tokenDenom,
+          tokenTotalSupply,
+          tokenDecimals,
+          "", // logoBase64
+          mintAuthority,  // NEW: Who can mint (address(0) = nobody)
+          pauseAuthority, // NEW: Who can pause (address(0) = nobody)
+          burnAuthority   // NEW: Who can burn (address(0) = nobody)
+      );
+      
+      console.log('Transaction sent, hash:', tx.hash);
+      const receipt = await tx.wait();
+      console.log('Transaction confirmed in block:', receipt.blockNumber);
+      console.log("Contract address:", receipt.logs[0].data);
+      
   } catch (error) {
-    console.error('Une erreur est survenue :', error);
+      console.error('An error occurred:', error);
   }
 }
 
@@ -718,12 +738,12 @@ async function uploadLogo() {
 
 async function main() {
   // await createCronCallBackData();
-  await createCron();
+  //await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  // await create();
+  await create();
   //await fetch();
   // await delegate();
   // await addNewConsensusProposal();
