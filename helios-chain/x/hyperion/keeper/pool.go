@@ -36,6 +36,14 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		metrics.ReportFuncError(k.svcTags)
 		return 0, errors.Wrapf(types.ErrInvalid, "token not found")
 	}
+
+	pendingTxs := k.GetPoolTransactions(ctx, hyperionId)
+	for _, tx := range pendingTxs {
+		if tx.Sender == sender.String() && tx.HyperionId == hyperionId {
+			return 0, errors.Wrap(types.ErrInvalid, "sender already has a pending tx")
+		}
+	}
+
 	isCosmosOriginated := tokenAddressToDenom.IsCosmosOriginated
 	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
@@ -80,9 +88,6 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 
 	// add a second index with the fee
 	k.appendToUnbatchedTXIndex(ctx, hyperionId, tokenContract, erc20Fee, nextID)
-
-	// todo: add second index for sender so that we can easily query: give pending Tx by sender
-	// todo: what about a second index for receiver?
 
 	return nextID, nil
 }

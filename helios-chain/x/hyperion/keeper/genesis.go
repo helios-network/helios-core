@@ -137,7 +137,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 			for _, vote := range attestation.Votes {
 				val, err := sdk.ValAddressFromBech32(vote)
 				if err != nil {
-					panic(err)
+					k.Logger(ctx).Error("failed to get last event by validator and hyperion id", "error", err)
+					continue
 				}
 				lastEvent := k.GetLastEventByValidatorAndHyperionId(ctx, attestation.HyperionId, val)
 				if claim.GetEventNonce() > lastEvent.EthereumEventNonce {
