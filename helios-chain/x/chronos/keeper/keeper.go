@@ -200,6 +200,9 @@ func (k *Keeper) CronOutTransfer(ctx sdk.Context, cron types.Cron, amount *big.I
 
 func (k *Keeper) CronBalance(ctx sdk.Context, cron types.Cron) sdkmath.Int {
 	account := k.EvmKeeper.GetAccount(ctx, cmn.AnyToHexAddress(cron.Address))
+	if account == nil {
+		return sdkmath.ZeroInt()
+	}
 	balance := sdkmath.NewIntFromBigInt(account.Balance)
 
 	return balance
