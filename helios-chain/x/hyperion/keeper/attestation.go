@@ -176,7 +176,6 @@ func (k *Keeper) GetRequiredPower(totalPower math.Int, powerPercentage uint64) m
 func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
-	fmt.Println("TryAttestation=======================")
 
 	claim, err := k.UnpackAttestationClaim(att)
 	if err != nil {
@@ -186,7 +185,6 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force b
 	// If the attestation has not yet been Observed, sum up the votes and see if it is ready to apply to the state.
 	// This conditional stops the attestation from accidentally being applied twice.
 	if !att.Observed {
-		fmt.Println("TryAttestation=======================")
 		// Sum the current powers of all validators who have voted and see if it passes the current threshold
 		totalPower := k.GetCurrentValsetTotalPower(ctx, claim.GetHyperionId())
 		requiredPower := k.GetRequiredPower(totalPower, 66)

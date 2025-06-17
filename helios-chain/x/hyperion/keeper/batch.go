@@ -315,7 +315,6 @@ func (k *Keeper) IterateOutgoingTXBatches(ctx sdk.Context, hyperionId uint64, cb
 		var batch types.OutgoingTxBatch
 		k.cdc.MustUnmarshal(iter.Value(), &batch)
 
-		k.Logger(ctx).Info("IterateOutgoingTXBatches", "batch", batch, "hyperionId", hyperionId)
 		// cb returns true to stop early
 		if cb(iter.Key(), &batch) {
 			break
@@ -334,7 +333,7 @@ func (k *Keeper) IterateAllOutgoingTXBatches(ctx sdk.Context, cb func(key []byte
 		var batch types.OutgoingTxBatch
 		k.cdc.MustUnmarshal(iter.Value(), &batch)
 
-		fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
+		// fmt.Println("IterateOutgoingTXBatches - batch: ", batch)
 		// cb returns true to stop early
 		if cb(iter.Key(), &batch) {
 			break
