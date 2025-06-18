@@ -15,6 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
+	testnet "helios-core/helios-chain/testnet"
 	"helios-core/helios-chain/x/hyperion/types"
 )
 
@@ -79,6 +80,10 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 			HyperionId: claim.GetHyperionId(),
 		}
 		isNewAttestation = true
+	}
+
+	if ctx.BlockHeight() > testnet.TESTNET_BLOCK_NUMBER_UPDATE_1 && att.ContainsVote(valAddr.String()) {
+		return nil, errors.Wrap(types.ErrAttestationAlreadyVoted, "Attestation already voted")
 	}
 
 	// Add the validator's vote to this attestation

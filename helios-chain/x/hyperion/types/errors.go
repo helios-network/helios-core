@@ -23,4 +23,5 @@ var (
 	ErrNonContiguousEthEventBlockHeight = errors.Register(ModuleName, 16, "non contiguous eth event nonce height")
 	ErrInvalidHyperionId                = errors.Register(ModuleName, 17, "invalid hyperion id")
 	ErrInvalidSigner                    = errors.Register(ModuleName, 18, "invalid signer")
+	ErrAttestationAlreadyVoted          = errors.Register(ModuleName, 19, "attestation already voted")
 )
