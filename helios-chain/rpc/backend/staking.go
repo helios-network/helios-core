@@ -384,6 +384,10 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 			return delegations, err
 		}
 
+		if len(delegationRewardsResponse.Rewards) == 0 {
+			delegationRewardsResponse.Rewards = append(delegationRewardsResponse.Rewards, sdk.DecCoin{Denom: "ahelios", Amount: math.NewInt(0).ToLegacyDec()})
+		}
+
 		boostQuery := &stakingtypes.QueryTotalBoostedDelegationRequest{
 			ValidatorAddr: delegation.ValidatorAddress,
 			DelegatorAddr: sdk.AccAddress(delegatorAddress.Bytes()).String(),
@@ -518,10 +522,6 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		ValidatorAddress: delegation.ValidatorAddress,
 	})
 
-	if len(delegationRewardsResponse.Rewards) == 0 {
-		delegationRewardsResponse.Rewards = append(delegationRewardsResponse.Rewards, sdk.DecCoin{Denom: "ahelios", Amount: math.NewInt(0).ToLegacyDec()})
-	}
-
 	if err != nil {
 		return nil, err
 	}
@@ -555,7 +555,7 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 }
 
 func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
-	// Récupérer le taux de commission du validateur
+	// Get validator commission rate
 	validator, err := b.queryClient.Staking.Validator(b.ctx, &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: validatorAddress,
 	})
@@ -564,21 +564,21 @@ func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
 	}
 	commissionRate := validator.Validator.Commission.CommissionRates.Rate.MustFloat64()
 
-	// Récupérer l'inflation
+	// Get inflation rate
 	inflationRes, err := b.queryClient.Mint.Inflation(b.ctx, &minttypes.QueryInflationRequest{})
 	if err != nil {
 		return "0%", err
 	}
 	inflation := inflationRes.Inflation.MustFloat64()
 
-	// Récupérer la community tax
+	// Get community tax
 	distributionParams, err := b.queryClient.Distribution.Params(b.ctx, &distributiontypes.QueryParamsRequest{})
 	if err != nil {
 		return "0%", err
 	}
 	communityTax := distributionParams.Params.CommunityTax.MustFloat64()
 
-	// Récupérer le bonded ratio
+	// Get bonded ratio
 	stakingPool, err := b.queryClient.Staking.Pool(b.ctx, &stakingtypes.QueryPoolRequest{})
 	if err != nil {
 		return "0%", err
