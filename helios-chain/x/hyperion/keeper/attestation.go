@@ -247,7 +247,6 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force b
 func (k *Keeper) processAttestation(ctx sdk.Context, claim types.EthereumClaim, att *types.Attestation) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
-	fmt.Println("processAttestation=======================")
 
 	// then execute in a new Tx so that we can store state on failure
 	xCtx, commit := ctx.CacheContext()
