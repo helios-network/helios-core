@@ -408,8 +408,6 @@ func (k msgServer) WithdrawClaim(c context.Context, msg *types.MsgWithdrawClaim)
 		return nil, errors.Wrap(err, "create attestation")
 	}
 
-	k.Keeper.Logger(ctx).Info("WithdrawClaim Received with success", "msg", msg)
-
 	return &types.MsgWithdrawClaimResponse{}, nil
 }
 

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	gomath "math"
 	"sort"
 
@@ -33,6 +34,7 @@ import (
 type Keeper struct {
 	cdc      codec.Codec         // The wire codec for binary encoding/decoding.
 	storeKey storetypes.StoreKey // Unexposed key to access store from sdk.Context
+	memKey   storetypes.StoreKey // Unexposed key to access memstore from sdk.Context
 
 	StakingKeeper  types.StakingKeeper
 	bankKeeper     types.BankKeeper
@@ -64,6 +66,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 func NewKeeper(
 	cdc codec.Codec,
 	storeKey storetypes.StoreKey,
+	memKey storetypes.StoreKey,
 	stakingKeeper types.StakingKeeper,
 	bankKeeper types.BankKeeper,
 	slashingKeeper types.SlashingKeeper,
@@ -83,6 +86,7 @@ func NewKeeper(
 	k := Keeper{
 		cdc:            cdc,
 		storeKey:       storeKey,
+		memKey:         memKey,
 		StakingKeeper:  stakingKeeper,
 		bankKeeper:     bankKeeper,
 		DistKeeper:     distKeeper,
@@ -775,6 +779,16 @@ func (k *Keeper) GetLastValidatorPower(ctx sdk.Context, validator common.Address
 
 func (k *Keeper) getStore(ctx sdk.Context) storetypes.KVStore {
 	return ctx.KVStore(k.storeKey)
+}
+
+func (k *Keeper) getMemStore(ctx sdk.Context) storetypes.KVStore { // TODO: using it for storing historical status txs, should be removed in the future
+	memStore := ctx.KVStore(k.memKey)
+	memStoreType := memStore.GetStoreType()
+
+	if memStoreType != storetypes.StoreTypeMemory {
+		panic(fmt.Sprintf("HyperionKeeper: invalid memory store type; got %s, expected: %s", memStoreType, storetypes.StoreTypeMemory))
+	}
+	return ctx.KVStore(k.memKey)
 }
 
 // SendToCommunityPool handles incorrect SendToCosmos calls to the community pool, since the calls

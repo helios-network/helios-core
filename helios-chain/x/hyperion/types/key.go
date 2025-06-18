@@ -17,6 +17,9 @@ const (
 
 	// QuerierRoute to be used for querierer msgs
 	QuerierRoute = ModuleName
+
+	// MemStoreKey to be used when creating the MemStore
+	MemStoreKey = "memory:hyperion"
 )
 
 var (

@@ -511,7 +511,11 @@ func initHeliosApp(
 			feemarkettypes.TransientKey,
 		)
 
-		memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+		memKeys = storetypes.NewMemoryStoreKeys(
+			capabilitytypes.MemStoreKey,
+			// store historical status
+			hyperiontypes.MemStoreKey,
+		)
 	)
 
 	bApp := baseapp.NewBaseApp(
@@ -1097,6 +1101,7 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 	app.HyperionKeeper = hyperionKeeper.NewKeeper(
 		app.codec,
 		app.keys[hyperiontypes.StoreKey],
+		app.memKeys[capabilitytypes.MemStoreKey],
 		app.StakingKeeper,
 		app.BankKeeper,
 		app.SlashingKeeper,
