@@ -25,7 +25,6 @@ const OutgoingTxBatchSize = 100
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
 func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
-	fmt.Println("BuildOutgoingTXBatch for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
