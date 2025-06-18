@@ -172,7 +172,6 @@ func (k *Keeper) StoreBatch(ctx sdk.Context, batch *types.OutgoingTxBatch) {
 	// set the current block height when storing the batch
 	batch.Block = uint64(ctx.BlockHeight())
 	key := types.GetOutgoingTxBatchKey(common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
-	fmt.Println("StoreBatch - key: ", key)
 	store.Set(key, k.cdc.MustMarshal(batch))
 
 	blockKey := types.GetOutgoingTxBatchBlockKey(batch.HyperionId, batch.Block)
@@ -221,7 +220,6 @@ func (k *Keeper) DeleteBatchs(ctx sdk.Context, hyperionId uint64) {
 
 // pickUnbatchedTX find TX in pool and remove from "available" second index
 func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, maxElements int, hyperionId uint64) ([]*types.OutgoingTransferTx, error) {
-	fmt.Println("pickUnbatchedTX for hyperionId: ", hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -229,7 +227,6 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, 
 	var err error
 
 	k.IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx, hyperionId, tokenContract, func(txID uint64, tx *types.OutgoingTransferTx) bool {
-		fmt.Println("pickUnbatchedTX - tx: ", tx)
 		if tx != nil && tx.Fee != nil {
 			selectedTx = append(selectedTx, tx)
 			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Fee, txID)
@@ -249,13 +246,11 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, 
 
 // GetOutgoingTXBatch loads a batch object. Returns nil when not exists.
 func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, nonce uint64, hyperionId uint64) *types.OutgoingTxBatch {
-	fmt.Println("GetOutgoingTXBatch: ", tokenContract, nonce, hyperionId)
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetOutgoingTxBatchKey(tokenContract, nonce, hyperionId)
-	fmt.Println("GetOutgoingTxBatchKey - key: ", key)
 	bz := store.Get(key)
 	if len(bz) == 0 {
 		return nil
@@ -263,7 +258,6 @@ func (k *Keeper) GetOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addres
 
 	var b types.OutgoingTxBatch
 	k.cdc.MustUnmarshal(bz, &b)
-	fmt.Printf("GetOutgoingTxBatch - b: %+v\n", b)
 	for _, tx := range b.Transactions {
 		tx.Token.Contract = tokenContract.Hex()
 		tx.Fee.Contract = tokenContract.Hex()
