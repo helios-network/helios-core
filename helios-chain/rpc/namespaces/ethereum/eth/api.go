@@ -146,6 +146,7 @@ type EthereumAPI interface {
 	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
 	GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error)
 	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
+	GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error)
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
 	GetActiveValidatorCount() (int, error)
@@ -696,6 +697,11 @@ func (e *PublicAPI) GetValidatorWithHisDelegationAndCommission(address common.Ad
 	return e.backend.GetValidatorWithHisDelegationAndCommission(address)
 }
 
+func (e *PublicAPI) GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error) {
+	e.logger.Debug("eth_getValidatorWithHisAssetsAndCommission", "address", address)
+	return e.backend.GetValidatorWithHisAssetsAndCommission(address)
+}
+
 func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {
 	e.logger.Debug("eth_getValidatorAndHisCommission", "address", address)
 	return e.backend.GetValidatorAndHisCommission(address)
@@ -822,3 +828,4 @@ func (e *PublicAPI) GetCosmosTransactionByHashFormatted(txHash string) (*map[str
 	e.logger.Debug("eth_getCosmosTransactionByHashFormatted", "txHash", txHash)
 	return e.backend.GetCosmosTransactionByHashFormatted(txHash)
 }
+

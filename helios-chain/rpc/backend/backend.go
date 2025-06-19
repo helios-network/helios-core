@@ -152,6 +152,7 @@ type EVMBackend interface {
 	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
 	GetValidatorOutStandingRewards(address common.Address) (*rpctypes.ValidatorRewardRPC, error)
 	GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error)
+	GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error)
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
 	GetActiveValidatorCount() (int, error)

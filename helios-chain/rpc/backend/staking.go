@@ -161,6 +161,35 @@ func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Addr
 	}, nil
 }
 
+// GetValidatorWithHisAssetsAndCommission returns validator info with assets and commission
+func (b *Backend) GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error) {
+	validator, err := b.GetValidator(address)
+	if err != nil {
+		return nil, err
+	}
+
+	commission, err := b.GetValidatorCommission(address)
+	if err != nil {
+		return nil, err
+	}
+
+	validatorBech32Addr := sdk.AccAddress(address.Bytes())
+	valAddr := sdk.ValAddress(validatorBech32Addr)
+
+	assetsResp, err := b.queryClient.Staking.ValidatorAssets(b.ctx, &stakingtypes.QueryValidatorAssetsRequest{
+		ValidatorAddr: valAddr.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &rpctypes.ValidatorWithCommissionAndAssetsRPC{
+		Validator:  *validator,
+		Assets:     assetsResp.Assets,
+		Commission: *commission,
+	}, nil
+}
+
 func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error) {
 	if page <= 0 {
 		return nil, fmt.Errorf("page must be greater than 0")
