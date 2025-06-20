@@ -59,6 +59,7 @@ type EthereumAPI interface {
 	GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNumber, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
 	GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.ParsedRPCTransaction, error)
+	GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]map[string]interface{}, error)
 	// eth_getBlockReceipts
 
 	// Writing Transactions
@@ -827,5 +828,10 @@ func (e *PublicAPI) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCom
 func (e *PublicAPI) GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error) {
 	e.logger.Debug("eth_getCosmosTransactionByHashFormatted", "txHash", txHash)
 	return e.backend.GetCosmosTransactionByHashFormatted(txHash)
+}
+
+func (e *PublicAPI) GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getAllTransactionReceiptsByBlockNumber", "height", blockNum.Int64())
+	return e.backend.GetAllTransactionReceiptsByBlockNumber(blockNum)
 }
 

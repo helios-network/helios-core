@@ -304,7 +304,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	}
 
 	// parse tx logs from events
-	msgIndex := int(res.MsgIndex) // #nosec G701 -- checked for int overflow already
+	msgIndex := int(res.MsgIndex) // #nosec G701
 	logs, err := TxLogsFromEvents(blockRes.TxsResults[res.TxIndex].Events, msgIndex)
 	if err != nil {
 		b.logger.Debug("failed to parse logs", "hash", hexTx, "error", err.Error())
@@ -370,6 +370,131 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	}
 
 	return receipt, nil
+}
+
+func (b *Backend) GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]map[string]interface{}, error) {
+	resBlock, err := b.TendermintBlockByNumber(blockNum)
+	if err != nil || resBlock == nil || resBlock.Block == nil {
+		return nil, nil
+	}
+
+	blockRes, err := b.rpcClient.BlockResults(b.ctx, &resBlock.Block.Height)
+	if err != nil {
+		return nil, nil
+	}
+
+	ethMsgs := b.EthMsgsFromTendermintBlock(resBlock, blockRes)
+	if len(ethMsgs) == 0 {
+		return []map[string]interface{}{}, nil
+	}
+
+	chainID, err := b.ChainID()
+	if err != nil {
+		return nil, err
+	}
+
+	baseFee, _ := b.BaseFee(blockRes)
+	receipts := make([]map[string]interface{}, 0, len(ethMsgs))
+	
+	txMap := make(map[string]struct {
+		idx    int
+		msgIdx int
+		gas    uint64
+		failed bool
+	})
+
+	for txIdx, tx := range resBlock.Block.Txs {
+		decodedTx, err := b.clientCtx.TxConfig.TxDecoder()(tx)
+		if err != nil {
+			continue
+		}
+
+		txResult := blockRes.TxsResults[txIdx]
+		gasUsed := uint64(txResult.GasUsed)
+		failed := txResult.Code != 0
+
+		for msgIdx, msg := range decodedTx.GetMsgs() {
+			if ethMsg, ok := msg.(*evmtypes.MsgEthereumTx); ok {
+				txMap[ethMsg.Hash] = struct {
+					idx    int
+					msgIdx int
+					gas    uint64
+					failed bool
+				}{txIdx, msgIdx, gasUsed, failed}
+			}
+		}
+	}
+
+	var cumulativeGas uint64
+	blockHash := common.BytesToHash(resBlock.Block.Header.Hash()).Hex()
+	blockHeight := hexutil.Uint64(resBlock.Block.Height)
+
+	for ethIdx, ethMsg := range ethMsgs {
+		txData, err := evmtypes.UnpackTxData(ethMsg.Data)
+		if err != nil {
+			continue
+		}
+
+		txInfo, exists := txMap[ethMsg.Hash]
+		if !exists {
+			continue
+		}
+
+		cumulativeGas += txInfo.gas
+
+		from, err := ethMsg.GetSender(chainID.ToInt())
+		if err != nil {
+			continue
+		}
+
+		logs, _ := TxLogsFromEvents(blockRes.TxsResults[txInfo.idx].Events, txInfo.msgIdx)
+		if logs == nil {
+			logs = []*ethtypes.Log{}
+		}
+
+		status := hexutil.Uint(ethtypes.ReceiptStatusSuccessful)
+		if txInfo.failed {
+			status = hexutil.Uint(ethtypes.ReceiptStatusFailed)
+		}
+
+		txResult := &types.TxResult{
+			Height:            resBlock.Block.Height,
+			TxIndex:           uint32(txInfo.idx),
+			MsgIndex:          uint32(txInfo.msgIdx),
+			EthTxIndex:        int32(ethIdx),
+			GasUsed:           txInfo.gas,
+			Failed:            txInfo.failed,
+			CumulativeGasUsed: cumulativeGas,
+		}
+
+		receipt := map[string]interface{}{
+			"status":            status,
+			"cumulativeGasUsed": hexutil.Uint64(cumulativeGas),
+			"logsBloom":         ethtypes.BytesToBloom(ethtypes.LogsBloom(logs)),
+			"logs":              logs,
+			"transactionHash":   common.HexToHash(ethMsg.Hash),
+			"contractAddress":   nil,
+			"gasUsed":           hexutil.Uint64(b.GetGasUsed(txResult, txData.GetGasPrice(), txData.GetGas())),
+			"blockHash":         blockHash,
+			"blockNumber":       blockHeight,
+			"transactionIndex":  hexutil.Uint64(ethIdx),
+			"from":              from,
+			"to":                txData.GetTo(),
+			"type":              hexutil.Uint(ethMsg.AsTransaction().Type()),
+		}
+
+		if txData.GetTo() == nil {
+			receipt["contractAddress"] = crypto.CreateAddress(from, txData.GetNonce())
+		}
+
+		if dynamicTx, ok := txData.(*evmtypes.DynamicFeeTx); ok && baseFee != nil {
+			receipt["effectiveGasPrice"] = hexutil.Big(*dynamicTx.EffectiveGasPrice(baseFee))
+		}
+
+		receipts = append(receipts, receipt)
+	}
+
+	return receipts, nil
 }
 
 // GetTransactionLogs returns the transaction logs identified by hash.

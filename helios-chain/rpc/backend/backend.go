@@ -125,6 +125,7 @@ type EVMBackend interface {
 	GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNumber, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error)
 	GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpctypes.ParsedRPCTransaction, error)
+	GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]map[string]interface{}, error)
 	GetTotalTransactionCount() (*hexutil.Uint64, error)
 
 	// Send Transaction
