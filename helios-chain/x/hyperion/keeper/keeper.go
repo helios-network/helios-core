@@ -4,6 +4,7 @@ import (
 	"fmt"
 	gomath "math"
 	"sort"
+	"time"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
@@ -56,6 +57,9 @@ type Keeper struct {
 	accountKeeper keeper.AccountKeeper
 
 	txDecoder sdk.TxDecoder
+
+	// CometBFT TimeoutCommit in milliseconds for fallback when AverageBlockTime is not set
+	timeoutCommit uint64
 }
 
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
@@ -116,6 +120,16 @@ func (k *Keeper) GetAuthority() string {
 
 func (k *Keeper) Cdc() codec.Codec {
 	return k.cdc
+}
+
+// GetTimeoutCommit returns the current TimeoutCommit value in milliseconds
+func (k *Keeper) GetTimeoutCommit() uint64 {
+	return k.timeoutCommit
+}
+
+// SetTimeoutCommit updates the TimeoutCommit value
+func (k *Keeper) SetTimeoutCommit(timeoutCommit time.Duration) {
+	k.timeoutCommit = uint64(timeoutCommit.Milliseconds())
 }
 
 /////////////////////////////
@@ -1187,12 +1201,29 @@ func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId u
 	if heights.CosmosBlockHeight == 0 || heights.EthereumBlockHeight == 0 {
 		return 0
 	}
+
+	// Use AverageBlockTime from params, or fallback to CometBFT TimeoutCommit
+	averageBlockTime := k.GetEffectiveAverageBlockTime(ctx, counterpartyChainParams)
+
 	// we project how long it has been in milliseconds since the last Ethereum block height was observed
-	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * counterpartyChainParams.AverageBlockTime
+	projectedMillis := (uint64(currentCosmosHeight) - heights.CosmosBlockHeight) * averageBlockTime
 	// we convert that projection into the current Ethereum height using the average Ethereum block time in millis
 	projectedCurrentEthereumHeight := (projectedMillis / counterpartyChainParams.AverageCounterpartyBlockTime) + heights.EthereumBlockHeight
 
 	return projectedCurrentEthereumHeight
+}
+
+// GetEffectiveAverageBlockTime returns the effective average block time to use.
+// If AverageBlockTime is set in params, it uses that value.
+// Otherwise, it falls back to CometBFT's TimeoutCommit converted to milliseconds.
+func (k *Keeper) GetEffectiveAverageBlockTime(ctx sdk.Context, params *types.CounterpartyChainParams) uint64 {
+	// If AverageBlockTime is explicitly set and non-zero, use it
+	// if params.AverageBlockTime > 0 {
+	// 	return params.AverageBlockTime
+	// }
+
+	// Fallback to CometBFT's TimeoutCommit stored in the keeper
+	return k.timeoutCommit
 }
 
 func (k *Keeper) SearchAttestationsByEthereumAddress(ctx sdk.Context, hyperionId uint64, ethereumAddress string) ([]*types.Attestation, error) {

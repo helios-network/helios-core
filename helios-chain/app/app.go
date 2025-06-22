@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	cmtcfg "github.com/cometbft/cometbft/config"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cometbft/cometbft/libs/pubsub"
 
@@ -756,6 +757,10 @@ func (app *HeliosApp) RegisterTxService(clientCtx client.Context) {
 
 func (app *HeliosApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
+}
+
+func (app *HeliosApp) RegisterCometBftConfig(config *cmtcfg.Config) {
+	app.HyperionKeeper.SetTimeoutCommit(config.Consensus.TimeoutCommit)
 }
 
 func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptions) {

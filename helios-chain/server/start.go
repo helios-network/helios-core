@@ -68,6 +68,10 @@ type StartOptions struct {
 	DBOpener        DBOpener
 }
 
+type AppWithCometBftConfig interface {
+	RegisterCometBftConfig(config *cmtcfg.Config)
+}
+
 // NewDefaultStartOptions use the default db opener provided in tm-db.
 func NewDefaultStartOptions(appCreator types.AppCreator, defaultNodeHome string) StartOptions {
 	return StartOptions{
@@ -398,6 +402,12 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 			}
 		}()
 	}
+
+	appWithCometBftConfig, ok := app.(AppWithCometBftConfig)
+	if ok {
+		appWithCometBftConfig.RegisterCometBftConfig(svrCtx.Config)
+	}
+
 	// Add the tx service to the gRPC router. We only need to register this
 	// service if API or gRPC or JSONRPC is enabled, and avoid doing so in the general
 	// case, because it spawns a new local tendermint RPC client.
