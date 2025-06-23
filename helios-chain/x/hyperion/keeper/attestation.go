@@ -51,21 +51,21 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 		lastEvent = k.GetLastEventByValidatorAndHyperionId(ctx, claim.GetHyperionId(), valAddr)
 	}
 
-	if claim.GetBlockHeight() < lastObservedBlockHeight {
-		// test
-		// 3 april 2025
-		// maybe exclude claim.GetBlockHeight() < GetLastObservedEthereumBlockHeight for increase security
-		// not sure if we have some number of tx detected can stuck some hyperions
-		metrics.ReportFuncError(k.svcTags)
-		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d , ethHeight=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce(), lastObservedBlockHeight))
-		return nil, errors.Wrap(types.ErrNonContiguousEthEventBlockHeight, fmt.Sprintf("ErrNonContiguousEthEventBlockHeight %d < %d for Validator=%s", claim.GetBlockHeight(), lastObservedBlockHeight, valAddr.String()))
-	}
+	// if claim.GetBlockHeight() < lastObservedBlockHeight {
+	// 	// test
+	// 	// 3 april 2025
+	// 	// maybe exclude claim.GetBlockHeight() < GetLastObservedEthereumBlockHeight for increase security
+	// 	// not sure if we have some number of tx detected can stuck some hyperions
+	// 	metrics.ReportFuncError(k.svcTags)
+	// 	k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d , ethHeight=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce(), lastObservedBlockHeight))
+	// 	return nil, errors.Wrap(types.ErrNonContiguousEthEventBlockHeight, fmt.Sprintf("ErrNonContiguousEthEventBlockHeight %d < %d for Validator=%s", claim.GetBlockHeight(), lastObservedBlockHeight, valAddr.String()))
+	// }
 
-	if claim.GetEventNonce() < lastEvent.EthereumEventNonce+1 { // accept superior and same
-		metrics.ReportFuncError(k.svcTags)
-		k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
-		return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))
-	}
+	// if claim.GetEventNonce() < lastEvent.EthereumEventNonce+1 { // accept superior and same
+	// 	metrics.ReportFuncError(k.svcTags)
+	// 	k.Logger(ctx).Info(fmt.Sprintf("New Attest Nonce of Hyperion Orchestrator %s Nonce=%d , claim Attested Nonce=%d", valAddr.String(), lastEvent.EthereumEventNonce, claim.GetEventNonce()))
+	// 	return nil, errors.Wrap(types.ErrNonContiguousEventNonce, fmt.Sprintf("ErrNonContiguousEventNonce %d != %d for Validator=%s", claim.GetEventNonce(), lastEvent.EthereumEventNonce+1, valAddr.String()))
+	// }
 
 	// Tries to get an attestation with the same eventNonce and claim as the claim that was submitted.
 	att := k.GetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash())
