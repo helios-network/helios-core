@@ -118,6 +118,8 @@ var (
 	OutgoingExternalDataKey = []byte{0x1f}
 
 	OutgoingExternalDataBlockKey = []byte{0x20}
+
+	NonceObservedKey = []byte{0x21}
 )
 
 func GetBlacklistStoreKey(addr common.Address) []byte {
@@ -380,5 +382,13 @@ func GetOutgoingExternalDataBlockKey(hyperionId uint64, block uint64) []byte {
 	buf = append(buf, OutgoingExternalDataBlockKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(block)...)
+	return buf
+}
+
+func GetNonceObservedKey(hyperionId uint64, nonce uint64) []byte {
+	buf := make([]byte, 0, len(NonceObservedKey)+8+8)
+	buf = append(buf, NonceObservedKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
 	return buf
 }

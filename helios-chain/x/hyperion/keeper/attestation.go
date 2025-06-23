@@ -82,6 +82,14 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 		isNewAttestation = true
 	}
 
+	if att.Observed {
+		return nil, errors.Wrap(types.ErrAttestationAlreadyObserved, "Attestation already Observed")
+	}
+
+	if k.NonceAlreadyObserved(ctx, claim.GetHyperionId(), claim.GetEventNonce()) {
+		return nil, errors.Wrap(types.ErrAttestationAlreadyObserved, "Attestation already Observed")
+	}
+
 	if ctx.BlockHeight() > testnet.TESTNET_BLOCK_NUMBER_UPDATE_1 && att.ContainsVote(valAddr.String()) {
 		return nil, errors.Wrap(types.ErrAttestationAlreadyVoted, "Attestation already voted")
 	}
@@ -224,7 +232,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force b
 					k.setLastObservedEventNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
 					k.SetNewLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
 				}
-
+				k.StoreNonceObserved(ctx, claim.GetHyperionId(), claim.GetEventNonce())
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)
 

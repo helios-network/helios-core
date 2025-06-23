@@ -115,6 +115,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context, counterParty *types.Co
 				if att.Observed {
 					h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "pruning", att.HyperionId)
 					h.k.DeleteAttestation(ctx, att.HyperionId, att)
+					h.k.StoreNonceObserved(ctx, att.HyperionId, nonce)
 
 					claim, err := h.k.UnpackAttestationClaim(att)
 					if err != nil {
