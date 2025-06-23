@@ -83,7 +83,6 @@ func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, 
 	evmAddressOfTheValidator := common.BytesToAddress(cosmosAddressOfTheValidator.Bytes()).String()
 
 	apr, err := b.GetValidatorAPR(validator.OperatorAddress)
-
 	if err != nil {
 		b.logger.Error("GetValidatorAPR", "err", err)
 		return nil, err
@@ -106,12 +105,10 @@ func (b *Backend) GetValidator(address common.Address) (*rpctypes.ValidatorRPC, 
 
 func (b *Backend) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {
 	validator, err := b.GetValidator(address)
-
 	if err != nil {
 		return nil, err
 	}
 	commission, err := b.GetValidatorCommission(address)
-
 	if err != nil {
 		return nil, err
 	}
@@ -123,12 +120,10 @@ func (b *Backend) GetValidatorAndHisCommission(address common.Address) (*rpctype
 
 func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error) {
 	validator, err := b.GetValidator(address)
-
 	if err != nil {
 		return nil, err
 	}
 	delegation, err := b.GetDelegation(address, address)
-
 	if err != nil {
 		return nil, err
 	}
@@ -140,17 +135,14 @@ func (b *Backend) GetValidatorAndHisDelegation(address common.Address) (*rpctype
 
 func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndDelegationRPC, error) {
 	validator, err := b.GetValidator(address)
-
 	if err != nil {
 		return nil, err
 	}
 	delegation, err := b.GetDelegation(address, address)
-
 	if err != nil {
 		return nil, err
 	}
 	commission, err := b.GetValidatorCommission(address)
-
 	if err != nil {
 		return nil, err
 	}
@@ -183,9 +175,30 @@ func (b *Backend) GetValidatorWithHisAssetsAndCommission(address common.Address)
 		return nil, err
 	}
 
+	whitelistedAssetsResp, err := b.queryClient.Erc20.WhitelistedAssets(b.ctx, &erc20types.QueryWhitelistedAssetsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	enrichedAssets := make([]rpctypes.ValidatorAssetRPC, 0, len(assetsResp.Assets))
+	for _, asset := range assetsResp.Assets {
+		idx := slices.IndexFunc(whitelistedAssetsResp.Assets, func(c erc20types.Asset) bool { return c.Denom == asset.Denom })
+		contractAddress := ""
+		if idx != -1 {
+			contractAddress = whitelistedAssetsResp.Assets[idx].ContractAddress
+		}
+
+		enrichedAssets = append(enrichedAssets, rpctypes.ValidatorAssetRPC{
+			Denom:           asset.Denom,
+			BaseAmount:      asset.BaseAmount,
+			WeightedAmount:  asset.WeightedAmount,
+			ContractAddress: contractAddress,
+		})
+	}
+
 	return &rpctypes.ValidatorWithCommissionAndAssetsRPC{
 		Validator:  *validator,
-		Assets:     assetsResp.Assets,
+		Assets:     enrichedAssets,
 		Commission: *commission,
 	}, nil
 }
@@ -408,7 +421,6 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 			DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
 			ValidatorAddress: delegation.ValidatorAddress,
 		})
-
 		if err != nil {
 			return delegations, err
 		}
@@ -479,7 +491,6 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 }
 
 func (b *Backend) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
-
 	// transform evm address to validator cosmos address
 	validatorBech32Addr := sdk.AccAddress(validatorAddress.Bytes())
 	valAddr := sdk.ValAddress(validatorBech32Addr)
@@ -550,7 +561,6 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		DelegatorAddress: sdk.AccAddress(address.Bytes()).String(),
 		ValidatorAddress: delegation.ValidatorAddress,
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -614,7 +624,7 @@ func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
 	}
 
 	supply, err := b.queryClient.Bank.SupplyOf(b.ctx, &banktypes.QuerySupplyOfRequest{
-		Denom: "ahelios", //stakingPool.Pool.BondedTokens.Denom,
+		Denom: "ahelios", // stakingPool.Pool.BondedTokens.Denom,
 	})
 	if err != nil {
 		return "0%", err

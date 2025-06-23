@@ -200,10 +200,18 @@ type ValidatorWithCommissionAndDelegationRPC struct {
 	Commission ValidatorCommissionRPC `json:"commission"`
 }
 
+// ValidatorAssetRPC represents an asset with contract address
+type ValidatorAssetRPC struct {
+	Denom           string                `json:"denom"`
+	BaseAmount      cosmossdk_io_math.Int `json:"baseAmount"`
+	WeightedAmount  cosmossdk_io_math.Int `json:"weightedAmount"`
+	ContractAddress string                `json:"contractAddress"`
+}
+
 type ValidatorWithCommissionAndAssetsRPC struct {
-	Validator   ValidatorRPC                    `json:"validator"`
-	Assets      []stakingtypes.AssetWeight      `json:"assets"`
-	Commission  ValidatorCommissionRPC          `json:"commission"`
+	Validator  ValidatorRPC           `json:"validator"`
+	Assets     []ValidatorAssetRPC    `json:"assets"`
+	Commission ValidatorCommissionRPC `json:"commission"`
 }
 
 type WhitelistedAssetRPC struct {
