@@ -1395,12 +1395,18 @@ func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed strin
 
 func (k *Keeper) StoreNonceObserved(ctx sdk.Context, hyperionId uint64, nonce uint64) {
 	store := ctx.KVStore(k.storeKey)
+	if ctx.BlockHeight() < 244300 {
+		return
+	}
 	nonceObservedStore := prefix.NewStore(store, types.NonceObservedKey)
 	nonceObservedStore.Set(types.GetNonceObservedKey(hyperionId, nonce), []byte{})
 }
 
 func (k *Keeper) NonceAlreadyObserved(ctx sdk.Context, hyperionId uint64, nonce uint64) bool {
 	store := ctx.KVStore(k.storeKey)
+	if ctx.BlockHeight() < 244300 {
+		return false
+	}
 	nonceObservedStore := prefix.NewStore(store, types.NonceObservedKey)
 	return nonceObservedStore.Has(types.GetNonceObservedKey(hyperionId, nonce))
 }
