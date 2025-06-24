@@ -198,9 +198,15 @@ func (k *Keeper) GetAllPendingSendToChain(c context.Context, req *types.QueryAll
 	res.UnbatchedTransfers = make([]*types.OutgoingTransferTx, 0)
 
 	for _, batch := range batches {
-		res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...)
+		if batch.HyperionId == req.HyperionId {
+			res.TransfersInBatches = append(res.TransfersInBatches, batch.Transactions...)
+		}
 	}
-	res.UnbatchedTransfers = append(res.UnbatchedTransfers, unbatchedTx...)
+	for _, tx := range unbatchedTx {
+		if tx.HyperionId == req.HyperionId {
+			res.UnbatchedTransfers = append(res.UnbatchedTransfers, tx)
+		}
+	}
 
 	return res, nil
 }
