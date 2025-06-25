@@ -290,6 +290,52 @@ func (c *CachedPublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page 
 	return nil, fmt.Errorf("invalid return type for GetTokensByChainIdAndPageAndSize")
 }
 
+// GetActiveValidatorCount returns active validator count with caching
+func (c *CachedPublicAPI) GetActiveValidatorCount() (int, error) {
+	methodName := "GetActiveValidatorCount"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return 0, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(results) > 0 {
+		if count, ok := results[0].(int); ok {
+			return count, nil
+		}
+	}
+	return 0, fmt.Errorf("invalid return type for GetActiveValidatorCount")
+}
+
+// GetTokenDetails returns token details with caching
+func (c *CachedPublicAPI) GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error) {
+	methodName := "GetTokenDetails"
+	args := []interface{}{tokenAddress}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if token, ok := results[0].(*banktypes.FullMetadata); ok {
+			return token, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetTokenDetails")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
