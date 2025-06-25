@@ -19,8 +19,6 @@ func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Addr
 		return nil, errors.New("invalid page or size parameters")
 	}
 
-	b.logger.Info("GetHyperionAccountTransferTxsByPageAndSize", "address", address, "offset", (uint64(page)-1)*uint64(size), "limit", uint64(size))
-
 	req := &hyperiontypes.QueryGetTransactionsByPageAndSizeRequest{
 		Address: address.String(),
 		Pagination: &query.PageRequest{
