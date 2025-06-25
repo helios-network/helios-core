@@ -445,32 +445,6 @@ func (k Keeper) GetAttestationMapping(ctx sdk.Context, hyperionId uint64) map[ui
 	return out
 }
 
-// GetAttestationMapping returns a mapping of eventnonce -> attestations at that nonce
-// func (k *Keeper) GetAttestationMapping(ctx sdk.Context, hyperionId uint64) (out map[uint64][]*types.Attestation) {
-// 	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-// 	// defer doneFn()
-
-// 	out = make(map[uint64][]*types.Attestation)
-// 	k.IterateAttestations(ctx, hyperionId, func(_ []byte, attestation *types.Attestation) (stop bool) {
-// 		claim, err := k.UnpackAttestationClaim(attestation)
-// 		if err != nil {
-// 			metrics.ReportFuncError(k.svcTags)
-// 			panic("couldn't UnpackAttestationClaim")
-// 		}
-
-// 		eventNonce := claim.GetEventNonce()
-// 		out[eventNonce] = append(out[eventNonce], attestation)
-
-// 		k.Logger(ctx).Info("Adding attestation to map", "eventNonce", eventNonce, "currentSize", len(out[eventNonce]))
-
-// 		return false
-// 	})
-
-// 	k.Logger(ctx).Info("Final attestation mapping size", "size", len(out))
-
-// 	return out
-// }
-
 // IterateAttestations iterates through all attestations
 func (k *Keeper) IterateAttestations(ctx sdk.Context, hyperionId uint64, cb func(k []byte, v *types.Attestation) (stop bool)) {
 	// ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
