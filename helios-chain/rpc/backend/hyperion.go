@@ -28,9 +28,14 @@ func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Addr
 		FormatErc20: true,
 	}
 	res, err := b.queryClient.Hyperion.QueryGetTransactionsByPageAndSize(b.ctx, req)
-	if err != nil || res.Txs == nil {
+
+	if err != nil {
 		b.logger.Error("GetHyperionAccountTransferTxsByPageAndSize", "error", err)
 		return []*hyperiontypes.TransferTx{}, err
+	}
+
+	if res.Txs == nil {
+		return []*hyperiontypes.TransferTx{}, nil
 	}
 
 	return res.Txs, nil
