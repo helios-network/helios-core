@@ -15,6 +15,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // CachedPublicAPI is a proxy wrapper around PublicAPI that automatically applies caching
@@ -263,6 +265,29 @@ func (c *CachedPublicAPI) GetAccountLastTransactionsInfo(address common.Address)
 		}
 	}
 	return nil, fmt.Errorf("invalid return type for GetAccountLastTransactionsInfo")
+}
+
+// GetTokensByChainIdAndPageAndSize returns tokens by chain id and page and size with caching
+func (c *CachedPublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
+	methodName := "GetTokensByChainIdAndPageAndSize"
+	args := []interface{}{chainId, page, size}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if tokens, ok := results[0].([]*banktypes.FullMetadata); ok {
+			return tokens, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetTokensByChainIdAndPageAndSize")
 }
 
 // Generic method interceptor using reflection
