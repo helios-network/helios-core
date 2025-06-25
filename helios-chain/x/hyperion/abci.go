@@ -91,8 +91,6 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context, counterParty *types.Co
 	hyperionId := counterParty.HyperionId
 	attmap := h.k.GetAttestationMapping(ctx, hyperionId)
 
-	h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "attmap", len(attmap))
-
 	// We make a slice with all the event nonces that are in the attestation mapping
 	keys := make([]uint64, 0, len(attmap))
 	for k := range attmap {
@@ -113,7 +111,6 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context, counterParty *types.Co
 			// we delete all attestations earlier than the current event nonce
 			if nonce < lastObservedEventNonce {
 				if att.Observed {
-					h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneAttestations -> ", "pruning", att.HyperionId)
 					h.k.DeleteAttestation(ctx, att.HyperionId, att)
 					h.k.StoreNonceObserved(ctx, att.HyperionId, nonce)
 
@@ -209,7 +206,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context, counterParty *types.Cou
 	// a slice with one or more attestations at that event nonce. There can be multiple attestations
 	// at one event nonce when validators disagree about what event happened at that nonce.
 	for _, nonce := range keys {
-		h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "nonce", nonce)
+		// h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "nonce", nonce)
 		// This iterates over all attestations at a particular event nonce.
 		// They are ordered by when the first attestation at the event nonce was received.
 		// This order is not important.
@@ -230,7 +227,7 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context, counterParty *types.Cou
 			// we skip the other attestations and move on to the next nonce again.
 			// If no attestation becomes observed, when we get to the next nonce, every attestation in
 			// it will be skipped. The same will happen for every nonce after that.
-			h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId))
+			// h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "h.k.GetLastObservedEventNonce(ctx)", h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId))
 			// if nonce == h.k.GetLastObservedEventNonce(ctx, attestation.HyperionId)+1 {
 			// 	h.k.TryAttestation(ctx, attestation, false)
 			// }
@@ -528,8 +525,6 @@ func (h *BlockHandler) pruneValsets(ctx sdk.Context, params *types.CounterpartyC
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, h.svcTags)
 	defer doneFn()
 
-	h.k.Logger(ctx).Info("HYPERION - ABCI.go - pruneValsets ->")
-
 	for _, counterParty := range h.k.GetParams(ctx).CounterpartyChainParams {
 		hyperionId := counterParty.HyperionId
 		// Validator set pruning
@@ -615,12 +610,12 @@ func (h *BlockHandler) executeExternalDataTxs(ctx sdk.Context, counterParty *typ
 		if tx.Timeout < uint64(ctx.BlockHeight()) {
 			h.k.RefundExternalData(ctx, *tx)
 			h.k.DeleteExternalData(ctx, *tx)
-			h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> deleted tx", "tx", tx)
+			h.k.Logger(ctx).Debug("HYPERION - ABCI.go - executeAllExternalDataTxs -> deleted tx", "tx", tx)
 			continue
 		}
 
 		if tx.Timeout-50 > uint64(ctx.BlockHeight()) {
-			h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> waiting reasonable time for the tx to be executed", "tx", tx)
+			h.k.Logger(ctx).Debug("HYPERION - ABCI.go - executeAllExternalDataTxs -> waiting reasonable time for the tx to be executed", "tx", tx)
 			continue
 		}
 
@@ -643,12 +638,12 @@ func (h *BlockHandler) executeExternalDataTxs(ctx sdk.Context, counterParty *typ
 			// Add it to the attestation power's sum
 			attestationPower = attestationPower.Add(math.NewInt(validatorPower))
 
-			h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> attestationPower", "attestationPower", attestationPower, "requiredPower", requiredPower)
+			h.k.Logger(ctx).Debug("HYPERION - ABCI.go - executeAllExternalDataTxs -> attestationPower", "attestationPower", attestationPower, "requiredPower", requiredPower)
 
 			if attestationPower.GTE(requiredPower) {
 
 				//todo check claims Results
-				h.k.Logger(ctx).Info("HYPERION - ABCI.go - executeAllExternalDataTxs -> attestationPower", "attestationPower", attestationPower)
+				h.k.Logger(ctx).Debug("HYPERION - ABCI.go - executeAllExternalDataTxs -> attestationPower", "attestationPower", attestationPower)
 
 				h.k.OutgoingExternalDataTxExecuted(ctx, tx, bestClaim, &types.Attestation{
 					Observed: true,

@@ -472,22 +472,16 @@ func (k *Keeper) createBatchFees(ctx sdk.Context, hyperionId uint64) map[common.
 		FeeAmountLen := 32
 
 		// 1. hyperionId (uint64)
-		hyperionIdBytes := key[:HyperionIDLen]
-		hyperionIdOfTheTx := binary.BigEndian.Uint64(hyperionIdBytes)
-
-		k.Logger(ctx).Info("BatchFee", "hyperionIdOfTheTx", hyperionIdOfTheTx)
+		// hyperionIdBytes := key[:HyperionIDLen]
+		// hyperionIdOfTheTx := binary.BigEndian.Uint64(hyperionIdBytes)
 
 		// 2. tokenContractAddr (common.Address)
 		tokenContractBytes := key[HyperionIDLen : HyperionIDLen+ETHContractAddressLen]
 		tokenContractAddr := common.BytesToAddress(tokenContractBytes)
 
-		k.Logger(ctx).Info("BatchFee", "tokenContractAddr", tokenContractAddr.String())
-
 		// 3. feeAmount (*big.Int)
 		feeAmountBytes := key[HyperionIDLen+ETHContractAddressLen : HyperionIDLen+ETHContractAddressLen+FeeAmountLen]
 		feeAmount := big.NewInt(0).SetBytes(feeAmountBytes)
-
-		k.Logger(ctx).Info("BatchFee", "feeAmount", feeAmount.String())
 
 		for i := 0; i < len(ids.Ids); i++ {
 			if txCountMap[tokenContractAddr] >= OutgoingTxBatchSize {
