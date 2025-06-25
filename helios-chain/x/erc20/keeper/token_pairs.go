@@ -113,16 +113,7 @@ func (k Keeper) GetERC20Map(ctx sdk.Context, erc20 common.Address) []byte {
 
 // GetDenomMap returns the token pair id for the given denomination.
 func (k Keeper) GetDenomMap(ctx sdk.Context, denom string) []byte {
-	kvStore := ctx.KVStore(k.storeKey)
-
-	if kvStore == nil {
-		k.Logger(ctx).Info("KV store is not initialized")
-	}
-
-	k.Logger(ctx).Info("KV store is initialized", "denom", denom)
-
-	store := prefix.NewStore(kvStore, types.KeyPrefixTokenPairByDenom)
-
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
 	return store.Get([]byte(denom))
 }
 
