@@ -417,6 +417,10 @@ func (b *Backend) GetAccountTransactionsByPageAndSize(address common.Address, pa
 	}
 	maxHeight := int64(latestBlockNumber)
 	totalMatchedTxs := uint64(0)
+	maxHeightWhereFindingTx := int64(latestBlockNumber) - 1000
+	if maxHeightWhereFindingTx < 1 {
+		maxHeightWhereFindingTx = int64(1)
+	}
 
 	for maxHeight > 0 && totalMatchedTxs < skip+uint64(size) {
 		minHeight := maxHeight - batchSize + 1
@@ -436,7 +440,7 @@ func (b *Backend) GetAccountTransactionsByPageAndSize(address common.Address, pa
 			}
 		}
 		maxHeight = minHeight - 1
-		if minHeight == 1 {
+		if minHeight <= maxHeightWhereFindingTx {
 			break
 		}
 	}

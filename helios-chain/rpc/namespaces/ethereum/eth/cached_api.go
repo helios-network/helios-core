@@ -7,13 +7,13 @@ import (
 
 	"helios-core/helios-chain/rpc/backend"
 	"helios-core/helios-chain/rpc/cache"
+	"helios-core/helios-chain/rpc/types"
 	rpctypes "helios-core/helios-chain/rpc/types"
 
 	"cosmossdk.io/log"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
-	"helios-core/helios-chain/rpc/types"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 )
 
@@ -174,7 +174,7 @@ func (c *CachedPublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address com
 }
 
 // GetValidatorWithHisAssetsAndCommission returns validator with assets and commission with caching
-func (c *CachedPublicAPI) GetValidatorWithHisAssetsAndCommission(address common.Address) (*types.ValidatorWithCommissionAndAssetsRPC, error) {
+func (c *CachedPublicAPI) GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error) {
 	methodName := "GetValidatorWithHisAssetsAndCommission"
 	args := []interface{}{address}
 
@@ -240,6 +240,29 @@ func (c *CachedPublicAPI) GetLastTransactionsInfo(size hexutil.Uint64) ([]*rpcty
 		}
 	}
 	return nil, fmt.Errorf("invalid return type for GetLastTransactionsInfo")
+}
+
+// GetAccountLastTransactionsInfo returns account last transactions info with caching
+func (c *CachedPublicAPI) GetAccountLastTransactionsInfo(address common.Address) ([]*rpctypes.ParsedRPCTransaction, error) {
+	methodName := "GetAccountLastTransactionsInfo"
+	args := []interface{}{address}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if txs, ok := results[0].([]*rpctypes.ParsedRPCTransaction); ok {
+			return txs, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetAccountLastTransactionsInfo")
 }
 
 // Generic method interceptor using reflection

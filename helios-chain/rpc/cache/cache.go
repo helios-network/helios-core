@@ -53,6 +53,7 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetValidatorWithHisAssetsAndCommission":     15 * time.Second,
 		"GetAllWhitelistedAssets":                    15 * time.Second,
 		"GetLastTransactionsInfo":                    15 * time.Second,
+		"GetAccountLastTransactionsInfo":             60 * time.Second,
 	}
 
 	for method, ttl := range cachedMethods {
