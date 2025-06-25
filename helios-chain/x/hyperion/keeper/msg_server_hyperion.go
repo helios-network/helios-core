@@ -361,8 +361,6 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 		return nil, errors.Wrap(err, "create attestation")
 	}
 
-	k.Keeper.Logger(ctx).Info("DepositClaim Received with success", "msg", msg)
-
 	return &types.MsgDepositClaimResponse{}, nil
 }
 
@@ -452,7 +450,6 @@ func (k msgServer) ExternalDataClaim(c context.Context, msg *types.MsgExternalDa
 	tx.Claims = append(tx.Claims, msg)
 
 	k.Keeper.StoreExternalData(ctx, tx)
-	k.Keeper.Logger(ctx).Info("ExternalDataClaim Received with success", "msg", msg)
 
 	return &types.MsgExternalDataClaimResponse{}, nil
 }
@@ -500,8 +497,6 @@ func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20Depl
 		return nil, errors.Wrap(err, "create attestation")
 	}
 
-	k.Keeper.Logger(ctx).Info("ERC20DeployedClaim Received with success", "msg", msg)
-
 	return &types.MsgERC20DeployedClaimResponse{}, nil
 }
 
@@ -547,8 +542,6 @@ func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpda
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(err, "create attestation")
 	}
-
-	k.Keeper.Logger(ctx).Info("ValsetUpdateClaim Received with success", "msg", msg)
 
 	return &types.MsgValsetUpdatedClaimResponse{}, nil
 }
