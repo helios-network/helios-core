@@ -419,21 +419,19 @@ func (k *Keeper) CleanAttestations(ctx sdk.Context, hyperionId uint64) {
 func (k Keeper) GetAttestationMapping(ctx sdk.Context, hyperionId uint64) map[uint64][]*types.Attestation {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.OracleAttestationKey, sdk.Uint64ToBigEndian(hyperionId)...))
 
-	var crons []*types.Attestation
+	var atts []*types.Attestation
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		var cron types.Attestation
 		k.cdc.MustUnmarshal(iterator.Value(), &cron)
-		crons = append(crons, &cron)
+		atts = append(atts, &cron)
 	}
-
-	k.Logger(ctx).Info("Attestations list", "size", len(crons))
 
 	out := make(map[uint64][]*types.Attestation)
 
-	for _, att := range crons {
+	for _, att := range atts {
 		claim, err := k.UnpackAttestationClaim(att)
 		if err != nil {
 			metrics.ReportFuncError(k.svcTags)
@@ -442,11 +440,7 @@ func (k Keeper) GetAttestationMapping(ctx sdk.Context, hyperionId uint64) map[ui
 
 		eventNonce := claim.GetEventNonce()
 		out[eventNonce] = append(out[eventNonce], att)
-
-		k.Logger(ctx).Info("Adding attestation to map", "eventNonce", eventNonce, "currentSize", len(out[eventNonce]))
 	}
-
-	k.Logger(ctx).Info("Final attestation mapping size", "size", len(out))
 
 	return out
 }
@@ -490,8 +484,6 @@ func (k *Keeper) IterateAttestations(ctx sdk.Context, hyperionId uint64, cb func
 		attestation := types.Attestation{}
 
 		k.cdc.MustUnmarshal(iter.Value(), &attestation)
-
-		k.Logger(ctx).Info("Iterate Attestation", "att", attestation.HyperionId)
 
 		// cb returns true to stop early
 		if cb(iter.Key(), &attestation) {
@@ -603,8 +595,6 @@ func (k *Keeper) setLastEventByValidatorAndHyperionId(ctx sdk.Context, hyperionI
 		EthereumEventHeight: blockHeight,
 	}
 
-	k.Logger(ctx).Info("setLastEventByValidatorAndHyperionId", "hyperionId", hyperionId, "key", hexutil.Encode(types.GetLastEventByValidatorKey(hyperionId, validator)))
-
 	store.Set(types.GetLastEventByValidatorKey(hyperionId, validator), k.cdc.MustMarshal(&lastClaimEvent))
 
 }
@@ -615,8 +605,6 @@ func (k *Keeper) GetLastEventByValidatorAndHyperionId(ctx sdk.Context, hyperionI
 	defer doneFn()
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.LastEventByValidatorKey, sdk.Uint64ToBigEndian(hyperionId)...))
-
-	k.Logger(ctx).Info("GetLastEventByValidatorAndHyperionId", "hyperionId", hyperionId, "key", hexutil.Encode(types.GetLastEventByValidatorKey(hyperionId, validator)))
 
 	rawEvent := store.Get(types.GetLastEventByValidatorKey(hyperionId, validator))
 	if len(rawEvent) == 0 {
