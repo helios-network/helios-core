@@ -57,6 +57,8 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetTokensByChainIdAndPageAndSize":           60 * time.Second,
 		"GetActiveValidatorCount":                    60 * time.Second,
 		"GetTokenDetails":                            5 * time.Minute,
+		"ChainId":                                    5 * time.Second,
+		"BlockNumber":                                5 * time.Second,
 	}
 
 	for method, ttl := range cachedMethods {

@@ -336,6 +336,52 @@ func (c *CachedPublicAPI) GetTokenDetails(tokenAddress common.Address) (*banktyp
 	return nil, fmt.Errorf("invalid return type for GetTokenDetails")
 }
 
+// ChainId returns the chain id with caching
+func (c *CachedPublicAPI) ChainId() (*hexutil.Big, error) {
+	methodName := "ChainId"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if chainId, ok := results[0].(*hexutil.Big); ok {
+			return chainId, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for ChainId")
+}
+
+// BlockNumber returns the block number with caching
+func (c *CachedPublicAPI) BlockNumber() (hexutil.Uint64, error) {
+	methodName := "BlockNumber"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return 0, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(results) > 0 {
+		if blockNumber, ok := results[0].(hexutil.Uint64); ok {
+			return blockNumber, nil
+		}
+	}
+	return 0, fmt.Errorf("invalid return type for BlockNumber")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

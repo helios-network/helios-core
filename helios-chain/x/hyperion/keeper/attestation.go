@@ -314,7 +314,7 @@ func (k *Keeper) ProcessClaimData(ctx sdk.Context, claim types.EthereumClaim) {
 
 			// Check if the claim data is a valid sdk.Msg. If not, ignore the data
 			if msg == nil {
-				k.Logger(ctx).Info("no claim data sdk.Msg to handle")
+				k.Logger(ctx).Debug("no claim data sdk.Msg to handle")
 				return
 			}
 
