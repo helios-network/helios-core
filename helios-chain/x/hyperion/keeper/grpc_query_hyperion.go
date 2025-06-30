@@ -188,6 +188,24 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	return &types.QueryOutgoingTxBatchesResponse{Batches: batches}, nil
 }
 
+func (k *Keeper) OutgoingTxBatchesCount(c context.Context, req *types.QueryOutgoingTxBatchesCountRequest) (*types.QueryOutgoingTxBatchesCountResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	MaxResults := uint64(100) // todo: impl pagination
+
+	txCount := uint64(0)
+	batchCount := uint64(0)
+
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) bool {
+		batchCount++
+		txCount += uint64(len(batch.Transactions))
+		return batchCount == MaxResults
+	})
+
+	return &types.QueryOutgoingTxBatchesCountResponse{TxCount: txCount, BatchCount: batchCount}, nil
+}
+
 // [Used In Hyperion] OutgoingExternalDataTxs queries the OutgoingExternalDataTxs of the hyperion module
 func (k *Keeper) OutgoingExternalDataTxs(c context.Context, req *types.QueryOutgoingExternalDataTxsRequest) (*types.QueryOutgoingExternalDataTxsResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
