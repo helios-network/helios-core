@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -383,6 +384,10 @@ func (k *Keeper) getCronsReadyForExecution(ctx sdk.Context) []types.Cron {
 			}
 		}
 	}
+
+	sort.Slice(crons, func(i, j int) bool {
+		return crons[i].Id < crons[j].Id
+	})
 
 	return crons
 }

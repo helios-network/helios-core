@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -59,7 +58,6 @@ func StartJSONRPC(ctx *server.Context,
 		//////////////////////////////
 		// Swagger for rpc 8545 eth_
 		//////////////////////////////
-		fmt.Println("api.Namespace", api.Namespace)
 		if api.Namespace == "eth" {
 			apiService, ok := api.Service.(*eth.CachedPublicAPI)
 			if ok {
