@@ -145,6 +145,33 @@ func (k *Keeper) LastPendingBatchRequestByAddr(c context.Context, req *types.Que
 	return &types.QueryLastPendingBatchRequestByAddrResponse{Batch: pendingBatchReq}, nil
 }
 
+func (k *Keeper) LastPendingBatchsRequestByAddr(c context.Context, req *types.QueryLastPendingBatchsRequestByAddrRequest) (*types.QueryLastPendingBatchsRequestByAddrResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	addr, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, "address invalid")
+	}
+
+	MaxResults := 100 // todo: impl pagination
+	pendingBatchReqs := make([]*types.OutgoingTxBatch, 0)
+
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) (stop bool) {
+		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.HyperionId, batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr) != nil
+		if !foundConfirm {
+			pendingBatchReqs = append(pendingBatchReqs, batch)
+		}
+		if len(pendingBatchReqs) == MaxResults {
+			return true
+		}
+		return false
+	})
+
+	return &types.QueryLastPendingBatchsRequestByAddrResponse{Batchs: pendingBatchReqs}, nil
+}
+
 // [Used In Hyperion] OutgoingTxBatches queries the OutgoingTxBatches of the hyperion module
 func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTxBatchesRequest) (*types.QueryOutgoingTxBatchesResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)

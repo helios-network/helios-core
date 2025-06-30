@@ -78,6 +78,10 @@ service Query {
       returns (QueryLastPendingBatchRequestByAddrResponse) {
     option (google.api.http).get = "/hyperion/v1/batch/last";
   }
+  rpc LastPendingBatchsRequestByAddr(QueryLastPendingBatchsRequestByAddrRequest)
+      returns (QueryLastPendingBatchsRequestByAddrResponse) {
+    option (google.api.http).get = "/hyperion/v1/batch/lasts";
+  }
   rpc BatchRequestByNonce(QueryBatchRequestByNonceRequest)
       returns (QueryBatchRequestByNonceResponse) {
     option (google.api.http).get = "/hyperion/v1/batch";
@@ -227,6 +231,14 @@ message QueryLastPendingBatchRequestByAddrRequest {
 }
 message QueryLastPendingBatchRequestByAddrResponse {
   OutgoingTxBatch batch = 1;
+}
+
+message QueryLastPendingBatchsRequestByAddrRequest {
+  uint64 hyperion_id = 1;
+  string address = 2;
+}
+message QueryLastPendingBatchsRequestByAddrResponse {
+  repeated OutgoingTxBatch batchs = 1;
 }
 
 message QueryOutgoingTxBatchesRequest {
