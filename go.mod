@@ -62,6 +62,7 @@ require (
 	github.com/dop251/goja v0.0.0-20220405120441-9037c2b61cbf
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-metrics v0.5.3
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/ledgerwatch/erigon-lib v1.0.0
 	github.com/linxGnu/grocksdb v1.8.14
 	github.com/onsi/ginkgo/v2 v2.7.0
@@ -155,7 +156,6 @@ require (
 	github.com/hashicorp/go-plugin v1.5.2 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
