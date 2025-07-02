@@ -28,6 +28,9 @@ service Msg {
   rpc ConfirmBatch(MsgConfirmBatch) returns (MsgConfirmBatchResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/confirm_batch";
   }
+  rpc ConfirmMultipleBatches(MsgConfirmMultipleBatches) returns (MsgConfirmMultipleBatchesResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/confirm_multi_batches";
+  }
   rpc DepositClaim(MsgDepositClaim) returns (MsgDepositClaimResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/deposit_claim";
   }
@@ -339,6 +342,18 @@ message MsgConfirmBatch {
 }
 
 message MsgConfirmBatchResponse {}
+
+message MsgConfirmMultipleBatches {
+  option (amino.name) = "hyperion/MsgConfirmMultipleBatches";
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
+  uint64 hyperion_id = 1;
+  string eth_signer = 2;
+  string orchestrator = 3;
+  repeated BatchNonceWithSignature batches = 4;
+}
+
+message MsgConfirmMultipleBatchesResponse {}
 
 // EthereumBridgeDepositClaim
 // When more than 66% of the active validator set has

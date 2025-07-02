@@ -222,6 +222,28 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 	return &types.MsgRequestBatchResponse{}, nil
 }
 
+func (k msgServer) ConfirmMultipleBatches(c context.Context, msg *types.MsgConfirmMultipleBatches) (*types.MsgConfirmMultipleBatchesResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	for _, batch := range msg.Batches {
+		_, err := k.ConfirmBatch(ctx, &types.MsgConfirmBatch{
+			HyperionId:    msg.HyperionId,
+			Nonce:         batch.Nonce,
+			TokenContract: batch.TokenContract,
+			Signature:     batch.Signature,
+			Orchestrator:  msg.Orchestrator,
+		})
+		if err != nil && !errors.IsOf(err, types.ErrDuplicate) { // ignore duplicate errors
+			return nil, err
+		}
+	}
+
+	return &types.MsgConfirmMultipleBatchesResponse{}, nil
+}
+
 // [Used In Hyperion] ConfirmBatch handles MsgConfirmBatch
 // -------------
 // MsgConfirmBatch

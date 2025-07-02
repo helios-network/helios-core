@@ -123,3 +123,9 @@ message FullMetadataToken {
     (gogoproto.nullable) = false
   ];
 }
+
+message BatchNonceWithSignature {
+  string token_contract = 1;
+  uint64 nonce = 2;
+  string signature = 3;
+}
