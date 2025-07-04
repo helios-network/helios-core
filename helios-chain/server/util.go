@@ -6,11 +6,12 @@ import (
 	"time"
 
 	// TODO update import to local pkg when rpc pkg is migrated
+	"helios-core/helios-chain/server/config"
+
 	"github.com/gorilla/mux"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/netutil"
-	"helios-core/helios-chain/server/config"
 
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
@@ -50,6 +51,7 @@ func AddCommands(
 		startCmd,
 		tendermintCmd,
 		sdkserver.ExportCmd(appExport, opts.DefaultNodeHome),
+		sdkserver.ExportSoftResetCmd(appExport, opts.DefaultNodeHome),
 		version.NewVersionCommand(),
 		sdkserver.NewRollbackCmd(opts.AppCreator, opts.DefaultNodeHome),
 
