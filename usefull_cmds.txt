@@ -44,3 +44,5 @@ heliades tendermint show-validator => to get the pubkey
 
 
 heliades keys list
+
+heliades status | jq .sync_info.latest_block_height
