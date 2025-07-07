@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	"time"
+	"strconv"
 
 	"cosmossdk.io/log"
 
@@ -108,7 +108,7 @@ func (k Keeper) StoreLogo(ctx sdk.Context, data string) (string, error) {
 	logo := types.Logo{
 		Hash:      hash,
 		Data:      data,
-		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+		CreatedAt: strconv.FormatInt(ctx.BlockHeight(), 10),
 	}
 
 	// Store the logo
