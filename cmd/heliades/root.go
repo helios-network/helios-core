@@ -30,6 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	clientcfg "github.com/cosmos/cosmos-sdk/client/config"
+	"github.com/cosmos/cosmos-sdk/client/db"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -189,6 +190,9 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(a.newApp, app.DefaultNodeHome),
+		db.Cmd(a.newApp, app.DefaultNodeHome),
+		db.BlockstoreCmd(a.newApp, app.DefaultNodeHome),
+		db.StatedbCmd(a.newApp, app.DefaultNodeHome),
 		snapshot.Cmd(a.newApp),
 		block.Cmd(),
 	)
@@ -344,6 +348,19 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		panic(err)
 	}
 
+	options := make([]func(*baseapp.BaseApp), 0)
+
+	if cast.ToBool(appOpts.Get(sdkserver.FlagDumpCommitDebugExecutionTrace)) {
+		dataDir := filepath.Join(home, "data")
+		traceDB, err := dbm.NewDB("trace", sdkserver.GetAppDBBackend(appOpts), dataDir)
+		if err != nil {
+			panic(err)
+		}
+
+		options = append(options, baseapp.SetTraceDB(traceDB))
+		options = append(options, baseapp.SetDumpCommitDebugExecutionTrace(true))
+	}
+
 	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
 	if err != nil {
 		panic(err)
@@ -371,21 +388,23 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		chainID = conf.ChainID
 	}
 
+	options = append(options, baseapp.SetPruning(pruningOpts))
+	options = append(options, baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))))
+	options = append(options, baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltHeight))))
+	options = append(options, baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltTime))))
+	options = append(options, baseapp.SetMinRetainBlocks(cast.ToUint64(appOpts.Get(sdkserver.FlagMinRetainBlocks))))
+	options = append(options, baseapp.SetInterBlockCache(cache))
+	options = append(options, baseapp.SetTrace(cast.ToBool(appOpts.Get(sdkserver.FlagTrace))))
+	options = append(options, baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(sdkserver.FlagIndexEvents))))
+	options = append(options, baseapp.SetSnapshot(snapshotStore, snapshotOptions))
+	options = append(options, baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))))
+	options = append(options, baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagDisableIAVLFastNode))))
+	options = append(options, baseapp.SetChainID(chainID))
+
 	heliosApp := app.NewHeliosApp(
 		logger, db, traceStore, true,
 		appOpts,
-		baseapp.SetPruning(pruningOpts),
-		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))),
-		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltHeight))),
-		baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltTime))),
-		baseapp.SetMinRetainBlocks(cast.ToUint64(appOpts.Get(sdkserver.FlagMinRetainBlocks))),
-		baseapp.SetInterBlockCache(cache),
-		baseapp.SetTrace(cast.ToBool(appOpts.Get(sdkserver.FlagTrace))),
-		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(sdkserver.FlagIndexEvents))),
-		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
-		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))),
-		baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagDisableIAVLFastNode))),
-		baseapp.SetChainID(chainID),
+		options...,
 	)
 
 	return heliosApp
