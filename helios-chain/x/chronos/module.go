@@ -165,10 +165,8 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 func (am AppModule) EndBlock(ctx context.Context) error {
 	sdkctx := sdk.UnwrapSDKContext(ctx)
 
-	if sdkctx.BlockHeight() < 287000 {
-		am.keeper.DeductFeesActivesCrons(sdkctx)
-		am.keeper.ExecuteReadyCrons(sdkctx, types.ExecutionStage_EXECUTION_STAGE_END_BLOCKER)
-	}
+	am.keeper.DeductFeesActivesCrons(sdkctx)
+	am.keeper.ExecuteReadyCrons(sdkctx, types.ExecutionStage_EXECUTION_STAGE_END_BLOCKER)
 
 	return nil
 }
