@@ -601,6 +601,11 @@ func (h *BlockHandler) executeExternalDataTxs(ctx sdk.Context, counterParty *typ
 
 	txs := h.k.GetOutgoingExternalDataTXs(ctx, counterParty.HyperionId)
 
+	// sort txs by nonce in ASC order
+	sort.Slice(txs, func(i, j int) bool {
+		return txs[i].Nonce < txs[j].Nonce
+	})
+
 	totalPower := h.k.GetCurrentValsetTotalPower(ctx, counterParty.HyperionId)
 	requiredPower := h.k.GetRequiredPower(totalPower, 33)
 	attestationPower := math.ZeroInt()
