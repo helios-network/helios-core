@@ -361,7 +361,7 @@ func (k *Keeper) GetUnslashedValsets(ctx sdk.Context, hyperionId uint64, maxHeig
 
 	lastSlashedValsetNonce := k.GetLastSlashedValsetNonce(ctx, hyperionId)
 
-	k.IterateValsetBySlashedValsetNonce(ctx, lastSlashedValsetNonce, maxHeight, func(_ []byte, valset *types.Valset) bool {
+	k.IterateValsetBySlashedValsetNonce(ctx, lastSlashedValsetNonce, hyperionId, maxHeight, func(_ []byte, valset *types.Valset) bool {
 		if valset.Nonce > lastSlashedValsetNonce {
 			out = append(out, valset)
 		}
@@ -375,13 +375,14 @@ func (k *Keeper) GetUnslashedValsets(ctx sdk.Context, hyperionId uint64, maxHeig
 func (k *Keeper) IterateValsetBySlashedValsetNonce(
 	ctx sdk.Context,
 	lastSlashedValsetNonce uint64,
+	hyperionId uint64,
 	maxHeight uint64,
 	cb func(k []byte, v *types.Valset) (stop bool),
 ) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ValsetRequestKey)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.ValsetRequestKey, sdk.Uint64ToBigEndian(hyperionId)...))
 	iter := prefixStore.Iterator(types.UInt64Bytes(lastSlashedValsetNonce), types.UInt64Bytes(maxHeight))
 	defer iter.Close()
 
