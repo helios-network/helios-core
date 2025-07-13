@@ -25,6 +25,9 @@ service Msg {
   rpc RequestBatch(MsgRequestBatch) returns (MsgRequestBatchResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/request_batch";
   }
+  rpc RequestBatchWithMinimumFee(MsgRequestBatchWithMinimumFee) returns (MsgRequestBatchWithMinimumFeeResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/request_batch_with_minimum_fee";
+  }
   rpc ConfirmBatch(MsgConfirmBatch) returns (MsgConfirmBatchResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/confirm_batch";
   }
@@ -221,6 +224,21 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/update_average_block_time";
   }
 
+  rpc SetOrchestratorAddressesWithFee(MsgSetOrchestratorAddressesWithFee)
+      returns (MsgSetOrchestratorAddressesWithFeeResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_orchestrator_addresses_with_fee";
+  }
+
+  rpc UpdateOrchestratorAddressesFee(MsgUpdateOrchestratorAddressesFee)
+      returns (MsgUpdateOrchestratorAddressesFeeResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_orchestrator_addresses_fee";
+  }
+
+  rpc DeleteOrchestratorAddressesFee(MsgDeleteOrchestratorAddressesFee)
+      returns (MsgDeleteOrchestratorAddressesFeeResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/delete_orchestrator_addresses_fee";
+  }
+
   // <-- Testnet
 }
 
@@ -320,6 +338,18 @@ message MsgRequestBatch {
 }
 
 message MsgRequestBatchResponse {}
+
+message MsgRequestBatchWithMinimumFee {
+  option (amino.name) = "hyperion/MsgRequestBatchWithMinimumFee";
+  option (cosmos.msg.v1.signer) = "orchestrator";
+  uint64 hyperion_id = 1;
+  string orchestrator = 2;
+  string denom = 3;
+  cosmos.base.v1beta1.Coin minimum_batch_fee = 4 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin minimum_tx_fee = 5 [ (gogoproto.nullable) = false ];
+}
+
+message MsgRequestBatchWithMinimumFeeResponse {}
 
 // MsgConfirmBatch
 // When validators observe a MsgRequestBatch they form a batch by ordering
@@ -862,3 +892,37 @@ message MsgUpdateAverageBlockTime {
 }
 
 message MsgUpdateAverageBlockTimeResponse {}
+
+message MsgSetOrchestratorAddressesWithFee {
+  option (amino.name) = "hyperion/MsgSetOrchestratorAddressesWithFee";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  uint64 hyperion_id = 2;
+  string orchestrator = 3;
+  string eth_address = 4;
+  cosmos.base.v1beta1.Coin bridge_fee = 5 [ (gogoproto.nullable) = false ];
+}
+
+message MsgSetOrchestratorAddressesWithFeeResponse {}
+
+message MsgUpdateOrchestratorAddressesFee {
+  option (amino.name) = "hyperion/MsgUpdateOrchestratorAddressesFee";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  uint64 hyperion_id = 2;
+  cosmos.base.v1beta1.Coin bridge_fee = 3 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateOrchestratorAddressesFeeResponse {}
+
+message MsgDeleteOrchestratorAddressesFee {
+  option (amino.name) = "hyperion/MsgDeleteOrchestratorAddressesFee";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  uint64 hyperion_id = 2;
+}
+
+message MsgDeleteOrchestratorAddressesFeeResponse {}

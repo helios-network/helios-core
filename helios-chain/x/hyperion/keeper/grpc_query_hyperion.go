@@ -6,6 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -117,7 +118,15 @@ func (k *Keeper) BatchFees(c context.Context, req *types.QueryBatchFeeRequest) (
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), req.HyperionId)}, nil
+	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), req.HyperionId, sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(0)), sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(0)))}, nil
+}
+
+// [Used In Hyperion] BatchFeesWithMinimumFee queries the batch fees from unbatched pool with a minimum fee
+func (k *Keeper) BatchFeesWithMinimumFee(c context.Context, req *types.QueryBatchFeeWithMinimumFeeRequest) (*types.QueryBatchFeeWithMinimumFeeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	return &types.QueryBatchFeeWithMinimumFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), req.HyperionId, req.MinimumBatchFee, req.MinimumTxFee)}, nil
 }
 
 // [Used In Hyperion] LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the hyperion module

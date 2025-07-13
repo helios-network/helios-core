@@ -11,6 +11,7 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -138,6 +139,24 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 		txHash = fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	}
 
+	// Fees validation
+	lowestFeeValidator, found := k.Keeper.GetLowestFeeValidator(ctx, msg.DestChainId)
+	if !found {
+		return nil, errors.Wrap(types.ErrInvalid, "no lowest fee validator found")
+	}
+	lowestFee, found := k.Keeper.GetFeeByValidator(ctx, msg.DestChainId, lowestFeeValidator)
+	if !found {
+		return nil, errors.Wrap(types.ErrInvalid, "no lowest fee found")
+	}
+
+	if msg.BridgeFee.Denom != "ahelios" {
+		return nil, errors.Wrap(types.ErrInvalid, "fee denom must be ahelios")
+	}
+	if msg.BridgeFee.Amount.LT(lowestFee.Amount) {
+		return nil, errors.Wrap(types.ErrInvalid, "fee is less than the lowest fee")
+	}
+	//-------------------------------------
+
 	dest := common.HexToAddress(msg.Dest)
 	if k.Keeper.InvalidSendToChainAddress(ctx, dest) {
 		return nil, errors.Wrap(types.ErrInvalidEthDestination, "destination address is invalid or blacklisted")
@@ -198,7 +217,7 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 	}
 	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
-	batch, err := k.Keeper.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize)
+	batch, err := k.Keeper.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize, sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(0)), sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(0)))
 	if err != nil {
 		return nil, err
 	}
@@ -220,6 +239,46 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 	})
 
 	return &types.MsgRequestBatchResponse{}, nil
+}
+
+func (k msgServer) RequestBatchWithMinimumFee(c context.Context, msg *types.MsgRequestBatchWithMinimumFee) (*types.MsgRequestBatchWithMinimumFeeResponse, error) {
+	fmt.Println("RequestBatch, got msg request batch from hyperion - msg: ", msg)
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	// Check if the denom is a hyperion coin, if not, check if there is a deployed ERC20 representing it.
+	// If not, error out
+	tokenAddressToDenom, exists := k.Keeper.GetTokenFromDenom(ctx, msg.HyperionId, msg.Denom)
+	if !exists {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrapf(types.ErrInvalid, "token not found")
+	}
+	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
+
+	batch, err := k.Keeper.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize, msg.MinimumBatchFee, msg.MinimumTxFee)
+	if err != nil {
+		return nil, err
+	}
+
+	batchTxIDs := make([]uint64, 0, len(batch.Transactions))
+
+	for _, outgoingTransferTx := range batch.Transactions {
+		batchTxIDs = append(batchTxIDs, outgoingTransferTx.Id)
+	}
+
+	// nolint:errcheck //ignored on purpose
+	ctx.EventManager().EmitTypedEvent(&types.EventOutgoingBatch{
+		HyperionId:          msg.HyperionId,
+		Denom:               msg.Denom,
+		OrchestratorAddress: msg.Orchestrator,
+		BatchNonce:          batch.BatchNonce,
+		BatchTimeout:        batch.BatchTimeout,
+		BatchTxIds:          batchTxIDs,
+	})
+
+	return &types.MsgRequestBatchWithMinimumFeeResponse{}, nil
 }
 
 func (k msgServer) ConfirmMultipleBatches(c context.Context, msg *types.MsgConfirmMultipleBatches) (*types.MsgConfirmMultipleBatchesResponse, error) {

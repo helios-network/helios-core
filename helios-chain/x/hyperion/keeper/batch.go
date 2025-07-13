@@ -24,7 +24,7 @@ const OutgoingTxBatchSize = 100
 //   - select available transactions from the outgoing transaction pool sorted by fee desc
 //   - persist an outgoing batch object with an incrementing ID = nonce
 //   - emit an event
-func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, hyperionId uint64, maxElements int) (*types.OutgoingTxBatch, error) {
+func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Address, hyperionId uint64, maxElements int, minimumBatchFee sdk.Coin, minimumTxFee sdk.Coin) (*types.OutgoingTxBatch, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -40,7 +40,7 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addr
 	if lastBatch != nil {
 		// this traverses the current tx pool for this token type and determines what
 		// fees a hypothetical batch would have if created
-		currentFees := k.GetBatchFeesByTokenType(ctx, hyperionId, tokenContract)
+		currentFees := k.GetBatchFeesByTokenType(ctx, hyperionId, tokenContract, minimumBatchFee, minimumTxFee)
 		if currentFees == nil {
 			metrics.ReportFuncError(k.svcTags)
 			return nil, errors.Wrap(types.ErrInvalid, "error getting fees from tx pool")
@@ -125,6 +125,24 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 
 	// Delete batch since it is finished
 	k.DeleteBatch(ctx, *b)
+
+	// Send fee to the orchestrator
+	allFees := sdk.NewCoins()
+	for _, tx := range b.Transactions {
+		tokenAddressToDenomFee, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
+		if tokenAddressToDenomFee != nil {
+			tokenAddressFee := tokenAddressToDenomFee.Denom
+			allFees = allFees.Add(sdk.NewCoin(tokenAddressFee, tx.Fee.Amount))
+		}
+	}
+
+	orchestratorAddr, _ := sdk.AccAddressFromBech32(claim.Orchestrator)
+	// send all fees to the orchestrator
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, orchestratorAddr, allFees)
+	if err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		panic(fmt.Sprintf("Failed to send fees to orchestrator %s", claim.Orchestrator))
+	}
 
 	for _, tx := range b.Transactions {
 		tokenAddressToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))

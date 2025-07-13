@@ -15,3 +15,16 @@ message BatchFees {
     (gogoproto.nullable) = false
   ];
 }
+
+message BatchFeesWithIds {
+  string token = 1;
+  string total_fees = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated uint64 ids = 3;
+  repeated string fees = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
