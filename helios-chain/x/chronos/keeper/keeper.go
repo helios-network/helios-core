@@ -720,7 +720,7 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	if err != nil {
 		return nil, err
 	}
-	// 4. Consume Fees on cron Wallet
+	// 5. Consume Fees on cron Wallet
 	err = k.ConsumeFeesAndEmitEvent(
 		ctx,
 		msgFees,
@@ -734,7 +734,13 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	k.UpdateCronTotalFeesPaid(ctx, cron, msgFees[0].Amount)
 	// 5. prepare tx for evm
 	msg := k.TxAsMessage(tx, decUtils.BaseFee, ownerAddress)
-	// 6. execute tx
+	// 6. execute tx without commit
+	_, err = k.EvmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), false)
+	if err != nil {
+		k.Logger(ctx).Error("EVM execution estimate failed", "cron_id", cron.Id, "error", err)
+		return nil, err
+	}
+	// 7. execute tx
 	res, err := k.EvmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), true)
 	if err != nil {
 		k.Logger(ctx).Error("EVM execution failed", "cron_id", cron.Id, "error", err)
