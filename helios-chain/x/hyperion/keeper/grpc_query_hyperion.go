@@ -126,7 +126,7 @@ func (k *Keeper) BatchFeesWithMinimumFee(c context.Context, req *types.QueryBatc
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()
 
-	return &types.QueryBatchFeeWithMinimumFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), req.HyperionId, req.MinimumBatchFee, req.MinimumTxFee)}, nil
+	return &types.QueryBatchFeeWithMinimumFeeResponse{BatchFees: k.GetAllBatchFeesWithIds(sdk.UnwrapSDKContext(c), req.HyperionId, req.MinimumBatchFee, req.MinimumTxFee)}, nil
 }
 
 // [Used In Hyperion] LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of the hyperion module

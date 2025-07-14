@@ -718,6 +718,30 @@ func (k *Keeper) GetLowestFeeValidator(ctx sdk.Context, hyperionId uint64) (sdk.
 	return lowestFeeValidator, !lowestFee.Amount.Equal(math.NewInt(-1))
 }
 
+func (k *Keeper) GetHighestFeeValidator(ctx sdk.Context, hyperionId uint64) (sdk.ValAddress, bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	iter := store.Iterator(types.GetFeeByValidatorKey(hyperionId, nil), nil)
+	defer iter.Close()
+
+	highestFee := sdk.Coin{}
+	highestFee.Amount = math.NewInt(-1)
+	highestFeeValidator := sdk.ValAddress{}
+
+	for ; iter.Valid(); iter.Next() {
+		fee := sdk.Coin{}
+		k.cdc.MustUnmarshal(iter.Value(), &fee)
+		if highestFee.Amount.Equal(math.NewInt(-1)) || fee.Amount.GT(highestFee.Amount) {
+			highestFee = fee
+			highestFeeValidator = sdk.ValAddress(iter.Key())
+		}
+	}
+
+	return highestFeeValidator, !highestFee.Amount.Equal(math.NewInt(-1))
+}
+
 func (k *Keeper) GetLowestsFeeValidatorsFromFee(ctx sdk.Context, hyperionId uint64, fee sdk.Coin) ([]sdk.ValAddress, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()

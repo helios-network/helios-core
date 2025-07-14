@@ -76,6 +76,38 @@ func (k *Keeper) BuildOutgoingTXBatch(ctx sdk.Context, tokenContract common.Addr
 	return batch, nil
 }
 
+func (k *Keeper) BuildOutgoingTXBatchWithIds(ctx sdk.Context, tokenContract common.Address, hyperionId uint64, maxElements int, minimumBatchFee sdk.Coin, minimumTxFee sdk.Coin, ids []uint64) (*types.OutgoingTxBatch, error) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	if maxElements == 0 {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrInvalid, "max elements value")
+	}
+
+	selectedTx, err := k.pickUnbatchedTXWithIds(ctx, tokenContract, maxElements, hyperionId, ids)
+	if err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, err
+	}
+
+	nextID := k.AutoIncrementID(ctx, types.GetLastOutgoingBatchIDKey(hyperionId))
+	batch := &types.OutgoingTxBatch{
+		BatchNonce:    nextID,
+		BatchTimeout:  k.getBatchTimeoutHeight(ctx, hyperionId),
+		Transactions:  selectedTx,
+		TokenContract: tokenContract.Hex(),
+		HyperionId:    hyperionId,
+	}
+	k.StoreBatch(ctx, batch)
+
+	// Get the checkpoint and store it as a legit past batch
+	checkpoint := batch.GetCheckpoint(hyperionId)
+	k.SetPastEthSignatureCheckpoint(ctx, hyperionId, checkpoint)
+
+	return batch, nil
+}
+
 // / This gets the batch timeout height in the counterparty chain blocks.
 func (k *Keeper) getBatchTimeoutHeight(ctx sdk.Context, hyperionId uint64) uint64 {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
@@ -146,16 +178,10 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 
 	for _, tx := range b.Transactions {
 		tokenAddressToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
-		tokenAddressToDenomFee, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
 
 		tokenAddress := ""
 		if tokenAddressToDenom != nil {
 			tokenAddress = tokenAddressToDenom.Denom
-		}
-
-		tokenAddressFee := ""
-		if tokenAddressToDenomFee != nil {
-			tokenAddressFee = tokenAddressToDenomFee.Denom
 		}
 
 		k.StoreFinalizedTx(ctx, &types.TransferTx{
@@ -164,7 +190,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 			Sender:        cmn.AnyToHexAddress(tx.Sender).String(),
 			DestAddress:   cmn.AnyToHexAddress(tx.DestAddress).String(),
 			SentToken:     &types.Token{Amount: tx.Token.Amount, Contract: tokenAddress},
-			SentFee:       &types.Token{Amount: tx.Fee.Amount, Contract: tokenAddressFee},
+			SentFee:       &types.Token{Amount: tx.Fee.Amount, Contract: sdk.DefaultBondDenom},
 			ReceivedToken: tx.Token,
 			ReceivedFee:   tx.Fee,
 			Status:        "BRIDGED",
@@ -178,6 +204,16 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 			},
 		})
 	}
+
+	// Update orchestrator data
+	orchestratorData, err := k.GetOrchestratorHyperionData(ctx, cmn.AccAddressFromHexAddressString(claim.Orchestrator), hyperionId)
+	if err != nil {
+		k.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", hyperionId, "orchestrator", claim.Orchestrator)
+		return
+	}
+	orchestratorData.TxOutTransfered++
+	orchestratorData.FeeCollected = orchestratorData.FeeCollected.Add(allFees.AmountOf(sdk.DefaultBondDenom))
+	k.SetOrchestratorHyperionData(ctx, cmn.AccAddressFromHexAddressString(claim.Orchestrator), hyperionId, *orchestratorData)
 }
 
 // StoreBatch stores a transaction batch
@@ -253,6 +289,33 @@ func (k *Keeper) pickUnbatchedTX(ctx sdk.Context, tokenContract common.Address, 
 			return true
 		}
 	})
+
+	if len(selectedTx) == 0 {
+		return nil, types.ErrNoUnbatchedTxsFound
+	}
+
+	return selectedTx, nil
+}
+
+func (k *Keeper) pickUnbatchedTXWithIds(ctx sdk.Context, tokenContract common.Address, maxElements int, hyperionId uint64, ids []uint64) ([]*types.OutgoingTransferTx, error) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	selectedTx := make([]*types.OutgoingTransferTx, 0)
+	for _, txID := range ids {
+		tx, err := k.GetPoolEntry(ctx, hyperionId, txID)
+		if tx != nil && tx.Fee != nil {
+			selectedTx = append(selectedTx, tx)
+			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Fee, txID)
+			if err != nil || len(selectedTx) == maxElements {
+				break
+			}
+		} else {
+			// we found a nil, exit
+			return nil, types.ErrNoUnbatchedTxsFound
+		}
+		selectedTx = append(selectedTx, tx)
+	}
 
 	if len(selectedTx) == 0 {
 		return nil, types.ErrNoUnbatchedTxsFound

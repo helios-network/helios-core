@@ -168,6 +168,20 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context, counterParty *types.Co
 								Hashs:         strings.Join(proofs, ","),
 							},
 						})
+
+						// Update voters data
+						for _, validator := range att.Votes {
+							validatorSplitted := strings.Split(validator, ":")
+							validatorAddress := cmn.AnyToHexAddress(validatorSplitted[0]).String()
+							// Update orchestrator data
+							orchestratorData, err := h.k.GetOrchestratorHyperionData(ctx, cmn.AccAddressFromHexAddressString(validatorAddress), hyperionId)
+							if err != nil {
+								h.k.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", hyperionId, "orchestrator", validatorAddress)
+								return
+							}
+							orchestratorData.TxInTransfered++
+							h.k.SetOrchestratorHyperionData(ctx, cmn.AccAddressFromHexAddressString(validatorAddress), hyperionId, *orchestratorData)
+						}
 					}
 				}
 			}
@@ -361,7 +375,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 					cons, _ := currentBondedSet[i].GetConsAddr()
 					consPower := currentBondedSet[i].ConsensusPower(h.k.StakingKeeper.PowerReduction(ctx))
 
-					_, _ = h.k.StakingKeeper.Slash(
+					slashAmount, _ := h.k.StakingKeeper.Slash(
 						ctx,
 						cons,
 						ctx.BlockHeight(),
@@ -377,6 +391,11 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 						ConsensusAddress: sdk.ConsAddress(consAddr).String(),
 						OperatorAddress:  currentBondedSet[i].OperatorAddress,
 						Moniker:          currentBondedSet[i].GetMoniker(),
+					})
+
+					h.k.AddSlashData(ctx, accAddr, params.HyperionId, types.SlashData{
+						SlashTimestamp: uint64(ctx.BlockTime().Unix()),
+						SlashAmount:    slashAmount,
 					})
 				}
 			}
@@ -427,7 +446,7 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 					if !found {
 						consPower := validator.ConsensusPower(h.k.StakingKeeper.PowerReduction(ctx))
 
-						_, _ = h.k.StakingKeeper.Slash(ctx, valConsAddr, ctx.BlockHeight(), consPower, params.SlashFractionValset)
+						slashAmount, _ := h.k.StakingKeeper.Slash(ctx, valConsAddr, ctx.BlockHeight(), consPower, params.SlashFractionValset)
 						// nolint:errcheck //ignored on purpose
 						ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
 							HyperionId:       params.HyperionId,
@@ -436,6 +455,11 @@ func (h *BlockHandler) valsetSlashing(ctx sdk.Context, params *types.Counterpart
 							ConsensusAddress: validator.String(),
 							OperatorAddress:  validator.OperatorAddress,
 							Moniker:          validator.GetMoniker(),
+						})
+
+						h.k.AddSlashData(ctx, accAddr, params.HyperionId, types.SlashData{
+							SlashTimestamp: uint64(ctx.BlockTime().Unix()),
+							SlashAmount:    slashAmount,
 						})
 					}
 				}
@@ -502,7 +526,7 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 				cons, _ := currentBondedSet[i].GetConsAddr()
 				consPower := currentBondedSet[i].ConsensusPower(h.k.StakingKeeper.PowerReduction(ctx))
 
-				_, _ = h.k.StakingKeeper.Slash(ctx, cons, ctx.BlockHeight(), consPower, params.SlashFractionBatch)
+				slashAmount, _ := h.k.StakingKeeper.Slash(ctx, cons, ctx.BlockHeight(), consPower, params.SlashFractionBatch)
 
 				// nolint:errcheck //ignored on purpose
 				ctx.EventManager().EmitTypedEvent(&types.EventValidatorSlash{
@@ -512,6 +536,11 @@ func (h *BlockHandler) batchSlashing(ctx sdk.Context, params *types.Counterparty
 					ConsensusAddress: currentBondedSet[i].String(),
 					OperatorAddress:  currentBondedSet[i].OperatorAddress,
 					Moniker:          currentBondedSet[i].GetMoniker(),
+				})
+
+				h.k.AddSlashData(ctx, accAddr, params.HyperionId, types.SlashData{
+					SlashTimestamp: uint64(ctx.BlockTime().Unix()),
+					SlashAmount:    slashAmount,
 				})
 			}
 		}

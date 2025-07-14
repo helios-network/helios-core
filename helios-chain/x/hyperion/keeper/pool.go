@@ -5,8 +5,10 @@ import (
 	"math/big"
 	"sort"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -125,7 +127,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 	defer doneFn()
 
 	// check that we actually have a tx with that id and what it's details are
-	tx, err := k.getPoolEntry(ctx, hyperionId, txId)
+	tx, err := k.GetPoolEntry(ctx, hyperionId, txId)
 	if err != nil {
 		metrics.ReportFuncError(k.svcTags)
 		return err
@@ -210,6 +212,29 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 	ctx.EventManager().EmitTypedEvent(&types.EventBridgeWithdrawCanceled{
 		BridgeContract: k.GetBridgeContractAddress(ctx)[tx.HyperionId].Hex(),
 		BridgeChainId:  k.GetBridgeChainID(ctx)[tx.HyperionId],
+	})
+
+	// save information
+	tokenAddress := ""
+	if tokenAddressToDenom != nil {
+		tokenAddress = tokenAddressToDenom.Denom
+	}
+
+	k.StoreFinalizedTx(ctx, &types.TransferTx{
+		HyperionId:    tx.HyperionId,
+		Id:            tx.Id,
+		Sender:        cmn.AnyToHexAddress(tx.Sender).String(),
+		DestAddress:   cmn.AnyToHexAddress(tx.DestAddress).String(),
+		SentToken:     &types.Token{Amount: tx.Token.Amount, Contract: tokenAddress},
+		SentFee:       &types.Token{Amount: tx.Fee.Amount, Contract: sdk.DefaultBondDenom},
+		ReceivedToken: nil,
+		ReceivedFee:   nil,
+		Status:        "FAILED",
+		Direction:     "OUT",
+		ChainId:       tx.HyperionId,
+		Height:        uint64(ctx.BlockHeight()),
+		TxHash:        tx.TxHash,
+		Proof:         nil,
 	})
 
 	return nil
@@ -301,7 +326,7 @@ func (k *Keeper) setPoolEntry(ctx sdk.Context, outgoingTransferTx *types.Outgoin
 
 // getPoolEntry grabs an entry from the tx pool, this *does* include transactions in batches
 // so check the UnbatchedTxIndex or call GetPoolTransactions for that purpose
-func (k *Keeper) getPoolEntry(ctx sdk.Context, hyperionId uint64, id uint64) (*types.OutgoingTransferTx, error) {
+func (k *Keeper) GetPoolEntry(ctx sdk.Context, hyperionId uint64, id uint64) (*types.OutgoingTransferTx, error) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
@@ -349,7 +374,7 @@ func (k *Keeper) GetPoolTransactions(ctx sdk.Context, hyperionId uint64) []*type
 		var ids types.IDSet
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, hyperionId, id)
+			tx, err := k.GetPoolEntry(ctx, hyperionId, id)
 			if tx.HyperionId != hyperionId {
 				continue
 			}
@@ -386,7 +411,7 @@ func (k *Keeper) GetAllPoolTransactions(ctx sdk.Context) []*types.OutgoingTransf
 			hyperionIdBytes := key[:HyperionIDLen]
 			hyperionIdOfTheTx := binary.BigEndian.Uint64(hyperionIdBytes)
 
-			tx, err := k.getPoolEntry(ctx, hyperionIdOfTheTx, id)
+			tx, err := k.GetPoolEntry(ctx, hyperionIdOfTheTx, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
 				continue
@@ -413,7 +438,7 @@ func (k *Keeper) IterateOnSpecificalTokenContractOutgoingPoolByFee(ctx sdk.Conte
 		k.cdc.MustUnmarshal(iter.Value(), &ids)
 		// cb returns true to stop early
 		for _, id := range ids.Ids {
-			tx, err := k.getPoolEntry(ctx, hyperionId, id)
+			tx, err := k.GetPoolEntry(ctx, hyperionId, id)
 			if err != nil {
 				metrics.ReportFuncError(k.svcTags)
 				continue
@@ -444,6 +469,25 @@ func (k *Keeper) GetAllBatchFees(ctx sdk.Context, hyperionId uint64, minimumBatc
 	defer doneFn()
 
 	batchFeesMap := k.createBatchFees(ctx, hyperionId, minimumBatchFee, minimumTxFee)
+	// create array of batchFees
+	for _, batchFee := range batchFeesMap {
+		batchFees = append(batchFees, batchFee)
+	}
+
+	// quick sort by token to make this function safe for use
+	// in consensus computations
+	sort.SliceStable(batchFees, func(i, j int) bool {
+		return batchFees[i].Token < batchFees[j].Token
+	})
+
+	return batchFees
+}
+
+func (k *Keeper) GetAllBatchFeesWithIds(ctx sdk.Context, hyperionId uint64, minimumBatchFee sdk.Coin, minimumTxFee sdk.Coin) (batchFees []*types.BatchFeesWithIds) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	batchFeesMap := k.createBatchFeesOrderedByFee(ctx, hyperionId, minimumBatchFee, minimumTxFee)
 	// create array of batchFees
 	for _, batchFee := range batchFeesMap {
 		batchFees = append(batchFees, batchFee)
@@ -508,14 +552,13 @@ func (k *Keeper) createBatchFees(ctx sdk.Context, hyperionId uint64, minimumBatc
 				// add fee amount
 				if _, ok := batchFeesMap[tokenContractAddr]; ok {
 					totalFees := batchFeesMap[tokenContractAddr].TotalFees
-					totalFees = totalFees.Add(math.NewIntFromBigInt(feeAmount))
+					totalFees = totalFees.Add(sdkmath.NewIntFromBigInt(feeAmount))
 					batchFeesMap[tokenContractAddr].TotalFees = totalFees
 				} else {
 					batchFeesMap[tokenContractAddr] = &types.BatchFees{
 						Token:     tokenContractAddr.Hex(),
-						TotalFees: math.NewIntFromBigInt(feeAmount)}
+						TotalFees: sdkmath.NewIntFromBigInt(feeAmount)}
 				}
-
 				txCountMap[tokenContractAddr]++
 			}
 		}
@@ -533,7 +576,7 @@ func (k *Keeper) createBatchFeesOrderedByFee(ctx sdk.Context, hyperionId uint64,
 	// iterate over [SecondIndexOutgoingTXFeeKey][hyperionId] prefixes
 	defer iter.Close()
 
-	batchFeesMap := make(map[common.Address]*types.BatchFees)
+	batchFeesMap := make(map[common.Address]*types.BatchFeesWithIds)
 	potentialBatchsMap := make(map[common.Address][]*types.OutgoingTransferTx)
 	txCountMap := make(map[common.Address]int)
 
@@ -567,33 +610,40 @@ func (k *Keeper) createBatchFeesOrderedByFee(ctx sdk.Context, hyperionId uint64,
 			continue
 		}
 
-		for i := 0; i < len(ids.Ids); i++ {
+		for i := 0; i < len(ids.Ids); i++ { // loop on same token contract and fee amount
 			if txCountMap[tokenContractAddr] >= OutgoingTxBatchSize {
-				// // check if the tx as greater fee than others txs in the batch
-				// if feeAmount.Cmp(batchFeesMap[tokenContractAddr].TotalFees.BigInt()) > 0 {
-				// 	batchFeesMap[tokenContractAddr].TotalFees = math.NewIntFromBigInt(feeAmount)
-				// }
-				break
+				// check if the tx as greater fee than others txs in the batch
+				sort.SliceStable(batchFeesMap[tokenContractAddr].Fees, func(i, j int) bool {
+					return batchFeesMap[tokenContractAddr].Fees[i].GT(batchFeesMap[tokenContractAddr].Fees[j])
+				})
+				// if the tx has greater fee than the first tx in the batch, replace the first tx with the new tx
+				if batchFeesMap[tokenContractAddr].Fees[0].LT(sdkmath.NewIntFromBigInt(feeAmount)) {
+					batchFeesMap[tokenContractAddr].Fees = append(batchFeesMap[tokenContractAddr].Fees, sdkmath.NewIntFromBigInt(feeAmount))
+					batchFeesMap[tokenContractAddr].Ids = append(batchFeesMap[tokenContractAddr].Ids, ids.Ids[i])
+				}
+				continue
 			} else {
 				// add fee amount
 				if _, ok := potentialBatchsMap[tokenContractAddr]; ok {
 					totalFees := batchFeesMap[tokenContractAddr].TotalFees
-					totalFees = totalFees.Add(math.NewIntFromBigInt(feeAmount))
+					totalFees = totalFees.Add(sdkmath.NewIntFromBigInt(feeAmount))
 					batchFeesMap[tokenContractAddr].TotalFees = totalFees
+					batchFeesMap[tokenContractAddr].Fees = append(batchFeesMap[tokenContractAddr].Fees, sdkmath.NewIntFromBigInt(feeAmount))
+					batchFeesMap[tokenContractAddr].Ids = append(batchFeesMap[tokenContractAddr].Ids, ids.Ids...)
 				} else {
-					batchFeesMap[tokenContractAddr] = &types.BatchFees{
+					feeAmounts := make([]sdkmath.Int, 0)
+					feeAmounts = append(feeAmounts, sdkmath.NewIntFromBigInt(feeAmount))
+					batchFeesMap[tokenContractAddr] = &types.BatchFeesWithIds{
 						Token:     tokenContractAddr.Hex(),
-						TotalFees: math.NewIntFromBigInt(feeAmount),
+						TotalFees: sdkmath.NewIntFromBigInt(feeAmount),
 						Ids:       ids.Ids,
-						Fees:      ids.Ids,
+						Fees:      feeAmounts,
 					}
 				}
-
 				txCountMap[tokenContractAddr]++
 			}
 		}
 	}
-
 	return batchFeesMap
 }
 
@@ -624,6 +674,22 @@ func (k *Keeper) SetID(ctx sdk.Context, idKey []byte, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 	bz := sdk.Uint64ToBigEndian(id)
 	store.Set(idKey, bz)
+}
+
+func (k *Keeper) GetID(ctx sdk.Context, idKey []byte) uint64 {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(idKey)
+
+	var id uint64
+	if bz != nil {
+		id = binary.BigEndian.Uint64(bz) + 1
+	} else {
+		id = 1
+	}
+	return id
 }
 
 func (k *Keeper) GetLastOutgoingBatchID(ctx sdk.Context, hyperionId uint64) uint64 {

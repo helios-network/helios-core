@@ -178,6 +178,26 @@ service Query {
       returns (QueryOutgoingTxBatchesCountResponse) {
     option (google.api.http).get = "/hyperion/v1/batch/count";
   }
+
+  rpc QueryHistoricalFees(QueryHistoricalFeesRequest)
+      returns (QueryHistoricalFeesResponse) {
+    option (google.api.http).get = "/hyperion/v1/historical_fees";
+  }
+
+  rpc QueryGetOrchestratorsData(QueryGetOrchestratorsDataRequest)
+      returns (QueryGetOrchestratorsDataResponse) {
+    option (google.api.http).get = "/hyperion/v1/orchestrators_data";
+  }
+
+  rpc QueryGetOrchestratorData(QueryGetOrchestratorDataRequest)
+      returns (QueryGetOrchestratorDataResponse) {
+    option (google.api.http).get = "/hyperion/v1/orchestrator_data";
+  }
+
+  rpc QueryGetOrchestratorHyperionData(QueryGetOrchestratorHyperionDataRequest)
+      returns (QueryGetOrchestratorHyperionDataResponse) {
+    option (google.api.http).get = "/hyperion/v1/orchestrator_hyperion_data";
+  }
 }
 
 message QueryParamsRequest {}
@@ -240,7 +260,7 @@ message QueryBatchFeeWithMinimumFeeRequest {
   cosmos.base.v1beta1.Coin minimum_batch_fee = 2 [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin minimum_tx_fee = 3 [ (gogoproto.nullable) = false ];
 }
-message QueryBatchFeeWithMinimumFeeResponse { repeated BatchFees batchFees = 1; }
+message QueryBatchFeeWithMinimumFeeResponse { repeated BatchFeesWithIds batchFees = 1; }
 
 message QueryLastPendingBatchRequestByAddrRequest {
   uint64 hyperion_id = 1;
@@ -445,4 +465,40 @@ message QueryOutgoingTxBatchesCountRequest {
 message QueryOutgoingTxBatchesCountResponse {
   uint64 tx_count = 1;
   uint64 batch_count = 2;
+}
+
+message QueryHistoricalFeesRequest {
+  uint64 hyperion_id = 1;
+}
+
+message QueryHistoricalFeesResponse {
+  repeated cosmos.base.v1beta1.Coin historical_fees = 1;
+  cosmos.base.v1beta1.Coin low = 2;
+  cosmos.base.v1beta1.Coin high = 3;
+  cosmos.base.v1beta1.Coin average = 4;
+}
+
+message QueryGetOrchestratorsDataRequest {
+  repeated string orchestrators = 1;
+}
+
+message QueryGetOrchestratorsDataResponse {
+  repeated OrchestratorData orchestrators_data = 1;
+}
+
+message QueryGetOrchestratorDataRequest {
+  string orchestrator_address = 1;
+}
+
+message QueryGetOrchestratorDataResponse {
+  OrchestratorData orchestrator_data = 1;
+}
+
+message QueryGetOrchestratorHyperionDataRequest {
+  string orchestrator_address = 1;
+  uint64 hyperion_id = 2;
+}
+
+message QueryGetOrchestratorHyperionDataResponse {
+  OrchestratorHyperionData orchestrator_hyperion_data = 1;
 }

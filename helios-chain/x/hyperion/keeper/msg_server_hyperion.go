@@ -88,6 +88,14 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	}
 	k.Keeper.SetValsetConfirm(ctx, msg)
 
+	orchestratorData, err := k.Keeper.GetOrchestratorHyperionData(ctx, orchaddr, msg.HyperionId)
+	if err != nil {
+		k.Keeper.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", msg.HyperionId, "orchestrator", orchaddr)
+		return nil, errors.Wrap(types.ErrInvalid, "failed to get orchestrator data")
+	}
+	orchestratorData.BatchConfirmed++
+	k.Keeper.SetOrchestratorHyperionData(ctx, orchaddr, msg.HyperionId, *orchestratorData)
+
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventValsetConfirm{
 		HyperionId:          msg.HyperionId,
@@ -257,10 +265,37 @@ func (k msgServer) RequestBatchWithMinimumFee(c context.Context, msg *types.MsgR
 	}
 	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)
 
-	batch, err := k.Keeper.BuildOutgoingTXBatch(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize, msg.MinimumBatchFee, msg.MinimumTxFee)
+	orchestrator, _ := sdk.AccAddressFromBech32(msg.Orchestrator)
+	validator, found := k.Keeper.GetOrchestratorValidator(ctx, msg.HyperionId, orchestrator)
+	if !found {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrUnknown, "validator")
+	}
+
+	orchestratorFee, found := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validator)
+	if !found {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrInvalid, "orchestrator fee not found - please set a fee for your orchestrator")
+	}
+
+	if msg.MinimumBatchFee.Amount.LT(orchestratorFee.Amount) {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrInvalid, "minimum batch fee is less than the orchestrator fee")
+	}
+
+	batch, err := k.Keeper.BuildOutgoingTXBatchWithIds(ctx, tokenContract, msg.HyperionId, OutgoingTxBatchSize, msg.MinimumBatchFee, msg.MinimumTxFee, msg.TxIds)
 	if err != nil {
 		return nil, err
 	}
+
+	// Update orchestrator data
+	orchestratorData, err := k.Keeper.GetOrchestratorHyperionData(ctx, orchestrator, msg.HyperionId)
+	if err != nil {
+		k.Keeper.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", msg.HyperionId, "orchestrator", orchestrator)
+		return nil, err
+	}
+	orchestratorData.BatchCreated++
+	k.Keeper.SetOrchestratorHyperionData(ctx, orchestrator, msg.HyperionId, *orchestratorData)
 
 	batchTxIDs := make([]uint64, 0, len(batch.Transactions))
 

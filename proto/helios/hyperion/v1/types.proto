@@ -103,6 +103,7 @@ message TransferTx {
   Proof proof = 13;
   string tx_hash = 14 [(gogoproto.jsontag) = "txHash"];
   uint64 index = 15;
+  // todo add INFO
 }
 
 message Rpc {
@@ -128,4 +129,49 @@ message BatchNonceWithSignature {
   string token_contract = 1;
   uint64 nonce = 2;
   string signature = 3;
+}
+
+message SlashData {
+  uint64 slash_timestamp = 1;
+  string slash_amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message OrchestratorHyperionData {
+  uint64 hyperion_id = 1;
+  string minimum_tx_fee = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string minimum_batch_fee = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  uint64 total_slash_count = 4;
+  string total_slash_amount = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated SlashData slash_data = 6;
+  uint64 tx_out_transfered = 7;
+  uint64 tx_in_transfered = 8;
+  uint64 batch_created = 9;
+  uint64 batch_confirmed = 10;
+  string fee_collected = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  uint64 external_data_tx_executed = 12;
+  string external_data_tx_fee_collected = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+}
+
+message OrchestratorData {
+  string orchestrator = 1;
+  repeated OrchestratorHyperionData orchestrator_hyperion_data = 2;
 }

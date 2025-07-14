@@ -59,6 +59,7 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetTokenDetails":                            5 * time.Minute,
 		"ChainId":                                    5 * time.Second,
 		"BlockNumber":                                5 * time.Second,
+		"GetHyperionHistoricalFees":                  15 * time.Second,
 	}
 
 	for method, ttl := range cachedMethods {

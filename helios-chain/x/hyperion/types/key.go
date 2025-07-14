@@ -122,6 +122,8 @@ var (
 	NonceObservedKey = []byte{0x21}
 
 	FeeByValidatorKey = []byte{0x22}
+
+	OrchestratorDataKey = []byte{0x23}
 )
 
 func GetBlacklistStoreKey(addr common.Address) []byte {
@@ -400,5 +402,12 @@ func GetNonceObservedKey(hyperionId uint64, nonce uint64) []byte {
 	buf = append(buf, NonceObservedKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(nonce)...)
+	return buf
+}
+
+func GetOrchestratorDataKey(orchestrator sdk.AccAddress) []byte {
+	buf := make([]byte, 0, len(OrchestratorDataKey)+len(orchestrator))
+	buf = append(buf, OrchestratorDataKey...)
+	buf = append(buf, orchestrator.Bytes()...)
 	return buf
 }

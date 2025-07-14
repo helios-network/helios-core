@@ -99,3 +99,14 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 
 	return counterpartyChainParams, nil
 }
+
+func (b *Backend) GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error) {
+	res, err := b.queryClient.Hyperion.QueryHistoricalFees(b.ctx, &hyperiontypes.QueryHistoricalFeesRequest{
+		HyperionId: hyperionId,
+	})
+	if err != nil {
+		b.logger.Error("GetHyperionHistoricalFees", "error", err)
+		return nil, err
+	}
+	return res, nil
+}

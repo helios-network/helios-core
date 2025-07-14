@@ -239,6 +239,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/delete_orchestrator_addresses_fee";
   }
 
+  rpc SetLastBatchNonce(MsgSetLastBatchNonce)
+      returns (MsgSetLastBatchNonceResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_last_batch_nonce";
+  }
+
   // <-- Testnet
 }
 
@@ -347,6 +352,7 @@ message MsgRequestBatchWithMinimumFee {
   string denom = 3;
   cosmos.base.v1beta1.Coin minimum_batch_fee = 4 [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin minimum_tx_fee = 5 [ (gogoproto.nullable) = false ];
+  repeated uint64 tx_ids = 6;
 }
 
 message MsgRequestBatchWithMinimumFeeResponse {}
@@ -901,7 +907,8 @@ message MsgSetOrchestratorAddressesWithFee {
   uint64 hyperion_id = 2;
   string orchestrator = 3;
   string eth_address = 4;
-  cosmos.base.v1beta1.Coin bridge_fee = 5 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin minimum_tx_fee = 5 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin minimum_batch_fee = 6 [ (gogoproto.nullable) = false ];
 }
 
 message MsgSetOrchestratorAddressesWithFeeResponse {}
@@ -912,7 +919,8 @@ message MsgUpdateOrchestratorAddressesFee {
 
   string sender = 1;
   uint64 hyperion_id = 2;
-  cosmos.base.v1beta1.Coin bridge_fee = 3 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin minimum_tx_fee = 3 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin minimum_batch_fee = 4 [ (gogoproto.nullable) = false ];
 }
 
 message MsgUpdateOrchestratorAddressesFeeResponse {}
@@ -926,3 +934,14 @@ message MsgDeleteOrchestratorAddressesFee {
 }
 
 message MsgDeleteOrchestratorAddressesFeeResponse {}
+
+message MsgSetLastBatchNonce {
+  option (amino.name) = "hyperion/MsgSetLastBatchNonce";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 hyperion_id = 2;
+  uint64 batch_nonce = 3;
+}
+
+message MsgSetLastBatchNonceResponse {}

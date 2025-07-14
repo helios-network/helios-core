@@ -176,6 +176,7 @@ type EthereumAPI interface {
 	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
+	GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error)
 
 	GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error)
 }
@@ -813,6 +814,11 @@ func (e *PublicAPI) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 	return e.backend.GetHyperionChains()
 }
 
+func (e *PublicAPI) GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error) {
+	e.logger.Debug("eth_getHyperionHistoricalFees", "hyperionId", hyperionId)
+	return e.backend.GetHyperionHistoricalFees(hyperionId)
+}
+
 // Dans helios-chain/rpc/namespaces/ethereum/eth/api.go
 
 func (e *PublicAPI) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error) {
@@ -834,4 +840,3 @@ func (e *PublicAPI) GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.Blo
 	e.logger.Debug("eth_getAllTransactionReceiptsByBlockNumber", "height", blockNum.Int64())
 	return e.backend.GetAllTransactionReceiptsByBlockNumber(blockNum)
 }
-
