@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"encoding/binary"
-	"fmt"
 	"math/big"
 	"slices"
 	"sort"
@@ -99,12 +98,8 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		return 0, err
 	}
 
-	fmt.Println("log8 - outgoing: ", outgoing)
-
 	// add a second index with the fee
 	k.appendToUnbatchedTXIndex(ctx, hyperionId, tokenContract, erc20Fee, nextID)
-
-	fmt.Println("log9 - nextID: ", nextID)
 
 	return nextID, nil
 }
@@ -211,7 +206,7 @@ func (k *Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, hyperionId uin
 	// send fees back to the sender
 	if err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, sdk.NewCoins(feeToRefund)); err != nil {
 		metrics.ReportFuncError(k.svcTags)
-		return errors.Wrap(err, "transfer fees")
+		k.Logger(ctx).Error("transfer fees", "error", err)
 	}
 
 	// nolint:errcheck //ignored on purpose

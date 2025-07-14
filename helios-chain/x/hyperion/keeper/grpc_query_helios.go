@@ -281,25 +281,25 @@ func (k Keeper) Attestation(c context.Context, req *types.QueryAttestationReques
 
 func formatErc20TransferTxs(ctx sdk.Context, k *Keeper, txs []*types.TransferTx) []*types.TransferTx {
 	for _, tx := range txs {
-		if tx.SentToken.Contract != "" {
+		if tx.SentToken.Contract != "" && !strings.HasPrefix(tx.SentToken.Contract, "0x") {
 			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentToken.Contract))
 			if exists {
 				tx.SentToken.Contract = tokenPair.Erc20Address
 			}
 		}
-		if tx.ReceivedToken.Contract != "" {
+		if tx.ReceivedToken.Contract != "" && !strings.HasPrefix(tx.ReceivedToken.Contract, "0x") {
 			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedToken.Contract))
 			if exists {
 				tx.ReceivedToken.Contract = tokenPair.Erc20Address
 			}
 		}
-		if tx.SentFee.Contract != "" {
+		if tx.SentFee.Contract != "" && !strings.HasPrefix(tx.SentFee.Contract, "0x") {
 			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentFee.Contract))
 			if exists {
 				tx.SentFee.Contract = tokenPair.Erc20Address
 			}
 		}
-		if tx.ReceivedFee.Contract != "" {
+		if tx.ReceivedFee.Contract != "" && !strings.HasPrefix(tx.ReceivedFee.Contract, "0x") {
 			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedFee.Contract))
 			if exists {
 				tx.ReceivedFee.Contract = tokenPair.Erc20Address

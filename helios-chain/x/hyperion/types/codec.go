@@ -71,6 +71,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRemoveTokenFromChain{},
 		&MsgUpdateChainTokenLogo{},
 		&MsgUpdateAverageBlockTime{},
+		&MsgSetLastBatchNonce{},
 	)
 
 	registry.RegisterInterface(
@@ -139,6 +140,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRemoveTokenFromChain{}, "hyperion/MsgRemoveTokenFromChain", nil)
 	cdc.RegisterConcrete(&MsgUpdateChainTokenLogo{}, "hyperion/MsgUpdateChainTokenLogo", nil)
 	cdc.RegisterConcrete(&MsgUpdateAverageBlockTime{}, "hyperion/MsgUpdateAverageBlockTime", nil)
+	cdc.RegisterConcrete(&MsgSetLastBatchNonce{}, "hyperion/MsgSetLastBatchNonce", nil)
 
 	cdc.RegisterConcrete(&Params{}, "hyperion/Params", nil)
 }
