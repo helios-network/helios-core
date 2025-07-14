@@ -50,15 +50,26 @@ func (k *Keeper) GetOrchestratorHyperionData(ctx sdk.Context, orchestrator sdk.A
 func (k *Keeper) SetOrchestratorHyperionData(ctx sdk.Context, orchestrator sdk.AccAddress, hyperionId uint64, orchestratorHyperionData types.OrchestratorHyperionData) error {
 	orchestratorData, err := k.GetOrchestratorData(ctx, orchestrator)
 	if err != nil {
-		return err
-	}
-
-	for _, orchestratorHyperionData := range orchestratorData.OrchestratorHyperionData {
-		if orchestratorHyperionData.HyperionId == hyperionId {
-			return errors.Wrap(types.ErrInvalid, "orchestrator hyperion data already exists")
+		orchestratorData = &types.OrchestratorData{
+			Orchestrator:             orchestrator.String(),
+			OrchestratorHyperionData: make([]*types.OrchestratorHyperionData, 0),
 		}
 	}
-	orchestratorData.OrchestratorHyperionData = append(orchestratorData.OrchestratorHyperionData, &orchestratorHyperionData)
+
+	// replace if already exists
+	replaced := false
+	for i, data := range orchestratorData.OrchestratorHyperionData {
+		if data.HyperionId == hyperionId {
+			orchestratorData.OrchestratorHyperionData[i] = &orchestratorHyperionData
+			replaced = true
+			break
+		}
+	}
+
+	if !replaced {
+		orchestratorData.OrchestratorHyperionData = append(orchestratorData.OrchestratorHyperionData, &orchestratorHyperionData)
+	}
+
 	k.SetOrchestratorData(ctx, orchestrator, *orchestratorData)
 	return nil
 }

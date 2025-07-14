@@ -3800,6 +3800,227 @@ paths:
           type: string
       tags:
         - Query
+  /hyperion/v1/batch/count:
+    get:
+      operationId: OutgoingTxBatchesCount
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              tx_count:
+                type: string
+                format: uint64
+              batch_count:
+                type: string
+                format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
   /hyperion/v1/batch/last:
     get:
       operationId: LastPendingBatchRequestByAddr
@@ -3896,6 +4117,314 @@ paths:
                 title: >-
                   OutgoingTxBatch represents a batch of transactions going from
                   Hyperion to ETH
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: address
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /hyperion/v1/batch/lasts:
+    get:
+      operationId: LastPendingBatchsRequestByAddr
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              batchs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
+                    batch_nonce:
+                      type: string
+                      format: uint64
+                    batch_timeout:
+                      type: string
+                      format: uint64
+                    transactions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          hyperion_id:
+                            type: string
+                            format: uint64
+                          id:
+                            type: string
+                            format: uint64
+                          sender:
+                            type: string
+                          dest_address:
+                            type: string
+                          token:
+                            type: object
+                            properties:
+                              contract:
+                                type: string
+                              amount:
+                                type: string
+                            title: >-
+                              Token unique identifier for an Bridged token.
+
+                              CONTRACT:
+
+                              The contract address on Originating chain of the
+                              token, this could be a Cosmos
+
+                              originated token, if so it will be the address of
+                              the representation
+
+                              (note: developers should look up the token symbol
+                              using the address on original chain to
+
+                              display for UI)
+                          fee:
+                            type: object
+                            properties:
+                              contract:
+                                type: string
+                              amount:
+                                type: string
+                            title: >-
+                              Token unique identifier for an Bridged token.
+
+                              CONTRACT:
+
+                              The contract address on Originating chain of the
+                              token, this could be a Cosmos
+
+                              originated token, if so it will be the address of
+                              the representation
+
+                              (note: developers should look up the token symbol
+                              using the address on original chain to
+
+                              display for UI)
+                          tx_timeout:
+                            type: string
+                            format: uint64
+                          tx_hash:
+                            type: string
+                        title: >-
+                          OutgoingTransferTx represents an individual send from
+                          Hyperion to ETH
+                    token_contract:
+                      type: string
+                    block:
+                      type: string
+                      format: uint64
+                  title: >-
+                    OutgoingTxBatch represents a batch of transactions going
+                    from Hyperion to ETH
         default:
           description: An unexpected error response.
           schema:
@@ -4634,6 +5163,255 @@ paths:
           format: uint64
       tags:
         - Query
+  /hyperion/v1/batchfees/minimum_fee:
+    get:
+      operationId: BatchFeesWithMinimumFee
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              batchFees:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                    total_fees:
+                      type: string
+                    ids:
+                      type: array
+                      items:
+                        type: string
+                        format: uint64
+                    fees:
+                      type: array
+                      items:
+                        type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: minimum_batch_fee.denom
+          in: query
+          required: false
+          type: string
+        - name: minimum_batch_fee.amount
+          in: query
+          required: false
+          type: string
+        - name: minimum_tx_fee.denom
+          in: query
+          required: false
+          type: string
+        - name: minimum_tx_fee.amount
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
   /hyperion/v1/chains/delegate_keys:
     get:
       operationId: QueryGetDelegateKeysByAddress
@@ -4853,6 +5631,702 @@ paths:
           type: string
       tags:
         - Query
+  /hyperion/v1/chains/outgoing_external_data_txs:
+    get:
+      operationId: OutgoingExternalDataTxs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              txs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
+                    id:
+                      type: string
+                      format: uint64
+                    sender:
+                      type: string
+                    cron_id:
+                      type: string
+                    external_contract_address:
+                      type: string
+                    abi_call_hex:
+                      type: string
+                    fee:
+                      type: object
+                      properties:
+                        contract:
+                          type: string
+                        amount:
+                          type: string
+                      title: >-
+                        Token unique identifier for an Bridged token.
+
+                        CONTRACT:
+
+                        The contract address on Originating chain of the token,
+                        this could be a Cosmos
+
+                        originated token, if so it will be the address of the
+                        representation
+
+                        (note: developers should look up the token symbol using
+                        the address on original chain to
+
+                        display for UI)
+                    timeout:
+                      type: string
+                      format: uint64
+                    nonce:
+                      type: string
+                      format: uint64
+                    block:
+                      type: string
+                      format: uint64
+                    claims:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          hyperion_id:
+                            type: string
+                            format: uint64
+                          block_height:
+                            type: string
+                            format: uint64
+                          tx_nonce:
+                            type: string
+                            format: uint64
+                          external_contract_address:
+                            type: string
+                          orchestrator:
+                            type: string
+                          call_data_result:
+                            type: string
+                          call_data_result_error:
+                            type: string
+                          rpc_used:
+                            type: string
+                    votes:
+                      type: array
+                      items:
+                        type: string
+                  title: >-
+                    OutgoingExternalDataTx represents an individual send from
+                    Hyperion to external contract
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /hyperion/v1/chains/tokens:
+    get:
+      operationId: QueryGetTokensOfChain
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              tokens:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    metadata:
+                      type: object
+                      properties:
+                        description:
+                          type: string
+                        denom_units:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                                description: >-
+                                  denom represents the string name of the given
+                                  denom unit (e.g uatom).
+                              exponent:
+                                type: integer
+                                format: int64
+                                description: >-
+                                  exponent represents power of 10 exponent that
+                                  one must
+
+                                  raise the base_denom to in order to equal the
+                                  given DenomUnit's denom
+
+                                  1 denom = 10^exponent base_denom
+
+                                  (e.g. with a base_denom of uatom, one can
+                                  create a DenomUnit of 'atom' with
+
+                                  exponent = 6, thus: 1 atom = 10^6 uatom).
+                              aliases:
+                                type: array
+                                items:
+                                  type: string
+                                title: >-
+                                  aliases is a list of string aliases for the
+                                  given denom
+                            description: >-
+                              DenomUnit represents a struct that describes a
+                              given
+
+                              denomination unit of the basic token.
+                          title: >-
+                            denom_units represents the list of DenomUnit's for a
+                            given coin
+                        base:
+                          type: string
+                          description: >-
+                            base represents the base denom (should be the
+                            DenomUnit with exponent = 0).
+                        display:
+                          type: string
+                          description: |-
+                            display indicates the suggested denom that should be
+                            displayed in clients.
+                        name:
+                          type: string
+                          description: 'Since: cosmos-sdk 0.43'
+                          title: 'name defines the name of the token (eg: Cosmos Atom)'
+                        symbol:
+                          type: string
+                          description: >-
+                            symbol is the token symbol usually shown on
+                            exchanges (eg: ATOM). This can
+
+                            be the same as the display.
+
+
+                            Since: cosmos-sdk 0.43
+                        uri:
+                          type: string
+                          description: >-
+                            URI to a document (on or off-chain) that contains
+                            additional information. Optional.
+
+
+                            Since: cosmos-sdk 0.46
+                        uri_hash:
+                          type: string
+                          description: >-
+                            URIHash is a sha256 hash of a document pointed by
+                            URI. It's used to verify that
+
+                            the document didn't change. Optional.
+
+
+                            Since: cosmos-sdk 0.46
+                        decimals:
+                          type: integer
+                          format: int64
+                          description: 'Since: cosmos-sdk 0.50'
+                          title: >-
+                            Decimals represent the number of decimals use to
+                            represent token amount on chain
+                        logo:
+                          type: string
+                          title: >-
+                            Logo represent the base64 logo in png format with
+                            size 200x200 on chain.
+
+                            Optional.
+
+                            Since: cosmos-sdk v0.50.10-helios-72
+                        contract_address:
+                          type: string
+                          title: >-
+                            contract_address is the contract address of the
+                            token
+
+                            Optional.
+
+                            Since: cosmos-sdk v0.50.10-helios-74
+                        chains_metadatas:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chain_id:
+                                type: string
+                                format: uint64
+                              symbol:
+                                type: string
+                              decimals:
+                                type: integer
+                                format: int64
+                              contract_address:
+                                type: string
+                              is_originated:
+                                type: boolean
+                          title: |-
+                            chains_metadatas is the list of chain metadata
+                            Optional.
+                            Since: cosmos-sdk v0.50.10-helios-76
+                      description: |-
+                        Metadata represents a struct that describes
+                        a basic token.
+                    holders_count:
+                      type: string
+                      format: uint64
+                    total_supply:
+                      type: string
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: page
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: size
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: chain_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
   /hyperion/v1/chains/{chain_id}/params:
     get:
       operationId: QueryGetCounterpartyChainParamsByChainId
@@ -4920,8 +6394,6 @@ paths:
                   slash_fraction_bad_eth_signature:
                     type: string
                     format: byte
-                  claim_slashing_enabled:
-                    type: boolean
                   bridge_contract_start_height:
                     type: string
                     format: uint64
@@ -4994,6 +6466,14 @@ paths:
                         last_height_used:
                           type: string
                           format: uint64
+                  offset_valset_nonce:
+                    type: string
+                    format: uint64
+                  min_call_external_data_gas:
+                    type: string
+                    format: uint64
+                  paused:
+                    type: boolean
         default:
           description: An unexpected error response.
           schema:
@@ -5705,6 +7185,283 @@ paths:
           format: uint64
       tags:
         - Query
+  /hyperion/v1/historical_fees:
+    get:
+      operationId: QueryHistoricalFees
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              historical_fees:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+              low:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+              high:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+              average:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
   /hyperion/v1/missing_nonces:
     get:
       operationId: MissingHyperionNonces
@@ -6000,8 +7757,6 @@ paths:
                             slash_fraction_bad_eth_signature:
                               type: string
                               format: byte
-                            claim_slashing_enabled:
-                              type: boolean
                             bridge_contract_start_height:
                               type: string
                               format: uint64
@@ -6076,10 +7831,14 @@ paths:
                                   last_height_used:
                                     type: string
                                     format: uint64
-                      admins:
-                        type: array
-                        items:
-                          type: string
+                            offset_valset_nonce:
+                              type: string
+                              format: uint64
+                            min_call_external_data_gas:
+                              type: string
+                              format: uint64
+                            paused:
+                              type: boolean
                   sub_states:
                     type: array
                     items:
@@ -6624,31 +8383,6 @@ paths:
                               will be used by this
 
                               validator on Ethereum
-                        token_address_to_denoms:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              chain_id:
-                                type: string
-                              token_address:
-                                type: string
-                              denom:
-                                type: string
-                              symbol:
-                                type: string
-                              decimals:
-                                type: string
-                                format: uint64
-                              is_cosmos_originated:
-                                type: boolean
-                              is_concensus_token:
-                                type: boolean
-                            title: >-
-                              This records the relationship between an bridged
-                              token and the denom
-
-                              of the corresponding Cosmos originated asset
                         unbatched_transfers:
                           type: array
                           items:
@@ -6787,10 +8521,10 @@ paths:
 
                             used to check signatures on counterparty chain
                             because of the significant gas savings
-                        ethereum_blacklist:
-                          type: array
-                          items:
-                            type: string
+                  blacklist_addresses:
+                    type: array
+                    items:
+                      type: string
                 title: GenesisState struct
             description: >-
               QueryModuleStateResponse is the response type for the
@@ -7229,6 +8963,804 @@ paths:
           format: uint64
       tags:
         - Query
+  /hyperion/v1/orchestrator_data:
+    get:
+      operationId: QueryGetOrchestratorData
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              orchestrator_data:
+                type: object
+                properties:
+                  orchestrator:
+                    type: string
+                  orchestrator_hyperion_data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hyperion_id:
+                          type: string
+                          format: uint64
+                        minimum_tx_fee:
+                          type: string
+                        minimum_batch_fee:
+                          type: string
+                        total_slash_count:
+                          type: string
+                          format: uint64
+                        total_slash_amount:
+                          type: string
+                        slash_data:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              slash_timestamp:
+                                type: string
+                                format: uint64
+                              slash_amount:
+                                type: string
+                        tx_out_transfered:
+                          type: string
+                          format: uint64
+                        tx_in_transfered:
+                          type: string
+                          format: uint64
+                        batch_created:
+                          type: string
+                          format: uint64
+                        batch_confirmed:
+                          type: string
+                          format: uint64
+                        fee_collected:
+                          type: string
+                        external_data_tx_executed:
+                          type: string
+                          format: uint64
+                        external_data_tx_fee_collected:
+                          type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: orchestrator_address
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /hyperion/v1/orchestrator_hyperion_data:
+    get:
+      operationId: QueryGetOrchestratorHyperionData
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              orchestrator_hyperion_data:
+                type: object
+                properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
+                  minimum_tx_fee:
+                    type: string
+                  minimum_batch_fee:
+                    type: string
+                  total_slash_count:
+                    type: string
+                    format: uint64
+                  total_slash_amount:
+                    type: string
+                  slash_data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slash_timestamp:
+                          type: string
+                          format: uint64
+                        slash_amount:
+                          type: string
+                  tx_out_transfered:
+                    type: string
+                    format: uint64
+                  tx_in_transfered:
+                    type: string
+                    format: uint64
+                  batch_created:
+                    type: string
+                    format: uint64
+                  batch_confirmed:
+                    type: string
+                    format: uint64
+                  fee_collected:
+                    type: string
+                  external_data_tx_executed:
+                    type: string
+                    format: uint64
+                  external_data_tx_fee_collected:
+                    type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: orchestrator_address
+          in: query
+          required: false
+          type: string
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /hyperion/v1/orchestrators_data:
+    get:
+      operationId: QueryGetOrchestratorsData
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              orchestrators_data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orchestrator:
+                      type: string
+                    orchestrator_hyperion_data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          hyperion_id:
+                            type: string
+                            format: uint64
+                          minimum_tx_fee:
+                            type: string
+                          minimum_batch_fee:
+                            type: string
+                          total_slash_count:
+                            type: string
+                            format: uint64
+                          total_slash_amount:
+                            type: string
+                          slash_data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slash_timestamp:
+                                  type: string
+                                  format: uint64
+                                slash_amount:
+                                  type: string
+                          tx_out_transfered:
+                            type: string
+                            format: uint64
+                          tx_in_transfered:
+                            type: string
+                            format: uint64
+                          batch_created:
+                            type: string
+                            format: uint64
+                          batch_confirmed:
+                            type: string
+                            format: uint64
+                          fee_collected:
+                            type: string
+                          external_data_tx_executed:
+                            type: string
+                            format: uint64
+                          external_data_tx_fee_collected:
+                            type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: orchestrators
+          in: query
+          required: false
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      tags:
+        - Query
   /hyperion/v1/params:
     get:
       summary: Deployments queries deployments
@@ -7302,8 +9834,6 @@ paths:
                         slash_fraction_bad_eth_signature:
                           type: string
                           format: byte
-                        claim_slashing_enabled:
-                          type: boolean
                         bridge_contract_start_height:
                           type: string
                           format: uint64
@@ -7377,10 +9907,14 @@ paths:
                               last_height_used:
                                 type: string
                                 format: uint64
-                  admins:
-                    type: array
-                    items:
-                      type: string
+                        offset_valset_nonce:
+                          type: string
+                          format: uint64
+                        min_call_external_data_gas:
+                          type: string
+                          format: uint64
+                        paused:
+                          type: boolean
         default:
           description: An unexpected error response.
           schema:
@@ -59098,6 +61632,176 @@ definitions:
       Query/SkippedEpochs
 
       RPC method.
+  cosmos.bank.v1beta1.ChainMetadata:
+    type: object
+    properties:
+      chain_id:
+        type: string
+        format: uint64
+      symbol:
+        type: string
+      decimals:
+        type: integer
+        format: int64
+      contract_address:
+        type: string
+      is_originated:
+        type: boolean
+  cosmos.bank.v1beta1.DenomUnit:
+    type: object
+    properties:
+      denom:
+        type: string
+        description: denom represents the string name of the given denom unit (e.g uatom).
+      exponent:
+        type: integer
+        format: int64
+        description: >-
+          exponent represents power of 10 exponent that one must
+
+          raise the base_denom to in order to equal the given DenomUnit's denom
+
+          1 denom = 10^exponent base_denom
+
+          (e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom'
+          with
+
+          exponent = 6, thus: 1 atom = 10^6 uatom).
+      aliases:
+        type: array
+        items:
+          type: string
+        title: aliases is a list of string aliases for the given denom
+    description: |-
+      DenomUnit represents a struct that describes a given
+      denomination unit of the basic token.
+  cosmos.bank.v1beta1.Metadata:
+    type: object
+    properties:
+      description:
+        type: string
+      denom_units:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              description: >-
+                denom represents the string name of the given denom unit (e.g
+                uatom).
+            exponent:
+              type: integer
+              format: int64
+              description: >-
+                exponent represents power of 10 exponent that one must
+
+                raise the base_denom to in order to equal the given DenomUnit's
+                denom
+
+                1 denom = 10^exponent base_denom
+
+                (e.g. with a base_denom of uatom, one can create a DenomUnit of
+                'atom' with
+
+                exponent = 6, thus: 1 atom = 10^6 uatom).
+            aliases:
+              type: array
+              items:
+                type: string
+              title: aliases is a list of string aliases for the given denom
+          description: |-
+            DenomUnit represents a struct that describes a given
+            denomination unit of the basic token.
+        title: denom_units represents the list of DenomUnit's for a given coin
+      base:
+        type: string
+        description: >-
+          base represents the base denom (should be the DenomUnit with exponent
+          = 0).
+      display:
+        type: string
+        description: |-
+          display indicates the suggested denom that should be
+          displayed in clients.
+      name:
+        type: string
+        description: 'Since: cosmos-sdk 0.43'
+        title: 'name defines the name of the token (eg: Cosmos Atom)'
+      symbol:
+        type: string
+        description: >-
+          symbol is the token symbol usually shown on exchanges (eg: ATOM). This
+          can
+
+          be the same as the display.
+
+
+          Since: cosmos-sdk 0.43
+      uri:
+        type: string
+        description: >-
+          URI to a document (on or off-chain) that contains additional
+          information. Optional.
+
+
+          Since: cosmos-sdk 0.46
+      uri_hash:
+        type: string
+        description: >-
+          URIHash is a sha256 hash of a document pointed by URI. It's used to
+          verify that
+
+          the document didn't change. Optional.
+
+
+          Since: cosmos-sdk 0.46
+      decimals:
+        type: integer
+        format: int64
+        description: 'Since: cosmos-sdk 0.50'
+        title: >-
+          Decimals represent the number of decimals use to represent token
+          amount on chain
+      logo:
+        type: string
+        title: >-
+          Logo represent the base64 logo in png format with size 200x200 on
+          chain.
+
+          Optional.
+
+          Since: cosmos-sdk v0.50.10-helios-72
+      contract_address:
+        type: string
+        title: |-
+          contract_address is the contract address of the token
+          Optional.
+          Since: cosmos-sdk v0.50.10-helios-74
+      chains_metadatas:
+        type: array
+        items:
+          type: object
+          properties:
+            chain_id:
+              type: string
+              format: uint64
+            symbol:
+              type: string
+            decimals:
+              type: integer
+              format: int64
+            contract_address:
+              type: string
+            is_originated:
+              type: boolean
+        title: |-
+          chains_metadatas is the list of chain metadata
+          Optional.
+          Since: cosmos-sdk v0.50.10-helios-76
+    description: |-
+      Metadata represents a struct that describes
+      a basic token.
   cosmos.base.v1beta1.Coin:
     type: object
     properties:
@@ -59337,6 +62041,22 @@ definitions:
         type: string
       total_fees:
         type: string
+  helios.hyperion.v1.BatchFeesWithIds:
+    type: object
+    properties:
+      token:
+        type: string
+      total_fees:
+        type: string
+      ids:
+        type: array
+        items:
+          type: string
+          format: uint64
+      fees:
+        type: array
+        items:
+          type: string
   helios.hyperion.v1.BridgeValidator:
     type: object
     properties:
@@ -59404,8 +62124,6 @@ definitions:
       slash_fraction_bad_eth_signature:
         type: string
         format: byte
-      claim_slashing_enabled:
-        type: boolean
       bridge_contract_start_height:
         type: string
         format: uint64
@@ -59475,6 +62193,149 @@ definitions:
             last_height_used:
               type: string
               format: uint64
+      offset_valset_nonce:
+        type: string
+        format: uint64
+      min_call_external_data_gas:
+        type: string
+        format: uint64
+      paused:
+        type: boolean
+  helios.hyperion.v1.FullMetadataToken:
+    type: object
+    properties:
+      metadata:
+        type: object
+        properties:
+          description:
+            type: string
+          denom_units:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                  description: >-
+                    denom represents the string name of the given denom unit
+                    (e.g uatom).
+                exponent:
+                  type: integer
+                  format: int64
+                  description: >-
+                    exponent represents power of 10 exponent that one must
+
+                    raise the base_denom to in order to equal the given
+                    DenomUnit's denom
+
+                    1 denom = 10^exponent base_denom
+
+                    (e.g. with a base_denom of uatom, one can create a DenomUnit
+                    of 'atom' with
+
+                    exponent = 6, thus: 1 atom = 10^6 uatom).
+                aliases:
+                  type: array
+                  items:
+                    type: string
+                  title: aliases is a list of string aliases for the given denom
+              description: |-
+                DenomUnit represents a struct that describes a given
+                denomination unit of the basic token.
+            title: denom_units represents the list of DenomUnit's for a given coin
+          base:
+            type: string
+            description: >-
+              base represents the base denom (should be the DenomUnit with
+              exponent = 0).
+          display:
+            type: string
+            description: |-
+              display indicates the suggested denom that should be
+              displayed in clients.
+          name:
+            type: string
+            description: 'Since: cosmos-sdk 0.43'
+            title: 'name defines the name of the token (eg: Cosmos Atom)'
+          symbol:
+            type: string
+            description: >-
+              symbol is the token symbol usually shown on exchanges (eg: ATOM).
+              This can
+
+              be the same as the display.
+
+
+              Since: cosmos-sdk 0.43
+          uri:
+            type: string
+            description: >-
+              URI to a document (on or off-chain) that contains additional
+              information. Optional.
+
+
+              Since: cosmos-sdk 0.46
+          uri_hash:
+            type: string
+            description: >-
+              URIHash is a sha256 hash of a document pointed by URI. It's used
+              to verify that
+
+              the document didn't change. Optional.
+
+
+              Since: cosmos-sdk 0.46
+          decimals:
+            type: integer
+            format: int64
+            description: 'Since: cosmos-sdk 0.50'
+            title: >-
+              Decimals represent the number of decimals use to represent token
+              amount on chain
+          logo:
+            type: string
+            title: >-
+              Logo represent the base64 logo in png format with size 200x200 on
+              chain.
+
+              Optional.
+
+              Since: cosmos-sdk v0.50.10-helios-72
+          contract_address:
+            type: string
+            title: |-
+              contract_address is the contract address of the token
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-74
+          chains_metadatas:
+            type: array
+            items:
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                  format: uint64
+                symbol:
+                  type: string
+                decimals:
+                  type: integer
+                  format: int64
+                contract_address:
+                  type: string
+                is_originated:
+                  type: boolean
+            title: |-
+              chains_metadatas is the list of chain metadata
+              Optional.
+              Since: cosmos-sdk v0.50.10-helios-76
+        description: |-
+          Metadata represents a struct that describes
+          a basic token.
+      holders_count:
+        type: string
+        format: uint64
+      total_supply:
+        type: string
   helios.hyperion.v1.GenesisHyperionState:
     type: object
     properties:
@@ -59991,29 +62852,6 @@ definitions:
             this
 
             validator on Ethereum
-      token_address_to_denoms:
-        type: array
-        items:
-          type: object
-          properties:
-            chain_id:
-              type: string
-            token_address:
-              type: string
-            denom:
-              type: string
-            symbol:
-              type: string
-            decimals:
-              type: string
-              format: uint64
-            is_cosmos_originated:
-              type: boolean
-            is_concensus_token:
-              type: boolean
-          title: |-
-            This records the relationship between an bridged token and the denom
-            of the corresponding Cosmos originated asset
       unbatched_transfers:
         type: array
         items:
@@ -60141,10 +62979,6 @@ definitions:
 
           used to check signatures on counterparty chain because of the
           significant gas savings
-      ethereum_blacklist:
-        type: array
-        items:
-          type: string
   helios.hyperion.v1.GenesisState:
     type: object
     properties:
@@ -60211,8 +63045,6 @@ definitions:
                 slash_fraction_bad_eth_signature:
                   type: string
                   format: byte
-                claim_slashing_enabled:
-                  type: boolean
                 bridge_contract_start_height:
                   type: string
                   format: uint64
@@ -60285,10 +63117,14 @@ definitions:
                       last_height_used:
                         type: string
                         format: uint64
-          admins:
-            type: array
-            items:
-              type: string
+                offset_valset_nonce:
+                  type: string
+                  format: uint64
+                min_call_external_data_gas:
+                  type: string
+                  format: uint64
+                paused:
+                  type: boolean
       sub_states:
         type: array
         items:
@@ -60819,31 +63655,6 @@ definitions:
                   by this
 
                   validator on Ethereum
-            token_address_to_denoms:
-              type: array
-              items:
-                type: object
-                properties:
-                  chain_id:
-                    type: string
-                  token_address:
-                    type: string
-                  denom:
-                    type: string
-                  symbol:
-                    type: string
-                  decimals:
-                    type: string
-                    format: uint64
-                  is_cosmos_originated:
-                    type: boolean
-                  is_concensus_token:
-                    type: boolean
-                title: >-
-                  This records the relationship between an bridged token and the
-                  denom
-
-                  of the corresponding Cosmos originated asset
             unbatched_transfers:
               type: array
               items:
@@ -60976,10 +63787,10 @@ definitions:
 
                 used to check signatures on counterparty chain because of the
                 significant gas savings
-            ethereum_blacklist:
-              type: array
-              items:
-                type: string
+      blacklist_addresses:
+        type: array
+        items:
+          type: string
     title: GenesisState struct
   helios.hyperion.v1.HolderWithAmount:
     type: object
@@ -61056,6 +63867,28 @@ definitions:
       as well as an Ethereum signature over this batch by the validator
 
       -------------
+  helios.hyperion.v1.MsgExternalDataClaim:
+    type: object
+    properties:
+      hyperion_id:
+        type: string
+        format: uint64
+      block_height:
+        type: string
+        format: uint64
+      tx_nonce:
+        type: string
+        format: uint64
+      external_contract_address:
+        type: string
+      orchestrator:
+        type: string
+      call_data_result:
+        type: string
+      call_data_result_error:
+        type: string
+      rpc_used:
+        type: string
   helios.hyperion.v1.MsgSetOrchestratorAddresses:
     type: object
     properties:
@@ -61128,6 +63961,179 @@ definitions:
       chain store and submit them to Ethereum to update the validator set
 
       -------------
+  helios.hyperion.v1.OrchestratorData:
+    type: object
+    properties:
+      orchestrator:
+        type: string
+      orchestrator_hyperion_data:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            minimum_tx_fee:
+              type: string
+            minimum_batch_fee:
+              type: string
+            total_slash_count:
+              type: string
+              format: uint64
+            total_slash_amount:
+              type: string
+            slash_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  slash_timestamp:
+                    type: string
+                    format: uint64
+                  slash_amount:
+                    type: string
+            tx_out_transfered:
+              type: string
+              format: uint64
+            tx_in_transfered:
+              type: string
+              format: uint64
+            batch_created:
+              type: string
+              format: uint64
+            batch_confirmed:
+              type: string
+              format: uint64
+            fee_collected:
+              type: string
+            external_data_tx_executed:
+              type: string
+              format: uint64
+            external_data_tx_fee_collected:
+              type: string
+  helios.hyperion.v1.OrchestratorHyperionData:
+    type: object
+    properties:
+      hyperion_id:
+        type: string
+        format: uint64
+      minimum_tx_fee:
+        type: string
+      minimum_batch_fee:
+        type: string
+      total_slash_count:
+        type: string
+        format: uint64
+      total_slash_amount:
+        type: string
+      slash_data:
+        type: array
+        items:
+          type: object
+          properties:
+            slash_timestamp:
+              type: string
+              format: uint64
+            slash_amount:
+              type: string
+      tx_out_transfered:
+        type: string
+        format: uint64
+      tx_in_transfered:
+        type: string
+        format: uint64
+      batch_created:
+        type: string
+        format: uint64
+      batch_confirmed:
+        type: string
+        format: uint64
+      fee_collected:
+        type: string
+      external_data_tx_executed:
+        type: string
+        format: uint64
+      external_data_tx_fee_collected:
+        type: string
+  helios.hyperion.v1.OutgoingExternalDataTx:
+    type: object
+    properties:
+      hyperion_id:
+        type: string
+        format: uint64
+      id:
+        type: string
+        format: uint64
+      sender:
+        type: string
+      cron_id:
+        type: string
+      external_contract_address:
+        type: string
+      abi_call_hex:
+        type: string
+      fee:
+        type: object
+        properties:
+          contract:
+            type: string
+          amount:
+            type: string
+        title: >-
+          Token unique identifier for an Bridged token.
+
+          CONTRACT:
+
+          The contract address on Originating chain of the token, this could be
+          a Cosmos
+
+          originated token, if so it will be the address of the representation
+
+          (note: developers should look up the token symbol using the address on
+          original chain to
+
+          display for UI)
+      timeout:
+        type: string
+        format: uint64
+      nonce:
+        type: string
+        format: uint64
+      block:
+        type: string
+        format: uint64
+      claims:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            block_height:
+              type: string
+              format: uint64
+            tx_nonce:
+              type: string
+              format: uint64
+            external_contract_address:
+              type: string
+            orchestrator:
+              type: string
+            call_data_result:
+              type: string
+            call_data_result_error:
+              type: string
+            rpc_used:
+              type: string
+      votes:
+        type: array
+        items:
+          type: string
+    title: >-
+      OutgoingExternalDataTx represents an individual send from Hyperion to
+      external contract
   helios.hyperion.v1.OutgoingTransferTx:
     type: object
     properties:
@@ -61339,8 +64345,6 @@ definitions:
             slash_fraction_bad_eth_signature:
               type: string
               format: byte
-            claim_slashing_enabled:
-              type: boolean
             bridge_contract_start_height:
               type: string
               format: uint64
@@ -61413,10 +64417,14 @@ definitions:
                   last_height_used:
                     type: string
                     format: uint64
-      admins:
-        type: array
-        items:
-          type: string
+            offset_valset_nonce:
+              type: string
+              format: uint64
+            min_call_external_data_gas:
+              type: string
+              format: uint64
+            paused:
+              type: boolean
   helios.hyperion.v1.Proof:
     type: object
     properties:
@@ -61848,6 +64856,27 @@ definitions:
               type: string
             total_fees:
               type: string
+  helios.hyperion.v1.QueryBatchFeeWithMinimumFeeResponse:
+    type: object
+    properties:
+      batchFees:
+        type: array
+        items:
+          type: object
+          properties:
+            token:
+              type: string
+            total_fees:
+              type: string
+            ids:
+              type: array
+              items:
+                type: string
+                format: uint64
+            fees:
+              type: array
+              items:
+                type: string
   helios.hyperion.v1.QueryBatchRequestByNonceResponse:
     type: object
     properties:
@@ -62069,8 +65098,6 @@ definitions:
           slash_fraction_bad_eth_signature:
             type: string
             format: byte
-          claim_slashing_enabled:
-            type: boolean
           bridge_contract_start_height:
             type: string
             format: uint64
@@ -62143,6 +65170,14 @@ definitions:
                 last_height_used:
                   type: string
                   format: uint64
+          offset_valset_nonce:
+            type: string
+            format: uint64
+          min_call_external_data_gas:
+            type: string
+            format: uint64
+          paused:
+            type: boolean
   helios.hyperion.v1.QueryGetDelegateKeysByAddressResponse:
     type: object
     properties:
@@ -62181,6 +65216,163 @@ definitions:
       last_observed_event_nonce:
         type: string
         format: uint64
+  helios.hyperion.v1.QueryGetOrchestratorDataResponse:
+    type: object
+    properties:
+      orchestrator_data:
+        type: object
+        properties:
+          orchestrator:
+            type: string
+          orchestrator_hyperion_data:
+            type: array
+            items:
+              type: object
+              properties:
+                hyperion_id:
+                  type: string
+                  format: uint64
+                minimum_tx_fee:
+                  type: string
+                minimum_batch_fee:
+                  type: string
+                total_slash_count:
+                  type: string
+                  format: uint64
+                total_slash_amount:
+                  type: string
+                slash_data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slash_timestamp:
+                        type: string
+                        format: uint64
+                      slash_amount:
+                        type: string
+                tx_out_transfered:
+                  type: string
+                  format: uint64
+                tx_in_transfered:
+                  type: string
+                  format: uint64
+                batch_created:
+                  type: string
+                  format: uint64
+                batch_confirmed:
+                  type: string
+                  format: uint64
+                fee_collected:
+                  type: string
+                external_data_tx_executed:
+                  type: string
+                  format: uint64
+                external_data_tx_fee_collected:
+                  type: string
+  helios.hyperion.v1.QueryGetOrchestratorHyperionDataResponse:
+    type: object
+    properties:
+      orchestrator_hyperion_data:
+        type: object
+        properties:
+          hyperion_id:
+            type: string
+            format: uint64
+          minimum_tx_fee:
+            type: string
+          minimum_batch_fee:
+            type: string
+          total_slash_count:
+            type: string
+            format: uint64
+          total_slash_amount:
+            type: string
+          slash_data:
+            type: array
+            items:
+              type: object
+              properties:
+                slash_timestamp:
+                  type: string
+                  format: uint64
+                slash_amount:
+                  type: string
+          tx_out_transfered:
+            type: string
+            format: uint64
+          tx_in_transfered:
+            type: string
+            format: uint64
+          batch_created:
+            type: string
+            format: uint64
+          batch_confirmed:
+            type: string
+            format: uint64
+          fee_collected:
+            type: string
+          external_data_tx_executed:
+            type: string
+            format: uint64
+          external_data_tx_fee_collected:
+            type: string
+  helios.hyperion.v1.QueryGetOrchestratorsDataResponse:
+    type: object
+    properties:
+      orchestrators_data:
+        type: array
+        items:
+          type: object
+          properties:
+            orchestrator:
+              type: string
+            orchestrator_hyperion_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
+                  minimum_tx_fee:
+                    type: string
+                  minimum_batch_fee:
+                    type: string
+                  total_slash_count:
+                    type: string
+                    format: uint64
+                  total_slash_amount:
+                    type: string
+                  slash_data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slash_timestamp:
+                          type: string
+                          format: uint64
+                        slash_amount:
+                          type: string
+                  tx_out_transfered:
+                    type: string
+                    format: uint64
+                  tx_in_transfered:
+                    type: string
+                    format: uint64
+                  batch_created:
+                    type: string
+                    format: uint64
+                  batch_confirmed:
+                    type: string
+                    format: uint64
+                  fee_collected:
+                    type: string
+                  external_data_tx_executed:
+                    type: string
+                    format: uint64
+                  external_data_tx_fee_collected:
+                    type: string
   helios.hyperion.v1.QueryGetRpcListByChainIdResponse:
     type: object
     properties:
@@ -62197,6 +65389,176 @@ definitions:
             last_height_used:
               type: string
               format: uint64
+  helios.hyperion.v1.QueryGetTokensOfChainResponse:
+    type: object
+    properties:
+      tokens:
+        type: array
+        items:
+          type: object
+          properties:
+            metadata:
+              type: object
+              properties:
+                description:
+                  type: string
+                denom_units:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                        description: >-
+                          denom represents the string name of the given denom
+                          unit (e.g uatom).
+                      exponent:
+                        type: integer
+                        format: int64
+                        description: >-
+                          exponent represents power of 10 exponent that one must
+
+                          raise the base_denom to in order to equal the given
+                          DenomUnit's denom
+
+                          1 denom = 10^exponent base_denom
+
+                          (e.g. with a base_denom of uatom, one can create a
+                          DenomUnit of 'atom' with
+
+                          exponent = 6, thus: 1 atom = 10^6 uatom).
+                      aliases:
+                        type: array
+                        items:
+                          type: string
+                        title: >-
+                          aliases is a list of string aliases for the given
+                          denom
+                    description: |-
+                      DenomUnit represents a struct that describes a given
+                      denomination unit of the basic token.
+                  title: >-
+                    denom_units represents the list of DenomUnit's for a given
+                    coin
+                base:
+                  type: string
+                  description: >-
+                    base represents the base denom (should be the DenomUnit with
+                    exponent = 0).
+                display:
+                  type: string
+                  description: |-
+                    display indicates the suggested denom that should be
+                    displayed in clients.
+                name:
+                  type: string
+                  description: 'Since: cosmos-sdk 0.43'
+                  title: 'name defines the name of the token (eg: Cosmos Atom)'
+                symbol:
+                  type: string
+                  description: >-
+                    symbol is the token symbol usually shown on exchanges (eg:
+                    ATOM). This can
+
+                    be the same as the display.
+
+
+                    Since: cosmos-sdk 0.43
+                uri:
+                  type: string
+                  description: >-
+                    URI to a document (on or off-chain) that contains additional
+                    information. Optional.
+
+
+                    Since: cosmos-sdk 0.46
+                uri_hash:
+                  type: string
+                  description: >-
+                    URIHash is a sha256 hash of a document pointed by URI. It's
+                    used to verify that
+
+                    the document didn't change. Optional.
+
+
+                    Since: cosmos-sdk 0.46
+                decimals:
+                  type: integer
+                  format: int64
+                  description: 'Since: cosmos-sdk 0.50'
+                  title: >-
+                    Decimals represent the number of decimals use to represent
+                    token amount on chain
+                logo:
+                  type: string
+                  title: >-
+                    Logo represent the base64 logo in png format with size
+                    200x200 on chain.
+
+                    Optional.
+
+                    Since: cosmos-sdk v0.50.10-helios-72
+                contract_address:
+                  type: string
+                  title: |-
+                    contract_address is the contract address of the token
+                    Optional.
+                    Since: cosmos-sdk v0.50.10-helios-74
+                chains_metadatas:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        format: uint64
+                      symbol:
+                        type: string
+                      decimals:
+                        type: integer
+                        format: int64
+                      contract_address:
+                        type: string
+                      is_originated:
+                        type: boolean
+                  title: |-
+                    chains_metadatas is the list of chain metadata
+                    Optional.
+                    Since: cosmos-sdk v0.50.10-helios-76
+              description: |-
+                Metadata represents a struct that describes
+                a basic token.
+            holders_count:
+              type: string
+              format: uint64
+            total_supply:
+              type: string
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
   helios.hyperion.v1.QueryGetTransactionsByPageAndSizeResponse:
     type: object
     properties:
@@ -62325,6 +65687,59 @@ definitions:
             index:
               type: string
               format: uint64
+  helios.hyperion.v1.QueryHistoricalFeesResponse:
+    type: object
+    properties:
+      historical_fees:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a token with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+      low:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      high:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      average:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
   helios.hyperion.v1.QueryLastEventByAddrResponse:
     type: object
     properties:
@@ -62430,6 +65845,98 @@ definitions:
         title: >-
           OutgoingTxBatch represents a batch of transactions going from Hyperion
           to ETH
+  helios.hyperion.v1.QueryLastPendingBatchsRequestByAddrResponse:
+    type: object
+    properties:
+      batchs:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            batch_nonce:
+              type: string
+              format: uint64
+            batch_timeout:
+              type: string
+              format: uint64
+            transactions:
+              type: array
+              items:
+                type: object
+                properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
+                  id:
+                    type: string
+                    format: uint64
+                  sender:
+                    type: string
+                  dest_address:
+                    type: string
+                  token:
+                    type: object
+                    properties:
+                      contract:
+                        type: string
+                      amount:
+                        type: string
+                    title: >-
+                      Token unique identifier for an Bridged token.
+
+                      CONTRACT:
+
+                      The contract address on Originating chain of the token,
+                      this could be a Cosmos
+
+                      originated token, if so it will be the address of the
+                      representation
+
+                      (note: developers should look up the token symbol using
+                      the address on original chain to
+
+                      display for UI)
+                  fee:
+                    type: object
+                    properties:
+                      contract:
+                        type: string
+                      amount:
+                        type: string
+                    title: >-
+                      Token unique identifier for an Bridged token.
+
+                      CONTRACT:
+
+                      The contract address on Originating chain of the token,
+                      this could be a Cosmos
+
+                      originated token, if so it will be the address of the
+                      representation
+
+                      (note: developers should look up the token symbol using
+                      the address on original chain to
+
+                      display for UI)
+                  tx_timeout:
+                    type: string
+                    format: uint64
+                  tx_hash:
+                    type: string
+                title: >-
+                  OutgoingTransferTx represents an individual send from Hyperion
+                  to ETH
+            token_contract:
+              type: string
+            block:
+              type: string
+              format: uint64
+          title: >-
+            OutgoingTxBatch represents a batch of transactions going from
+            Hyperion to ETH
   helios.hyperion.v1.QueryLastPendingValsetRequestByAddrResponse:
     type: object
     properties:
@@ -62587,8 +66094,6 @@ definitions:
                     slash_fraction_bad_eth_signature:
                       type: string
                       format: byte
-                    claim_slashing_enabled:
-                      type: boolean
                     bridge_contract_start_height:
                       type: string
                       format: uint64
@@ -62661,10 +66166,14 @@ definitions:
                           last_height_used:
                             type: string
                             format: uint64
-              admins:
-                type: array
-                items:
-                  type: string
+                    offset_valset_nonce:
+                      type: string
+                      format: uint64
+                    min_call_external_data_gas:
+                      type: string
+                      format: uint64
+                    paused:
+                      type: boolean
           sub_states:
             type: array
             items:
@@ -63197,31 +66706,6 @@ definitions:
                       used by this
 
                       validator on Ethereum
-                token_address_to_denoms:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                      token_address:
-                        type: string
-                      denom:
-                        type: string
-                      symbol:
-                        type: string
-                      decimals:
-                        type: string
-                        format: uint64
-                      is_cosmos_originated:
-                        type: boolean
-                      is_concensus_token:
-                        type: boolean
-                    title: >-
-                      This records the relationship between an bridged token and
-                      the denom
-
-                      of the corresponding Cosmos originated asset
                 unbatched_transfers:
                   type: array
                   items:
@@ -63358,16 +66842,109 @@ definitions:
 
                     used to check signatures on counterparty chain because of
                     the significant gas savings
-                ethereum_blacklist:
-                  type: array
-                  items:
-                    type: string
+          blacklist_addresses:
+            type: array
+            items:
+              type: string
         title: GenesisState struct
     description: >-
       QueryModuleStateResponse is the response type for the
       Query/HyperionModuleState
 
       RPC method.
+  helios.hyperion.v1.QueryOutgoingExternalDataTxsResponse:
+    type: object
+    properties:
+      txs:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            id:
+              type: string
+              format: uint64
+            sender:
+              type: string
+            cron_id:
+              type: string
+            external_contract_address:
+              type: string
+            abi_call_hex:
+              type: string
+            fee:
+              type: object
+              properties:
+                contract:
+                  type: string
+                amount:
+                  type: string
+              title: >-
+                Token unique identifier for an Bridged token.
+
+                CONTRACT:
+
+                The contract address on Originating chain of the token, this
+                could be a Cosmos
+
+                originated token, if so it will be the address of the
+                representation
+
+                (note: developers should look up the token symbol using the
+                address on original chain to
+
+                display for UI)
+            timeout:
+              type: string
+              format: uint64
+            nonce:
+              type: string
+              format: uint64
+            block:
+              type: string
+              format: uint64
+            claims:
+              type: array
+              items:
+                type: object
+                properties:
+                  hyperion_id:
+                    type: string
+                    format: uint64
+                  block_height:
+                    type: string
+                    format: uint64
+                  tx_nonce:
+                    type: string
+                    format: uint64
+                  external_contract_address:
+                    type: string
+                  orchestrator:
+                    type: string
+                  call_data_result:
+                    type: string
+                  call_data_result_error:
+                    type: string
+                  rpc_used:
+                    type: string
+            votes:
+              type: array
+              items:
+                type: string
+          title: >-
+            OutgoingExternalDataTx represents an individual send from Hyperion
+            to external contract
+  helios.hyperion.v1.QueryOutgoingTxBatchesCountResponse:
+    type: object
+    properties:
+      tx_count:
+        type: string
+        format: uint64
+      batch_count:
+        type: string
+        format: uint64
   helios.hyperion.v1.QueryOutgoingTxBatchesResponse:
     type: object
     properties:
@@ -63526,8 +67103,6 @@ definitions:
                 slash_fraction_bad_eth_signature:
                   type: string
                   format: byte
-                claim_slashing_enabled:
-                  type: boolean
                 bridge_contract_start_height:
                   type: string
                   format: uint64
@@ -63600,10 +67175,14 @@ definitions:
                       last_height_used:
                         type: string
                         format: uint64
-          admins:
-            type: array
-            items:
-              type: string
+                offset_valset_nonce:
+                  type: string
+                  format: uint64
+                min_call_external_data_gas:
+                  type: string
+                  format: uint64
+                paused:
+                  type: boolean
   helios.hyperion.v1.QueryPendingSendToChainResponse:
     type: object
     properties:
@@ -63915,6 +67494,14 @@ definitions:
       last_height_used:
         type: string
         format: uint64
+  helios.hyperion.v1.SlashData:
+    type: object
+    properties:
+      slash_timestamp:
+        type: string
+        format: uint64
+      slash_amount:
+        type: string
   helios.hyperion.v1.Token:
     type: object
     properties:
@@ -66615,21 +70202,6 @@ definitions:
     description: >-
       QueryGrantsResponse is the response type for the Query/Authorizations RPC
       method.
-  cosmos.bank.v1beta1.ChainMetadata:
-    type: object
-    properties:
-      chain_id:
-        type: string
-        format: uint64
-      symbol:
-        type: string
-      decimals:
-        type: integer
-        format: int64
-      contract_address:
-        type: string
-      is_originated:
-        type: boolean
   cosmos.bank.v1beta1.DenomOwner:
     type: object
     properties:
@@ -66654,34 +70226,6 @@ definitions:
       balance of the denominated token.
 
       Since: cosmos-sdk 0.46
-  cosmos.bank.v1beta1.DenomUnit:
-    type: object
-    properties:
-      denom:
-        type: string
-        description: denom represents the string name of the given denom unit (e.g uatom).
-      exponent:
-        type: integer
-        format: int64
-        description: >-
-          exponent represents power of 10 exponent that one must
-
-          raise the base_denom to in order to equal the given DenomUnit's denom
-
-          1 denom = 10^exponent base_denom
-
-          (e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom'
-          with
-
-          exponent = 6, thus: 1 atom = 10^6 uatom).
-      aliases:
-        type: array
-        items:
-          type: string
-        title: aliases is a list of string aliases for the given denom
-    description: |-
-      DenomUnit represents a struct that describes a given
-      denomination unit of the basic token.
   cosmos.bank.v1beta1.FullMetadata:
     type: object
     properties:
@@ -66817,133 +70361,6 @@ definitions:
         format: uint64
       total_supply:
         type: string
-  cosmos.bank.v1beta1.Metadata:
-    type: object
-    properties:
-      description:
-        type: string
-      denom_units:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-              description: >-
-                denom represents the string name of the given denom unit (e.g
-                uatom).
-            exponent:
-              type: integer
-              format: int64
-              description: >-
-                exponent represents power of 10 exponent that one must
-
-                raise the base_denom to in order to equal the given DenomUnit's
-                denom
-
-                1 denom = 10^exponent base_denom
-
-                (e.g. with a base_denom of uatom, one can create a DenomUnit of
-                'atom' with
-
-                exponent = 6, thus: 1 atom = 10^6 uatom).
-            aliases:
-              type: array
-              items:
-                type: string
-              title: aliases is a list of string aliases for the given denom
-          description: |-
-            DenomUnit represents a struct that describes a given
-            denomination unit of the basic token.
-        title: denom_units represents the list of DenomUnit's for a given coin
-      base:
-        type: string
-        description: >-
-          base represents the base denom (should be the DenomUnit with exponent
-          = 0).
-      display:
-        type: string
-        description: |-
-          display indicates the suggested denom that should be
-          displayed in clients.
-      name:
-        type: string
-        description: 'Since: cosmos-sdk 0.43'
-        title: 'name defines the name of the token (eg: Cosmos Atom)'
-      symbol:
-        type: string
-        description: >-
-          symbol is the token symbol usually shown on exchanges (eg: ATOM). This
-          can
-
-          be the same as the display.
-
-
-          Since: cosmos-sdk 0.43
-      uri:
-        type: string
-        description: >-
-          URI to a document (on or off-chain) that contains additional
-          information. Optional.
-
-
-          Since: cosmos-sdk 0.46
-      uri_hash:
-        type: string
-        description: >-
-          URIHash is a sha256 hash of a document pointed by URI. It's used to
-          verify that
-
-          the document didn't change. Optional.
-
-
-          Since: cosmos-sdk 0.46
-      decimals:
-        type: integer
-        format: int64
-        description: 'Since: cosmos-sdk 0.50'
-        title: >-
-          Decimals represent the number of decimals use to represent token
-          amount on chain
-      logo:
-        type: string
-        title: >-
-          Logo represent the base64 logo in png format with size 200x200 on
-          chain.
-
-          Optional.
-
-          Since: cosmos-sdk v0.50.10-helios-72
-      contract_address:
-        type: string
-        title: |-
-          contract_address is the contract address of the token
-          Optional.
-          Since: cosmos-sdk v0.50.10-helios-74
-      chains_metadatas:
-        type: array
-        items:
-          type: object
-          properties:
-            chain_id:
-              type: string
-              format: uint64
-            symbol:
-              type: string
-            decimals:
-              type: integer
-              format: int64
-            contract_address:
-              type: string
-            is_originated:
-              type: boolean
-        title: |-
-          chains_metadatas is the list of chain metadata
-          Optional.
-          Since: cosmos-sdk v0.50.10-helios-76
-    description: |-
-      Metadata represents a struct that describes
-      a basic token.
   cosmos.bank.v1beta1.Params:
     type: object
     properties:

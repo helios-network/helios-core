@@ -148,12 +148,12 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	}
 
 	// Fees validation
-	lowestFeeValidator, found := k.Keeper.GetLowestFeeValidator(ctx, msg.DestChainId)
-	if !found {
+	lowestFeeValidator := k.Keeper.GetLowestFeeValidator(ctx, msg.DestChainId)
+	if lowestFeeValidator == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "no lowest fee validator found")
 	}
-	lowestFee, found := k.Keeper.GetFeeByValidator(ctx, msg.DestChainId, lowestFeeValidator)
-	if !found {
+	lowestFee := k.Keeper.GetFeeByValidator(ctx, msg.DestChainId, *lowestFeeValidator)
+	if lowestFee == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "no lowest fee found")
 	}
 
@@ -272,8 +272,8 @@ func (k msgServer) RequestBatchWithMinimumFee(c context.Context, msg *types.MsgR
 		return nil, errors.Wrap(types.ErrUnknown, "validator")
 	}
 
-	orchestratorFee, found := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validator)
-	if !found {
+	orchestratorFee := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validator)
+	if orchestratorFee == nil {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrInvalid, "orchestrator fee not found - please set a fee for your orchestrator")
 	}

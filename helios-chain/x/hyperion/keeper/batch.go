@@ -161,11 +161,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	// Send fee to the orchestrator
 	allFees := sdk.NewCoins()
 	for _, tx := range b.Transactions {
-		tokenAddressToDenomFee, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
-		if tokenAddressToDenomFee != nil {
-			tokenAddressFee := tokenAddressToDenomFee.Denom
-			allFees = allFees.Add(sdk.NewCoin(tokenAddressFee, tx.Fee.Amount))
-		}
+		allFees = allFees.Add(sdk.NewCoin(sdk.DefaultBondDenom, tx.Fee.Amount))
 	}
 
 	orchestratorAddr, _ := sdk.AccAddressFromBech32(claim.Orchestrator)
@@ -206,14 +202,14 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 	}
 
 	// Update orchestrator data
-	orchestratorData, err := k.GetOrchestratorHyperionData(ctx, cmn.AccAddressFromHexAddressString(claim.Orchestrator), hyperionId)
+	orchestratorData, err := k.GetOrchestratorHyperionData(ctx, orchestratorAddr, hyperionId)
 	if err != nil {
 		k.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", hyperionId, "orchestrator", claim.Orchestrator)
 		return
 	}
 	orchestratorData.TxOutTransfered++
 	orchestratorData.FeeCollected = orchestratorData.FeeCollected.Add(allFees.AmountOf(sdk.DefaultBondDenom))
-	k.SetOrchestratorHyperionData(ctx, cmn.AccAddressFromHexAddressString(claim.Orchestrator), hyperionId, *orchestratorData)
+	k.SetOrchestratorHyperionData(ctx, orchestratorAddr, hyperionId, *orchestratorData)
 }
 
 // StoreBatch stores a transaction batch
@@ -304,7 +300,10 @@ func (k *Keeper) pickUnbatchedTXWithIds(ctx sdk.Context, tokenContract common.Ad
 	selectedTx := make([]*types.OutgoingTransferTx, 0)
 	for _, txID := range ids {
 		tx, err := k.GetPoolEntry(ctx, hyperionId, txID)
-		if tx != nil && tx.Fee != nil {
+		if err != nil {
+			return nil, types.ErrNoUnbatchedTxsFound
+		}
+		if tx != nil && tx.Fee != nil && k.UnbatchedTXIndexExists(ctx, hyperionId, tokenContract, tx.Fee, txID) {
 			selectedTx = append(selectedTx, tx)
 			err = k.removeFromUnbatchedTXIndex(ctx, hyperionId, tokenContract, tx.Fee, txID)
 			if err != nil || len(selectedTx) == maxElements {
@@ -314,7 +313,6 @@ func (k *Keeper) pickUnbatchedTXWithIds(ctx sdk.Context, tokenContract common.Ad
 			// we found a nil, exit
 			return nil, types.ErrNoUnbatchedTxsFound
 		}
-		selectedTx = append(selectedTx, tx)
 	}
 
 	if len(selectedTx) == 0 {

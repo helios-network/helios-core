@@ -164,7 +164,7 @@ func GetValidatorByEthAddressKey(hyperionId uint64, ethAddress common.Address) [
 }
 
 func GetFeeByValidatorKey(hyperionId uint64, validator sdk.ValAddress) []byte {
-	buf := make([]byte, 0, len(FeeByValidatorKey)+8+len(validator))
+	buf := make([]byte, 0, len(FeeByValidatorKey)+8+len(validator.Bytes()))
 	buf = append(buf, FeeByValidatorKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, validator.Bytes()...)

@@ -3350,6 +3350,77 @@
         ]
       }
     },
+    "/hyperion/v1/batch/count": {
+      "get": {
+        "operationId": "OutgoingTxBatchesCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tx_count": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "batch_count": {
+                  "type": "string",
+                  "format": "uint64"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/batch/last": {
       "get": {
         "operationId": "LastPendingBatchRequestByAddr",
@@ -3437,6 +3508,157 @@
                     }
                   },
                   "title": "OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/batch/lasts": {
+      "get": {
+        "operationId": "LastPendingBatchsRequestByAddr",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "batchs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hyperion_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "batch_nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "batch_timeout": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "transactions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "hyperion_id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "sender": {
+                              "type": "string"
+                            },
+                            "dest_address": {
+                              "type": "string"
+                            },
+                            "token": {
+                              "type": "object",
+                              "properties": {
+                                "contract": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                }
+                              },
+                              "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                            },
+                            "fee": {
+                              "type": "object",
+                              "properties": {
+                                "contract": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                }
+                              },
+                              "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                            },
+                            "tx_timeout": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            }
+                          },
+                          "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
+                        }
+                      },
+                      "token_contract": {
+                        "type": "string"
+                      },
+                      "block": {
+                        "type": "string",
+                        "format": "uint64"
+                      }
+                    },
+                    "title": "OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH"
+                  }
                 }
               }
             }
@@ -3720,6 +3942,120 @@
         ]
       }
     },
+    "/hyperion/v1/batchfees/minimum_fee": {
+      "get": {
+        "operationId": "BatchFeesWithMinimumFee",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "batchFees": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string"
+                      },
+                      "total_fees": {
+                        "type": "string"
+                      },
+                      "ids": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uint64"
+                        }
+                      },
+                      "fees": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "minimum_batch_fee.denom",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "minimum_batch_fee.amount",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "minimum_tx_fee.denom",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "minimum_tx_fee.amount",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/chains/delegate_keys": {
       "get": {
         "operationId": "QueryGetDelegateKeysByAddress",
@@ -3782,6 +4118,371 @@
             "in": "query",
             "required": false,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/chains/outgoing_external_data_txs": {
+      "get": {
+        "operationId": "OutgoingExternalDataTxs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "txs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hyperion_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "sender": {
+                        "type": "string"
+                      },
+                      "cron_id": {
+                        "type": "string"
+                      },
+                      "external_contract_address": {
+                        "type": "string"
+                      },
+                      "abi_call_hex": {
+                        "type": "string"
+                      },
+                      "fee": {
+                        "type": "object",
+                        "properties": {
+                          "contract": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          }
+                        },
+                        "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                      },
+                      "timeout": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "block": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "claims": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "hyperion_id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "block_height": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "tx_nonce": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "external_contract_address": {
+                              "type": "string"
+                            },
+                            "orchestrator": {
+                              "type": "string"
+                            },
+                            "call_data_result": {
+                              "type": "string"
+                            },
+                            "call_data_result_error": {
+                              "type": "string"
+                            },
+                            "rpc_used": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "votes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "title": "OutgoingExternalDataTx represents an individual send from Hyperion to external contract"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/chains/tokens": {
+      "get": {
+        "operationId": "QueryGetTokensOfChain",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tokens": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "metadata": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "denom_units": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "denom": {
+                                  "type": "string",
+                                  "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                                },
+                                "exponent": {
+                                  "type": "integer",
+                                  "format": "int64",
+                                  "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                                },
+                                "aliases": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "title": "aliases is a list of string aliases for the given denom"
+                                }
+                              },
+                              "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                            },
+                            "title": "denom_units represents the list of DenomUnit's for a given coin"
+                          },
+                          "base": {
+                            "type": "string",
+                            "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                          },
+                          "display": {
+                            "type": "string",
+                            "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Since: cosmos-sdk 0.43",
+                            "title": "name defines the name of the token (eg: Cosmos Atom)"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                          },
+                          "uri": {
+                            "type": "string",
+                            "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                          },
+                          "uri_hash": {
+                            "type": "string",
+                            "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Since: cosmos-sdk 0.50",
+                            "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                          },
+                          "logo": {
+                            "type": "string",
+                            "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                          },
+                          "contract_address": {
+                            "type": "string",
+                            "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
+                          },
+                          "chains_metadatas": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "chain_id": {
+                                  "type": "string",
+                                  "format": "uint64"
+                                },
+                                "symbol": {
+                                  "type": "string"
+                                },
+                                "decimals": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "contract_address": {
+                                  "type": "string"
+                                },
+                                "is_originated": {
+                                  "type": "boolean"
+                                }
+                              }
+                            },
+                            "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
+                          }
+                        },
+                        "description": "Metadata represents a struct that describes\na basic token."
+                      },
+                      "holders_count": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "total_supply": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "next_key": {
+                      "type": "string",
+                      "format": "byte",
+                      "description": "next_key is the key to be passed to PageRequest.key to\nquery the next page most efficiently. It will be empty if\nthere are no more results."
+                    },
+                    "total": {
+                      "type": "string",
+                      "format": "uint64",
+                      "title": "total is total number of results available if PageRequest.count_total\nwas set, its value is undefined otherwise"
+                    }
+                  },
+                  "description": "PageResponse is to be embedded in gRPC response messages where the\ncorresponding request message has used PageRequest.\n\n message SomeResponse {\n         repeated Bar results = 1;\n         PageResponse page = 2;\n }"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "chain_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
           }
         ],
         "tags": [
@@ -3876,9 +4577,6 @@
                       "type": "string",
                       "format": "byte"
                     },
-                    "claim_slashing_enabled": {
-                      "type": "boolean"
-                    },
                     "bridge_contract_start_height": {
                       "type": "string",
                       "format": "uint64"
@@ -3969,6 +4667,17 @@
                           }
                         }
                       }
+                    },
+                    "offset_valset_nonce": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "min_call_external_data_gas": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "paused": {
+                      "type": "boolean"
                     }
                   }
                 }
@@ -4204,6 +4913,120 @@
         ]
       }
     },
+    "/hyperion/v1/historical_fees": {
+      "get": {
+        "operationId": "QueryHistoricalFees",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "historical_fees": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "denom": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                  }
+                },
+                "low": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                },
+                "high": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                },
+                "average": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/missing_nonces": {
       "get": {
         "operationId": "MissingHyperionNonces",
@@ -4369,9 +5192,6 @@
                                 "type": "string",
                                 "format": "byte"
                               },
-                              "claim_slashing_enabled": {
-                                "type": "boolean"
-                              },
                               "bridge_contract_start_height": {
                                 "type": "string",
                                 "format": "uint64"
@@ -4462,14 +5282,19 @@
                                     }
                                   }
                                 }
+                              },
+                              "offset_valset_nonce": {
+                                "type": "string",
+                                "format": "uint64"
+                              },
+                              "min_call_external_data_gas": {
+                                "type": "string",
+                                "format": "uint64"
+                              },
+                              "paused": {
+                                "type": "boolean"
                               }
                             }
-                          }
-                        },
-                        "admins": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
                           }
                         }
                       }
@@ -4738,37 +5563,6 @@
                               "title": "MsgSetOrchestratorAddresses\nthis message allows validators to delegate their voting responsibilities\nto a given key. This key is then used as an optional authentication method\nfor sigining oracle claims\nVALIDATOR\nThe validator field is a cosmosvaloper1... string (i.e. sdk.ValAddress)\nthat references a validator in the active set\nORCHESTRATOR\nThe orchestrator field is a cosmos1... string  (i.e. sdk.AccAddress) that\nreferences the key that is being delegated to\nETH_ADDRESS\nThis is a hex encoded 0x Ethereum public key that will be used by this\nvalidator on Ethereum"
                             }
                           },
-                          "token_address_to_denoms": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "chain_id": {
-                                  "type": "string"
-                                },
-                                "token_address": {
-                                  "type": "string"
-                                },
-                                "denom": {
-                                  "type": "string"
-                                },
-                                "symbol": {
-                                  "type": "string"
-                                },
-                                "decimals": {
-                                  "type": "string",
-                                  "format": "uint64"
-                                },
-                                "is_cosmos_originated": {
-                                  "type": "boolean"
-                                },
-                                "is_concensus_token": {
-                                  "type": "boolean"
-                                }
-                              },
-                              "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
-                            }
-                          },
                           "unbatched_transfers": {
                             "type": "array",
                             "items": {
@@ -4885,14 +5679,14 @@
                               }
                             },
                             "title": "Valset is the Ethereum Bridge Multsig Set, each hyperion validator also\nmaintains an ETH key to sign messages for each counterparty chain, these are \nused to check signatures on counterparty chain because of the significant gas savings"
-                          },
-                          "ethereum_blacklist": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
                           }
                         }
+                      }
+                    },
+                    "blacklist_addresses": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
                       }
                     }
                   },
@@ -5031,6 +5825,417 @@
         ]
       }
     },
+    "/hyperion/v1/orchestrator_data": {
+      "get": {
+        "operationId": "QueryGetOrchestratorData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "orchestrator_data": {
+                  "type": "object",
+                  "properties": {
+                    "orchestrator": {
+                      "type": "string"
+                    },
+                    "orchestrator_hyperion_data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "hyperion_id": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "minimum_tx_fee": {
+                            "type": "string"
+                          },
+                          "minimum_batch_fee": {
+                            "type": "string"
+                          },
+                          "total_slash_count": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "total_slash_amount": {
+                            "type": "string"
+                          },
+                          "slash_data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "slash_timestamp": {
+                                  "type": "string",
+                                  "format": "uint64"
+                                },
+                                "slash_amount": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "tx_out_transfered": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "tx_in_transfered": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "batch_created": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "batch_confirmed": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "fee_collected": {
+                            "type": "string"
+                          },
+                          "external_data_tx_executed": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "external_data_tx_fee_collected": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orchestrator_address",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/orchestrator_hyperion_data": {
+      "get": {
+        "operationId": "QueryGetOrchestratorHyperionData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "orchestrator_hyperion_data": {
+                  "type": "object",
+                  "properties": {
+                    "hyperion_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "minimum_tx_fee": {
+                      "type": "string"
+                    },
+                    "minimum_batch_fee": {
+                      "type": "string"
+                    },
+                    "total_slash_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "total_slash_amount": {
+                      "type": "string"
+                    },
+                    "slash_data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "slash_timestamp": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "slash_amount": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "tx_out_transfered": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "tx_in_transfered": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "batch_created": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "batch_confirmed": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "fee_collected": {
+                      "type": "string"
+                    },
+                    "external_data_tx_executed": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "external_data_tx_fee_collected": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orchestrator_address",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/orchestrators_data": {
+      "get": {
+        "operationId": "QueryGetOrchestratorsData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "orchestrators_data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "orchestrator": {
+                        "type": "string"
+                      },
+                      "orchestrator_hyperion_data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "hyperion_id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "minimum_tx_fee": {
+                              "type": "string"
+                            },
+                            "minimum_batch_fee": {
+                              "type": "string"
+                            },
+                            "total_slash_count": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "total_slash_amount": {
+                              "type": "string"
+                            },
+                            "slash_data": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "slash_timestamp": {
+                                    "type": "string",
+                                    "format": "uint64"
+                                  },
+                                  "slash_amount": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "tx_out_transfered": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "tx_in_transfered": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "batch_created": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "batch_confirmed": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "fee_collected": {
+                              "type": "string"
+                            },
+                            "external_data_tx_executed": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "external_data_tx_fee_collected": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orchestrators",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/params": {
       "get": {
         "summary": "Deployments queries deployments",
@@ -5124,9 +6329,6 @@
                             "type": "string",
                             "format": "byte"
                           },
-                          "claim_slashing_enabled": {
-                            "type": "boolean"
-                          },
                           "bridge_contract_start_height": {
                             "type": "string",
                             "format": "uint64"
@@ -5217,14 +6419,19 @@
                                 }
                               }
                             }
+                          },
+                          "offset_valset_nonce": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "min_call_external_data_gas": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "paused": {
+                            "type": "boolean"
                           }
                         }
-                      }
-                    },
-                    "admins": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
                       }
                     }
                   }
@@ -30537,6 +31744,150 @@
       },
       "description": "QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs\nRPC method."
     },
+    "cosmos.bank.v1beta1.ChainMetadata": {
+      "type": "object",
+      "properties": {
+        "chain_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "contract_address": {
+          "type": "string"
+        },
+        "is_originated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cosmos.bank.v1beta1.DenomUnit": {
+      "type": "object",
+      "properties": {
+        "denom": {
+          "type": "string",
+          "description": "denom represents the string name of the given denom unit (e.g uatom)."
+        },
+        "exponent": {
+          "type": "integer",
+          "format": "int64",
+          "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "aliases is a list of string aliases for the given denom"
+        }
+      },
+      "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+    },
+    "cosmos.bank.v1beta1.Metadata": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "denom_units": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denom": {
+                "type": "string",
+                "description": "denom represents the string name of the given denom unit (e.g uatom)."
+              },
+              "exponent": {
+                "type": "integer",
+                "format": "int64",
+                "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+              },
+              "aliases": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "title": "aliases is a list of string aliases for the given denom"
+              }
+            },
+            "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+          },
+          "title": "denom_units represents the list of DenomUnit's for a given coin"
+        },
+        "base": {
+          "type": "string",
+          "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+        },
+        "display": {
+          "type": "string",
+          "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+        },
+        "name": {
+          "type": "string",
+          "description": "Since: cosmos-sdk 0.43",
+          "title": "name defines the name of the token (eg: Cosmos Atom)"
+        },
+        "symbol": {
+          "type": "string",
+          "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+        },
+        "uri": {
+          "type": "string",
+          "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+        },
+        "uri_hash": {
+          "type": "string",
+          "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Since: cosmos-sdk 0.50",
+          "title": "Decimals represent the number of decimals use to represent token amount on chain"
+        },
+        "logo": {
+          "type": "string",
+          "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+        },
+        "contract_address": {
+          "type": "string",
+          "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
+        },
+        "chains_metadatas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chain_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "symbol": {
+                "type": "string"
+              },
+              "decimals": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "contract_address": {
+                "type": "string"
+              },
+              "is_originated": {
+                "type": "boolean"
+              }
+            }
+          },
+          "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
+        }
+      },
+      "description": "Metadata represents a struct that describes\na basic token."
+    },
     "cosmos.base.v1beta1.Coin": {
       "type": "object",
       "properties": {
@@ -30602,6 +31953,30 @@
         },
         "total_fees": {
           "type": "string"
+        }
+      }
+    },
+    "helios.hyperion.v1.BatchFeesWithIds": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "total_fees": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uint64"
+          }
+        },
+        "fees": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -30696,9 +32071,6 @@
           "type": "string",
           "format": "byte"
         },
-        "claim_slashing_enabled": {
-          "type": "boolean"
-        },
         "bridge_contract_start_height": {
           "type": "string",
           "format": "uint64"
@@ -30789,6 +32161,129 @@
               }
             }
           }
+        },
+        "offset_valset_nonce": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "min_call_external_data_gas": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "paused": {
+          "type": "boolean"
+        }
+      }
+    },
+    "helios.hyperion.v1.FullMetadataToken": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "denom_units": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "denom": {
+                    "type": "string",
+                    "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                  },
+                  "exponent": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                  },
+                  "aliases": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "title": "aliases is a list of string aliases for the given denom"
+                  }
+                },
+                "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+              },
+              "title": "denom_units represents the list of DenomUnit's for a given coin"
+            },
+            "base": {
+              "type": "string",
+              "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+            },
+            "display": {
+              "type": "string",
+              "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+            },
+            "name": {
+              "type": "string",
+              "description": "Since: cosmos-sdk 0.43",
+              "title": "name defines the name of the token (eg: Cosmos Atom)"
+            },
+            "symbol": {
+              "type": "string",
+              "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+            },
+            "uri": {
+              "type": "string",
+              "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+            },
+            "uri_hash": {
+              "type": "string",
+              "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+            },
+            "decimals": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Since: cosmos-sdk 0.50",
+              "title": "Decimals represent the number of decimals use to represent token amount on chain"
+            },
+            "logo": {
+              "type": "string",
+              "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+            },
+            "contract_address": {
+              "type": "string",
+              "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
+            },
+            "chains_metadatas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "chain_id": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "contract_address": {
+                    "type": "string"
+                  },
+                  "is_originated": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
+            }
+          },
+          "description": "Metadata represents a struct that describes\na basic token."
+        },
+        "holders_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "total_supply": {
+          "type": "string"
         }
       }
     },
@@ -31054,37 +32549,6 @@
             "title": "MsgSetOrchestratorAddresses\nthis message allows validators to delegate their voting responsibilities\nto a given key. This key is then used as an optional authentication method\nfor sigining oracle claims\nVALIDATOR\nThe validator field is a cosmosvaloper1... string (i.e. sdk.ValAddress)\nthat references a validator in the active set\nORCHESTRATOR\nThe orchestrator field is a cosmos1... string  (i.e. sdk.AccAddress) that\nreferences the key that is being delegated to\nETH_ADDRESS\nThis is a hex encoded 0x Ethereum public key that will be used by this\nvalidator on Ethereum"
           }
         },
-        "token_address_to_denoms": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "chain_id": {
-                "type": "string"
-              },
-              "token_address": {
-                "type": "string"
-              },
-              "denom": {
-                "type": "string"
-              },
-              "symbol": {
-                "type": "string"
-              },
-              "decimals": {
-                "type": "string",
-                "format": "uint64"
-              },
-              "is_cosmos_originated": {
-                "type": "boolean"
-              },
-              "is_concensus_token": {
-                "type": "boolean"
-              }
-            },
-            "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
-          }
-        },
         "unbatched_transfers": {
           "type": "array",
           "items": {
@@ -31201,12 +32665,6 @@
             }
           },
           "title": "Valset is the Ethereum Bridge Multsig Set, each hyperion validator also\nmaintains an ETH key to sign messages for each counterparty chain, these are \nused to check signatures on counterparty chain because of the significant gas savings"
-        },
-        "ethereum_blacklist": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         }
       }
     },
@@ -31295,9 +32753,6 @@
                   "slash_fraction_bad_eth_signature": {
                     "type": "string",
                     "format": "byte"
-                  },
-                  "claim_slashing_enabled": {
-                    "type": "boolean"
                   },
                   "bridge_contract_start_height": {
                     "type": "string",
@@ -31389,14 +32844,19 @@
                         }
                       }
                     }
+                  },
+                  "offset_valset_nonce": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "min_call_external_data_gas": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "paused": {
+                    "type": "boolean"
                   }
                 }
-              }
-            },
-            "admins": {
-              "type": "array",
-              "items": {
-                "type": "string"
               }
             }
           }
@@ -31665,37 +33125,6 @@
                   "title": "MsgSetOrchestratorAddresses\nthis message allows validators to delegate their voting responsibilities\nto a given key. This key is then used as an optional authentication method\nfor sigining oracle claims\nVALIDATOR\nThe validator field is a cosmosvaloper1... string (i.e. sdk.ValAddress)\nthat references a validator in the active set\nORCHESTRATOR\nThe orchestrator field is a cosmos1... string  (i.e. sdk.AccAddress) that\nreferences the key that is being delegated to\nETH_ADDRESS\nThis is a hex encoded 0x Ethereum public key that will be used by this\nvalidator on Ethereum"
                 }
               },
-              "token_address_to_denoms": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "chain_id": {
-                      "type": "string"
-                    },
-                    "token_address": {
-                      "type": "string"
-                    },
-                    "denom": {
-                      "type": "string"
-                    },
-                    "symbol": {
-                      "type": "string"
-                    },
-                    "decimals": {
-                      "type": "string",
-                      "format": "uint64"
-                    },
-                    "is_cosmos_originated": {
-                      "type": "boolean"
-                    },
-                    "is_concensus_token": {
-                      "type": "boolean"
-                    }
-                  },
-                  "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
-                }
-              },
               "unbatched_transfers": {
                 "type": "array",
                 "items": {
@@ -31812,14 +33241,14 @@
                   }
                 },
                 "title": "Valset is the Ethereum Bridge Multsig Set, each hyperion validator also\nmaintains an ETH key to sign messages for each counterparty chain, these are \nused to check signatures on counterparty chain because of the significant gas savings"
-              },
-              "ethereum_blacklist": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
               }
             }
+          }
+        },
+        "blacklist_addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       },
@@ -31904,6 +33333,38 @@
       },
       "title": "MsgConfirmBatch\nWhen validators observe a MsgRequestBatch they form a batch by ordering\ntransactions currently in the txqueue in order of highest to lowest fee,\ncutting off when the batch either reaches a hardcoded maximum size (to be\ndecided, probably around 100) or when transactions stop being profitable\n(TODO determine this without nondeterminism) This message includes the batch\nas well as an Ethereum signature over this batch by the validator\n-------------"
     },
+    "helios.hyperion.v1.MsgExternalDataClaim": {
+      "type": "object",
+      "properties": {
+        "hyperion_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "block_height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "tx_nonce": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "external_contract_address": {
+          "type": "string"
+        },
+        "orchestrator": {
+          "type": "string"
+        },
+        "call_data_result": {
+          "type": "string"
+        },
+        "call_data_result_error": {
+          "type": "string"
+        },
+        "rpc_used": {
+          "type": "string"
+        }
+      }
+    },
     "helios.hyperion.v1.MsgSetOrchestratorAddresses": {
       "type": "object",
       "properties": {
@@ -31945,6 +33406,234 @@
         }
       },
       "description": "MsgValsetConfirm\nthis is the message sent by the validators when they wish to submit their\nsignatures over the validator set at a given block height. A validator must\nfirst call MsgSetEthAddress to set their Ethereum address to be used for\nsigning. Then someone (anyone) must make a ValsetRequest the request is\nessentially a messaging mechanism to determine which block all validators\nshould submit signatures over. Finally validators sign the validator set,\npowers, and Ethereum addresses of the entire validator set at the height of a\nValsetRequest and submit that signature with this message.\n\nIf a sufficient number of validators (66% of voting power) (A) have set\nEthereum addresses and (B) submit ValsetConfirm messages with their\nsignatures it is then possible for anyone to view these signatures in the\nchain store and submit them to Ethereum to update the validator set\n-------------"
+    },
+    "helios.hyperion.v1.OrchestratorData": {
+      "type": "object",
+      "properties": {
+        "orchestrator": {
+          "type": "string"
+        },
+        "orchestrator_hyperion_data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hyperion_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "minimum_tx_fee": {
+                "type": "string"
+              },
+              "minimum_batch_fee": {
+                "type": "string"
+              },
+              "total_slash_count": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "total_slash_amount": {
+                "type": "string"
+              },
+              "slash_data": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "slash_timestamp": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "slash_amount": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "tx_out_transfered": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "tx_in_transfered": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "batch_created": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "batch_confirmed": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "fee_collected": {
+                "type": "string"
+              },
+              "external_data_tx_executed": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "external_data_tx_fee_collected": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "helios.hyperion.v1.OrchestratorHyperionData": {
+      "type": "object",
+      "properties": {
+        "hyperion_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "minimum_tx_fee": {
+          "type": "string"
+        },
+        "minimum_batch_fee": {
+          "type": "string"
+        },
+        "total_slash_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "total_slash_amount": {
+          "type": "string"
+        },
+        "slash_data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slash_timestamp": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "slash_amount": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "tx_out_transfered": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "tx_in_transfered": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "batch_created": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "batch_confirmed": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "fee_collected": {
+          "type": "string"
+        },
+        "external_data_tx_executed": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "external_data_tx_fee_collected": {
+          "type": "string"
+        }
+      }
+    },
+    "helios.hyperion.v1.OutgoingExternalDataTx": {
+      "type": "object",
+      "properties": {
+        "hyperion_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "cron_id": {
+          "type": "string"
+        },
+        "external_contract_address": {
+          "type": "string"
+        },
+        "abi_call_hex": {
+          "type": "string"
+        },
+        "fee": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "timeout": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "nonce": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "block": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hyperion_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "block_height": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "tx_nonce": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "external_contract_address": {
+                "type": "string"
+              },
+              "orchestrator": {
+                "type": "string"
+              },
+              "call_data_result": {
+                "type": "string"
+              },
+              "call_data_result_error": {
+                "type": "string"
+              },
+              "rpc_used": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "votes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "OutgoingExternalDataTx represents an individual send from Hyperion to external contract"
     },
     "helios.hyperion.v1.OutgoingTransferTx": {
       "type": "object",
@@ -32159,9 +33848,6 @@
                 "type": "string",
                 "format": "byte"
               },
-              "claim_slashing_enabled": {
-                "type": "boolean"
-              },
               "bridge_contract_start_height": {
                 "type": "string",
                 "format": "uint64"
@@ -32252,14 +33938,19 @@
                     }
                   }
                 }
+              },
+              "offset_valset_nonce": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "min_call_external_data_gas": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "paused": {
+                "type": "boolean"
               }
             }
-          }
-        },
-        "admins": {
-          "type": "array",
-          "items": {
-            "type": "string"
           }
         }
       }
@@ -32485,6 +34176,38 @@
               },
               "total_fees": {
                 "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryBatchFeeWithMinimumFeeResponse": {
+      "type": "object",
+      "properties": {
+        "batchFees": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              },
+              "total_fees": {
+                "type": "string"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uint64"
+                }
+              },
+              "fees": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -32746,9 +34469,6 @@
               "type": "string",
               "format": "byte"
             },
-            "claim_slashing_enabled": {
-              "type": "boolean"
-            },
             "bridge_contract_start_height": {
               "type": "string",
               "format": "uint64"
@@ -32839,6 +34559,17 @@
                   }
                 }
               }
+            },
+            "offset_valset_nonce": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "min_call_external_data_gas": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "paused": {
+              "type": "boolean"
             }
           }
         }
@@ -32893,6 +34624,235 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryGetOrchestratorDataResponse": {
+      "type": "object",
+      "properties": {
+        "orchestrator_data": {
+          "type": "object",
+          "properties": {
+            "orchestrator": {
+              "type": "string"
+            },
+            "orchestrator_hyperion_data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hyperion_id": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "minimum_tx_fee": {
+                    "type": "string"
+                  },
+                  "minimum_batch_fee": {
+                    "type": "string"
+                  },
+                  "total_slash_count": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "total_slash_amount": {
+                    "type": "string"
+                  },
+                  "slash_data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "slash_timestamp": {
+                          "type": "string",
+                          "format": "uint64"
+                        },
+                        "slash_amount": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "tx_out_transfered": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "tx_in_transfered": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "batch_created": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "batch_confirmed": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "fee_collected": {
+                    "type": "string"
+                  },
+                  "external_data_tx_executed": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "external_data_tx_fee_collected": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryGetOrchestratorHyperionDataResponse": {
+      "type": "object",
+      "properties": {
+        "orchestrator_hyperion_data": {
+          "type": "object",
+          "properties": {
+            "hyperion_id": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "minimum_tx_fee": {
+              "type": "string"
+            },
+            "minimum_batch_fee": {
+              "type": "string"
+            },
+            "total_slash_count": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "total_slash_amount": {
+              "type": "string"
+            },
+            "slash_data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "slash_timestamp": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "slash_amount": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "tx_out_transfered": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "tx_in_transfered": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "batch_created": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "batch_confirmed": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "fee_collected": {
+              "type": "string"
+            },
+            "external_data_tx_executed": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "external_data_tx_fee_collected": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryGetOrchestratorsDataResponse": {
+      "type": "object",
+      "properties": {
+        "orchestrators_data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "orchestrator": {
+                "type": "string"
+              },
+              "orchestrator_hyperion_data": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hyperion_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "minimum_tx_fee": {
+                      "type": "string"
+                    },
+                    "minimum_batch_fee": {
+                      "type": "string"
+                    },
+                    "total_slash_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "total_slash_amount": {
+                      "type": "string"
+                    },
+                    "slash_data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "slash_timestamp": {
+                            "type": "string",
+                            "format": "uint64"
+                          },
+                          "slash_amount": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "tx_out_transfered": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "tx_in_transfered": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "batch_created": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "batch_confirmed": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "fee_collected": {
+                      "type": "string"
+                    },
+                    "external_data_tx_executed": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "external_data_tx_fee_collected": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "helios.hyperion.v1.QueryGetRpcListByChainIdResponse": {
       "type": "object",
       "properties": {
@@ -32914,6 +34874,142 @@
               }
             }
           }
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryGetTokensOfChainResponse": {
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "denom_units": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "denom": {
+                          "type": "string",
+                          "description": "denom represents the string name of the given denom unit (e.g uatom)."
+                        },
+                        "exponent": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
+                        },
+                        "aliases": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "title": "aliases is a list of string aliases for the given denom"
+                        }
+                      },
+                      "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
+                    },
+                    "title": "denom_units represents the list of DenomUnit's for a given coin"
+                  },
+                  "base": {
+                    "type": "string",
+                    "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "display indicates the suggested denom that should be\ndisplayed in clients."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Since: cosmos-sdk 0.43",
+                    "title": "name defines the name of the token (eg: Cosmos Atom)"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
+                  },
+                  "uri_hash": {
+                    "type": "string",
+                    "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "Since: cosmos-sdk 0.50",
+                    "title": "Decimals represent the number of decimals use to represent token amount on chain"
+                  },
+                  "logo": {
+                    "type": "string",
+                    "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
+                  },
+                  "contract_address": {
+                    "type": "string",
+                    "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
+                  },
+                  "chains_metadatas": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chain_id": {
+                          "type": "string",
+                          "format": "uint64"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "decimals": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "contract_address": {
+                          "type": "string"
+                        },
+                        "is_originated": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
+                  }
+                },
+                "description": "Metadata represents a struct that describes\na basic token."
+              },
+              "holders_count": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "total_supply": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "next_key": {
+              "type": "string",
+              "format": "byte",
+              "description": "next_key is the key to be passed to PageRequest.key to\nquery the next page most efficiently. It will be empty if\nthere are no more results."
+            },
+            "total": {
+              "type": "string",
+              "format": "uint64",
+              "title": "total is total number of results available if PageRequest.count_total\nwas set, its value is undefined otherwise"
+            }
+          },
+          "description": "PageResponse is to be embedded in gRPC response messages where the\ncorresponding request message has used PageRequest.\n\n message SomeResponse {\n         repeated Bar results = 1;\n         PageResponse page = 2;\n }"
         }
       }
     },
@@ -33024,6 +35120,62 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryHistoricalFeesResponse": {
+      "type": "object",
+      "properties": {
+        "historical_fees": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denom": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "string"
+              }
+            },
+            "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+          }
+        },
+        "low": {
+          "type": "object",
+          "properties": {
+            "denom": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+        },
+        "high": {
+          "type": "object",
+          "properties": {
+            "denom": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+        },
+        "average": {
+          "type": "object",
+          "properties": {
+            "denom": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+        }
+      }
+    },
     "helios.hyperion.v1.QueryLastEventByAddrResponse": {
       "type": "object",
       "properties": {
@@ -33127,6 +35279,93 @@
             }
           },
           "title": "OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH"
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryLastPendingBatchsRequestByAddrResponse": {
+      "type": "object",
+      "properties": {
+        "batchs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hyperion_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "batch_nonce": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "batch_timeout": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "transactions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hyperion_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "sender": {
+                      "type": "string"
+                    },
+                    "dest_address": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "object",
+                      "properties": {
+                        "contract": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                    },
+                    "fee": {
+                      "type": "object",
+                      "properties": {
+                        "contract": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                    },
+                    "tx_timeout": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "tx_hash": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
+                }
+              },
+              "token_contract": {
+                "type": "string"
+              },
+              "block": {
+                "type": "string",
+                "format": "uint64"
+              }
+            },
+            "title": "OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH"
+          }
         }
       }
     },
@@ -33317,9 +35556,6 @@
                         "type": "string",
                         "format": "byte"
                       },
-                      "claim_slashing_enabled": {
-                        "type": "boolean"
-                      },
                       "bridge_contract_start_height": {
                         "type": "string",
                         "format": "uint64"
@@ -33410,14 +35646,19 @@
                             }
                           }
                         }
+                      },
+                      "offset_valset_nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "min_call_external_data_gas": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "paused": {
+                        "type": "boolean"
                       }
                     }
-                  }
-                },
-                "admins": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
                   }
                 }
               }
@@ -33686,37 +35927,6 @@
                       "title": "MsgSetOrchestratorAddresses\nthis message allows validators to delegate their voting responsibilities\nto a given key. This key is then used as an optional authentication method\nfor sigining oracle claims\nVALIDATOR\nThe validator field is a cosmosvaloper1... string (i.e. sdk.ValAddress)\nthat references a validator in the active set\nORCHESTRATOR\nThe orchestrator field is a cosmos1... string  (i.e. sdk.AccAddress) that\nreferences the key that is being delegated to\nETH_ADDRESS\nThis is a hex encoded 0x Ethereum public key that will be used by this\nvalidator on Ethereum"
                     }
                   },
-                  "token_address_to_denoms": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "chain_id": {
-                          "type": "string"
-                        },
-                        "token_address": {
-                          "type": "string"
-                        },
-                        "denom": {
-                          "type": "string"
-                        },
-                        "symbol": {
-                          "type": "string"
-                        },
-                        "decimals": {
-                          "type": "string",
-                          "format": "uint64"
-                        },
-                        "is_cosmos_originated": {
-                          "type": "boolean"
-                        },
-                        "is_concensus_token": {
-                          "type": "boolean"
-                        }
-                      },
-                      "title": "This records the relationship between an bridged token and the denom\nof the corresponding Cosmos originated asset"
-                    }
-                  },
                   "unbatched_transfers": {
                     "type": "array",
                     "items": {
@@ -33833,14 +36043,14 @@
                       }
                     },
                     "title": "Valset is the Ethereum Bridge Multsig Set, each hyperion validator also\nmaintains an ETH key to sign messages for each counterparty chain, these are \nused to check signatures on counterparty chain because of the significant gas savings"
-                  },
-                  "ethereum_blacklist": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
                   }
                 }
+              }
+            },
+            "blacklist_addresses": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           },
@@ -33848,6 +36058,118 @@
         }
       },
       "description": "QueryModuleStateResponse is the response type for the Query/HyperionModuleState\nRPC method."
+    },
+    "helios.hyperion.v1.QueryOutgoingExternalDataTxsResponse": {
+      "type": "object",
+      "properties": {
+        "txs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hyperion_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "sender": {
+                "type": "string"
+              },
+              "cron_id": {
+                "type": "string"
+              },
+              "external_contract_address": {
+                "type": "string"
+              },
+              "abi_call_hex": {
+                "type": "string"
+              },
+              "fee": {
+                "type": "object",
+                "properties": {
+                  "contract": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string"
+                  }
+                },
+                "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+              },
+              "timeout": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "nonce": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "block": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "claims": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hyperion_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "block_height": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "tx_nonce": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "external_contract_address": {
+                      "type": "string"
+                    },
+                    "orchestrator": {
+                      "type": "string"
+                    },
+                    "call_data_result": {
+                      "type": "string"
+                    },
+                    "call_data_result_error": {
+                      "type": "string"
+                    },
+                    "rpc_used": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "votes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "title": "OutgoingExternalDataTx represents an individual send from Hyperion to external contract"
+          }
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryOutgoingTxBatchesCountResponse": {
+      "type": "object",
+      "properties": {
+        "tx_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "batch_count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
     },
     "helios.hyperion.v1.QueryOutgoingTxBatchesResponse": {
       "type": "object",
@@ -34022,9 +36344,6 @@
                     "type": "string",
                     "format": "byte"
                   },
-                  "claim_slashing_enabled": {
-                    "type": "boolean"
-                  },
                   "bridge_contract_start_height": {
                     "type": "string",
                     "format": "uint64"
@@ -34115,14 +36434,19 @@
                         }
                       }
                     }
+                  },
+                  "offset_valset_nonce": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "min_call_external_data_gas": {
+                    "type": "string",
+                    "format": "uint64"
+                  },
+                  "paused": {
+                    "type": "boolean"
                   }
                 }
-              }
-            },
-            "admins": {
-              "type": "array",
-              "items": {
-                "type": "string"
               }
             }
           }
@@ -34371,6 +36695,18 @@
         "last_height_used": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "helios.hyperion.v1.SlashData": {
+      "type": "object",
+      "properties": {
+        "slash_timestamp": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "slash_amount": {
+          "type": "string"
         }
       }
     },
@@ -35339,28 +37675,6 @@
       },
       "description": "QueryGrantsResponse is the response type for the Query/Authorizations RPC method."
     },
-    "cosmos.bank.v1beta1.ChainMetadata": {
-      "type": "object",
-      "properties": {
-        "chain_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "symbol": {
-          "type": "string"
-        },
-        "decimals": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "contract_address": {
-          "type": "string"
-        },
-        "is_originated": {
-          "type": "boolean"
-        }
-      }
-    },
     "cosmos.bank.v1beta1.DenomOwner": {
       "type": "object",
       "properties": {
@@ -35382,28 +37696,6 @@
         }
       },
       "description": "DenomOwner defines structure representing an account that owns or holds a\nparticular denominated token. It contains the account address and account\nbalance of the denominated token.\n\nSince: cosmos-sdk 0.46"
-    },
-    "cosmos.bank.v1beta1.DenomUnit": {
-      "type": "object",
-      "properties": {
-        "denom": {
-          "type": "string",
-          "description": "denom represents the string name of the given denom unit (e.g uatom)."
-        },
-        "exponent": {
-          "type": "integer",
-          "format": "int64",
-          "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
-        },
-        "aliases": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "aliases is a list of string aliases for the given denom"
-        }
-      },
-      "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
     },
     "cosmos.bank.v1beta1.FullMetadata": {
       "type": "object",
@@ -35516,106 +37808,6 @@
           "type": "string"
         }
       }
-    },
-    "cosmos.bank.v1beta1.Metadata": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "denom_units": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "denom": {
-                "type": "string",
-                "description": "denom represents the string name of the given denom unit (e.g uatom)."
-              },
-              "exponent": {
-                "type": "integer",
-                "format": "int64",
-                "description": "exponent represents power of 10 exponent that one must\nraise the base_denom to in order to equal the given DenomUnit's denom\n1 denom = 10^exponent base_denom\n(e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with\nexponent = 6, thus: 1 atom = 10^6 uatom)."
-              },
-              "aliases": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "title": "aliases is a list of string aliases for the given denom"
-              }
-            },
-            "description": "DenomUnit represents a struct that describes a given\ndenomination unit of the basic token."
-          },
-          "title": "denom_units represents the list of DenomUnit's for a given coin"
-        },
-        "base": {
-          "type": "string",
-          "description": "base represents the base denom (should be the DenomUnit with exponent = 0)."
-        },
-        "display": {
-          "type": "string",
-          "description": "display indicates the suggested denom that should be\ndisplayed in clients."
-        },
-        "name": {
-          "type": "string",
-          "description": "Since: cosmos-sdk 0.43",
-          "title": "name defines the name of the token (eg: Cosmos Atom)"
-        },
-        "symbol": {
-          "type": "string",
-          "description": "symbol is the token symbol usually shown on exchanges (eg: ATOM). This can\nbe the same as the display.\n\nSince: cosmos-sdk 0.43"
-        },
-        "uri": {
-          "type": "string",
-          "description": "URI to a document (on or off-chain) that contains additional information. Optional.\n\nSince: cosmos-sdk 0.46"
-        },
-        "uri_hash": {
-          "type": "string",
-          "description": "URIHash is a sha256 hash of a document pointed by URI. It's used to verify that\nthe document didn't change. Optional.\n\nSince: cosmos-sdk 0.46"
-        },
-        "decimals": {
-          "type": "integer",
-          "format": "int64",
-          "description": "Since: cosmos-sdk 0.50",
-          "title": "Decimals represent the number of decimals use to represent token amount on chain"
-        },
-        "logo": {
-          "type": "string",
-          "title": "Logo represent the base64 logo in png format with size 200x200 on chain.\nOptional.\nSince: cosmos-sdk v0.50.10-helios-72"
-        },
-        "contract_address": {
-          "type": "string",
-          "title": "contract_address is the contract address of the token\nOptional.\nSince: cosmos-sdk v0.50.10-helios-74"
-        },
-        "chains_metadatas": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "chain_id": {
-                "type": "string",
-                "format": "uint64"
-              },
-              "symbol": {
-                "type": "string"
-              },
-              "decimals": {
-                "type": "integer",
-                "format": "int64"
-              },
-              "contract_address": {
-                "type": "string"
-              },
-              "is_originated": {
-                "type": "boolean"
-              }
-            }
-          },
-          "title": "chains_metadatas is the list of chain metadata\nOptional.\nSince: cosmos-sdk v0.50.10-helios-76"
-        }
-      },
-      "description": "Metadata represents a struct that describes\na basic token."
     },
     "cosmos.bank.v1beta1.Params": {
       "type": "object",

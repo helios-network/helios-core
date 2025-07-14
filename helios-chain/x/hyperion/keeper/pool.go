@@ -2,7 +2,9 @@ package keeper
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math/big"
+	"slices"
 	"sort"
 
 	cmn "helios-core/helios-chain/precompiles/common"
@@ -97,8 +99,12 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		return 0, err
 	}
 
+	fmt.Println("log8 - outgoing: ", outgoing)
+
 	// add a second index with the fee
 	k.appendToUnbatchedTXIndex(ctx, hyperionId, tokenContract, erc20Fee, nextID)
+
+	fmt.Println("log9 - nextID: ", nextID)
 
 	return nextID, nil
 }
@@ -306,6 +312,23 @@ func (k *Keeper) removeFromUnbatchedTXIndex(ctx sdk.Context, hyperionId uint64, 
 
 	metrics.ReportFuncError(k.svcTags)
 	return errors.Wrap(types.ErrUnknown, "tx id")
+}
+
+func (k *Keeper) UnbatchedTXIndexExists(ctx sdk.Context, hyperionId uint64, tokenContract common.Address, fee *types.Token, txID uint64) bool {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	idxKey := types.GetFeeSecondIndexKey(hyperionId, tokenContract, fee)
+
+	var idSet types.IDSet
+	bz := store.Get(idxKey)
+	if bz == nil {
+		return false
+	}
+
+	k.cdc.MustUnmarshal(bz, &idSet)
+	return slices.Contains(idSet.Ids, txID)
 }
 
 func (k *Keeper) setPoolEntry(ctx sdk.Context, outgoingTransferTx *types.OutgoingTransferTx) error {

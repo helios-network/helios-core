@@ -189,8 +189,8 @@ func (k msgServer) UpdateOrchestratorAddressesFee(c context.Context, msg *types.
 	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
 
 	// get the fee
-	fee, found := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validatorAddr)
-	if !found {
+	fee := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validatorAddr)
+	if fee == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "no fee found")
 	}
 
@@ -200,7 +200,7 @@ func (k msgServer) UpdateOrchestratorAddressesFee(c context.Context, msg *types.
 
 	// update the fee
 	fee.Amount = msg.MinimumTxFee.Amount
-	k.Keeper.SetFeeForValidator(ctx, msg.HyperionId, validatorAddr, fee)
+	k.Keeper.SetFeeForValidator(ctx, msg.HyperionId, validatorAddr, *fee)
 
 	orchestratorData, err := k.Keeper.GetOrchestratorHyperionData(ctx, validatorAccountAddr, msg.HyperionId)
 	if err != nil {
@@ -223,8 +223,8 @@ func (k msgServer) DeleteOrchestratorAddressesFee(c context.Context, msg *types.
 	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
 
 	// get the fee
-	_, found := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validatorAddr)
-	if !found {
+	fee := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validatorAddr)
+	if fee == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "no fee found")
 	}
 

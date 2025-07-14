@@ -568,11 +568,21 @@ func (k *Keeper) QueryGetRpcListByChainId(c context.Context, req *types.QueryGet
 func (k *Keeper) QueryHistoricalFees(c context.Context, req *types.QueryHistoricalFeesRequest) (*types.QueryHistoricalFeesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	lowestFeeValidator, _ := k.GetLowestFeeValidator(ctx, req.HyperionId)
-	lowestFee, _ := k.GetFeeByValidator(ctx, req.HyperionId, lowestFeeValidator)
+	lowestFeeValidator := k.GetLowestFeeValidator(ctx, req.HyperionId)
+	lowestFee := &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(-1)}
+	if lowestFeeValidator != nil {
+		lowestFee = k.GetFeeByValidator(ctx, req.HyperionId, *lowestFeeValidator)
+	} else {
+		lowestFee = &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(-1)}
+	}
 
-	highestFeeValidator, _ := k.GetHighestFeeValidator(ctx, req.HyperionId)
-	highestFee, _ := k.GetFeeByValidator(ctx, req.HyperionId, highestFeeValidator)
+	highestFeeValidator := k.GetHighestFeeValidator(ctx, req.HyperionId)
+	highestFee := &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(-1)}
+	if highestFeeValidator != nil {
+		highestFee = k.GetFeeByValidator(ctx, req.HyperionId, *highestFeeValidator)
+	} else {
+		highestFee = &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(-1)}
+	}
 
 	averageFee := sdk.Coin{}
 	averageFee.Amount = lowestFee.Amount.Add(highestFee.Amount).Quo(math.NewInt(2))
@@ -599,8 +609,8 @@ func (k *Keeper) QueryHistoricalFees(c context.Context, req *types.QueryHistoric
 
 	return &types.QueryHistoricalFeesResponse{
 		HistoricalFees: historicalFees,
-		Low:            &lowestFee,
-		High:           &highestFee,
+		Low:            lowestFee,
+		High:           highestFee,
 		Average:        &averageFee,
 	}, nil
 }
