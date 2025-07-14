@@ -640,6 +640,129 @@ func (k *Keeper) SetEthAddressForValidator(ctx sdk.Context, hyperionId uint64, v
 	store.Set(types.GetValidatorByEthAddressKey(hyperionId, ethAddr), validator.Bytes())
 }
 
+func (k *Keeper) SetEthAddressForValidatorWithFee(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress, ethAddr common.Address, fee sdk.Coin) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetEthAddressByValidatorKey(hyperionId, validator), ethAddr.Bytes())
+	store.Set(types.GetValidatorByEthAddressKey(hyperionId, ethAddr), validator.Bytes())
+
+	feeBytes, err := fee.Marshal()
+	if err != nil {
+		return err
+	}
+	store.Set(types.GetFeeByValidatorKey(hyperionId, validator), feeBytes)
+	return nil
+}
+
+func (k *Keeper) SetFeeForValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress, fee sdk.Coin) error {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	feeBytes, err := fee.Marshal()
+	if err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetFeeByValidatorKey(hyperionId, validator), feeBytes)
+	return nil
+}
+
+func (k *Keeper) GetFeeByValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress) (sdk.Coin, bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.GetFeeByValidatorKey(hyperionId, validator))
+	if bz == nil {
+		return sdk.Coin{}, false
+	}
+
+	fee := sdk.Coin{}
+	k.cdc.MustUnmarshal(bz, &fee)
+	return fee, true
+}
+
+func (k *Keeper) DeleteFeeForValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	if store.Has(types.GetFeeByValidatorKey(hyperionId, validator)) {
+		store.Delete(types.GetFeeByValidatorKey(hyperionId, validator))
+	}
+}
+
+func (k *Keeper) GetLowestFeeValidator(ctx sdk.Context, hyperionId uint64) (sdk.ValAddress, bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	iter := store.Iterator(types.GetFeeByValidatorKey(hyperionId, nil), nil)
+	defer iter.Close()
+
+	lowestFee := sdk.Coin{}
+	lowestFee.Amount = math.NewInt(-1)
+	lowestFeeValidator := sdk.ValAddress{}
+
+	for ; iter.Valid(); iter.Next() {
+		fee := sdk.Coin{}
+		k.cdc.MustUnmarshal(iter.Value(), &fee)
+		if lowestFee.Amount.Equal(math.NewInt(-1)) || fee.Amount.LT(lowestFee.Amount) {
+			lowestFee = fee
+			lowestFeeValidator = sdk.ValAddress(iter.Key())
+		}
+	}
+
+	return lowestFeeValidator, !lowestFee.Amount.Equal(math.NewInt(-1))
+}
+
+func (k *Keeper) GetHighestFeeValidator(ctx sdk.Context, hyperionId uint64) (sdk.ValAddress, bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	iter := store.Iterator(types.GetFeeByValidatorKey(hyperionId, nil), nil)
+	defer iter.Close()
+
+	highestFee := sdk.Coin{}
+	highestFee.Amount = math.NewInt(-1)
+	highestFeeValidator := sdk.ValAddress{}
+
+	for ; iter.Valid(); iter.Next() {
+		fee := sdk.Coin{}
+		k.cdc.MustUnmarshal(iter.Value(), &fee)
+		if highestFee.Amount.Equal(math.NewInt(-1)) || fee.Amount.GT(highestFee.Amount) {
+			highestFee = fee
+			highestFeeValidator = sdk.ValAddress(iter.Key())
+		}
+	}
+
+	return highestFeeValidator, !highestFee.Amount.Equal(math.NewInt(-1))
+}
+
+func (k *Keeper) GetLowestsFeeValidatorsFromFee(ctx sdk.Context, hyperionId uint64, fee sdk.Coin) ([]sdk.ValAddress, bool) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := ctx.KVStore(k.storeKey)
+	iter := store.Iterator(types.GetFeeByValidatorKey(hyperionId, nil), nil)
+	defer iter.Close()
+
+	lowestFeeValidators := []sdk.ValAddress{}
+
+	for ; iter.Valid(); iter.Next() {
+		feeOfValidator := sdk.Coin{}
+		k.cdc.MustUnmarshal(iter.Value(), &feeOfValidator)
+		if feeOfValidator.Amount.LT(fee.Amount) {
+			lowestFeeValidators = append(lowestFeeValidators, sdk.ValAddress(iter.Key()))
+		}
+	}
+
+	return lowestFeeValidators, len(lowestFeeValidators) > 0
+}
+
 // GetEthAddressByValidator returns the eth address for a given hyperion validator
 func (k *Keeper) GetEthAddressByValidator(ctx sdk.Context, hyperionId uint64, validator sdk.ValAddress) (common.Address, bool) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)

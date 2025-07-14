@@ -382,6 +382,29 @@ func (c *CachedPublicAPI) BlockNumber() (hexutil.Uint64, error) {
 	return 0, fmt.Errorf("invalid return type for BlockNumber")
 }
 
+// GetHyperionHistoricalFees returns hyperion historical fees with caching
+func (c *CachedPublicAPI) GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error) {
+	methodName := "GetHyperionHistoricalFees"
+	args := []interface{}{hyperionId}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if fees, ok := results[0].(*hyperiontypes.QueryHistoricalFeesResponse); ok {
+			return fees, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetHyperionHistoricalFees")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

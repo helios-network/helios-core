@@ -230,7 +230,7 @@ func (p Precompile) SendToChain(
 		DestChainId: chainId,
 		Dest:        dest,
 		Amount:      sdk.NewCoin(tokenPair.Denom, amountV),
-		BridgeFee:   sdk.NewCoin(tokenPair.Denom, bridgeFeeV),
+		BridgeFee:   sdk.NewCoin(sdk.DefaultBondDenom, bridgeFeeV), // HLS
 	}
 
 	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)

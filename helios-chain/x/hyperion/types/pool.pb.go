@@ -114,15 +114,70 @@ func (m *BatchFees) GetToken() string {
 	return ""
 }
 
+type BatchFeesWithIds struct {
+	Token     string                  `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	TotalFees cosmossdk_io_math.Int   `protobuf:"bytes,2,opt,name=total_fees,json=totalFees,proto3,customtype=cosmossdk.io/math.Int" json:"total_fees"`
+	Ids       []uint64                `protobuf:"varint,3,rep,packed,name=ids,proto3" json:"ids,omitempty"`
+	Fees      []cosmossdk_io_math.Int `protobuf:"bytes,4,rep,name=fees,proto3,customtype=cosmossdk.io/math.Int" json:"fees"`
+}
+
+func (m *BatchFeesWithIds) Reset()         { *m = BatchFeesWithIds{} }
+func (m *BatchFeesWithIds) String() string { return proto.CompactTextString(m) }
+func (*BatchFeesWithIds) ProtoMessage()    {}
+func (*BatchFeesWithIds) Descriptor() ([]byte, []int) {
+	return fileDescriptor_33fe93a5d9b73189, []int{2}
+}
+func (m *BatchFeesWithIds) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *BatchFeesWithIds) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_BatchFeesWithIds.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *BatchFeesWithIds) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BatchFeesWithIds.Merge(m, src)
+}
+func (m *BatchFeesWithIds) XXX_Size() int {
+	return m.Size()
+}
+func (m *BatchFeesWithIds) XXX_DiscardUnknown() {
+	xxx_messageInfo_BatchFeesWithIds.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BatchFeesWithIds proto.InternalMessageInfo
+
+func (m *BatchFeesWithIds) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
+func (m *BatchFeesWithIds) GetIds() []uint64 {
+	if m != nil {
+		return m.Ids
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*IDSet)(nil), "helios.hyperion.v1.IDSet")
 	proto.RegisterType((*BatchFees)(nil), "helios.hyperion.v1.BatchFees")
+	proto.RegisterType((*BatchFeesWithIds)(nil), "helios.hyperion.v1.BatchFeesWithIds")
 }
 
 func init() { proto.RegisterFile("helios/hyperion/v1/pool.proto", fileDescriptor_33fe93a5d9b73189) }
 
 var fileDescriptor_33fe93a5d9b73189 = []byte{
-	// 246 bytes of a gzipped FileDescriptorProto
+	// 282 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xcd, 0x48, 0xcd, 0xc9,
 	0xcc, 0x2f, 0xd6, 0xcf, 0xa8, 0x2c, 0x48, 0x2d, 0xca, 0xcc, 0xcf, 0xd3, 0x2f, 0x33, 0xd4, 0x2f,
 	0xc8, 0xcf, 0xcf, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x82, 0x48, 0xeb, 0xc1, 0xa4,
@@ -133,12 +188,14 @@ var fileDescriptor_33fe93a5d9b73189 = []byte{
 	0xa8, 0xc0, 0xa8, 0xc1, 0x19, 0x04, 0xe1, 0x08, 0xd9, 0x70, 0x71, 0x95, 0xe4, 0x97, 0x24, 0xe6,
 	0xc4, 0xa7, 0xa5, 0xa6, 0x16, 0x4b, 0x30, 0x81, 0xa4, 0x9c, 0x64, 0x4f, 0xdc, 0x93, 0x67, 0xb8,
 	0x75, 0x4f, 0x5e, 0x34, 0x39, 0xbf, 0x38, 0x37, 0xbf, 0xb8, 0x38, 0x25, 0x5b, 0x2f, 0x33, 0x5f,
-	0x3f, 0x37, 0xb1, 0x24, 0x43, 0xcf, 0x33, 0xaf, 0x24, 0x88, 0x13, 0xac, 0x01, 0x64, 0xa6, 0x93,
-	0xf3, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1,
-	0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44, 0x69, 0x42, 0xdc, 0xaf, 0x9b,
-	0x9c, 0x5f, 0x94, 0xaa, 0x0f, 0x63, 0x67, 0x24, 0x66, 0xe6, 0xe9, 0x57, 0x20, 0xbc, 0x5c, 0x52,
-	0x59, 0x90, 0x5a, 0x9c, 0xc4, 0x06, 0xf6, 0x87, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x33, 0xd5,
-	0xa1, 0x65, 0x12, 0x01, 0x00, 0x00,
+	0x3f, 0x37, 0xb1, 0x24, 0x43, 0xcf, 0x33, 0xaf, 0x24, 0x88, 0x13, 0xac, 0x01, 0x64, 0xa6, 0xd2,
+	0x6a, 0x46, 0x2e, 0x01, 0xb8, 0x0d, 0xe1, 0x99, 0x25, 0x19, 0x9e, 0x29, 0x34, 0xb1, 0x08, 0xe6,
+	0x37, 0x66, 0xb8, 0xdf, 0x84, 0x0c, 0xb9, 0x58, 0xc0, 0x26, 0xb1, 0x28, 0x30, 0x13, 0x36, 0x09,
+	0xac, 0xd4, 0xc9, 0xf9, 0xc4, 0x23, 0x39, 0xc6, 0x0b, 0x8f, 0xe4, 0x18, 0x1f, 0x3c, 0x92, 0x63,
+	0x9c, 0xf0, 0x58, 0x8e, 0xe1, 0xc2, 0x63, 0x39, 0x86, 0x1b, 0x8f, 0xe5, 0x18, 0xa2, 0x34, 0x21,
+	0xa1, 0xad, 0x9b, 0x9c, 0x5f, 0x94, 0xaa, 0x0f, 0x63, 0x67, 0x24, 0x66, 0xe6, 0xe9, 0x57, 0x20,
+	0x22, 0xa8, 0xa4, 0xb2, 0x20, 0xb5, 0x38, 0x89, 0x0d, 0x1c, 0xea, 0xc6, 0x80, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0xb0, 0x99, 0x6d, 0x15, 0xc0, 0x01, 0x00, 0x00,
 }
 
 func (m *IDSet) Marshal() (dAtA []byte, err error) {
@@ -222,6 +279,78 @@ func (m *BatchFees) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *BatchFeesWithIds) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *BatchFeesWithIds) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BatchFeesWithIds) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Fees) > 0 {
+		for iNdEx := len(m.Fees) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size := m.Fees[iNdEx].Size()
+				i -= size
+				if _, err := m.Fees[iNdEx].MarshalTo(dAtA[i:]); err != nil {
+					return 0, err
+				}
+				i = encodeVarintPool(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if len(m.Ids) > 0 {
+		dAtA4 := make([]byte, len(m.Ids)*10)
+		var j3 int
+		for _, num := range m.Ids {
+			for num >= 1<<7 {
+				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j3++
+			}
+			dAtA4[j3] = uint8(num)
+			j3++
+		}
+		i -= j3
+		copy(dAtA[i:], dAtA4[:j3])
+		i = encodeVarintPool(dAtA, i, uint64(j3))
+		i--
+		dAtA[i] = 0x1a
+	}
+	{
+		size := m.TotalFees.Size()
+		i -= size
+		if _, err := m.TotalFees.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintPool(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Token) > 0 {
+		i -= len(m.Token)
+		copy(dAtA[i:], m.Token)
+		i = encodeVarintPool(dAtA, i, uint64(len(m.Token)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintPool(dAtA []byte, offset int, v uint64) int {
 	offset -= sovPool(v)
 	base := offset
@@ -261,6 +390,34 @@ func (m *BatchFees) Size() (n int) {
 	}
 	l = m.TotalFees.Size()
 	n += 1 + l + sovPool(uint64(l))
+	return n
+}
+
+func (m *BatchFeesWithIds) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Token)
+	if l > 0 {
+		n += 1 + l + sovPool(uint64(l))
+	}
+	l = m.TotalFees.Size()
+	n += 1 + l + sovPool(uint64(l))
+	if len(m.Ids) > 0 {
+		l = 0
+		for _, e := range m.Ids {
+			l += sovPool(uint64(e))
+		}
+		n += 1 + sovPool(uint64(l)) + l
+	}
+	if len(m.Fees) > 0 {
+		for _, e := range m.Fees {
+			l = e.Size()
+			n += 1 + l + sovPool(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -488,6 +645,234 @@ func (m *BatchFees) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.TotalFees.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPool(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPool
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *BatchFeesWithIds) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPool
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: BatchFeesWithIds: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: BatchFeesWithIds: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPool
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPool
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPool
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Token = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalFees", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPool
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPool
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPool
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalFees.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPool
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Ids = append(m.Ids, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPool
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthPool
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthPool
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.Ids) == 0 {
+					m.Ids = make([]uint64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowPool
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Ids = append(m.Ids, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ids", wireType)
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Fees", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPool
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPool
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPool
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v cosmossdk_io_math.Int
+			m.Fees = append(m.Fees, v)
+			if err := m.Fees[len(m.Fees)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

@@ -564,3 +564,98 @@ func (k *Keeper) QueryGetRpcListByChainId(c context.Context, req *types.QueryGet
 		Rpcs: make([]*types.Rpc, 0),
 	}, nil
 }
+
+func (k *Keeper) QueryHistoricalFees(c context.Context, req *types.QueryHistoricalFeesRequest) (*types.QueryHistoricalFeesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	lowestFeeValidator, _ := k.GetLowestFeeValidator(ctx, req.HyperionId)
+	lowestFee, _ := k.GetFeeByValidator(ctx, req.HyperionId, lowestFeeValidator)
+
+	highestFeeValidator, _ := k.GetHighestFeeValidator(ctx, req.HyperionId)
+	highestFee, _ := k.GetFeeByValidator(ctx, req.HyperionId, highestFeeValidator)
+
+	averageFee := sdk.Coin{}
+	averageFee.Amount = lowestFee.Amount.Add(highestFee.Amount).Quo(math.NewInt(2))
+
+	lastFinalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find last finalized tx index")
+	}
+
+	historicalFees := make([]*sdk.Coin, 0)
+
+	for _, tx := range lastFinalizedTxs.Txs {
+		if tx.Direction == "OUT" && tx.HyperionId == req.HyperionId {
+			historicalFees = append(historicalFees, &sdk.Coin{
+				Denom:  sdk.DefaultBondDenom,
+				Amount: tx.SentFee.Amount,
+			})
+		}
+	}
+
+	sort.Slice(historicalFees, func(i, j int) bool {
+		return historicalFees[i].Amount.GT(historicalFees[j].Amount)
+	})
+
+	return &types.QueryHistoricalFeesResponse{
+		HistoricalFees: historicalFees,
+		Low:            &lowestFee,
+		High:           &highestFee,
+		Average:        &averageFee,
+	}, nil
+}
+
+func (k *Keeper) QueryGetOrchestratorsData(c context.Context, req *types.QueryGetOrchestratorsDataRequest) (*types.QueryGetOrchestratorsDataResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	orchestratorsData := make([]*types.OrchestratorData, 0)
+
+	for _, orchestrator := range req.Orchestrators {
+		orchestratorAddr := cmn.AnyToHexAddress(orchestrator)
+		orchestratorAddrAcc := cmn.AccAddressFromHexAddress(orchestratorAddr)
+		orchestratorData, err := k.GetOrchestratorData(ctx, orchestratorAddrAcc)
+		if err != nil {
+			orchestratorsData = append(orchestratorsData, &types.OrchestratorData{
+				Orchestrator:             orchestrator,
+				OrchestratorHyperionData: make([]*types.OrchestratorHyperionData, 0),
+			})
+			continue
+		}
+		orchestratorsData = append(orchestratorsData, orchestratorData)
+	}
+
+	return &types.QueryGetOrchestratorsDataResponse{
+		OrchestratorsData: orchestratorsData,
+	}, nil
+}
+
+func (k *Keeper) QueryGetOrchestratorData(c context.Context, req *types.QueryGetOrchestratorDataRequest) (*types.QueryGetOrchestratorDataResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	orchestratorAddr := cmn.AnyToHexAddress(req.OrchestratorAddress)
+	orchestratorAddrAcc := cmn.AccAddressFromHexAddress(orchestratorAddr)
+	orchestratorData, err := k.GetOrchestratorData(ctx, orchestratorAddrAcc)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get orchestrator data")
+	}
+
+	return &types.QueryGetOrchestratorDataResponse{
+		OrchestratorData: orchestratorData,
+	}, nil
+}
+
+func (k *Keeper) QueryGetOrchestratorHyperionData(c context.Context, req *types.QueryGetOrchestratorHyperionDataRequest) (*types.QueryGetOrchestratorHyperionDataResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	orchestratorAddr := cmn.AnyToHexAddress(req.OrchestratorAddress)
+	orchestratorAddrAcc := cmn.AccAddressFromHexAddress(orchestratorAddr)
+
+	orchestratorData, err := k.GetOrchestratorHyperionData(ctx, orchestratorAddrAcc, req.HyperionId)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get orchestrator hyperion data")
+	}
+
+	return &types.QueryGetOrchestratorHyperionDataResponse{
+		OrchestratorHyperionData: orchestratorData,
+	}, nil
+}

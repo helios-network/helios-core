@@ -30,7 +30,7 @@ func (b OutgoingTxBatch) GetCheckpoint(hyperionID uint64) common.Hash {
 	for i, tx := range b.Transactions {
 		txAmounts[i] = tx.Token.Amount.BigInt()
 		txDestinations[i] = common.HexToAddress(tx.DestAddress)
-		txFees[i] = tx.Token.Amount.BigInt()
+		txFees[i] = big.NewInt(0) //tx.Token.Amount.BigInt()
 	}
 
 	hyperionIDBytes := []uint8("checkpoint")

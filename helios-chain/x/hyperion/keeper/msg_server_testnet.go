@@ -779,3 +779,29 @@ func (k msgServer) UpdateAverageBlockTime(c context.Context, msg *types.MsgUpdat
 
 	return &types.MsgUpdateAverageBlockTimeResponse{}, nil
 }
+
+func (k msgServer) SetLastBatchNonce(c context.Context, msg *types.MsgSetLastBatchNonce) (*types.MsgSetLastBatchNonceResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.HyperionId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	key := types.GetLastOutgoingBatchIDKey(msg.HyperionId)
+	nonce := k.Keeper.GetID(ctx, key)
+	if nonce > msg.BatchNonce {
+		return nil, errors.Wrap(types.ErrInvalid, "BatchNonce is less than the current nonce")
+	}
+	k.Keeper.SetID(ctx, key, msg.BatchNonce)
+
+	return &types.MsgSetLastBatchNonceResponse{}, nil
+}

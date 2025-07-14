@@ -63,10 +63,26 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	// set the orchestrator address
 	k.Keeper.SetOrchestratorValidator(ctx, msg.HyperionId, validatorAddr, orchestratorAddr)
 	// set the ethereum address
-	fmt.Println("msg.EthAddress: ", msg.EthAddress)
 	ethAddr := common.HexToAddress(msg.EthAddress)
-	fmt.Println("ethAddr: ", ethAddr)
 	k.Keeper.SetEthAddressForValidator(ctx, msg.HyperionId, validatorAddr, ethAddr)
+
+	if _, err := k.Keeper.GetOrchestratorHyperionData(ctx, orchestratorAddr, msg.HyperionId); err != nil {
+		k.Keeper.SetOrchestratorHyperionData(ctx, orchestratorAddr, msg.HyperionId, types.OrchestratorHyperionData{
+			HyperionId:                 msg.HyperionId,
+			MinimumTxFee:               math.NewInt(0),
+			MinimumBatchFee:            math.NewInt(0),
+			TotalSlashCount:            0,
+			TotalSlashAmount:           math.NewInt(0),
+			SlashData:                  make([]*types.SlashData, 0),
+			TxOutTransfered:            0,
+			TxInTransfered:             0,
+			BatchCreated:               0,
+			BatchConfirmed:             0,
+			FeeCollected:               math.NewInt(0),
+			ExternalDataTxExecuted:     0,
+			ExternalDataTxFeeCollected: math.NewInt(0),
+		})
+	}
 
 	// nolint:errcheck //ignored on purpose
 	ctx.EventManager().EmitTypedEvent(&types.EventSetOrchestratorAddresses{
@@ -75,9 +91,146 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 		OperatorEthAddress:  msg.EthAddress,
 		HyperionId:          msg.HyperionId,
 	})
-	fmt.Println("SetOrchestratorAddresses success")
 
 	return &types.MsgSetOrchestratorAddressesResponse{}, nil
+}
+
+func (k msgServer) SetOrchestratorAddressesWithFee(c context.Context, msg *types.MsgSetOrchestratorAddressesWithFee) (*types.MsgSetOrchestratorAddressesWithFeeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+	validatorAccountAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
+	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
+
+	// get orchestrator address if available. otherwise default to validator address.
+	var orchestratorAddr sdk.AccAddress
+	if msg.Orchestrator != "" {
+		orchestratorAddr, _ = sdk.AccAddressFromBech32(msg.Orchestrator)
+	} else {
+		orchestratorAddr = validatorAccountAddr
+	}
+
+	if msg.MinimumTxFee.Denom != sdk.DefaultBondDenom || msg.MinimumBatchFee.Denom != sdk.DefaultBondDenom {
+		return nil, errors.Wrap(types.ErrInvalid, "fee denom must be "+sdk.DefaultBondDenom)
+	}
+
+	valAddr, foundExistingOrchestratorKey := k.Keeper.GetOrchestratorValidator(ctx, msg.HyperionId, orchestratorAddr)
+	ethAddress, foundExistingEthAddress := k.Keeper.GetEthAddressByValidator(ctx, msg.HyperionId, validatorAddr)
+	fmt.Println("valAddr: ", valAddr)
+	fmt.Println("orchestratorAddr: ", orchestratorAddr)
+	fmt.Println("ethAddress: ", ethAddress)
+
+	// ensure that the validator exists
+	if val, err := k.Keeper.StakingKeeper.Validator(ctx, validatorAddr); err != nil || val == nil {
+		if err == nil {
+			err = stakingtypes.ErrNoValidatorFound
+		}
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(err, validatorAddr.String())
+	} else if foundExistingOrchestratorKey || foundExistingEthAddress {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(types.ErrResetDelegateKeys, validatorAddr.String())
+	}
+
+	// set the orchestrator address
+	k.Keeper.SetOrchestratorValidator(ctx, msg.HyperionId, validatorAddr, orchestratorAddr)
+	// set the ethereum address
+	ethAddr := cmn.AnyToHexAddress(validatorAddr.String())
+
+	k.Keeper.SetEthAddressForValidator(ctx, msg.HyperionId, validatorAddr, ethAddr)
+	// set the fee
+	k.Keeper.SetFeeForValidator(ctx, msg.HyperionId, validatorAddr, msg.MinimumTxFee)
+
+	if _, err := k.Keeper.GetOrchestratorHyperionData(ctx, orchestratorAddr, msg.HyperionId); err != nil {
+		k.Keeper.SetOrchestratorHyperionData(ctx, orchestratorAddr, msg.HyperionId, types.OrchestratorHyperionData{
+			HyperionId:                 msg.HyperionId,
+			MinimumTxFee:               msg.MinimumTxFee.Amount,
+			MinimumBatchFee:            msg.MinimumBatchFee.Amount,
+			TotalSlashCount:            0,
+			TotalSlashAmount:           math.NewInt(0),
+			SlashData:                  make([]*types.SlashData, 0),
+			TxOutTransfered:            0,
+			TxInTransfered:             0,
+			BatchCreated:               0,
+			BatchConfirmed:             0,
+			FeeCollected:               math.NewInt(0),
+			ExternalDataTxExecuted:     0,
+			ExternalDataTxFeeCollected: math.NewInt(0),
+		})
+	} else {
+		orchestratorData, err := k.Keeper.GetOrchestratorHyperionData(ctx, orchestratorAddr, msg.HyperionId)
+		if err != nil {
+			return nil, err
+		}
+		orchestratorData.MinimumTxFee = msg.MinimumTxFee.Amount
+		orchestratorData.MinimumBatchFee = msg.MinimumBatchFee.Amount
+		k.Keeper.SetOrchestratorHyperionData(ctx, orchestratorAddr, msg.HyperionId, *orchestratorData)
+	}
+
+	// nolint:errcheck //ignored on purpose
+	ctx.EventManager().EmitTypedEvent(&types.EventSetOrchestratorAddresses{
+		ValidatorAddress:    validatorAddr.String(),
+		OrchestratorAddress: orchestratorAddr.String(),
+		OperatorEthAddress:  msg.EthAddress,
+		HyperionId:          msg.HyperionId,
+	})
+
+	return &types.MsgSetOrchestratorAddressesWithFeeResponse{}, nil
+}
+
+func (k msgServer) UpdateOrchestratorAddressesFee(c context.Context, msg *types.MsgUpdateOrchestratorAddressesFee) (*types.MsgUpdateOrchestratorAddressesFeeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	validatorAccountAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
+	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
+
+	// get the fee
+	fee, found := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validatorAddr)
+	if !found {
+		return nil, errors.Wrap(types.ErrInvalid, "no fee found")
+	}
+
+	if msg.MinimumTxFee.Denom != sdk.DefaultBondDenom || msg.MinimumBatchFee.Denom != sdk.DefaultBondDenom {
+		return nil, errors.Wrap(types.ErrInvalid, "fee denom must be "+sdk.DefaultBondDenom)
+	}
+
+	// update the fee
+	fee.Amount = msg.MinimumTxFee.Amount
+	k.Keeper.SetFeeForValidator(ctx, msg.HyperionId, validatorAddr, fee)
+
+	orchestratorData, err := k.Keeper.GetOrchestratorHyperionData(ctx, validatorAccountAddr, msg.HyperionId)
+	if err != nil {
+		return nil, err
+	}
+	orchestratorData.MinimumTxFee = msg.MinimumTxFee.Amount
+	orchestratorData.MinimumBatchFee = msg.MinimumBatchFee.Amount
+	k.Keeper.SetOrchestratorHyperionData(ctx, validatorAccountAddr, msg.HyperionId, *orchestratorData)
+
+	return &types.MsgUpdateOrchestratorAddressesFeeResponse{}, nil
+}
+
+func (k msgServer) DeleteOrchestratorAddressesFee(c context.Context, msg *types.MsgDeleteOrchestratorAddressesFee) (*types.MsgDeleteOrchestratorAddressesFeeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	validatorAccountAddr, _ := sdk.AccAddressFromBech32(msg.Sender)
+	validatorAddr := sdk.ValAddress(validatorAccountAddr.Bytes())
+
+	// get the fee
+	_, found := k.Keeper.GetFeeByValidator(ctx, msg.HyperionId, validatorAddr)
+	if !found {
+		return nil, errors.Wrap(types.ErrInvalid, "no fee found")
+	}
+
+	k.Keeper.DeleteFeeForValidator(ctx, msg.HyperionId, validatorAddr)
+
+	return &types.MsgDeleteOrchestratorAddressesFeeResponse{}, nil
 }
 
 func (k msgServer) UnSetOrchestratorAddresses(c context.Context, msg *types.MsgUnSetOrchestratorAddresses) (*types.MsgUnSetOrchestratorAddressesResponse, error) {
@@ -95,6 +248,7 @@ func (k msgServer) UnSetOrchestratorAddresses(c context.Context, msg *types.MsgU
 
 	k.Keeper.DeleteOrchestratorValidator(ctx, msg.HyperionId, validatorAccountAddr)
 	k.Keeper.DeleteEthAddressForValidator(ctx, msg.HyperionId, validatorAddr, ethAddr)
+	k.Keeper.DeleteFeeForValidator(ctx, msg.HyperionId, validatorAddr)
 
 	return &types.MsgUnSetOrchestratorAddressesResponse{}, nil
 

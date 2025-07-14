@@ -120,6 +120,10 @@ var (
 	OutgoingExternalDataBlockKey = []byte{0x20}
 
 	NonceObservedKey = []byte{0x21}
+
+	FeeByValidatorKey = []byte{0x22}
+
+	OrchestratorDataKey = []byte{0x23}
 )
 
 func GetBlacklistStoreKey(addr common.Address) []byte {
@@ -156,6 +160,14 @@ func GetValidatorByEthAddressKey(hyperionId uint64, ethAddress common.Address) [
 	buf = append(buf, ValidatorByEthAddressKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, ethAddress.Bytes()...)
+	return buf
+}
+
+func GetFeeByValidatorKey(hyperionId uint64, validator sdk.ValAddress) []byte {
+	buf := make([]byte, 0, len(FeeByValidatorKey)+8+len(validator))
+	buf = append(buf, FeeByValidatorKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, validator.Bytes()...)
 	return buf
 }
 
@@ -390,5 +402,12 @@ func GetNonceObservedKey(hyperionId uint64, nonce uint64) []byte {
 	buf = append(buf, NonceObservedKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(nonce)...)
+	return buf
+}
+
+func GetOrchestratorDataKey(orchestrator sdk.AccAddress) []byte {
+	buf := make([]byte, 0, len(OrchestratorDataKey)+len(orchestrator))
+	buf = append(buf, OrchestratorDataKey...)
+	buf = append(buf, orchestrator.Bytes()...)
 	return buf
 }

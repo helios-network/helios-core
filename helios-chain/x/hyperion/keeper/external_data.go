@@ -175,6 +175,16 @@ func (k *Keeper) rewardVotersOfExternalDataTx(ctx sdk.Context, hyperionId uint64
 		orchestratorAddr := cmn.AccAddressFromHexAddress(orchestrator)
 		k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, orchestratorAddr, sdk.NewCoins(sdk.NewCoin(tokenPair.Denom, sdkmath.NewIntFromBigInt(rewardPerVote))))
 		k.Logger(ctx).Info("HYPERION - ABCI.go - rewardVotersOfExternalDataTx -> rewardPerVote", "rewardPerVote", rewardPerVote, "orchestratorAddr", orchestratorAddr)
+
+		// Update orchestrator data
+		orchestratorData, err := k.GetOrchestratorHyperionData(ctx, orchestratorAddr, tx.HyperionId)
+		if err != nil {
+			k.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", tx.HyperionId, "orchestrator", orchestratorAddr)
+			continue
+		}
+		orchestratorData.ExternalDataTxExecuted++
+		orchestratorData.ExternalDataTxFeeCollected = orchestratorData.ExternalDataTxFeeCollected.Add(tx.Fee.Amount)
+		k.SetOrchestratorHyperionData(ctx, orchestratorAddr, tx.HyperionId, *orchestratorData)
 	}
 }
 
