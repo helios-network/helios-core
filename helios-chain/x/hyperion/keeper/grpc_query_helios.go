@@ -280,30 +280,47 @@ func (k Keeper) Attestation(c context.Context, req *types.QueryAttestationReques
 }
 
 func formatErc20TransferTxs(ctx sdk.Context, k *Keeper, txs []*types.TransferTx) []*types.TransferTx {
+	tokenPairHLS, existsHLS := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, sdk.DefaultBondDenom))
 	for _, tx := range txs {
-		if tx.SentToken.Contract != "" && !strings.HasPrefix(tx.SentToken.Contract, "0x") {
+		if tx.ReceivedToken == nil {
+			tx.ReceivedToken = &types.Token{
+				Amount:   math.NewInt(0),
+				Contract: sdk.DefaultBondDenom,
+			}
+		}
+		if tx.SentToken == nil {
+			tx.SentToken = &types.Token{
+				Amount:   math.NewInt(0),
+				Contract: sdk.DefaultBondDenom,
+			}
+		}
+		if tx.SentFee == nil {
+			tx.SentFee = &types.Token{
+				Amount:   math.NewInt(0),
+				Contract: sdk.DefaultBondDenom,
+			}
+		}
+		if tx.ReceivedFee == nil {
+			tx.ReceivedFee = &types.Token{
+				Amount:   math.NewInt(0),
+				Contract: sdk.DefaultBondDenom,
+			}
+		}
+		if tx.SentToken.Contract != "" {
 			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentToken.Contract))
 			if exists {
 				tx.SentToken.Contract = tokenPair.Erc20Address
 			}
 		}
-		if tx.ReceivedToken.Contract != "" && !strings.HasPrefix(tx.ReceivedToken.Contract, "0x") {
+		if tx.ReceivedToken.Contract != "" {
 			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedToken.Contract))
 			if exists {
 				tx.ReceivedToken.Contract = tokenPair.Erc20Address
 			}
 		}
-		if tx.SentFee.Contract != "" && !strings.HasPrefix(tx.SentFee.Contract, "0x") {
-			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.SentFee.Contract))
-			if exists {
-				tx.SentFee.Contract = tokenPair.Erc20Address
-			}
-		}
-		if tx.ReceivedFee.Contract != "" && !strings.HasPrefix(tx.ReceivedFee.Contract, "0x") {
-			tokenPair, exists := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, tx.ReceivedFee.Contract))
-			if exists {
-				tx.ReceivedFee.Contract = tokenPair.Erc20Address
-			}
+		if existsHLS {
+			tx.SentFee.Contract = tokenPairHLS.Erc20Address
+			tx.ReceivedFee.Contract = tokenPairHLS.Erc20Address
 		}
 	}
 	return txs
@@ -349,23 +366,32 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		outgoingTxs := make([]*types.TransferTx, 0)
 		for _, tx := range allOuts {
 			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address || req.Address == "" {
-				receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
-				receivedFeeToDenom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Fee.Contract))
+				receivedTokenToDenom := ""
+				if tx.Token.Contract != "" {
+					denom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
+					receivedTokenToDenom = denom.Denom
+				}
 
 				outgoingTxs = append(outgoingTxs, &types.TransferTx{
-					HyperionId:    tx.HyperionId,
-					Id:            tx.Id,
-					Sender:        cmn.AnyToHexAddress(tx.Sender).String(),
-					DestAddress:   cmn.AnyToHexAddress(tx.DestAddress).String(),
-					ReceivedToken: tx.Token,
-					ReceivedFee:   tx.Fee,
+					HyperionId:  tx.HyperionId,
+					Id:          tx.Id,
+					Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
+					DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
+					ReceivedToken: &types.Token{
+						Amount:   tx.Token.Amount,
+						Contract: receivedTokenToDenom,
+					},
+					ReceivedFee: &types.Token{
+						Amount:   tx.Fee.Amount,
+						Contract: sdk.DefaultBondDenom,
+					},
 					SentToken: &types.Token{
 						Amount:   tx.Token.Amount,
-						Contract: receivedTokenToDenom.Denom,
+						Contract: receivedTokenToDenom,
 					},
 					SentFee: &types.Token{
 						Amount:   tx.Fee.Amount,
-						Contract: receivedFeeToDenom.Denom,
+						Contract: sdk.DefaultBondDenom,
 					},
 					Status:    "PROGRESS",
 					Direction: "OUT",
@@ -440,7 +466,11 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 						}
 					}
 
-					receivedTokenToDenom, _ := k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+					receivedTokenToDenom := ""
+					if claim.TokenContract != "" {
+						denom, _ := k.GetTokenFromAddress(ctx, claim.HyperionId, common.HexToAddress(claim.TokenContract))
+						receivedTokenToDenom = denom.Denom
+					}
 
 					incomingTxs = append(incomingTxs, &types.TransferTx{
 						HyperionId:  claim.HyperionId,
@@ -454,15 +484,15 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 						},
 						SentFee: &types.Token{
 							Amount:   math.NewInt(0),
-							Contract: "",
+							Contract: sdk.DefaultBondDenom,
 						},
 						ReceivedToken: &types.Token{
 							Amount:   claim.Amount,
-							Contract: receivedTokenToDenom.Denom,
+							Contract: receivedTokenToDenom,
 						},
 						ReceivedFee: &types.Token{
 							Amount:   math.NewInt(0),
-							Contract: "",
+							Contract: sdk.DefaultBondDenom,
 						},
 						Status:    status,
 						Direction: "IN",
@@ -606,6 +636,26 @@ func (k *Keeper) QueryHistoricalFees(c context.Context, req *types.QueryHistoric
 	sort.Slice(historicalFees, func(i, j int) bool {
 		return historicalFees[i].Amount.GT(historicalFees[j].Amount)
 	})
+
+	if lowestFee.Amount.LTE(math.NewInt(0)) && highestFee.Amount.LTE(math.NewInt(0)) && averageFee.Amount.LTE(math.NewInt(0)) && len(historicalFees) > 0 {
+		// calculate average fee from historical fees
+		averageFee = sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(0)}
+		for _, fee := range historicalFees {
+			averageFee.Amount = averageFee.Amount.Add(fee.Amount)
+		}
+		averageFee.Amount = averageFee.Amount.Quo(math.NewInt(int64(len(historicalFees))))
+		// set lowest fee to 25% lower than average fee
+		lowestFee = &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: averageFee.Amount.Mul(math.NewInt(75)).Quo(math.NewInt(100))}
+		// set highest fee to 25% higher than average fee
+		highestFee = &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: averageFee.Amount.Mul(math.NewInt(125)).Quo(math.NewInt(100))}
+	}
+
+	if lowestFee.Amount.LTE(math.NewInt(0)) && highestFee.Amount.LTE(math.NewInt(0)) && averageFee.Amount.LTE(math.NewInt(0)) && len(historicalFees) == 0 {
+		// set lowest fee to 0. HLS will be used as default fee
+		lowestFee = &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(250000000000000000)}
+		highestFee = &sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(750000000000000000)}
+		averageFee = sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(500000000000000000)}
+	}
 
 	return &types.QueryHistoricalFeesResponse{
 		HistoricalFees: historicalFees,

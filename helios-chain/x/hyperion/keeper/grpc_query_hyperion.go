@@ -197,6 +197,39 @@ func (k *Keeper) OutgoingTxBatches(c context.Context, req *types.QueryOutgoingTx
 	return &types.QueryOutgoingTxBatchesResponse{Batches: batches}, nil
 }
 
+func (k *Keeper) OutgoingTxBatchesWithOptions(c context.Context, req *types.QueryOutgoingTxBatchesWithOptionsRequest) (*types.QueryOutgoingTxBatchesWithOptionsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+
+	addr, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		metrics.ReportFuncError(k.svcTags)
+		return nil, errors.Wrap(sdkerrors.ErrInvalidAddress, req.Address)
+	}
+
+	MaxResults := 100 // todo: impl pagination
+
+	batches := make([]*types.OutgoingTxBatch, 0)
+	k.IterateOutgoingTXBatches(sdk.UnwrapSDKContext(c), req.HyperionId, func(_ []byte, batch *types.OutgoingTxBatch) bool {
+		if req.TokenContract != "" && batch.TokenContract != req.TokenContract {
+			return false
+		}
+		if req.BatchTimeout != 0 && batch.BatchTimeout < req.BatchTimeout {
+			return false
+		}
+		if req.CheckIfIHaveSignedBatch {
+			foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.HyperionId, batch.BatchNonce, common.HexToAddress(batch.TokenContract), addr)
+			if foundConfirm == nil {
+				return false
+			}
+		}
+		batches = append(batches, batch)
+		return len(batches) == MaxResults
+	})
+
+	return &types.QueryOutgoingTxBatchesWithOptionsResponse{Batches: batches}, nil
+}
+
 func (k *Keeper) OutgoingTxBatchesCount(c context.Context, req *types.QueryOutgoingTxBatchesCountRequest) (*types.QueryOutgoingTxBatchesCountResponse, error) {
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
 	defer doneFn()

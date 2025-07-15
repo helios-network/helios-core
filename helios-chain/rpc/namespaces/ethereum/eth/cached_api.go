@@ -405,6 +405,29 @@ func (c *CachedPublicAPI) GetHyperionHistoricalFees(hyperionId uint64) (*hyperio
 	return nil, fmt.Errorf("invalid return type for GetHyperionHistoricalFees")
 }
 
+// GetValidatorHyperionData returns validator hyperion data with caching
+func (c *CachedPublicAPI) GetValidatorHyperionData(address common.Address) (*hyperiontypes.OrchestratorData, error) {
+	methodName := "GetValidatorHyperionData"
+	args := []interface{}{address}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if data, ok := results[0].(*hyperiontypes.OrchestratorData); ok {
+			return data, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetValidatorHyperionData")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

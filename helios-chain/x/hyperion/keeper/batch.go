@@ -207,7 +207,7 @@ func (k *Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract common.A
 		k.Logger(ctx).Error("failed to get orchestrator data", "error", err, "hyperion_id", hyperionId, "orchestrator", claim.Orchestrator)
 		return
 	}
-	orchestratorData.TxOutTransfered++
+	orchestratorData.TxOutTransfered += uint64(len(b.Transactions))
 	orchestratorData.FeeCollected = orchestratorData.FeeCollected.Add(allFees.AmountOf(sdk.DefaultBondDenom))
 	k.SetOrchestratorHyperionData(ctx, orchestratorAddr, hyperionId, *orchestratorData)
 }

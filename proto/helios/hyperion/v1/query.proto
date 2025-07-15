@@ -198,6 +198,11 @@ service Query {
       returns (QueryGetOrchestratorHyperionDataResponse) {
     option (google.api.http).get = "/hyperion/v1/orchestrator_hyperion_data";
   }
+
+  rpc OutgoingTxBatchesWithOptions(QueryOutgoingTxBatchesWithOptionsRequest)
+      returns (QueryOutgoingTxBatchesWithOptionsResponse) {
+    option (google.api.http).get = "/hyperion/v1/batch/outgoingtx/options";
+  }
 }
 
 message QueryParamsRequest {}
@@ -501,4 +506,17 @@ message QueryGetOrchestratorHyperionDataRequest {
 
 message QueryGetOrchestratorHyperionDataResponse {
   OrchestratorHyperionData orchestrator_hyperion_data = 1;
+}
+
+message QueryOutgoingTxBatchesWithOptionsRequest {
+  uint64 hyperion_id = 1;
+  uint64 batch_nonce = 2;
+  string token_contract = 3;
+  uint64 batch_timeout = 4;
+  string address = 5;
+  bool check_if_i_have_signed_batch = 6;
+}
+
+message QueryOutgoingTxBatchesWithOptionsResponse {
+  repeated OutgoingTxBatch batches = 1;
 }

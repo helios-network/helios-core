@@ -49,7 +49,7 @@ func (b *Backend) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontyp
 	req := &hyperiontypes.QueryGetTransactionsByPageAndSizeRequest{
 		Address: "",
 		Pagination: &query.PageRequest{
-			Offset: (uint64(1) - 1) * uint64(size),
+			Offset: 0,
 			Limit:  uint64(size),
 		},
 		FormatErc20: true,
@@ -109,4 +109,15 @@ func (b *Backend) GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.Q
 		return nil, err
 	}
 	return res, nil
+}
+
+func (b *Backend) GetValidatorHyperionData(address common.Address) (*hyperiontypes.OrchestratorData, error) {
+	res, err := b.queryClient.Hyperion.QueryGetOrchestratorData(b.ctx, &hyperiontypes.QueryGetOrchestratorDataRequest{
+		OrchestratorAddress: address.String(),
+	})
+	if err != nil {
+		b.logger.Error("GetValidatorHyperionData", "error", err)
+		return nil, err
+	}
+	return res.OrchestratorData, nil
 }
