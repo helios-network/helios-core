@@ -63,6 +63,10 @@ func (k msgServer) CreateCron(goCtx context.Context, req *types.MsgCreateCron) (
 		return nil, errors.Wrapf(errortypes.ErrInsufficientFunds, fmt.Sprintf("Balance too low: %d (balance) < %d (amountToDeposit)", balance.BigInt(), amount))
 	}
 
+	if amount.Cmp(sdkmath.NewIntFromBigInt(req.MaxGasPrice.BigInt()).Mul(sdkmath.NewInt(int64(req.GasLimit))).BigInt()) <= 0 {
+		return nil, errors.Wrap(errortypes.ErrInvalidRequest, "amountToDeposit must be greater than the estimated max fees")
+	}
+
 	cronAddress := sdk.AccAddress(crypto.AddressHash([]byte(fmt.Sprintf("cron_%d", newID)))) // Générer une adresse unique basée sur cronId
 	acc := k.keeper.accountKeeper.NewAccountWithAddress(ctx, cronAddress)
 	k.keeper.accountKeeper.SetAccount(ctx, acc)

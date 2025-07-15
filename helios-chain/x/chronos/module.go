@@ -165,8 +165,40 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 func (am AppModule) EndBlock(ctx context.Context) error {
 	sdkctx := sdk.UnwrapSDKContext(ctx)
 
+	am.keeper.StoreChangeCronRefundedLastBlockTotalCount(sdkctx, 0)
+	am.keeper.StoreChangeCronExecutedLastBlockTotalCount(sdkctx, 0)
+
+	// todo remove crons after delay of 10 hours of timeout
 	am.keeper.DeductFeesActivesCrons(sdkctx)
-	am.keeper.ExecuteReadyCrons(sdkctx, types.ExecutionStage_EXECUTION_STAGE_END_BLOCKER)
+
+	// todo push ready crons to the queue (priority based on the fees priority)
+	am.keeper.PushReadyCronsToQueue(sdkctx)
+
+	// get batch fees from the queue (priority based on the maxGasPrice)
+	batchFees := am.keeper.GetBatchFees(sdkctx)
+
+	// execute crons from the queue in batch of params.ExecutionsLimitPerBlock
+	am.keeper.ExecuteCrons(sdkctx, batchFees)
+
+	// remove expired crons from the queue
+	for _, id := range batchFees.ExpiredIds {
+		cron, ok := am.keeper.GetCron(sdkctx, id)
+		if !ok {
+			continue
+		}
+		am.keeper.RemoveFromCronQueue(sdkctx, cron)
+	}
+
+	// remove crons from the queue after execution
+	for _, id := range batchFees.Ids {
+		cron, ok := am.keeper.GetCron(sdkctx, id)
+		if !ok {
+			continue
+		}
+		am.keeper.RemoveFromCronQueue(sdkctx, cron)
+	}
+
+	am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
 
 	return nil
 }

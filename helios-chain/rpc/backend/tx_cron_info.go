@@ -246,3 +246,12 @@ func (b *Backend) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.L
 
 	return unfiltered, nil
 }
+
+func (b *Backend) GetCronStatistics() (*chronostypes.CronStatistics, error) {
+	req := &chronostypes.QueryGetCronStatisticsRequest{}
+	res, err := b.queryClient.Chronos.QueryGetCronStatistics(b.ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Statistics, nil
+}

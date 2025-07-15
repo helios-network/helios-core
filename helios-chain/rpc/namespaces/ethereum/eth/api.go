@@ -171,6 +171,7 @@ type EthereumAPI interface {
 	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
 	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
+	GetCronStatistics() (*chronostypes.CronStatistics, error)
 
 	// hyperion
 	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
@@ -798,6 +799,11 @@ func (e *PublicAPI) GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes
 func (e *PublicAPI) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error) {
 	e.logger.Debug("eth_getBlockCronLogs", "height", blockNum.Int64())
 	return e.backend.GetBlockCronLogs(blockNum)
+}
+
+func (e *PublicAPI) GetCronStatistics() (*chronostypes.CronStatistics, error) {
+	e.logger.Debug("eth_getCronStatistics")
+	return e.backend.GetCronStatistics()
 }
 
 func (e *PublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
