@@ -370,3 +370,17 @@ func (k Keeper) QueryGetAllCronTransactionsByPageAndSize(c context.Context, req 
 		Pagination:   pageRes,
 	}, nil
 }
+
+func (k Keeper) QueryGetCronStatistics(c context.Context, req *types.QueryGetCronStatisticsRequest) (*types.QueryGetCronStatisticsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	return &types.QueryGetCronStatisticsResponse{
+		Statistics: types.CronStatistics{
+			CronCount:              uint64(k.GetCronCount(ctx)),
+			QueueCount:             uint64(k.GetCronQueueCount(ctx)),
+			ArchivedCrons:          uint64(k.GetArchivedCronCount(ctx)),
+			RefundedLastBlockCount: uint64(k.GetCronRefundedLastBlockCount(ctx)),
+			ExecutedLastBlockCount: uint64(k.GetCronExecutedLastBlockCount(ctx)),
+		},
+	}, nil
+}

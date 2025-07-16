@@ -1,5 +1,7 @@
 package types
 
+import "math/big"
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "chronos"
@@ -28,6 +30,12 @@ const (
 	prefixCronTransactionResultByCronIdKey            // 10
 	prefixCronCallBackDataKey                         // 11
 	prefixCronArchivedKey                             // 12
+	prefixCronArchivedCountKey                        // 13
+	prefixCronRefundedLastBlockCountKey               // 14
+	prefixCronExecutedLastBlockCountKey               // 15
+	prefixCronQueueKey                                // 16
+	prefixSecondIndexOutgoingTXFeeKey                 // 17
+	prefixCronQueueCountKey                           // 18
 )
 
 var (
@@ -64,6 +72,18 @@ var (
 	CronCallBackDataKey = []byte{prefixCronCallBackDataKey}
 
 	CronArchivedKey = []byte{prefixCronArchivedKey}
+
+	CronArchivedCountKey = []byte{prefixCronArchivedCountKey}
+
+	CronRefundedLastBlockCountKey = []byte{prefixCronRefundedLastBlockCountKey}
+
+	CronExecutedLastBlockCountKey = []byte{prefixCronExecutedLastBlockCountKey}
+
+	CronQueueKey = []byte{prefixCronQueueKey}
+
+	SecondIndexOutgoingTXFeeKey = []byte{prefixSecondIndexOutgoingTXFeeKey}
+
+	CronQueueCountKey = []byte{prefixCronQueueCountKey}
 )
 
 // GetCronKey returns the key for a specific cron by name
@@ -71,4 +91,19 @@ var (
 // in the keeper package instead.
 func GetCronKey(name string) []byte {
 	return []byte(name)
+}
+
+// GetFeeSecondIndexKey returns the following key format
+// prefix      					fee_amount
+// [0x9][0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+func GetFeeSecondIndexKey(feesPriority *big.Int) []byte {
+	buf := make([]byte, 0, len(SecondIndexOutgoingTXFeeKey)+32)
+	buf = append(buf, SecondIndexOutgoingTXFeeKey...)
+
+	// sdk.BigInt represented as a zero-extended big-endian byte slice (32 bytes)
+	amount := make([]byte, 32)
+	amount = feesPriority.FillBytes(amount)
+	buf = append(buf, amount...)
+
+	return buf
 }

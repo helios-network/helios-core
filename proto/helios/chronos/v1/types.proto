@@ -72,3 +72,32 @@ message CronTransactionRPC {
   uint64 cron_id = 17 [(gogoproto.jsontag) = "cronId"];
   string cron_address = 18 [(gogoproto.jsontag) = "cronAddress"];
 }
+
+message CronStatistics {
+  uint64 cron_count = 1 [(gogoproto.jsontag) = "cronCount"];
+  uint64 queue_count = 2 [(gogoproto.jsontag) = "queueCount"];
+  uint64 archived_crons = 3 [(gogoproto.jsontag) = "archivedCrons"];
+  uint64 refunded_last_block_count = 4 [(gogoproto.jsontag) = "refundedLastBlockCount"];
+  uint64 executed_last_block_count = 5 [(gogoproto.jsontag) = "executedLastBlockCount"];
+}
+
+message IdAndTimestamp {
+  uint64 id = 1;
+  uint64 timestamp = 2;
+}
+
+message IDSet { repeated IdAndTimestamp ids = 1; }
+
+message BatchFeesWithIds {
+  string total_fees = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated uint64 ids = 2;
+  repeated string fees = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated uint64 expired_ids = 4;
+  uint64 total_queue_count = 5;
+}

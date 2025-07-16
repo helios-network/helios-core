@@ -103,6 +103,57 @@ func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.Executi
 	}
 }
 
+func (k *Keeper) ExecuteCrons(ctx sdk.Context, batchFees *types.BatchFeesWithIds) {
+	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
+
+	for _, cronId := range batchFees.Ids {
+		cron, ok := k.GetCron(ctx, cronId)
+		if !ok {
+			continue
+		}
+		err := k.executeCron(ctx, cron)
+		if err != nil {
+			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+		recordExecutedCron(err, cron)
+	}
+}
+
+func (k *Keeper) PushReadyCronsToQueue(ctx sdk.Context) uint64 {
+	crons := k.getCronsReadyForExecutionWithFilter(ctx, types.ExecutionStage_EXECUTION_STAGE_END_BLOCKER)
+	count := 0
+	for _, cron := range crons {
+		if cron.CronType == types.CALLBACK_CONDITIONED_CRON { // they are added in queue by the keeper Hyperion or other
+			continue
+		}
+		if k.ExistsInCronQueue(ctx, cron) {
+			continue
+		}
+		// check if the cron has enough balance to pay the fees
+		balance := k.CronBalance(ctx, cron)
+		if balance.IsNegative() || balance.BigInt().Cmp(big.NewInt(0)) < 0 {
+			k.Logger(ctx).Info("Cron has not enough balance to pay the fees", "cronId", cron.Id, "balance", balance.BigInt())
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+		if balance.BigInt().Cmp(sdkmath.NewIntFromBigInt(cron.MaxGasPrice.BigInt()).Mul(sdkmath.NewInt(int64(cron.GasLimit))).BigInt()) <= 0 {
+			k.Logger(ctx).Info("Cron has not enough balance to pay the fees", "cronId", cron.Id, "balance", balance.BigInt())
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+		// check if cron has enough balance to pay the fees in current block
+
+		k.AppendToCronQueue(ctx, cron)
+		count++
+	}
+	return uint64(count)
+}
+
 func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
 	decUtils, err := NewMonoDecoratorUtils(ctx, k.EvmKeeper)
@@ -145,6 +196,15 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
 		}
+
+		// determine if the cron as enough balance to pay the max fees of execution in current block
+		maxCost := cron.MaxGasPrice.Mul(sdkmath.NewInt(int64(cron.GasLimit)))
+		if balance.BigInt().Cmp(maxCost.BigInt()) < 0 {
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			continue
+		}
+
 		// update cron
 		k.UpdateCronTotalFeesPaid(ctx, cron, fees[0].Amount)
 	}
@@ -232,10 +292,18 @@ func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) er
 		if err != nil {
 			return err
 		}
+		refundedCount := k.GetCronRefundedLastBlockCount(ctx)
+		k.StoreChangeCronRefundedLastBlockTotalCount(ctx, refundedCount+1)
 	}
 
+	if k.ExistsInCronQueue(ctx, cron) {
+		k.RemoveFromCronQueue(ctx, cron)
+	}
+
+	k.StoreRemoveCron(ctx, cron.Id)
 	k.StoreArchiveCron(ctx, cron)
 	k.StoreChangeTotalCount(ctx, -1)
+	k.StoreChangeArchivedTotalCount(ctx, 1)
 
 	return nil
 }
@@ -393,10 +461,8 @@ func (k *Keeper) getCronsReadyForExecution(ctx sdk.Context) []types.Cron {
 }
 
 func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context, executionStage types.ExecutionStage) []types.Cron {
-	params := k.GetParams(ctx)
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	var crons []types.Cron
-	count := uint64(0)
 
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
@@ -410,11 +476,6 @@ func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context, executionS
 			currentBlock >= cron.NextExecutionBlock &&
 			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
 			crons = append(crons, cron)
-			count++
-			if count >= params.ExecutionsLimitPerBlock {
-				k.Logger(ctx).Info("Reached execution limit for the block")
-				break
-			}
 		}
 	}
 
@@ -849,6 +910,7 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 	k.StoreSetTransactionNonceByHash(ctx, tx.Hash().Hex(), nonce)
 	k.StoreSetTransactionHashInBlock(ctx, cronTxResult.BlockNumber, tx.Hash().Hex())
 	k.StoreSetNonce(ctx, nonce+1)
+	k.StoreChangeCronExecutedLastBlockTotalCount(ctx, k.GetCronExecutedLastBlockCount(ctx)+1)
 	return nil
 }
 
@@ -1203,6 +1265,17 @@ func (k *Keeper) StoreCronCallBackData(ctx sdk.Context, cronId uint64, callbackD
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronCallBackDataKey)
 	bz := k.cdc.MustMarshal(callbackData)
 	store.Set(sdk.Uint64ToBigEndian(cronId), bz)
+
+	// set the cron in the queue
+	cron, ok := k.GetCron(ctx, cronId)
+	if !ok {
+		k.Logger(ctx).Info("Cron not found", "cronId", cronId)
+		return
+	}
+	if k.ExistsInCronQueue(ctx, cron) {
+		return
+	}
+	k.AppendToCronQueue(ctx, cron)
 }
 
 func (k *Keeper) GetCronCallBackData(ctx sdk.Context, cronId uint64) (*types.CronCallBackData, bool) {
@@ -1276,7 +1349,6 @@ func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
 }
 
 func (k *Keeper) StoreArchiveCron(ctx sdk.Context, cron types.Cron) {
-	k.StoreRemoveCron(ctx, cron.Id)
 	cron.Archived = true
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
 	bz := k.cdc.MustMarshal(&cron)
@@ -1295,11 +1367,11 @@ func (k *Keeper) StoreCronExistsByAddress(ctx sdk.Context, address string) bool 
 
 func (k *Keeper) StoreChangeTotalCount(ctx sdk.Context, increment int32) {
 	store := ctx.KVStore(k.storeKey)
-	count := k.getCronCount(ctx) + increment
+	count := k.GetCronCount(ctx) + increment
 	store.Set(types.CronCountKey, sdk.Uint64ToBigEndian(uint64(count)))
 }
 
-func (k *Keeper) getCronCount(ctx sdk.Context) int32 {
+func (k *Keeper) GetCronCount(ctx sdk.Context) int32 {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.CronCountKey)
 	if bz == nil {
@@ -1308,9 +1380,195 @@ func (k *Keeper) getCronCount(ctx sdk.Context) int32 {
 	return int32(sdk.BigEndianToUint64(bz))
 }
 
+func (k *Keeper) StoreChangeArchivedTotalCount(ctx sdk.Context, increment int32) {
+	store := ctx.KVStore(k.storeKey)
+	count := k.GetArchivedCronCount(ctx) + increment
+	store.Set(types.CronArchivedCountKey, sdk.Uint64ToBigEndian(uint64(count)))
+}
+
+func (k *Keeper) GetArchivedCronCount(ctx sdk.Context) int32 {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.CronArchivedCountKey)
+	if bz == nil {
+		return 0
+	}
+	return int32(sdk.BigEndianToUint64(bz))
+}
+
+func (k *Keeper) StoreChangeCronRefundedLastBlockTotalCount(ctx sdk.Context, count uint64) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.CronRefundedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
+}
+
+func (k *Keeper) GetCronRefundedLastBlockCount(ctx sdk.Context) uint64 {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.CronRefundedLastBlockCountKey)
+	if bz == nil {
+		return 0
+	}
+	return sdk.BigEndianToUint64(bz)
+}
+
+func (k *Keeper) StoreChangeCronExecutedLastBlockTotalCount(ctx sdk.Context, count uint64) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.CronExecutedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
+}
+
+func (k *Keeper) GetCronExecutedLastBlockCount(ctx sdk.Context) uint64 {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.CronExecutedLastBlockCountKey)
+	if bz == nil {
+		return 0
+	}
+	return sdk.BigEndianToUint64(bz)
+}
+
+func (k *Keeper) ExistsInCronQueue(ctx sdk.Context, cron types.Cron) bool {
+	store := ctx.KVStore(k.storeKey)
+	idxKey := types.GetFeeSecondIndexKey(cron.MaxGasPrice.BigInt())
+	if store.Has(idxKey) {
+		bz := store.Get(idxKey)
+		var idSet types.IDSet
+		k.cdc.MustUnmarshal(bz, &idSet)
+		for _, idAndTimestamp := range idSet.Ids {
+			if idAndTimestamp.Id == cron.Id {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (k *Keeper) AppendToCronQueue(ctx sdk.Context, cron types.Cron) {
+	store := ctx.KVStore(k.storeKey)
+	idxKey := types.GetFeeSecondIndexKey(cron.MaxGasPrice.BigInt())
+	var idSet types.IDSet
+	if store.Has(idxKey) {
+		bz := store.Get(idxKey)
+		k.cdc.MustUnmarshal(bz, &idSet)
+	}
+	idSet.Ids = append(idSet.Ids, &types.IdAndTimestamp{Id: cron.Id, Timestamp: uint64(ctx.BlockTime().Unix())})
+	store.Set(idxKey, k.cdc.MustMarshal(&idSet))
+}
+
+func (k *Keeper) PrependToCronQueue(ctx sdk.Context, cron types.Cron) {
+	store := ctx.KVStore(k.storeKey)
+	idxKey := types.GetFeeSecondIndexKey(cron.MaxGasPrice.BigInt())
+	var idSet types.IDSet
+	if store.Has(idxKey) {
+		bz := store.Get(idxKey)
+		k.cdc.MustUnmarshal(bz, &idSet)
+	}
+	idSet.Ids = append([]*types.IdAndTimestamp{&types.IdAndTimestamp{Id: cron.Id, Timestamp: uint64(ctx.BlockTime().Unix())}}, idSet.Ids...)
+	store.Set(idxKey, k.cdc.MustMarshal(&idSet))
+}
+
+func (k *Keeper) RemoveFromCronQueue(ctx sdk.Context, cron types.Cron) error {
+	store := ctx.KVStore(k.storeKey)
+	idxKey := types.GetFeeSecondIndexKey(cron.MaxGasPrice.BigInt())
+
+	var idSet types.IDSet
+	bz := store.Get(idxKey)
+	if bz == nil {
+		return errors.Wrap(errortypes.ErrLogic, "fee")
+	}
+
+	k.cdc.MustUnmarshal(bz, &idSet)
+	for i := range idSet.Ids {
+		if idSet.Ids[i].Id == cron.Id {
+			idSet.Ids = append(idSet.Ids[0:i], idSet.Ids[i+1:]...)
+			if len(idSet.Ids) != 0 {
+				store.Set(idxKey, k.cdc.MustMarshal(&idSet))
+			} else {
+				store.Delete(idxKey)
+			}
+			return nil
+		}
+	}
+	return errors.Wrap(errortypes.ErrNotFound, "tx id")
+}
+
+func (k *Keeper) GetBatchFees(ctx sdk.Context) *types.BatchFeesWithIds {
+	params := k.GetParams(ctx)
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.SecondIndexOutgoingTXFeeKey)
+	iter := prefixStore.Iterator(nil, nil)
+	// iterate over [SecondIndexOutgoingTXFeeKey][hyperionId] prefixes
+	defer iter.Close()
+
+	batchFees := &types.BatchFeesWithIds{
+		TotalFees:       sdkmath.NewInt(0),
+		Ids:             make([]uint64, 0),
+		Fees:            make([]sdkmath.Int, 0),
+		ExpiredIds:      make([]uint64, 0),
+		TotalQueueCount: 0,
+	}
+
+	for ; iter.Valid(); iter.Next() {
+		var ids types.IDSet
+		k.cdc.MustUnmarshal(iter.Value(), &ids)
+
+		key := iter.Key()
+
+		feeAmountBytes := key[32:]
+		feeAmount := big.NewInt(0).SetBytes(feeAmountBytes)
+		sdkFeeAmount := sdkmath.NewIntFromBigInt(feeAmount)
+
+		for _, idAndTimestamp := range ids.Ids {
+			if idAndTimestamp.Timestamp < uint64(ctx.BlockTime().Unix())-types.DefaultCronQueueTimeout {
+				batchFees.ExpiredIds = append(batchFees.ExpiredIds, idAndTimestamp.Id)
+				batchFees.TotalQueueCount++
+				continue
+			}
+			if batchFees.TotalQueueCount >= params.ExecutionsLimitPerBlock {
+				// check if the tx as greater fee than others txs in the batch
+				sort.SliceStable(batchFees.Fees, func(i, j int) bool {
+					return batchFees.Fees[i].GT(batchFees.Fees[j])
+				})
+				// if the tx has greater fee than the first tx in the batch, replace the first tx with the new tx
+				if batchFees.Fees[0].LT(sdkFeeAmount) {
+					batchFees.Fees = append(batchFees.Fees, sdkFeeAmount)
+					batchFees.Ids = append(batchFees.Ids, idAndTimestamp.Id)
+				}
+			} else {
+				// add fee amount
+				totalFees := batchFees.TotalFees
+				totalFees = totalFees.Add(sdkFeeAmount)
+				batchFees.TotalFees = totalFees
+				batchFees.Fees = append(batchFees.Fees, sdkFeeAmount)
+				batchFees.Ids = append(batchFees.Ids, idAndTimestamp.Id)
+			}
+			batchFees.TotalQueueCount++
+		}
+	}
+
+	return batchFees
+}
+
+func (k *Keeper) GetCronQueueCount(ctx sdk.Context) int32 {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.CronQueueCountKey)
+	if bz == nil {
+		return 0
+	}
+	return int32(sdk.BigEndianToUint64(bz))
+}
+
+func (k *Keeper) SetCronQueueCount(ctx sdk.Context, count int32) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.CronQueueCountKey, sdk.Uint64ToBigEndian(uint64(count)))
+}
+
 func GetCronIDBytes(id uint64) []byte {
 	return sdk.Uint64ToBigEndian(id)
 }
+
+// func GetCronIdAndFeesPriorityIDBytes(id uint64, feesPriority *big.Int) []byte {
+// 	// sdk.BigInt represented as a zero-extended big-endian byte slice (32 bytes)
+// 	amount := make([]byte, 32)
+// 	amount = feesPriority.FillBytes(amount)
+
+// 	return append(amount, )
+// }
 
 func GetTxIDBytes(id uint64) []byte {
 	return sdk.Uint64ToBigEndian(id)
