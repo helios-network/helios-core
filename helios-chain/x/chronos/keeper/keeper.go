@@ -147,7 +147,6 @@ func (k *Keeper) PushReadyCronsToQueue(ctx sdk.Context) uint64 {
 			continue
 		}
 		// check if cron has enough balance to pay the fees in current block
-
 		k.AppendToCronQueue(ctx, cron)
 		count++
 	}
@@ -1424,19 +1423,7 @@ func (k *Keeper) GetCronExecutedLastBlockCount(ctx sdk.Context) uint64 {
 }
 
 func (k *Keeper) ExistsInCronQueue(ctx sdk.Context, cron types.Cron) bool {
-	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(cron.MaxGasPrice.BigInt())
-	if store.Has(idxKey) {
-		bz := store.Get(idxKey)
-		var idSet types.IDSet
-		k.cdc.MustUnmarshal(bz, &idSet)
-		for _, idAndTimestamp := range idSet.Ids {
-			if idAndTimestamp.Id == cron.Id {
-				return true
-			}
-		}
-	}
-	return false
+	return cron.QueueTimestamp != -1
 }
 
 func (k *Keeper) AppendToCronQueue(ctx sdk.Context, cron types.Cron) {
@@ -1449,18 +1436,9 @@ func (k *Keeper) AppendToCronQueue(ctx sdk.Context, cron types.Cron) {
 	}
 	idSet.Ids = append(idSet.Ids, &types.IdAndTimestamp{Id: cron.Id, Timestamp: uint64(ctx.BlockTime().Unix())})
 	store.Set(idxKey, k.cdc.MustMarshal(&idSet))
-}
 
-func (k *Keeper) PrependToCronQueue(ctx sdk.Context, cron types.Cron) {
-	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetFeeSecondIndexKey(cron.MaxGasPrice.BigInt())
-	var idSet types.IDSet
-	if store.Has(idxKey) {
-		bz := store.Get(idxKey)
-		k.cdc.MustUnmarshal(bz, &idSet)
-	}
-	idSet.Ids = append([]*types.IdAndTimestamp{&types.IdAndTimestamp{Id: cron.Id, Timestamp: uint64(ctx.BlockTime().Unix())}}, idSet.Ids...)
-	store.Set(idxKey, k.cdc.MustMarshal(&idSet))
+	cron.QueueTimestamp = ctx.BlockTime().Unix()
+	k.StoreSetCron(ctx, cron)
 }
 
 func (k *Keeper) RemoveFromCronQueue(ctx sdk.Context, cron types.Cron) error {
@@ -1479,8 +1457,12 @@ func (k *Keeper) RemoveFromCronQueue(ctx sdk.Context, cron types.Cron) error {
 			idSet.Ids = append(idSet.Ids[0:i], idSet.Ids[i+1:]...)
 			if len(idSet.Ids) != 0 {
 				store.Set(idxKey, k.cdc.MustMarshal(&idSet))
+				cron.QueueTimestamp = -1
+				k.StoreSetCron(ctx, cron)
 			} else {
 				store.Delete(idxKey)
+				cron.QueueTimestamp = -1
+				k.StoreSetCron(ctx, cron)
 			}
 			return nil
 		}
