@@ -395,7 +395,7 @@ func (b *Backend) GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.Block
 
 	baseFee, _ := b.BaseFee(blockRes)
 	receipts := make([]map[string]interface{}, 0, len(ethMsgs))
-	
+
 	txMap := make(map[string]struct {
 		idx    int
 		msgIdx int
@@ -411,7 +411,8 @@ func (b *Backend) GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.Block
 
 		txResult := blockRes.TxsResults[txIdx]
 		gasUsed := uint64(txResult.GasUsed)
-		failed := txResult.Code != 0
+		// Utiliser la même logique que GetTxByEthHash pour déterminer si une transaction a échoué
+		failed := !rpctypes.TxSucessOrExpectedFailure(txResult)
 
 		for msgIdx, msg := range decodedTx.GetMsgs() {
 			if ethMsg, ok := msg.(*evmtypes.MsgEthereumTx); ok {
