@@ -218,6 +218,11 @@ which accepts a path for the resulting pprof file.
 
 	cmd.Flags().Bool(server.FlagDumpCommitDebugExecutionTrace, false, "Dump commit debug storage commit execution trace")
 
+	cmd.Flags().Bool(server.FlagBackupEnable, false, "Enable automatic blockchain backup system")
+	cmd.Flags().Uint64(server.FlagBackupBlockInterval, 1000, "Backup every N blocks (default: 1000)")
+	cmd.Flags().String(server.FlagBackupDir, "./backups", "Backup directory path")
+	cmd.Flags().Uint64(server.FlagBackupMinRetainBackups, 2, "Minimum number of backups to retain")
+
 	// add support for all CometBFT-specific command line options
 	tcmd.AddNodeFlags(cmd)
 	return cmd

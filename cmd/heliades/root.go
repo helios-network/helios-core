@@ -388,7 +388,9 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		chainID = conf.ChainID
 	}
 
+	options = append(options, baseapp.SetRootDir(home))
 	options = append(options, baseapp.SetPruning(pruningOpts))
+
 	options = append(options, baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))))
 	options = append(options, baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltHeight))))
 	options = append(options, baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltTime))))
@@ -400,6 +402,15 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	options = append(options, baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))))
 	options = append(options, baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagDisableIAVLFastNode))))
 	options = append(options, baseapp.SetChainID(chainID))
+
+	if cast.ToBool(appOpts.Get(sdkserver.FlagBackupEnable)) {
+		options = append(options, baseapp.SetBackupConfig(
+			cast.ToBool(appOpts.Get(sdkserver.FlagBackupEnable)),
+			cast.ToUint64(appOpts.Get(sdkserver.FlagBackupBlockInterval)),
+			cast.ToString(appOpts.Get(sdkserver.FlagBackupDir)),
+			cast.ToUint64(appOpts.Get(sdkserver.FlagBackupMinRetainBackups)),
+		))
+	}
 
 	heliosApp := app.NewHeliosApp(
 		logger, db, traceStore, true,
