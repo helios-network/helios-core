@@ -197,16 +197,10 @@ func (b *Backend) GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, 
 }
 
 func (b *Backend) GetProposalsCount() (*hexutil.Uint64, error) {
-	proposals, err := b.queryClient.Gov.Proposals(b.ctx, &govtypes.QueryProposalsRequest{
-		Pagination: &query.PageRequest{
-			Limit:      1,
-			CountTotal: true,
-		},
-	})
+	response, err := b.queryClient.Gov.ProposalsCount(b.ctx, &govtypes.QueryProposalsCountRequest{})
 	if err != nil {
 		return nil, err
 	}
-
-	totalCount := hexutil.Uint64(proposals.Pagination.Total)
+	totalCount := hexutil.Uint64(response.Count)
 	return &totalCount, nil
 }
