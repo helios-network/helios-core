@@ -55,8 +55,9 @@ func (b *Backend) GetAccountCronsByPageAndSize(address common.Address, page hexu
 	req := &chronostypes.QueryGetCronsByOwnerRequest{
 		OwnerAddress: address.String(),
 		Pagination: &query.PageRequest{
-			Offset: (uint64(page) - 1) * uint64(size),
-			Limit:  uint64(size),
+			Offset:  (uint64(page) - 1) * uint64(size),
+			Limit:   uint64(size),
+			Reverse: true,
 		},
 	}
 	res, err := b.queryClient.Chronos.QueryGetCronsByOwner(b.ctx, req)
