@@ -37,7 +37,11 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 	hexTx := txHash.Hex()
 
 	if err != nil {
-		return b.getTransactionByHashPending(txHash)
+		resp, err := b.GetCronTransactionByHash(txHash.Hex())
+		if err != nil {
+			return b.getTransactionByHashPending(txHash)
+		}
+		return rpctypes.NewRPCTransactionFromCronTransaction(resp)
 	}
 
 	block, err := b.TendermintBlockByNumber(rpctypes.BlockNumber(res.Height))
@@ -137,60 +141,6 @@ func (b *Backend) GetCosmosTransactionByHashFormatted(txHash string) (*map[strin
 		"msgs":   jsonMsgs,
 		"result": tx.TxResult,
 	}, nil
-
-	// return &rpctypes.RPCTransaction{
-	// 	// BlockHash:   &blockHash,
-	// 	// BlockNumber: &blockNumber,
-	// 	// From:        from,
-	// 	// Gas:         hexutil.Uint64(0),
-	// 	// GasPrice:    &gasPrice,
-	// 	// Hash:        common.HexToHash(tx.Hash.String()),
-	// 	// Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
-	// 	Nonce: hexutil.Uint64(found),
-	// 	// To:    &to,
-	// }, nil
-
-	// txDecoded, err := b.clientCtx.TxConfig.TxDecoder()(tx.Tx)
-	// if err != nil {
-	// 	b.logger.Debug("failed to decode transaction in block", "height", tx.Height, "error", err.Error())
-	// 	return nil, err
-	// }
-
-	// block, err := b.GetBlockByNumber(rpctypes.BlockNumber(tx.Height), false)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// for _, msg := range txDecoded.GetMsgs() {
-	// 	hyperionDepositClaimMsg, ok := msg.(*hyperiontypes.MsgDepositClaim)
-	// 	if !ok {
-	// 		continue
-	// 	}
-	// 	blockHash := block["hash"].(common.Hash)
-	// 	blockNumber := block["number"].(hexutil.Big)
-	// 	from := cmn.AnyToHexAddress(hyperionDepositClaimMsg.Orchestrator)
-	// 	gasPrice := block["baseFeePerGas"].(hexutil.Big)
-	// 	to := cmn.AnyToHexAddress(evmtypes.HyperionPrecompileAddress)
-
-	// 	// stringifiedMsg, err := json.Marshal(hyperionDepositClaimMsg)
-	// 	// if err != nil {
-	// 	// 	return nil, err
-	// 	// }
-
-	// 	return &rpctypes.RPCTransaction{
-	// 		BlockHash:   &blockHash,
-	// 		BlockNumber: &blockNumber,
-	// 		From:        from,
-	// 		Gas:         hexutil.Uint64(0),
-	// 		GasPrice:    &gasPrice,
-	// 		Hash:        common.HexToHash(tx.Hash.String()),
-	// 		// Input:       hexutil.Bytes(hexutil.Encode(stringifiedMsg)),
-	// 		Nonce: hexutil.Uint64(0),
-	// 		To:    &to,
-	// 	}, nil
-	// }
-
-	return nil, nil
 }
 
 // getTransactionByHashPending find pending tx from mempool
@@ -249,8 +199,21 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 
 	res, err := b.GetTxByEthHash(hash)
 	if err != nil {
-		b.logger.Debug("tx not found", "hash", hexTx, "error", err.Error())
-		return nil, nil
+		resp, err := b.GetCronTransactionReceiptByHash(hash.Hex())
+		if err != nil {
+			b.logger.Debug("tx not found", "hash", hexTx, "error", err.Error())
+			return nil, nil
+		}
+		var result map[string]interface{}
+		data, err := json.Marshal(resp)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(data, &result)
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
 	}
 
 	resBlock, err := b.TendermintBlockByNumber(rpctypes.BlockNumber(res.Height))
@@ -495,6 +458,24 @@ func (b *Backend) GetAllTransactionReceiptsByBlockNumber(blockNum rpctypes.Block
 		receipts = append(receipts, receipt)
 	}
 
+	resp, err := b.GetAllCronTransactionReceiptsByBlockNumber(rpctypes.BlockNumber(resBlock.Block.Height))
+	if err != nil {
+		return receipts, nil
+	}
+
+	for _, receipt := range resp {
+		var result map[string]interface{}
+		data, err := json.Marshal(receipt)
+		if err != nil {
+			continue
+		}
+		err = json.Unmarshal(data, &result)
+		if err != nil {
+			continue
+		}
+		receipts = append(receipts, result)
+	}
+
 	return receipts, nil
 }
 
@@ -683,6 +664,7 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 	)
 }
 
+// todo remove this function (check be sure explorer don't use it)
 func (b *Backend) GetTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.RPCTransaction, error) {
 
 	if page == 0 || size == 0 || size > 100 {

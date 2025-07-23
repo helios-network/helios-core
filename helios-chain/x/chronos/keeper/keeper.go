@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"math/big"
@@ -13,8 +12,10 @@ import (
 	"cosmossdk.io/log"
 	"github.com/hashicorp/go-metrics"
 
+	"helios-core/helios-chain/archive_store"
 	cmn "helios-core/helios-chain/precompiles/common"
 	rpctypes "helios-core/helios-chain/rpc/types"
+	"helios-core/helios-chain/testnet"
 
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
@@ -41,9 +42,11 @@ import (
 )
 
 type Keeper struct {
-	cdc           codec.BinaryCodec
-	storeKey      storetypes.StoreKey
-	memKey        storetypes.StoreKey
+	cdc          codec.BinaryCodec
+	storeKey     storetypes.StoreKey
+	memKey       storetypes.StoreKey
+	archiveStore archive_store.ArchiveStore
+
 	accountKeeper types.AccountKeeper
 	EvmKeeper     types.EVMKeeper
 	bankKeeper    bankkeeper.Keeper
@@ -53,6 +56,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey,
 	memKey storetypes.StoreKey,
+	archiveStore archive_store.ArchiveStore,
 	accountKeeper types.AccountKeeper,
 	evmKeeper types.EVMKeeper,
 	bankKeeper bankkeeper.Keeper,
@@ -61,6 +65,7 @@ func NewKeeper(
 		cdc:           cdc,
 		storeKey:      storeKey,
 		memKey:        memKey,
+		archiveStore:  archiveStore,
 		accountKeeper: accountKeeper,
 		EvmKeeper:     evmKeeper,
 		bankKeeper:    bankKeeper,
@@ -69,38 +74,6 @@ func NewKeeper(
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k *Keeper) ExecuteAllReadyCrons(ctx sdk.Context) {
-	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
-	crons := k.getCronsReadyForExecution(ctx)
-
-	for _, cron := range crons {
-		err := k.executeCron(ctx, cron)
-		if err != nil {
-			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
-			k.emitCronCancelledEvent(ctx, cron)
-			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
-			continue
-		}
-		recordExecutedCron(err, cron)
-	}
-}
-
-func (k *Keeper) ExecuteReadyCrons(ctx sdk.Context, executionStage types.ExecutionStage) {
-	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
-	crons := k.getCronsReadyForExecutionWithFilter(ctx, executionStage)
-
-	for _, cron := range crons {
-		err := k.executeCron(ctx, cron)
-		if err != nil {
-			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
-			k.emitCronCancelledEvent(ctx, cron)
-			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
-			continue
-		}
-		recordExecutedCron(err, cron)
-	}
 }
 
 func (k *Keeper) ExecuteCrons(ctx sdk.Context, batchFees *types.BatchFeesWithIds) {
@@ -123,7 +96,7 @@ func (k *Keeper) ExecuteCrons(ctx sdk.Context, batchFees *types.BatchFeesWithIds
 }
 
 func (k *Keeper) PushReadyCronsToQueue(ctx sdk.Context) uint64 {
-	crons := k.getCronsReadyForExecutionWithFilter(ctx, types.ExecutionStage_EXECUTION_STAGE_END_BLOCKER)
+	crons := k.getCronsReadyForExecutionWithFilter(ctx)
 	count := 0
 	for _, cron := range crons {
 		if cron.CronType == types.CALLBACK_CONDITIONED_CRON { // they are added in queue by the keeper Hyperion or other
@@ -170,6 +143,8 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 	tx := ethtypes.NewTransaction(0, common.Address{}, big.NewInt(0), gasLimit, gasPrice, []byte{})
 	fees := sdk.Coins{{Denom: baseDenom, Amount: sdkmath.NewIntFromBigInt(tx.Cost())}}
 
+	k.SetTotalCronCount(ctx, uint64(len(crons)))
+
 	for _, cron := range crons {
 		balance := k.CronBalance(ctx, cron)
 		cost := tx.Cost()
@@ -182,6 +157,14 @@ func (k *Keeper) DeductFeesActivesCrons(ctx sdk.Context) error {
 
 		if cron.CronType == types.CALLBACK_CONDITIONED_CRON { // it's free for callback conditioned crons
 			continue
+		}
+
+		if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
+			if cron.NextExecutionBlock < uint64(ctx.BlockHeight())-100 { // if the cron is not executed in the last 100 blocks, remove it
+				k.emitCronCancelledEvent(ctx, cron)
+				k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+				continue
+			}
 		}
 
 		if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
@@ -272,6 +255,9 @@ func (k *Keeper) AddCron(ctx sdk.Context, cron types.Cron) {
 	k.StoreSetCron(ctx, cron)
 	k.StoreSetCronAddress(ctx, cron)
 	k.StoreChangeTotalCount(ctx, 1)
+	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_1 < int64(ctx.BlockHeight()) {
+		k.StoreCronIndexByOwnerAddress(ctx, cron)
+	}
 }
 
 func (k *Keeper) RemoveCron(ctx sdk.Context, id uint64, owner sdk.AccAddress) error {
@@ -327,106 +313,6 @@ func (k *Keeper) GetCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
 	return cron, true
 }
 
-func (k *Keeper) GetArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
-	bz := store.Get(GetCronIDBytes(id))
-	if bz == nil {
-		return types.Cron{}, false
-	}
-
-	var cron types.Cron
-	k.cdc.MustUnmarshal(bz, &cron)
-	return cron, true
-}
-
-func (k *Keeper) GetCronTransactionResultByNonce(ctx sdk.Context, nonce uint64) (types.CronTransactionResult, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionResultKey)
-	bz := store.Get(GetTxIDBytes(nonce))
-	if bz == nil {
-		return types.CronTransactionResult{}, false
-	}
-
-	var txResult types.CronTransactionResult
-	k.cdc.MustUnmarshal(bz, &txResult)
-	return txResult, true
-}
-
-func (k *Keeper) GetCronTransactionResultByHash(ctx sdk.Context, hash string) (types.CronTransactionResult, bool) {
-	nonce, ok := k.GetTxNonceByHash(ctx, hash)
-	if !ok {
-		return types.CronTransactionResult{}, false
-	}
-	return k.GetCronTransactionResultByNonce(ctx, nonce)
-}
-
-func (k *Keeper) GetCronTransactionResultsByBlockNumber(ctx sdk.Context, blockNumber uint64) ([]types.CronTransactionResult, bool) {
-	txHashs, ok := k.GetBlockTxHashs(ctx, blockNumber)
-	if !ok {
-		return []types.CronTransactionResult{}, false
-	}
-	txs := make([]types.CronTransactionResult, 0)
-	for _, txHash := range txHashs {
-		tx, ok := k.GetCronTransactionResultByHash(ctx, txHash)
-		if !ok {
-			continue
-		}
-		txs = append(txs, tx)
-	}
-	return txs, true
-}
-
-func (k *Keeper) GetCronTransactionReceiptByHash(ctx sdk.Context, hash string) (*types.CronTransactionReceiptRPC, bool) {
-	tx, ok := k.GetCronTransactionResultByHash(ctx, hash)
-	if !ok {
-		return nil, false
-	}
-	receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
-	return receiptTx, true
-}
-
-func (k *Keeper) GetCronTransactionReceiptByNonce(ctx sdk.Context, nonce uint64) (*types.CronTransactionReceiptRPC, bool) {
-	tx, ok := k.GetCronTransactionResultByNonce(ctx, nonce)
-	if !ok {
-		return nil, false
-	}
-	receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
-	return receiptTx, true
-}
-
-func (k *Keeper) GetCronTransactionReceiptsByBlockNumber(ctx sdk.Context, blockNumber uint64) ([]*types.CronTransactionReceiptRPC, bool) {
-	txHashs, ok := k.GetBlockTxHashs(ctx, blockNumber)
-	if !ok {
-		return []*types.CronTransactionReceiptRPC{}, false
-	}
-	txs := make([]*types.CronTransactionReceiptRPC, 0)
-	for _, txHash := range txHashs {
-		tx, ok := k.GetCronTransactionResultByHash(ctx, txHash)
-		if !ok {
-			continue
-		}
-		receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
-		txs = append(txs, receiptTx)
-	}
-	return txs, true
-}
-
-func (k *Keeper) GetCronTransactionLogsByBlockNumber(ctx sdk.Context, blockNumber uint64) ([]*evmtypes.Log, bool) {
-	txHashs, ok := k.GetBlockTxHashs(ctx, blockNumber)
-	if !ok {
-		return []*evmtypes.Log{}, false
-	}
-	txs := make([]*evmtypes.Log, 0)
-	for _, txHash := range txHashs {
-		tx, ok := k.GetCronTransactionResultByHash(ctx, txHash)
-		if !ok {
-			continue
-		}
-		receiptTx, _ := k.FormatCronTransactionResultToCronTransactionReceiptRPC(ctx, tx)
-		txs = append(txs, receiptTx.Logs...)
-	}
-	return txs, true
-}
-
 func (k *Keeper) getCronsReadyForExecution(ctx sdk.Context) []types.Cron {
 	params := k.GetParams(ctx)
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
@@ -459,7 +345,7 @@ func (k *Keeper) getCronsReadyForExecution(ctx sdk.Context) []types.Cron {
 	return crons
 }
 
-func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context, executionStage types.ExecutionStage) []types.Cron {
+func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context) []types.Cron {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	var crons []types.Cron
 
@@ -471,8 +357,7 @@ func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context, executionS
 		var cron types.Cron
 		k.cdc.MustUnmarshal(iterator.Value(), &cron)
 
-		if cron.ExecutionStage == executionStage &&
-			currentBlock >= cron.NextExecutionBlock &&
+		if currentBlock >= cron.NextExecutionBlock &&
 			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
 			crons = append(crons, cron)
 		}
@@ -833,16 +718,13 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 		callBackData, ok := k.GetCronCallBackData(ctx, cron.Id)
 
 		if !ok { // all ok
-			k.Logger(ctx).Info("CRON ", "type", types.CALLBACK_CONDITIONED_CRON, "a", "Not ready")
 			return nil
 		}
-		k.Logger(ctx).Info("CRON ", "type", types.CALLBACK_CONDITIONED_CRON, "callBackData", callBackData)
 		// setup params and go to execution
 		cron.Params = []string{
 			hexutil.Encode(callBackData.Data),
 			hexutil.Encode(callBackData.Error),
 		}
-		k.Logger(ctx).Info("CRON ", "type", types.CALLBACK_CONDITIONED_CRON, "params", cron.Params)
 		// set new expiration
 		cron.ExpirationBlock = uint64(ctx.BlockHeight())
 		k.StoreSetCron(ctx, cron)
@@ -1243,23 +1125,17 @@ func (k *Keeper) StoreSetCron(ctx sdk.Context, cron types.Cron) {
 	store.Set(GetCronIDBytes(cron.Id), bz)
 }
 
+func (k *Keeper) StoreCronIndexByOwnerAddress(ctx sdk.Context, cron types.Cron) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronIndexByOwnerAddressKey)
+	store.Set(append([]byte(cmn.AnyToHexAddress(cron.OwnerAddress).Hex()), GetCronIDBytes(cron.Id)...), []byte{})
+}
+
 func (k *Keeper) StoreSetCronAddress(ctx sdk.Context, cron types.Cron) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronAddressKey)
 	store.Set([]byte(cron.Address), sdk.Uint64ToBigEndian(cron.Id))
 }
 
-func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx types.CronTransactionResult) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionResultKey)
-	bz := k.cdc.MustMarshal(&tx)
-	store.Set(GetTxIDBytes(tx.Nonce), bz)
-
-	// Stockage uniquement du nonce dans l'index secondaire pour éviter les doublons
-	storeByCronId := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.CronTransactionResultByCronIdKey, sdk.Uint64ToBigEndian(cron.Id)...))
-
-	// ici on ne stocke que le nonce (très léger) comme référence
-	storeByCronId.Set(GetTxIDBytes(tx.Nonce), []byte{}) // pas besoin de valeur car on récupère la donnée via le nonce dans le store principal
-}
-
+// todo Store this in the cron attributes
 func (k *Keeper) StoreCronCallBackData(ctx sdk.Context, cronId uint64, callbackData *types.CronCallBackData) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronCallBackDataKey)
 	bz := k.cdc.MustMarshal(callbackData)
@@ -1301,57 +1177,9 @@ func (k *Keeper) GetCronIdByAddress(ctx sdk.Context, address string) (uint64, bo
 	return id, true
 }
 
-func (k *Keeper) GetBlockTxHashs(ctx sdk.Context, blockNumber uint64) ([]string, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronBlockTransactionHashsKey)
-	bz := store.Get(GetBlockIDBytes(blockNumber))
-	if bz == nil {
-		return []string{}, false
-	}
-
-	var txHashes []string
-	err := json.Unmarshal(bz, &txHashes)
-	if err != nil {
-		return []string{}, false
-	}
-	return txHashes, true
-}
-
-func (k *Keeper) StoreSetTransactionHashInBlock(ctx sdk.Context, blockNumber uint64, txHash string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronBlockTransactionHashsKey)
-
-	txHashes, _ := k.GetBlockTxHashs(ctx, blockNumber)
-	txHashes = append(txHashes, txHash)
-
-	bz, _ := json.Marshal(&txHashes)
-	store.Set(GetBlockIDBytes(blockNumber), bz)
-}
-
-func (k *Keeper) GetTxNonceByHash(ctx sdk.Context, txHash string) (uint64, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionHashToNonceKey)
-	bz := store.Get([]byte(txHash))
-	if bz == nil {
-		return 0, false
-	}
-
-	nonce := sdk.BigEndianToUint64(bz)
-	return nonce, true
-}
-
-func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, nonce uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionHashToNonceKey)
-	store.Set([]byte(txHash), sdk.Uint64ToBigEndian(nonce))
-}
-
 func (k *Keeper) StoreRemoveCron(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronKey)
 	store.Delete(GetCronIDBytes(id))
-}
-
-func (k *Keeper) StoreArchiveCron(ctx sdk.Context, cron types.Cron) {
-	cron.Archived = true
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronArchivedKey)
-	bz := k.cdc.MustMarshal(&cron)
-	store.Set(GetCronIDBytes(cron.Id), bz)
 }
 
 func (k *Keeper) StoreCronExists(ctx sdk.Context, id uint64) bool {
@@ -1364,65 +1192,10 @@ func (k *Keeper) StoreCronExistsByAddress(ctx sdk.Context, address string) bool 
 	return store.Has([]byte(address))
 }
 
-func (k *Keeper) StoreChangeTotalCount(ctx sdk.Context, increment int32) {
-	store := ctx.KVStore(k.storeKey)
-	count := k.GetCronCount(ctx) + increment
-	store.Set(types.CronCountKey, sdk.Uint64ToBigEndian(uint64(count)))
-}
-
-func (k *Keeper) GetCronCount(ctx sdk.Context) int32 {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.CronCountKey)
-	if bz == nil {
-		return 0
-	}
-	return int32(sdk.BigEndianToUint64(bz))
-}
-
-func (k *Keeper) StoreChangeArchivedTotalCount(ctx sdk.Context, increment int32) {
-	store := ctx.KVStore(k.storeKey)
-	count := k.GetArchivedCronCount(ctx) + increment
-	store.Set(types.CronArchivedCountKey, sdk.Uint64ToBigEndian(uint64(count)))
-}
-
-func (k *Keeper) GetArchivedCronCount(ctx sdk.Context) int32 {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.CronArchivedCountKey)
-	if bz == nil {
-		return 0
-	}
-	return int32(sdk.BigEndianToUint64(bz))
-}
-
-func (k *Keeper) StoreChangeCronRefundedLastBlockTotalCount(ctx sdk.Context, count uint64) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.CronRefundedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
-}
-
-func (k *Keeper) GetCronRefundedLastBlockCount(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.CronRefundedLastBlockCountKey)
-	if bz == nil {
-		return 0
-	}
-	return sdk.BigEndianToUint64(bz)
-}
-
-func (k *Keeper) StoreChangeCronExecutedLastBlockTotalCount(ctx sdk.Context, count uint64) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.CronExecutedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
-}
-
-func (k *Keeper) GetCronExecutedLastBlockCount(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.CronExecutedLastBlockCountKey)
-	if bz == nil {
-		return 0
-	}
-	return sdk.BigEndianToUint64(bz)
-}
-
 func (k *Keeper) ExistsInCronQueue(ctx sdk.Context, cron types.Cron) bool {
+	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
+		return cron.QueueTimestamp != -1 && cron.QueueTimestamp != 0
+	}
 	return cron.QueueTimestamp != -1
 }
 
@@ -1624,4 +1397,21 @@ func (k Keeper) GetAllCrons(ctx sdk.Context) []types.Cron {
 	}
 
 	return crons
+}
+
+// todo remove this function
+func (k *Keeper) StoreChangeTotalCount(ctx sdk.Context, increment int32) {
+	store := ctx.KVStore(k.storeKey)
+	count := k.GetCronCount(ctx) + increment
+	store.Set(types.CronCountKey, sdk.Uint64ToBigEndian(uint64(count)))
+}
+
+// todo remove this function
+func (k *Keeper) GetCronCount(ctx sdk.Context) int32 {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.CronCountKey)
+	if bz == nil {
+		return 0
+	}
+	return int32(sdk.BigEndianToUint64(bz))
 }

@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"helios-core/helios-chain/archive_store"
 	cmn "helios-core/helios-chain/precompiles/common"
 	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
@@ -34,9 +35,10 @@ import (
 
 // Keeper maintains the link to storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
-	cdc      codec.Codec         // The wire codec for binary encoding/decoding.
-	storeKey storetypes.StoreKey // Unexposed key to access store from sdk.Context
-	memKey   storetypes.StoreKey // Unexposed key to access memstore from sdk.Context
+	cdc          codec.Codec         // The wire codec for binary encoding/decoding.
+	storeKey     storetypes.StoreKey // Unexposed key to access store from sdk.Context
+	memKey       storetypes.StoreKey // Unexposed key to access memstore from sdk.Context
+	archiveStore archive_store.ArchiveStore
 
 	StakingKeeper  types.StakingKeeper
 	bankKeeper     types.BankKeeper
@@ -72,6 +74,7 @@ func NewKeeper(
 	cdc codec.Codec,
 	storeKey storetypes.StoreKey,
 	memKey storetypes.StoreKey,
+	archiveStore archive_store.ArchiveStore,
 	stakingKeeper types.StakingKeeper,
 	bankKeeper types.BankKeeper,
 	slashingKeeper types.SlashingKeeper,
@@ -92,6 +95,7 @@ func NewKeeper(
 		cdc:            cdc,
 		storeKey:       storeKey,
 		memKey:         memKey,
+		archiveStore:   archiveStore,
 		StakingKeeper:  stakingKeeper,
 		bankKeeper:     bankKeeper,
 		DistKeeper:     distKeeper,
@@ -1374,116 +1378,6 @@ func (k *Keeper) SearchAttestationsByEthereumAddress(ctx sdk.Context, hyperionId
 	}
 
 	return matchingAttestations, nil
-}
-
-func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
-	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
-	defer doneFn()
-
-	lastIndex, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.Sender))
-	if err != nil {
-		return
-	}
-	tx.Index = lastIndex + 1
-
-	store := ctx.KVStore(k.storeKey)
-	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
-	finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.Index), k.cdc.MustMarshal(tx))
-
-	k.StoreLastFinalizedTxIndex(ctx, tx)
-
-	if tx.DestAddress != tx.Sender {
-		lastIndexOfDestAddress, err := k.FindLastFinalizedTxIndex(ctx, cmn.AnyToHexAddress(tx.DestAddress))
-		if err != nil {
-			return
-		}
-		tx.Index = lastIndexOfDestAddress + 1
-		finalizedTxStore.Set(types.GetFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index), k.cdc.MustMarshal(tx))
-	}
-}
-
-func (k *Keeper) StoreLastFinalizedTxIndex(ctx sdk.Context, tx *types.TransferTx) {
-	store := ctx.KVStore(k.storeKey)
-	lastFinalizedTxIndexStore := prefix.NewStore(store, types.LastFinalizedTxIndexKey)
-
-	lastFinalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
-	if err != nil {
-		return
-	}
-
-	lastFinalizedTxs.Txs = append(lastFinalizedTxs.Txs, tx)
-	if len(lastFinalizedTxs.Txs) > 100 { // save only the last 100 txs
-		lastFinalizedTxs.Txs = lastFinalizedTxs.Txs[len(lastFinalizedTxs.Txs)-100:]
-	}
-
-	lastFinalizedTxIndexStore.Set([]byte{0x0}, k.cdc.MustMarshal(&lastFinalizedTxs))
-}
-
-func (k *Keeper) GetLastFinalizedTxIndex(ctx sdk.Context) (types.LastFinalizedTxIndex, error) {
-	store := ctx.KVStore(k.storeKey)
-	lastFinalizedTxIndexStore := prefix.NewStore(store, types.LastFinalizedTxIndexKey)
-	lastFinalizedTxs := lastFinalizedTxIndexStore.Get([]byte{0x0})
-	if lastFinalizedTxs == nil {
-		return types.LastFinalizedTxIndex{}, nil
-	}
-	var txs types.LastFinalizedTxIndex
-	k.cdc.MustUnmarshal(lastFinalizedTxs, &txs)
-	return txs, nil
-}
-
-func (k *Keeper) FindLastFinalizedTxIndex(ctx sdk.Context, addr common.Address) (uint64, error) {
-	store := ctx.KVStore(k.storeKey)
-	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
-	iter := finalizedTxStore.ReverseIterator(PrefixRange(types.GetFinalizedTxAddressPrefixKey(addr)))
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		var tx types.TransferTx
-		k.cdc.MustUnmarshal(iter.Value(), &tx)
-
-		return tx.Index, nil
-	}
-	return 0, nil
-}
-
-func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*types.TransferTx, error) {
-	store := ctx.KVStore(k.storeKey)
-	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
-	iter := finalizedTxStore.Iterator(PrefixRange(types.GetFinalizedTxAddressPrefixKey(addr)))
-	defer iter.Close()
-
-	txs := make([]*types.TransferTx, 0)
-
-	for ; iter.Valid(); iter.Next() {
-		var tx types.TransferTx
-		k.cdc.MustUnmarshal(iter.Value(), &tx)
-		txs = append(txs, &tx)
-	}
-
-	return txs, nil
-}
-
-func (k *Keeper) FindFinalizedTxsByIndexToIndex(ctx sdk.Context, addr common.Address, startIndex uint64, endIndex uint64) ([]*types.TransferTx, error) {
-	store := ctx.KVStore(k.storeKey)
-	finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
-	start, _ := PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, startIndex+1))
-	end, _ := PrefixRange(types.GetFinalizedTxAddressAndTxIndexPrefixKey(addr, endIndex+1))
-	iter := finalizedTxStore.Iterator(start, end)
-	defer iter.Close()
-
-	txs := make([]*types.TransferTx, 0)
-
-	for ; iter.Valid(); iter.Next() {
-		var tx types.TransferTx
-		k.cdc.MustUnmarshal(iter.Value(), &tx)
-
-		if tx.Index > endIndex+1 {
-			break
-		}
-		txs = append(txs, &tx)
-	}
-
-	return txs, nil
 }
 
 func (k *Keeper) UpdateRpcUsed(ctx sdk.Context, hyperionId uint64, rpcUsed string, heightUsed uint64) {

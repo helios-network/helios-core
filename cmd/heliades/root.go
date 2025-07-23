@@ -82,6 +82,8 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	tempApp := app.NewHeliosApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
+		dbm.NewMemDB(),
+		dbm.NewMemDB(),
 		nil, true,
 		emptyAppOptions{},
 	)
@@ -350,8 +352,8 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 
 	options := make([]func(*baseapp.BaseApp), 0)
 
+	dataDir := filepath.Join(home, "data")
 	if cast.ToBool(appOpts.Get(sdkserver.FlagDumpCommitDebugExecutionTrace)) {
-		dataDir := filepath.Join(home, "data")
 		traceDB, err := dbm.NewDB("trace", sdkserver.GetAppDBBackend(appOpts), dataDir)
 		if err != nil {
 			panic(err)
@@ -412,8 +414,17 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		))
 	}
 
+	bridgeDB, err := dbm.NewDB("bridge", sdkserver.GetAppDBBackend(appOpts), dataDir)
+	if err != nil {
+		panic(err)
+	}
+	chronosDB, err := dbm.NewDB("chronos", sdkserver.GetAppDBBackend(appOpts), dataDir)
+	if err != nil {
+		panic(err)
+	}
+
 	heliosApp := app.NewHeliosApp(
-		logger, db, traceStore, true,
+		logger, db, bridgeDB, chronosDB, traceStore, true,
 		appOpts,
 		options...,
 	)
@@ -426,6 +437,8 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 func (a appCreator) appExport(
 	logger log.Logger,
 	db dbm.DB,
+	bridgeDB dbm.DB,
+	chronosDB dbm.DB,
 	traceStore io.Writer,
 	height int64,
 	forZeroHeight bool,
@@ -440,13 +453,13 @@ func (a appCreator) appExport(
 	}
 
 	if height != -1 {
-		heliosApp = app.NewHeliosApp(logger, db, traceStore, false, appOpts)
+		heliosApp = app.NewHeliosApp(logger, db, bridgeDB, chronosDB, traceStore, false, appOpts)
 
 		if err := heliosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		heliosApp = app.NewHeliosApp(logger, db, traceStore, true, appOpts)
+		heliosApp = app.NewHeliosApp(logger, db, bridgeDB, chronosDB, traceStore, true, appOpts)
 	}
 
 	return heliosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

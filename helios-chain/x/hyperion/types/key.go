@@ -1,6 +1,8 @@
 package types
 
 import (
+	fmt "fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -124,6 +126,11 @@ var (
 	FeeByValidatorKey = []byte{0x22}
 
 	OrchestratorDataKey = []byte{0x23}
+)
+
+var (
+	ArchiveStoreFinalizedTxKey          = []byte("tx:")
+	ArchiveStoreLastFinalizedTxIndexKey = []byte("last_finalized_tx_index")
 )
 
 func GetBlacklistStoreKey(addr common.Address) []byte {
@@ -368,6 +375,32 @@ func GetFinalizedTxAddressAndTxIndexPrefixKey(ethereumAddress common.Address, tx
 	buf := make([]byte, 0, ETHContractAddressLen+8)
 	buf = append(buf, ethereumAddress.Bytes()...)
 	buf = append(buf, UInt64Bytes(txIndex)...)
+	return buf
+}
+
+func GetArchiveStoreFinalizedTxKey(ethereumAddress common.Address, txIndex uint64) []byte {
+	buf := make([]byte, 0, len(ethereumAddress.String())+8)
+	buf = append(buf, []byte(ethereumAddress.String())...)
+
+	// Convert uint64 to 20-character zero-padded decimal string
+	str := fmt.Sprintf("%020d", txIndex)
+	buf = append(buf, []byte(str)...)
+	return buf
+}
+
+func GetArchiveStoreFinalizedTxAddressPrefixKey(ethereumAddress common.Address) []byte {
+	buf := make([]byte, 0, len(ethereumAddress.String()))
+	buf = append(buf, []byte(ethereumAddress.String())...)
+	return buf
+}
+
+func GetArchiveStoreFinalizedTxAddressAndTxIndexPrefixKey(ethereumAddress common.Address, txIndex uint64) []byte {
+	buf := make([]byte, 0, len(ethereumAddress.String())+8)
+	buf = append(buf, []byte(ethereumAddress.String())...)
+
+	// Convert uint64 to 20-character zero-padded decimal string
+	str := fmt.Sprintf("%020d", txIndex)
+	buf = append(buf, []byte(str)...)
 	return buf
 }
 

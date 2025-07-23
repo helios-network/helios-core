@@ -36,6 +36,7 @@ const (
 	prefixCronQueueKey                                // 16
 	prefixSecondIndexOutgoingTXFeeKey                 // 17
 	prefixCronQueueCountKey                           // 18
+	prefixCronIndexByOwnerAddressKey                  // 19
 )
 
 var (
@@ -71,12 +72,10 @@ var (
 
 	CronCallBackDataKey = []byte{prefixCronCallBackDataKey}
 
-	CronArchivedKey = []byte{prefixCronArchivedKey}
-
-	CronArchivedCountKey = []byte{prefixCronArchivedCountKey}
-
+	// todo testnet remove this keys
+	CronArchivedKey               = []byte{prefixCronArchivedKey}
+	CronArchivedCountKey          = []byte{prefixCronArchivedCountKey}
 	CronRefundedLastBlockCountKey = []byte{prefixCronRefundedLastBlockCountKey}
-
 	CronExecutedLastBlockCountKey = []byte{prefixCronExecutedLastBlockCountKey}
 
 	CronQueueKey = []byte{prefixCronQueueKey}
@@ -84,6 +83,20 @@ var (
 	SecondIndexOutgoingTXFeeKey = []byte{prefixSecondIndexOutgoingTXFeeKey}
 
 	CronQueueCountKey = []byte{prefixCronQueueCountKey}
+
+	CronIndexByOwnerAddressKey = []byte{prefixCronIndexByOwnerAddressKey}
+)
+
+var (
+	ArchiveStoreCronKey                          = []byte("cron:")
+	ArchiveStoreTxKey                            = []byte("tx:")
+	ArchiveStoreCronTxNonceKey                   = []byte("nid:")
+	ArchiveStoreCronTransactionResultByCronIdKey = []byte("r:")
+	ArchiveStoreBlockTransactionHashsKey         = []byte("b:")
+	ArchiveStoreExecutedLastBlockCountKey        = []byte("executed_last_block_count")
+	ArchiveStoreRefundedLastBlockCountKey        = []byte("refunded_last_block_count")
+	ArchiveStoreArchivedCronCountKey             = []byte("archived_cron_count")
+	ArchiveStoreCronCountKey                     = []byte("cron_count")
 )
 
 // GetCronKey returns the key for a specific cron by name

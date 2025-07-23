@@ -90,7 +90,7 @@ func (k *Keeper) Attest(ctx sdk.Context, claim types.EthereumClaim, anyClaim *co
 		return nil, errors.Wrap(types.ErrAttestationAlreadyObserved, "Attestation already Observed")
 	}
 
-	if ctx.BlockHeight() > testnet.TESTNET_BLOCK_NUMBER_UPDATE_1 && att.ContainsVote(valAddr.String()) {
+	if ctx.BlockHeight() > testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 && att.ContainsVote(valAddr.String()) {
 		return nil, errors.Wrap(types.ErrAttestationAlreadyVoted, "Attestation already voted")
 	}
 

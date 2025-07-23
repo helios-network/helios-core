@@ -18,6 +18,7 @@ import (
 
 	"helios-core/helios-chain/rpc/backend/mocks"
 	ethrpc "helios-core/helios-chain/rpc/types"
+	rpctypes "helios-core/helios-chain/rpc/types"
 	utiltx "helios-core/helios-chain/testutil/tx"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 )
@@ -1081,7 +1082,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			suite.SetupTest() // reset test and queries
 			tc.registerMock(math.NewIntFromBigInt(tc.baseFee), tc.validator, tc.height)
 
-			block, err := suite.backend.RPCBlockFromTendermintBlock(tc.resBlock, tc.blockRes, tc.fullTx)
+			block, err := suite.backend.RPCBlockFromTendermintBlock(tc.resBlock, tc.blockRes, tc.fullTx, make([]*rpctypes.CronTransactionReceiptRPC, 0))
 
 			var expBlock map[string]interface{}
 			header := tc.resBlock.Block.Header

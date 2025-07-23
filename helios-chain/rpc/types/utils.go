@@ -5,10 +5,12 @@ import (
 	_ "embed"
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 
 	"bytes"
 	"encoding/base64"
+	"encoding/hex"
 	"image"
 	"image/color"
 	"image/png"
@@ -26,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
+	"helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -121,6 +124,7 @@ func FormatBlock(
 	header cmttypes.Header, size int, gasLimit int64,
 	gasUsed *big.Int, transactions []interface{}, bloom ethtypes.Bloom,
 	validatorAddr common.Address, baseFee *big.Int,
+	cronTransactions []interface{},
 ) map[string]interface{} {
 	var transactionsRoot common.Hash
 	if len(transactions) == 0 {
@@ -149,7 +153,7 @@ func FormatBlock(
 		"receiptsRoot":     ethtypes.EmptyRootHash,
 
 		"uncles":          []common.Hash{},
-		"transactions":    transactions,
+		"transactions":    append(transactions, cronTransactions...),
 		"totalDifficulty": (*hexutil.Big)(big.NewInt(0)),
 	}
 
@@ -183,6 +187,96 @@ func NewUnsignedTransactionFromMsg(
 ) (*RPCTransaction, error) {
 	tx := msg.AsTransaction()
 	return NewRPCUnsignedTransaction(tx, blockHash, blockNumber, index, baseFee, chainID, from)
+}
+
+// Helper pour parser un uint64 depuis une string (retourne 0 si vide ou erreur)
+func parseUint64(s string) uint64 {
+	if s == "" {
+		return 0
+	}
+	val, err := strconv.ParseUint(s, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return val
+}
+
+// Helper pour parser un *big.Int depuis une string (retourne 0 si vide ou erreur)
+func parseBigInt(s string) *big.Int {
+	if s == "" {
+		return big.NewInt(0)
+	}
+	val, ok := new(big.Int).SetString(s, 10)
+	if !ok {
+		return big.NewInt(0)
+	}
+	return val
+}
+
+// Helper pour parser un hash (hex string)
+func parseHash(s string) common.Hash {
+	if s == "" {
+		return common.Hash{}
+	}
+	return common.HexToHash(s)
+}
+
+// Helper pour parser une address (hex string)
+func parseAddress(s string) common.Address {
+	if s == "" {
+		return common.Address{}
+	}
+	return common.HexToAddress(s)
+}
+
+// Helper pour parser les input data (hex string)
+func parseInput(s string) hexutil.Bytes {
+	if s == "" {
+		return nil
+	}
+	b, err := hex.DecodeString(strings.TrimPrefix(s, "0x"))
+	if err != nil {
+		return nil
+	}
+	return b
+}
+
+func NewRPCTransactionFromCronTransaction(
+	tx *types.CronTransactionRPC,
+) (*RPCTransaction, error) {
+	result := &RPCTransaction{
+		Type:     hexutil.Uint64(hexutil.MustDecodeUint64(tx.Type)),
+		From:     parseAddress(tx.From),
+		Gas:      hexutil.Uint64(hexutil.MustDecodeUint64(tx.Gas)),
+		GasPrice: (*hexutil.Big)(hexutil.MustDecodeBig(tx.GasPrice)),
+		Hash:     parseHash(tx.Hash),
+		Input:    parseInput(tx.Input),
+		Nonce:    hexutil.Uint64(hexutil.MustDecodeUint64(tx.Nonce)),
+		To:       nil,
+		Value:    (*hexutil.Big)(hexutil.MustDecodeBig(tx.Value)),
+		V:        (*hexutil.Big)(hexutil.MustDecodeBig(tx.V)),
+		R:        (*hexutil.Big)(hexutil.MustDecodeBig(tx.R)),
+		S:        (*hexutil.Big)(hexutil.MustDecodeBig(tx.S)),
+		ChainID:  (*hexutil.Big)(hexutil.MustDecodeBig(tx.ChainId)),
+	}
+	if tx.To != "" {
+		addr := parseAddress(tx.To)
+		result.To = &addr
+	}
+	// Optionnel: TransactionIndex, BlockHash, BlockNumber...
+	if tx.TransactionIndex != "" {
+		idx := hexutil.MustDecodeUint64(tx.TransactionIndex)
+		result.TransactionIndex = (*hexutil.Uint64)(&idx)
+	}
+	if tx.BlockHash != "" {
+		bh := parseHash(tx.BlockHash)
+		result.BlockHash = &bh
+	}
+	if tx.BlockNumber != "" {
+		bn := hexutil.MustDecodeUint64(tx.BlockNumber)
+		result.BlockNumber = (*hexutil.Big)(new(big.Int).SetUint64(bn))
+	}
+	return result, nil
 }
 
 // NewTransactionFromData returns a transaction that will serialize to the RPC

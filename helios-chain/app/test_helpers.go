@@ -59,7 +59,9 @@ func Setup(isCheckTx bool, appOpts ...simtestutil.AppOptionsMap) *HeliosApp {
 	}
 
 	db := dbm.NewMemDB()
-	app := NewHeliosApp(log.NewNopLogger(), db, nil, true, testAppOpts)
+	bridgeDB := dbm.NewMemDB()
+	chronosDB := dbm.NewMemDB()
+	app := NewHeliosApp(log.NewNopLogger(), db, bridgeDB, chronosDB, nil, true, testAppOpts)
 
 	if isCheckTx {
 		return app
@@ -162,9 +164,11 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		testAppOpts := simtestutil.AppOptionsMap{"trace": true}
 		db := dbm.NewMemDB()
+		bridgeDB := dbm.NewMemDB()
+		chronosDB := dbm.NewMemDB()
 		app := NewHeliosApp(
 			log.NewNopLogger(),
-			db, nil, true,
+			db, bridgeDB, chronosDB, nil, true,
 			testAppOpts,
 			baseapp.SetChainID(chainID),
 		)
