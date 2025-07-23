@@ -105,7 +105,7 @@ func (k Keeper) QueryGetCronsByOwner(c context.Context, req *types.QueryGetCrons
 	crons := make([]types.Cron, 0)
 
 	pageRes, err := query.Paginate(scheduleStore, req.Pagination, func(key, _ []byte) error {
-		cronId := sdk.BigEndianToUint64(key[len(hexAddress.Hex()):])
+		cronId := sdk.BigEndianToUint64(key)
 		cron, ok := k.GetCronOrArchivedCron(ctx, cronId)
 		if !ok {
 			return nil
