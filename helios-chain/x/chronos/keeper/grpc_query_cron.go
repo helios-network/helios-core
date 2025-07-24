@@ -189,6 +189,23 @@ func (k Keeper) QueryGetCronTransactionReceiptsByBlockNumber(c context.Context, 
 	}, nil
 }
 
+func (k Keeper) QueryGetCronTransactionReceiptsHashsByBlockNumber(c context.Context, req *types.QueryGetCronTransactionReceiptsHashsByBlockNumberRequest) (*types.QueryGetCronTransactionReceiptsHashsByBlockNumberResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	txsHashs, ok := k.GetBlockTxHashs(sdk.UnwrapSDKContext(c), req.BlockNumber)
+	if !ok {
+		return &types.QueryGetCronTransactionReceiptsHashsByBlockNumberResponse{
+			Hashs: []string{},
+		}, nil
+	}
+
+	return &types.QueryGetCronTransactionReceiptsHashsByBlockNumberResponse{
+		Hashs: txsHashs,
+	}, nil
+}
+
 func (k Keeper) QueryGetCronTransactionReceiptByHash(c context.Context, req *types.QueryGetCronTransactionReceiptByHashRequest) (*types.QueryGetCronTransactionReceiptByHashResponse, error) {
 	tx, ok := k.GetCronTransactionReceiptByHash(sdk.UnwrapSDKContext(c), req.Hash)
 	if !ok {

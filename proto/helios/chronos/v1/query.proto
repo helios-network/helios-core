@@ -74,6 +74,10 @@ service Query {
   rpc QueryGetCronStatistics(QueryGetCronStatisticsRequest) returns (QueryGetCronStatisticsResponse) {
     option (google.api.http).get = "/helios/chronos/statistics";
   }
+
+  rpc QueryGetCronTransactionReceiptsHashsByBlockNumber(QueryGetCronTransactionReceiptsHashsByBlockNumberRequest) returns (QueryGetCronTransactionReceiptsHashsByBlockNumberResponse) {
+    option (google.api.http).get = "/helios/chronos/block/transaction/receipts/hashs/{block_number}";
+  }
 }
 
 message QueryParamsRequest {}
@@ -207,4 +211,12 @@ message QueryGetCronStatisticsRequest {}
 
 message QueryGetCronStatisticsResponse {
   CronStatistics statistics = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetCronTransactionReceiptsHashsByBlockNumberRequest {
+  uint64 block_number = 1;
+}
+
+message QueryGetCronTransactionReceiptsHashsByBlockNumberResponse {
+  repeated string hashs = 1;
 }

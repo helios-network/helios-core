@@ -9,7 +9,6 @@ import (
 	"time"
 
 	rpctypes "helios-core/helios-chain/rpc/types"
-	"helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
 
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -73,12 +72,7 @@ func (b *Backend) GetBlockByNumber(blockNum rpctypes.BlockNumber, fullTx bool) (
 		return nil, nil
 	}
 
-	cronReceipts, err := b.GetAllCronTransactionReceiptsByBlockNumber(rpctypes.BlockNumber(resBlock.Block.Height))
-	if err != nil {
-		cronReceipts = make([]*types.CronTransactionReceiptRPC, 0)
-	}
-
-	res, err := b.RPCBlockFromTendermintBlock(resBlock, blockRes, fullTx, cronReceipts)
+	res, err := b.RPCBlockFromTendermintBlock(resBlock, blockRes, fullTx)
 	if err != nil {
 		b.logger.Debug("GetEthBlockFromTendermint failed", "height", blockNum, "error", err.Error())
 		return nil, err
@@ -106,12 +100,7 @@ func (b *Backend) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]inte
 		return nil, nil
 	}
 
-	cronReceipts, err := b.GetAllCronTransactionReceiptsByBlockNumber(rpctypes.BlockNumber(resBlock.Block.Height))
-	if err != nil {
-		cronReceipts = make([]*types.CronTransactionReceiptRPC, 0)
-	}
-
-	res, err := b.RPCBlockFromTendermintBlock(resBlock, blockRes, fullTx, cronReceipts)
+	res, err := b.RPCBlockFromTendermintBlock(resBlock, blockRes, fullTx)
 	if err != nil {
 		b.logger.Debug("GetEthBlockFromTendermint failed", "hash", hash, "error", err.Error())
 		return nil, err
@@ -173,12 +162,7 @@ func (b *Backend) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 			return nil, fmt.Errorf("failed to fetch block result from Tendermint at height %d: %w", block.Block.Height, err)
 		}
 
-		cronReceipts, err := b.GetAllCronTransactionReceiptsByBlockNumber(rpctypes.BlockNumber(block.Block.Height))
-		if err != nil {
-			cronReceipts = make([]*types.CronTransactionReceiptRPC, 0)
-		}
-
-		formattedBlock, err := b.RPCBlockFromTendermintBlock(block, blockRes, fullTx, cronReceipts)
+		formattedBlock, err := b.RPCBlockFromTendermintBlock(block, blockRes, fullTx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to format block at height %d: %w", block.Block.Height, err)
 		}
@@ -444,7 +428,6 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 	resBlock *tmrpctypes.ResultBlock,
 	blockRes *tmrpctypes.ResultBlockResults,
 	fullTx bool,
-	cronReceipts []*types.CronTransactionReceiptRPC,
 ) (map[string]interface{}, error) {
 	ethRPCTxs := []interface{}{}
 	block := resBlock.Block
@@ -527,13 +510,21 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 		}
 		gasUsed += uint64(txsResult.GetGasUsed()) //nolint:gosec // G115 -- checked for int overflow already
 	}
-
 	cronTransactions := make([]interface{}, 0)
-	for _, cronReceipt := range cronReceipts {
-		if !fullTx {
-			cronTransactions = append(cronTransactions, cronReceipt.TransactionHash)
-		} else {
-			cronTransactions = append(cronTransactions, cronReceipt)
+
+	if fullTx {
+		cronReceipts, err := b.GetAllCronTransactionReceiptsByBlockNumber(rpctypes.BlockNumber(resBlock.Block.Height))
+		if err == nil {
+			for _, cronReceipt := range cronReceipts {
+				cronTransactions = append(cronTransactions, cronReceipt)
+			}
+		}
+	} else {
+		hashs, err := b.GetAllCronTransactionReceiptsHashsByBlockNumber(rpctypes.BlockNumber(resBlock.Block.Height))
+		if err == nil {
+			for _, hash := range hashs {
+				cronTransactions = append(cronTransactions, hash)
+			}
 		}
 	}
 

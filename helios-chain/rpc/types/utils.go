@@ -152,9 +152,10 @@ func FormatBlock(
 		"transactionsRoot": transactionsRoot,
 		"receiptsRoot":     ethtypes.EmptyRootHash,
 
-		"uncles":          []common.Hash{},
-		"transactions":    append(transactions, cronTransactions...),
-		"totalDifficulty": (*hexutil.Big)(big.NewInt(0)),
+		"uncles":           []common.Hash{},
+		"transactions":     transactions,
+		"cronTransactions": cronTransactions,
+		"totalDifficulty":  (*hexutil.Big)(big.NewInt(0)),
 	}
 
 	if baseFee != nil {

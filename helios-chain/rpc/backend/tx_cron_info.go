@@ -204,6 +204,33 @@ func (b *Backend) GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.B
 	return res.Transactions, nil
 }
 
+func (b *Backend) GetAllCronTransactionReceiptsHashsByBlockNumber(blockNum rpctypes.BlockNumber) ([]string, error) {
+
+	blockNumber := blockNum.TmHeight()
+
+	if blockNumber == nil {
+		block, err := b.TendermintBlockByNumber(blockNum)
+		if err != nil {
+			b.logger.Debug("block not found", "height", blockNum.Int64(), "error", err.Error())
+			return []string{}, nil
+		}
+		if block.Block == nil {
+			b.logger.Debug("block not found", "height", blockNum.Int64())
+			return []string{}, nil
+		}
+		blockNumber = &block.Block.Height
+	}
+
+	req := &chronostypes.QueryGetCronTransactionReceiptsHashsByBlockNumberRequest{
+		BlockNumber: uint64(*blockNumber),
+	}
+	res, err := b.queryClient.Chronos.QueryGetCronTransactionReceiptsHashsByBlockNumber(b.ctx, req)
+	if err != nil || res.Hashs == nil {
+		return []string{}, err
+	}
+	return res.Hashs, nil
+}
+
 func (b *Backend) GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error) {
 	unfiltered := make([]*ethtypes.Log, 0)
 	blockNumber := blockNum.TmHeight()

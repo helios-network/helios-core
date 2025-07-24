@@ -79,7 +79,7 @@ type EVMBackend interface {
 	BlockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.Bloom, error)
 	HeaderByNumber(blockNum rpctypes.BlockNumber) (*ethtypes.Header, error)
 	HeaderByHash(blockHash common.Hash) (*ethtypes.Header, error)
-	RPCBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults, fullTx bool, cronReceipts []*chronostypes.CronTransactionReceiptRPC) (map[string]interface{}, error)
+	RPCBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults, fullTx bool) (map[string]interface{}, error)
 	EthBlockByNumber(blockNum rpctypes.BlockNumber) (*ethtypes.Block, error)
 	EthBlockFromTendermintBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults) (*ethtypes.Block, error)
 	GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error)
@@ -176,6 +176,7 @@ type EVMBackend interface {
 	GetAllCronTransactionReceiptsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionReceiptRPC, error)
 	GetAllCronTransactionsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*chronostypes.CronTransactionRPC, error)
 	GetAllCronTransactionReceiptsByBlockNumber(blockNum rpctypes.BlockNumber) ([]*chronostypes.CronTransactionReceiptRPC, error)
+	GetAllCronTransactionReceiptsHashsByBlockNumber(blockNum rpctypes.BlockNumber) ([]string, error)
 	GetBlockCronLogs(blockNum rpctypes.BlockNumber) ([]*ethtypes.Log, error)
 	GetCronStatistics() (*chronostypes.CronStatistics, error)
 
