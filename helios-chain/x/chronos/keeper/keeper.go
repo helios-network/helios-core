@@ -357,9 +357,16 @@ func (k *Keeper) getCronsReadyForExecutionWithFilter(ctx sdk.Context) []types.Cr
 		var cron types.Cron
 		k.cdc.MustUnmarshal(iterator.Value(), &cron)
 
-		if currentBlock >= cron.NextExecutionBlock &&
-			(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
-			crons = append(crons, cron)
+		if testnet.TESTNET_BLOCK_NUMBER_UPDATE_2 < int64(ctx.BlockHeight()) {
+			if currentBlock == cron.NextExecutionBlock &&
+				(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
+				crons = append(crons, cron)
+			}
+		} else {
+			if currentBlock >= cron.NextExecutionBlock &&
+				(cron.ExpirationBlock == 0 || currentBlock <= cron.ExpirationBlock) {
+				crons = append(crons, cron)
+			}
 		}
 	}
 
