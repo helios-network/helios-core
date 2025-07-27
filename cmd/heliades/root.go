@@ -82,9 +82,12 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	tempApp := app.NewHeliosApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
-		dbm.NewMemDB(),
-		dbm.NewMemDB(),
-		nil, true,
+		map[string]dbm.DB{
+			"hyperion": dbm.NewMemDB(),
+			"chronos":  dbm.NewMemDB(),
+		},
+		nil,
+		true,
 		emptyAppOptions{},
 	)
 	encodingConfig := sdktestutil.TestEncodingConfig{
@@ -414,7 +417,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		))
 	}
 
-	bridgeDB, err := dbm.NewDB("bridge", sdkserver.GetAppDBBackend(appOpts), dataDir)
+	bridgeDB, err := dbm.NewDB("hyperion", sdkserver.GetAppDBBackend(appOpts), dataDir)
 	if err != nil {
 		panic(err)
 	}
@@ -424,7 +427,10 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	heliosApp := app.NewHeliosApp(
-		logger, db, bridgeDB, chronosDB, traceStore, true,
+		logger, db, map[string]dbm.DB{
+			"hyperion": bridgeDB,
+			"chronos":  chronosDB,
+		}, traceStore, true,
 		appOpts,
 		options...,
 	)
@@ -437,8 +443,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 func (a appCreator) appExport(
 	logger log.Logger,
 	db dbm.DB,
-	bridgeDB dbm.DB,
-	chronosDB dbm.DB,
+	archiveDBs map[string]dbm.DB,
 	traceStore io.Writer,
 	height int64,
 	forZeroHeight bool,
@@ -453,13 +458,13 @@ func (a appCreator) appExport(
 	}
 
 	if height != -1 {
-		heliosApp = app.NewHeliosApp(logger, db, bridgeDB, chronosDB, traceStore, false, appOpts)
+		heliosApp = app.NewHeliosApp(logger, db, archiveDBs, traceStore, false, appOpts)
 
 		if err := heliosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		heliosApp = app.NewHeliosApp(logger, db, bridgeDB, chronosDB, traceStore, true, appOpts)
+		heliosApp = app.NewHeliosApp(logger, db, archiveDBs, traceStore, true, appOpts)
 	}
 
 	return heliosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

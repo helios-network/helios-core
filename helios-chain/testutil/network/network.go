@@ -105,7 +105,10 @@ func DefaultConfig() Config {
 		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
 	}
 	defer os.RemoveAll(dir)
-	app := app.NewHeliosApp(log.NewNopLogger(), dbm.NewMemDB(), dbm.NewMemDB(), dbm.NewMemDB(), nil, true, simutils.NewAppOptionsWithFlagHome(dir), baseapp.SetChainID(chainID))
+	app := app.NewHeliosApp(log.NewNopLogger(), dbm.NewMemDB(), map[string]dbm.DB{
+		"hyperion": dbm.NewMemDB(),
+		"chronos":  dbm.NewMemDB(),
+	}, nil, true, simutils.NewAppOptionsWithFlagHome(dir), baseapp.SetChainID(chainID))
 	return Config{
 		Codec:             app.AppCodec(),
 		TxConfig:          app.GetTxConfig(),
@@ -135,7 +138,10 @@ func DefaultConfig() Config {
 func NewAppConstructor(chainID string) AppConstructor {
 	return func(val Validator) servertypes.Application {
 		return app.NewHeliosApp(
-			val.Ctx.Logger, dbm.NewMemDB(), dbm.NewMemDB(), dbm.NewMemDB(), nil, true,
+			val.Ctx.Logger, dbm.NewMemDB(), map[string]dbm.DB{
+				"hyperion": dbm.NewMemDB(),
+				"chronos":  dbm.NewMemDB(),
+			}, nil, true,
 			simutils.NewAppOptionsWithFlagHome(val.Ctx.Config.RootDir),
 			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
 			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),

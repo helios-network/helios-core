@@ -7,7 +7,6 @@ import (
 	"sort"
 	"time"
 
-	"helios-core/helios-chain/archive_store"
 	cmn "helios-core/helios-chain/precompiles/common"
 	chronoskeeper "helios-core/helios-chain/x/chronos/keeper"
 	erc20keeper "helios-core/helios-chain/x/erc20/keeper"
@@ -35,10 +34,9 @@ import (
 
 // Keeper maintains the link to storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
-	cdc          codec.Codec         // The wire codec for binary encoding/decoding.
-	storeKey     storetypes.StoreKey // Unexposed key to access store from sdk.Context
-	memKey       storetypes.StoreKey // Unexposed key to access memstore from sdk.Context
-	archiveStore archive_store.ArchiveStore
+	cdc      codec.Codec         // The wire codec for binary encoding/decoding.
+	storeKey storetypes.StoreKey // Unexposed key to access store from sdk.Context
+	memKey   storetypes.StoreKey // Unexposed key to access memstore from sdk.Context
 
 	StakingKeeper  types.StakingKeeper
 	bankKeeper     types.BankKeeper
@@ -74,7 +72,6 @@ func NewKeeper(
 	cdc codec.Codec,
 	storeKey storetypes.StoreKey,
 	memKey storetypes.StoreKey,
-	archiveStore archive_store.ArchiveStore,
 	stakingKeeper types.StakingKeeper,
 	bankKeeper types.BankKeeper,
 	slashingKeeper types.SlashingKeeper,
@@ -95,7 +92,6 @@ func NewKeeper(
 		cdc:            cdc,
 		storeKey:       storeKey,
 		memKey:         memKey,
-		archiveStore:   archiveStore,
 		StakingKeeper:  stakingKeeper,
 		bankKeeper:     bankKeeper,
 		DistKeeper:     distKeeper,

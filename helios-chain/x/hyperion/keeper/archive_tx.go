@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	archive_store_prefix "helios-core/helios-chain/archive_store/prefix"
 	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/testnet"
 	"helios-core/helios-chain/x/hyperion/types"
@@ -23,7 +22,8 @@ func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
 	tx.Index = lastIndex + 1
 
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		k.archiveStore.Set(append(types.ArchiveStoreFinalizedTxKey, types.GetArchiveStoreFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.Index)...), k.cdc.MustMarshal(tx))
+		store := ctx.ArchiveStore(k.storeKey)
+		store.Set(append(types.ArchiveStoreFinalizedTxKey, types.GetArchiveStoreFinalizedTxKey(cmn.AnyToHexAddress(tx.Sender), tx.Index)...), k.cdc.MustMarshal(tx))
 	} else {
 		store := ctx.KVStore(k.storeKey)
 		finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
@@ -40,7 +40,8 @@ func (k *Keeper) StoreFinalizedTx(ctx sdk.Context, tx *types.TransferTx) {
 		tx.Index = lastIndexOfDestAddress + 1
 
 		if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-			k.archiveStore.Set(append(types.ArchiveStoreFinalizedTxKey, types.GetArchiveStoreFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index)...), k.cdc.MustMarshal(tx))
+			store := ctx.ArchiveStore(k.storeKey)
+			store.Set(append(types.ArchiveStoreFinalizedTxKey, types.GetArchiveStoreFinalizedTxKey(cmn.AnyToHexAddress(tx.DestAddress), tx.Index)...), k.cdc.MustMarshal(tx))
 		} else {
 			store := ctx.KVStore(k.storeKey)
 			finalizedTxStore := prefix.NewStore(store, types.FinalizedTxKey)
@@ -61,7 +62,8 @@ func (k *Keeper) StoreLastFinalizedTxIndex(ctx sdk.Context, tx *types.TransferTx
 			lastFinalizedTxs.Txs = lastFinalizedTxs.Txs[len(lastFinalizedTxs.Txs)-100:]
 		}
 
-		k.archiveStore.Set(types.ArchiveStoreLastFinalizedTxIndexKey, k.cdc.MustMarshal(&lastFinalizedTxs))
+		store := ctx.ArchiveStore(k.storeKey)
+		store.Set(types.ArchiveStoreLastFinalizedTxIndexKey, k.cdc.MustMarshal(&lastFinalizedTxs))
 	} else {
 		store := ctx.KVStore(k.storeKey)
 		lastFinalizedTxIndexStore := prefix.NewStore(store, types.LastFinalizedTxIndexKey)
@@ -82,7 +84,8 @@ func (k *Keeper) StoreLastFinalizedTxIndex(ctx sdk.Context, tx *types.TransferTx
 
 func (k *Keeper) GetLastFinalizedTxIndex(ctx sdk.Context) (types.LastFinalizedTxIndex, error) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		lastFinalizedTxs := k.archiveStore.Get(types.ArchiveStoreLastFinalizedTxIndexKey)
+		store := ctx.ArchiveStore(k.storeKey)
+		lastFinalizedTxs := store.Get(types.ArchiveStoreLastFinalizedTxIndexKey)
 		if lastFinalizedTxs == nil {
 			return types.LastFinalizedTxIndex{}, nil
 		}
@@ -105,7 +108,8 @@ func (k *Keeper) GetLastFinalizedTxIndex(ctx sdk.Context) (types.LastFinalizedTx
 func (k *Keeper) FindLastFinalizedTxIndex(ctx sdk.Context, addr common.Address) (uint64, error) {
 
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		finalizedTxStore := archive_store_prefix.NewStore(k.archiveStore, types.ArchiveStoreFinalizedTxKey)
+		store := ctx.ArchiveStore(k.storeKey)
+		finalizedTxStore := prefix.NewStore(store, types.ArchiveStoreFinalizedTxKey)
 		iter := finalizedTxStore.ReverseIterator(PrefixRange(types.GetArchiveStoreFinalizedTxAddressPrefixKey(addr)))
 		defer iter.Close()
 
@@ -134,7 +138,8 @@ func (k *Keeper) FindLastFinalizedTxIndex(ctx sdk.Context, addr common.Address) 
 
 func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*types.TransferTx, error) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		finalizedTxStore := archive_store_prefix.NewStore(k.archiveStore, types.ArchiveStoreFinalizedTxKey)
+		store := ctx.ArchiveStore(k.storeKey)
+		finalizedTxStore := prefix.NewStore(store, types.ArchiveStoreFinalizedTxKey)
 		iter := finalizedTxStore.Iterator(PrefixRange(types.GetArchiveStoreFinalizedTxAddressPrefixKey(addr)))
 		defer iter.Close()
 
@@ -165,7 +170,8 @@ func (k *Keeper) FindFinalizedTxs(ctx sdk.Context, addr common.Address) ([]*type
 
 func (k *Keeper) FindFinalizedTxsByIndexToIndex(ctx sdk.Context, addr common.Address, startIndex uint64, endIndex uint64) ([]*types.TransferTx, error) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		finalizedTxStore := archive_store_prefix.NewStore(k.archiveStore, types.ArchiveStoreFinalizedTxKey)
+		store := ctx.ArchiveStore(k.storeKey)
+		finalizedTxStore := prefix.NewStore(store, types.ArchiveStoreFinalizedTxKey)
 		start, _ := PrefixRange(types.GetArchiveStoreFinalizedTxAddressAndTxIndexPrefixKey(addr, startIndex+1))
 		end, _ := PrefixRange(types.GetArchiveStoreFinalizedTxAddressAndTxIndexPrefixKey(addr, endIndex+1))
 		iter := finalizedTxStore.Iterator(start, end)

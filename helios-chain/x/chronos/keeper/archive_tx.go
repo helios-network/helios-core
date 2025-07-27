@@ -13,7 +13,7 @@ import (
 
 func (k *Keeper) GetArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		bz := k.archiveStore.Get([]byte(strconv.FormatUint(id, 10)))
+		bz := ctx.ArchiveStore(k.storeKey).Get([]byte(strconv.FormatUint(id, 10)))
 		if bz == nil {
 			return types.Cron{}, false
 		}
@@ -35,7 +35,7 @@ func (k *Keeper) GetArchivedCron(ctx sdk.Context, id uint64) (types.Cron, bool) 
 
 func (k *Keeper) GetCronTransactionResultByNonce(ctx sdk.Context, nonce uint64) (types.CronTransactionResult, bool) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		bz := k.archiveStore.Get(append(types.ArchiveStoreTxKey, strconv.FormatUint(nonce, 10)...))
+		bz := ctx.ArchiveStore(k.storeKey).Get(append(types.ArchiveStoreTxKey, strconv.FormatUint(nonce, 10)...))
 		if bz == nil {
 			return types.CronTransactionResult{}, false
 		}
@@ -143,11 +143,11 @@ func (k *Keeper) GetCronTransactionLogsByBlockNumber(ctx sdk.Context, blockNumbe
 }
 
 func (k *Keeper) SetTotalCronCount(ctx sdk.Context, count uint64) {
-	k.archiveStore.Set(types.ArchiveStoreCronCountKey, sdk.Uint64ToBigEndian(count))
+	ctx.ArchiveStore(k.storeKey).Set(types.ArchiveStoreCronCountKey, sdk.Uint64ToBigEndian(count))
 }
 
 func (k *Keeper) GetTotalCronCount(ctx sdk.Context) uint64 {
-	bz := k.archiveStore.Get(types.ArchiveStoreCronCountKey)
+	bz := ctx.ArchiveStore(k.storeKey).Get(types.ArchiveStoreCronCountKey)
 	if bz == nil {
 		return 0
 	}
@@ -157,7 +157,8 @@ func (k *Keeper) GetTotalCronCount(ctx sdk.Context) uint64 {
 func (k *Keeper) StoreChangeArchivedTotalCount(ctx sdk.Context, increment int32) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
 		count := k.GetArchivedCronCount(ctx) + increment
-		k.archiveStore.Set(types.ArchiveStoreArchivedCronCountKey, sdk.Uint64ToBigEndian(uint64(count)))
+		store := ctx.ArchiveStore(k.storeKey)
+		store.Set(types.ArchiveStoreArchivedCronCountKey, sdk.Uint64ToBigEndian(uint64(count)))
 	} else {
 		store := ctx.KVStore(k.storeKey)
 		count := k.GetArchivedCronCount(ctx) + increment
@@ -167,7 +168,7 @@ func (k *Keeper) StoreChangeArchivedTotalCount(ctx sdk.Context, increment int32)
 
 func (k *Keeper) GetArchivedCronCount(ctx sdk.Context) int32 {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		bz := k.archiveStore.Get(types.ArchiveStoreArchivedCronCountKey)
+		bz := ctx.ArchiveStore(k.storeKey).Get(types.ArchiveStoreArchivedCronCountKey)
 		if bz == nil {
 			return 0
 		}
@@ -184,7 +185,7 @@ func (k *Keeper) GetArchivedCronCount(ctx sdk.Context) int32 {
 
 func (k *Keeper) StoreChangeCronRefundedLastBlockTotalCount(ctx sdk.Context, count uint64) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		k.archiveStore.Set(types.ArchiveStoreRefundedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
+		ctx.ArchiveStore(k.storeKey).Set(types.ArchiveStoreRefundedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
 	} else {
 		store := ctx.KVStore(k.storeKey)
 		store.Set(types.CronRefundedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
@@ -193,7 +194,7 @@ func (k *Keeper) StoreChangeCronRefundedLastBlockTotalCount(ctx sdk.Context, cou
 
 func (k *Keeper) GetCronRefundedLastBlockCount(ctx sdk.Context) uint64 {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		bz := k.archiveStore.Get(types.ArchiveStoreRefundedLastBlockCountKey)
+		bz := ctx.ArchiveStore(k.storeKey).Get(types.ArchiveStoreRefundedLastBlockCountKey)
 		if bz == nil {
 			return 0
 		}
@@ -210,7 +211,7 @@ func (k *Keeper) GetCronRefundedLastBlockCount(ctx sdk.Context) uint64 {
 
 func (k *Keeper) StoreChangeCronExecutedLastBlockTotalCount(ctx sdk.Context, count uint64) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		k.archiveStore.Set(types.ArchiveStoreExecutedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
+		ctx.ArchiveStore(k.storeKey).Set(types.ArchiveStoreExecutedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
 	} else {
 		store := ctx.KVStore(k.storeKey)
 		store.Set(types.CronExecutedLastBlockCountKey, sdk.Uint64ToBigEndian(count))
@@ -219,7 +220,7 @@ func (k *Keeper) StoreChangeCronExecutedLastBlockTotalCount(ctx sdk.Context, cou
 
 func (k *Keeper) GetCronExecutedLastBlockCount(ctx sdk.Context) uint64 {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		bz := k.archiveStore.Get(types.ArchiveStoreExecutedLastBlockCountKey)
+		bz := ctx.ArchiveStore(k.storeKey).Get(types.ArchiveStoreExecutedLastBlockCountKey)
 		if bz == nil {
 			return 0
 		}
@@ -237,7 +238,7 @@ func (k *Keeper) GetCronExecutedLastBlockCount(ctx sdk.Context) uint64 {
 func (k *Keeper) StoreArchiveCron(ctx sdk.Context, cron types.Cron) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
 		cron.Archived = true
-		k.archiveStore.Set([]byte(strconv.FormatUint(cron.Id, 10)), k.cdc.MustMarshal(&cron))
+		ctx.ArchiveStore(k.storeKey).Set([]byte(strconv.FormatUint(cron.Id, 10)), k.cdc.MustMarshal(&cron))
 		return
 	}
 	cron.Archived = true
@@ -249,7 +250,7 @@ func (k *Keeper) StoreArchiveCron(ctx sdk.Context, cron types.Cron) {
 func (k *Keeper) GetBlockTxHashs(ctx sdk.Context, blockNumber uint64) ([]string, bool) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
 		key := append(types.ArchiveStoreBlockTransactionHashsKey, strconv.FormatUint(blockNumber, 10)...)
-		bz := k.archiveStore.Get(key)
+		bz := ctx.ArchiveStore(k.storeKey).Get(key)
 		if bz == nil {
 			return []string{}, false
 		}
@@ -282,7 +283,7 @@ func (k *Keeper) StoreSetTransactionHashInBlock(ctx sdk.Context, blockNumber uin
 		txHashes = append(txHashes, txHash)
 
 		bz, _ := json.Marshal(&txHashes)
-		k.archiveStore.Set(key, bz)
+		ctx.ArchiveStore(k.storeKey).Set(key, bz)
 	} else {
 		store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronBlockTransactionHashsKey)
 
@@ -296,7 +297,7 @@ func (k *Keeper) StoreSetTransactionHashInBlock(ctx sdk.Context, blockNumber uin
 
 func (k *Keeper) GetTxNonceByHash(ctx sdk.Context, txHash string) (uint64, bool) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		bz := k.archiveStore.Get([]byte(txHash))
+		bz := ctx.ArchiveStore(k.storeKey).Get([]byte(txHash))
 		if bz == nil {
 			return 0, false
 		}
@@ -315,7 +316,7 @@ func (k *Keeper) GetTxNonceByHash(ctx sdk.Context, txHash string) (uint64, bool)
 
 func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, nonce uint64) {
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		k.archiveStore.Set([]byte(txHash), sdk.Uint64ToBigEndian(nonce))
+		ctx.ArchiveStore(k.storeKey).Set([]byte(txHash), sdk.Uint64ToBigEndian(nonce))
 	} else {
 		store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronTransactionHashToNonceKey)
 		store.Set([]byte(txHash), sdk.Uint64ToBigEndian(nonce))
@@ -325,8 +326,8 @@ func (k *Keeper) StoreSetTransactionNonceByHash(ctx sdk.Context, txHash string, 
 func (k *Keeper) StoreCronTransactionResult(ctx sdk.Context, cron types.Cron, tx types.CronTransactionResult) {
 
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
-		k.archiveStore.Set(append(types.ArchiveStoreTxKey, strconv.FormatUint(tx.Nonce, 10)...), k.cdc.MustMarshal(&tx))
-		k.archiveStore.Set(append(append(types.ArchiveStoreCronTxNonceKey, strconv.FormatUint(cron.Id, 10)...), strconv.FormatUint(tx.Nonce, 10)...), []byte{})
+		ctx.ArchiveStore(k.storeKey).Set(append(types.ArchiveStoreTxKey, strconv.FormatUint(tx.Nonce, 10)...), k.cdc.MustMarshal(&tx))
+		ctx.ArchiveStore(k.storeKey).Set(append(append(types.ArchiveStoreCronTxNonceKey, strconv.FormatUint(cron.Id, 10)...), strconv.FormatUint(tx.Nonce, 10)...), []byte{})
 		return
 	}
 

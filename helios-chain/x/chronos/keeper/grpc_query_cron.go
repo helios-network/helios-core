@@ -4,8 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	archive_store_prefix "helios-core/helios-chain/archive_store/prefix"
-	archive_store_query "helios-core/helios-chain/archive_store/query"
 	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/testnet"
 
@@ -247,9 +245,10 @@ func (k Keeper) QueryGetCronTransactionReceiptsByPageAndSize(ctx context.Context
 	var cronsTxReceipts []*types.CronTransactionReceiptRPC
 
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(sdkCtx.BlockHeight()) {
-		cronIndexStore := archive_store_prefix.NewStore(k.archiveStore, append(types.ArchiveStoreCronTransactionResultByCronIdKey, strconv.FormatUint(cronId, 10)...))
-		pageRes, err := archive_store_query.Paginate(cronIndexStore, req.Pagination, func(key, _ []byte) error {
-			txBz := k.archiveStore.Get(append(types.ArchiveStoreTxKey, key...))
+		store := sdkCtx.ArchiveStore(k.storeKey)
+		cronIndexStore := prefix.NewStore(store, append(types.ArchiveStoreCronTransactionResultByCronIdKey, strconv.FormatUint(cronId, 10)...))
+		pageRes, err := query.Paginate(cronIndexStore, req.Pagination, func(key, _ []byte) error {
+			txBz := store.Get(append(types.ArchiveStoreTxKey, key...))
 			if txBz == nil {
 				return nil // ou gestion d'erreur
 			}
@@ -320,9 +319,10 @@ func (k Keeper) QueryGetCronTransactionsByPageAndSize(ctx context.Context, req *
 
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(sdkCtx.BlockHeight()) {
 		var cronsTxs []*types.CronTransactionRPC
-		cronIndexStore := archive_store_prefix.NewStore(k.archiveStore, append(types.ArchiveStoreCronTxNonceKey, strconv.FormatUint(cronId, 10)...))
-		pageRes, err := archive_store_query.Paginate(cronIndexStore, req.Pagination, func(key, _ []byte) error {
-			txBz := k.archiveStore.Get(append(types.ArchiveStoreTxKey, key...))
+		store := sdkCtx.ArchiveStore(k.storeKey)
+		cronIndexStore := prefix.NewStore(store, append(types.ArchiveStoreCronTxNonceKey, strconv.FormatUint(cronId, 10)...))
+		pageRes, err := query.Paginate(cronIndexStore, req.Pagination, func(key, _ []byte) error {
+			txBz := store.Get(append(types.ArchiveStoreTxKey, key...))
 			if txBz == nil {
 				return nil // ou gestion d'erreur
 			}
@@ -390,8 +390,9 @@ func (k Keeper) QueryGetAllCronTransactionReceiptsByPageAndSize(c context.Contex
 	ctx := sdk.UnwrapSDKContext(c)
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
 		var cronsTxReceipts []*types.CronTransactionReceiptRPC
-		cronIndexStore := archive_store_prefix.NewStore(k.archiveStore, types.ArchiveStoreTxKey)
-		pageRes, err := archive_store_query.Paginate(cronIndexStore, req.Pagination, func(_, value []byte) error {
+		store := ctx.ArchiveStore(k.storeKey)
+		cronIndexStore := prefix.NewStore(store, types.ArchiveStoreTxKey)
+		pageRes, err := query.Paginate(cronIndexStore, req.Pagination, func(_, value []byte) error {
 			var tx types.CronTransactionResult
 			if err := k.cdc.Unmarshal(value, &tx); err != nil {
 				return err
@@ -448,8 +449,9 @@ func (k Keeper) QueryGetAllCronTransactionsByPageAndSize(c context.Context, req 
 
 	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_0 < int64(ctx.BlockHeight()) {
 		var cronsTxs []*types.CronTransactionRPC
-		cronIndexStore := archive_store_prefix.NewStore(k.archiveStore, types.ArchiveStoreTxKey)
-		pageRes, err := archive_store_query.Paginate(cronIndexStore, req.Pagination, func(_, value []byte) error {
+		store := ctx.ArchiveStore(k.storeKey)
+		cronIndexStore := prefix.NewStore(store, types.ArchiveStoreTxKey)
+		pageRes, err := query.Paginate(cronIndexStore, req.Pagination, func(_, value []byte) error {
 			var tx types.CronTransactionResult
 			if err := k.cdc.Unmarshal(value, &tx); err != nil {
 				return err

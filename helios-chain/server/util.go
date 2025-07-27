@@ -51,7 +51,6 @@ func AddCommands(
 		startCmd,
 		tendermintCmd,
 		sdkserver.ExportCmd(appExport, opts.DefaultNodeHome),
-		sdkserver.ExportSoftResetCmd(appExport, opts.DefaultNodeHome),
 		version.NewVersionCommand(),
 		sdkserver.NewRollbackCmd(opts.AppCreator, opts.DefaultNodeHome),
 

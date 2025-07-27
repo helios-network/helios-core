@@ -42,8 +42,6 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 
-	archive_store "helios-core/helios-chain/archive_store"
-
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -300,8 +298,6 @@ var _ runtime.AppI = (*HeliosApp)(nil)
 // HeliosApp implements an extended ABCI application.
 type HeliosApp struct {
 	*baseapp.BaseApp
-	bridgeDB          dbm.DB
-	chronosDB         dbm.DB
 	amino             *codec.LegacyAmino
 	codec             codec.Codec
 	interfaceRegistry types.InterfaceRegistry
@@ -374,8 +370,7 @@ type HeliosApp struct {
 func NewHeliosApp(
 	logger log.Logger,
 	db dbm.DB,
-	bridgeDB dbm.DB,
-	chronosDB dbm.DB,
+	archiveDBs map[string]dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
@@ -383,7 +378,7 @@ func NewHeliosApp(
 ) *HeliosApp {
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
-	app := initHeliosApp(appName, logger, db, bridgeDB, chronosDB, traceStore, baseAppOptions...)
+	app := initHeliosApp(appName, logger, db, archiveDBs, traceStore, baseAppOptions...)
 
 	app.initKeepers(authority, appOpts)
 	app.initManagers()
@@ -476,8 +471,7 @@ func initHeliosApp(
 	name string,
 	logger log.Logger,
 	db dbm.DB,
-	bridgeDB dbm.DB,
-	chronosDB dbm.DB,
+	archiveDBs map[string]dbm.DB,
 	traceStore io.Writer,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *HeliosApp {
@@ -531,6 +525,10 @@ func initHeliosApp(
 		name,
 		logger,
 		db,
+		map[string]dbm.DB{
+			keys[hyperiontypes.StoreKey].Name(): archiveDBs[hyperiontypes.StoreKey],
+			keys[chronostypes.StoreKey].Name():  archiveDBs[chronostypes.StoreKey],
+		},
 		encodingConfig.TxConfig.TxDecoder(), // NOTE we use custom Helios transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
 		baseAppOptions...,
 	)
@@ -553,8 +551,6 @@ func initHeliosApp(
 		keys:              keys,
 		tKeys:             tKeys,
 		memKeys:           memKeys,
-		bridgeDB:          bridgeDB,
-		chronosDB:         chronosDB,
 	}
 
 	return app
@@ -1103,7 +1099,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.codec,
 		app.keys[chronostypes.StoreKey],
 		app.keys[chronostypes.MemStoreKey],
-		archive_store.NewDBArchiveStore(app.chronosDB, []byte{}),
 		app.AccountKeeper,
 		app.EvmKeeper,
 		app.BankKeeper,
@@ -1118,7 +1113,6 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		app.codec,
 		app.keys[hyperiontypes.StoreKey],
 		app.memKeys[capabilitytypes.MemStoreKey],
-		archive_store.NewDBArchiveStore(app.bridgeDB, []byte{}),
 		app.StakingKeeper,
 		app.BankKeeper,
 		app.SlashingKeeper,

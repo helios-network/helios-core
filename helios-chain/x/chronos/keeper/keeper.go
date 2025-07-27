@@ -12,7 +12,6 @@ import (
 	"cosmossdk.io/log"
 	"github.com/hashicorp/go-metrics"
 
-	"helios-core/helios-chain/archive_store"
 	cmn "helios-core/helios-chain/precompiles/common"
 	rpctypes "helios-core/helios-chain/rpc/types"
 	"helios-core/helios-chain/testnet"
@@ -42,10 +41,9 @@ import (
 )
 
 type Keeper struct {
-	cdc          codec.BinaryCodec
-	storeKey     storetypes.StoreKey
-	memKey       storetypes.StoreKey
-	archiveStore archive_store.ArchiveStore
+	cdc      codec.BinaryCodec
+	storeKey storetypes.StoreKey
+	memKey   storetypes.StoreKey
 
 	accountKeeper types.AccountKeeper
 	EvmKeeper     types.EVMKeeper
@@ -56,7 +54,6 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey,
 	memKey storetypes.StoreKey,
-	archiveStore archive_store.ArchiveStore,
 	accountKeeper types.AccountKeeper,
 	evmKeeper types.EVMKeeper,
 	bankKeeper bankkeeper.Keeper,
@@ -65,7 +62,6 @@ func NewKeeper(
 		cdc:           cdc,
 		storeKey:      storeKey,
 		memKey:        memKey,
-		archiveStore:  archiveStore,
 		accountKeeper: accountKeeper,
 		EvmKeeper:     evmKeeper,
 		bankKeeper:    bankKeeper,
