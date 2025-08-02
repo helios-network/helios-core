@@ -367,21 +367,15 @@ func (p *Precompile) HyperionProposal(
 		Msg:         hyperionProposalArgs.Msg,
 	}
 
-	fmt.Println("proposalContent: ", proposalContent)
-
 	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
 	if err != nil {
 		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
 	}
 
-	fmt.Println("contentMsg: ", contentMsg)
-
 	contentAny, err := codectypes.NewAnyWithValue(contentMsg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack content message: %w", err)
 	}
-
-	fmt.Println("contentAny: ", contentAny)
 
 	msg := &v1.MsgSubmitProposal{
 		Messages: []*codectypes.Any{contentAny},
@@ -394,16 +388,12 @@ func (p *Precompile) HyperionProposal(
 		Summary:  hyperionProposalArgs.Description,
 	}
 
-	fmt.Println("msg: ", msg)
-
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
 	proposal, err := msgSrv.SubmitProposal(ctx, msg)
 	if err != nil {
 		fmt.Println("error: ", err)
 		return nil, err
 	}
-
-	fmt.Println("proposal: ", proposal)
 
 	return method.Outputs.Pack(proposal.ProposalId)
 }

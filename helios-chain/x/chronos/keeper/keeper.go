@@ -480,7 +480,7 @@ func (k *Keeper) GetCronTransaction(ctx sdk.Context, cron types.Cron, nonce uint
 		return nil, fmt.Errorf("failed to parse params: %w", err)
 	}
 
-	k.Logger(ctx).Info("ABI packing", "cron_id", cron.Id, "cron.MethodName", cron.MethodName, "parsedParams", parsedParams)
+	// k.Logger(ctx).Info("ABI packing", "cron_id", cron.Id, "cron.MethodName", cron.MethodName, "parsedParams", parsedParams)
 	// Pack the call data
 	callData, err := contractABI.Pack(cron.MethodName, parsedParams...)
 	if err != nil {
@@ -695,15 +695,15 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 		return nil, err
 	}
 	// 7. refund gas in order to match the Ethereum gas consumption
-	remaining := new(big.Int).Mul(new(big.Int).SetUint64(msg.Gas()-res.GasUsed), msg.GasPrice())
-	refundCoins := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remaining))}
-	k.Logger(ctx).Info("RefundFees", "fees", refundCoins, "receiver", msg.From().String())
+	// remaining := new(big.Int).Mul(new(big.Int).SetUint64(msg.Gas()-res.GasUsed), msg.GasPrice())
+	// refundCoins := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remaining))}
+	// k.Logger(ctx).Info("RefundFees", "fees", refundCoins, "receiver", msg.From().String())
 
 	msgForRefund := k.TxAsMessage(tx, nil, cmn.AnyToHexAddress(cron.Address))
 
 	remainingR := new(big.Int).Mul(new(big.Int).SetUint64(msgForRefund.Gas()-res.GasUsed), msgForRefund.GasPrice())
 	refundCoinsR := sdk.Coins{sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(remainingR))}
-	k.Logger(ctx).Info("RefundFees", "fees", refundCoinsR, "receiver", msgForRefund.From().String())
+	// k.Logger(ctx).Info("RefundFees", "fees", refundCoinsR, "receiver", msgForRefund.From().String())
 
 	if err = k.EvmKeeper.RefundGas(ctx, msgForRefund, msgForRefund.Gas()-res.GasUsed, baseDenom); err != nil {
 		return nil, errors.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())

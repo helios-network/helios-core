@@ -173,11 +173,11 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().Bool(server.FlagInterBlockCache, true, "Enable inter-block caching")
 	cmd.Flags().String(srvflags.CPUProfile, "", "Enable CPU profiling and write to the provided file")
 	cmd.Flags().Bool(server.FlagTrace, false, "Provide full stack traces for errors in ABCI Log")
-	cmd.Flags().String(server.FlagPruning, pruningtypes.PruningOptionDefault, "Pruning strategy (default|nothing|everything|custom)")
-	cmd.Flags().Uint64(server.FlagPruningKeepRecent, 0, "Number of recent heights to keep on disk (ignored if pruning is not 'custom')")
-	cmd.Flags().Uint64(server.FlagPruningInterval, 0, "Height interval at which pruned heights are removed from disk (ignored if pruning is not 'custom')") //nolint:lll
+	cmd.Flags().String(server.FlagPruning, pruningtypes.PruningOptionCustom, "Pruning strategy (default|nothing|everything|custom)")
+	cmd.Flags().Uint64(server.FlagPruningKeepRecent, 172800, "Number of recent heights to keep on disk (ignored if pruning is not 'custom')")
+	cmd.Flags().Uint64(server.FlagPruningInterval, 10, "Height interval at which pruned heights are removed from disk (ignored if pruning is not 'custom')") //nolint:lll
 	cmd.Flags().Uint(server.FlagInvCheckPeriod, 0, "Assert registered invariants every N blocks")
-	cmd.Flags().Uint64(server.FlagMinRetainBlocks, 0, "Minimum block height offset during ABCI commit to prune CometBFT blocks")
+	cmd.Flags().Uint64(server.FlagMinRetainBlocks, 10, "Minimum block height offset during ABCI commit to prune CometBFT blocks")
 	cmd.Flags().Bool(server.FlagSkipEvidenceRetention, false, "Skip evidence retention")
 	cmd.Flags().String(srvflags.AppDBBackend, "", "The type of database for application and snapshots databases")
 
@@ -222,6 +222,8 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().Uint64(server.FlagBackupBlockInterval, 1000, "Backup every N blocks (default: 1000)")
 	cmd.Flags().String(server.FlagBackupDir, "./backups", "Backup directory path")
 	cmd.Flags().Uint64(server.FlagBackupMinRetainBackups, 2, "Minimum number of backups to retain")
+
+	cmd.Flags().Bool(server.FlagArchiveMode, config.DefaultArchiveMode, "Enable archive mode")
 
 	// add support for all CometBFT-specific command line options
 	tcmd.AddNodeFlags(cmd)

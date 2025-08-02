@@ -24,11 +24,13 @@ import (
 
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/snapshots"
+
 	snapshottypes "cosmossdk.io/store/snapshots/types"
 	storetypes "cosmossdk.io/store/types"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/backups"
 	clientcfg "github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/db"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -199,6 +201,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		db.BlockstoreCmd(a.newApp, app.DefaultNodeHome),
 		db.StatedbCmd(a.newApp, app.DefaultNodeHome),
 		snapshot.Cmd(a.newApp),
+		backups.Cmd(a.newApp, app.DefaultNodeHome),
 		block.Cmd(),
 	)
 
@@ -407,6 +410,10 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	options = append(options, baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))))
 	options = append(options, baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagDisableIAVLFastNode))))
 	options = append(options, baseapp.SetChainID(chainID))
+
+	if cast.ToBool(appOpts.Get(sdkserver.FlagArchiveMode)) {
+		options = append(options, baseapp.SetArchiveMode(true))
+	}
 
 	if cast.ToBool(appOpts.Get(sdkserver.FlagBackupEnable)) {
 		options = append(options, baseapp.SetBackupConfig(

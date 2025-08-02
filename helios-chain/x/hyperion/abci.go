@@ -74,7 +74,6 @@ func (h *BlockHandler) createValsets(ctx sdk.Context, params *types.Counterparty
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) ||
 		(types.BridgeValidators(h.k.GetCurrentValset(ctx, params.HyperionId).Members).PowerDiff(latestValset.Members) > 0.05) {
 		// if the conditions are true, put in a new validator set request to be signed and submitted to Ethereum
-		h.k.Logger(ctx).Info("HYPERION - ABCI.go - createValsets -> SetValsetRequest", "hyperionId", params.HyperionId)
 		h.k.SetValsetRequest(ctx, params.HyperionId, params.OffsetValsetNonce)
 	}
 }
@@ -209,7 +208,6 @@ func (h *BlockHandler) attestationTally(ctx sdk.Context, counterParty *types.Cou
 	attmap := h.k.GetAttestationMapping(ctx, hyperionId)
 	// We make a slice with all the event nonces that are in the attestation mapping
 	keys := make([]uint64, 0, len(attmap))
-	h.k.Logger(ctx).Info("HYPERION - ABCI.go - attestationTally ->", "attmap", len(attmap))
 	for k := range attmap {
 		keys = append(keys, k)
 	}

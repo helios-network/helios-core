@@ -153,6 +153,9 @@ const (
 
 	// DefaultCDNEnable is the default value that defines if the CDN server is enabled
 	DefaultCDNEnable = true
+
+	// DefaultArchiveMode is the default value that defines if the archive mode is enabled
+	DefaultArchiveMode = true
 )
 
 // DefaultRosettaGasPrices defines the default list of prices to suggest

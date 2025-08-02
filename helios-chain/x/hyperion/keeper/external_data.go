@@ -174,7 +174,6 @@ func (k *Keeper) rewardVotersOfExternalDataTx(ctx sdk.Context, hyperionId uint64
 		orchestrator := cmn.AnyToHexAddress(voteSplit[0])
 		orchestratorAddr := cmn.AccAddressFromHexAddress(orchestrator)
 		k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, orchestratorAddr, sdk.NewCoins(sdk.NewCoin(tokenPair.Denom, sdkmath.NewIntFromBigInt(rewardPerVote))))
-		k.Logger(ctx).Info("HYPERION - ABCI.go - rewardVotersOfExternalDataTx -> rewardPerVote", "rewardPerVote", rewardPerVote, "orchestratorAddr", orchestratorAddr)
 
 		// Update orchestrator data
 		orchestratorData, err := k.GetOrchestratorHyperionData(ctx, orchestratorAddr, tx.HyperionId)
@@ -211,7 +210,6 @@ func (k *Keeper) RefundExternalData(ctx sdk.Context, tx types.OutgoingExternalDa
 		return
 	}
 	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cmn.AccAddressFromHexAddressString(tx.Sender), sdk.NewCoins(sdk.NewCoin(tokenPair.Denom, tx.Fee.Amount)))
-	k.Logger(ctx).Info("HYPERION - ABCI.go - RefundExternalData -> refund", "txId", tx.Id, "sender", tx.Sender, "amount", tx.Fee.Amount, "tokenAddressFee", tokenPair.Denom)
 }
 
 // DeleteBatch deletes an outgoing transaction batch
