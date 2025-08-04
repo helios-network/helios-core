@@ -1274,7 +1274,7 @@ func (k *Keeper) GetBatchFees(ctx sdk.Context) *types.BatchFeesWithIds {
 		for _, idAndTimestamp := range ids.Ids {
 			if idAndTimestamp.Timestamp < uint64(ctx.BlockTime().Unix())-types.DefaultCronQueueTimeout {
 				batchFees.ExpiredIds = append(batchFees.ExpiredIds, idAndTimestamp.Id)
-				batchFees.TotalQueueCount++
+				// batchFees.TotalQueueCount++
 				continue
 			}
 			if batchFees.TotalQueueCount >= params.ExecutionsLimitPerBlock {
