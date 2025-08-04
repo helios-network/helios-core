@@ -9,14 +9,17 @@ ERC20Creator constant ERC20CREATOR_CONTRACT = ERC20Creator(ERC20Creator_PRECOMPI
 
 interface ERC20Creator {
     /**
-     * @dev Creates a new ERC20 token with the specified parameters.
+     * @dev Creates a new ERC20 token with the specified parameters and role authorities.
      * Returns the address of the newly created ERC20 token.
      * @param name The name of the ERC20 token.
      * @param symbol The symbol of the ERC20 token.
-     * @param denom The denomimation of one unit of the ERC20 token.
+     * @param denom The denomination of one unit of the ERC20 token.
      * @param totalSupply The total supply of the ERC20 token.
      * @param decimals The number of decimals of the ERC20 token.
-     * @param logoBase64 The logo in base64 png 200x200 optionnal "".
+     * @param logoBase64 The logo in base64 png 200x200 optional "".
+     * @param mintAuthority Who can mint tokens (address(0) = non-mintable).
+     * @param pauseAuthority Who can pause/unpause transfers (address(0) = non-pausable).
+     * @param burnAuthority Who can burn tokens (address(0) = no special burn authority).
      * @return tokenAddress The address of the newly created ERC20 token.
      */
     function createErc20(
@@ -25,6 +28,9 @@ interface ERC20Creator {
         string memory denom,
         uint256 totalSupply,
         uint8 decimals,
-        string memory logoBase64
+        string memory logoBase64,
+        address mintAuthority,
+        address pauseAuthority,
+        address burnAuthority
     ) external returns (address tokenAddress);
 }
