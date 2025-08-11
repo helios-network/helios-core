@@ -20,6 +20,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
+	"helios-core/helios-chain/testnet"
 	"helios-core/helios-chain/x/chronos/client/cli"
 	"helios-core/helios-chain/x/chronos/keeper"
 	"helios-core/helios-chain/x/chronos/types"
@@ -174,31 +175,68 @@ func (am AppModule) EndBlock(ctx context.Context) error {
 	// todo push ready crons to the queue (priority based on the fees priority)
 	am.keeper.PushReadyCronsToQueue(sdkctx)
 
-	// get batch fees from the queue (priority based on the maxGasPrice)
-	batchFees := am.keeper.GetBatchFees(sdkctx)
+	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_3 < sdkctx.BlockHeight() {
+		cronGasLimit := types.DefaultMaxCronGasPerBlock
+		totalGasUsed := uint64(0)
 
-	// execute crons from the queue in batch of params.ExecutionsLimitPerBlock
-	am.keeper.ExecuteCrons(sdkctx, batchFees)
+		for {
+			batchFees := am.keeper.GetBatchFees(sdkctx)
 
-	// remove expired crons from the queue
-	for _, id := range batchFees.ExpiredIds {
-		cron, ok := am.keeper.GetCron(sdkctx, id)
-		if !ok {
-			continue
+			gasUsed, tasksExecuted, executedCrons := am.keeper.ExecuteCronsWithLimit(sdkctx, batchFees, totalGasUsed, cronGasLimit)
+
+			totalGasUsed += gasUsed
+
+			// remove expired crons from the queue
+			for _, id := range batchFees.ExpiredIds {
+				cron, ok := am.keeper.GetCron(sdkctx, id)
+				if !ok {
+					continue
+				}
+				am.keeper.RemoveFromCronQueue(sdkctx, cron)
+			}
+
+			// remove crons from the queue after execution
+			for _, id := range executedCrons {
+				cron, ok := am.keeper.GetCron(sdkctx, id)
+				if !ok {
+					continue
+				}
+				am.keeper.RemoveFromCronQueue(sdkctx, cron)
+			}
+			am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
+
+			if gasUsed == 0 || tasksExecuted == 0 || totalGasUsed >= cronGasLimit {
+				break
+			}
 		}
-		am.keeper.RemoveFromCronQueue(sdkctx, cron)
-	}
 
-	// remove crons from the queue after execution
-	for _, id := range batchFees.Ids {
-		cron, ok := am.keeper.GetCron(sdkctx, id)
-		if !ok {
-			continue
+	} else {
+		// get batch fees from the queue (priority based on the maxGasPrice)
+		batchFees := am.keeper.GetBatchFees(sdkctx)
+
+		// execute crons from the queue in batch of params.ExecutionsLimitPerBlock
+		am.keeper.ExecuteCrons(sdkctx, batchFees)
+
+		// remove expired crons from the queue
+		for _, id := range batchFees.ExpiredIds {
+			cron, ok := am.keeper.GetCron(sdkctx, id)
+			if !ok {
+				continue
+			}
+			am.keeper.RemoveFromCronQueue(sdkctx, cron)
 		}
-		am.keeper.RemoveFromCronQueue(sdkctx, cron)
-	}
 
-	am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
+		// remove crons from the queue after execution
+		for _, id := range batchFees.Ids {
+			cron, ok := am.keeper.GetCron(sdkctx, id)
+			if !ok {
+				continue
+			}
+			am.keeper.RemoveFromCronQueue(sdkctx, cron)
+		}
+
+		am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
+	}
 
 	return nil
 }

@@ -13,9 +13,10 @@ var (
 	KeyCronActiveGasCostPerBlock = []byte("CronActiveGasCostPerBlock")
 	KeyExecutionsLimitPerBlock   = []byte("ExecutionsLimitPerBlock")
 
-	DefaultCronActiveGasCostPerBlock = uint64(10)   // 10 Gas
-	DefaultExecutionsLimitPerBlock   = uint64(100)  // 100
-	DefaultCronQueueTimeout          = uint64(3600) // 1 hour
+	DefaultCronActiveGasCostPerBlock = uint64(10)         // 10 Gas
+	DefaultExecutionsLimitPerBlock   = uint64(100)        // 100
+	DefaultCronQueueTimeout          = uint64(3600)       // 1 hour
+	DefaultMaxCronGasPerBlock        = uint64(50_000_000) // 50M (10% of the block gas limit)
 )
 
 // ParamKeyTable returns the param key table for the cron module
