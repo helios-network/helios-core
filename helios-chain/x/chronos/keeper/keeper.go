@@ -80,7 +80,7 @@ func (k *Keeper) ExecuteCrons(ctx sdk.Context, batchFees *types.BatchFeesWithIds
 		if !ok {
 			continue
 		}
-		err := k.executeCron(ctx, cron)
+		_, err := k.executeCron(ctx, cron)
 		if err != nil {
 			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
 			k.emitCronCancelledEvent(ctx, cron)
@@ -89,6 +89,40 @@ func (k *Keeper) ExecuteCrons(ctx sdk.Context, batchFees *types.BatchFeesWithIds
 		}
 		recordExecutedCron(err, cron)
 	}
+}
+
+func (k *Keeper) ExecuteCronsWithLimit(ctx sdk.Context, batchFees *types.BatchFeesWithIds, currentGasUsed uint64, cronsGasLimit uint64) (uint64, uint64, []uint64) {
+	telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), types.LabelExecuteReadyCrons)
+
+	totalGasUsed := uint64(0)
+	count := uint64(0)
+	executedCrons := []uint64{}
+
+	for _, cronId := range batchFees.Ids {
+		cron, ok := k.GetCron(ctx, cronId)
+		if !ok {
+			continue
+		}
+		gasUsed, err := k.executeCron(ctx, cron)
+		totalGasUsed += gasUsed
+		count++
+		executedCrons = append(executedCrons, cron.Id)
+		if err != nil {
+			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
+			k.emitCronCancelledEvent(ctx, cron)
+			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
+			if currentGasUsed+totalGasUsed >= cronsGasLimit {
+				break
+			}
+			continue
+		}
+		recordExecutedCron(err, cron)
+		if currentGasUsed+totalGasUsed >= cronsGasLimit {
+			break
+		}
+	}
+
+	return totalGasUsed, uint64(count), executedCrons
 }
 
 func (k *Keeper) PushReadyCronsToQueue(ctx sdk.Context) uint64 {
@@ -714,14 +748,14 @@ func (k *Keeper) executeCronEvm(ctx sdk.Context, cron types.Cron, tx *ethtypes.T
 	return res, nil
 }
 
-func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
+func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) (uint64, error) {
 	nonce := k.StoreGetNonce(ctx)
 
 	if cron.CronType == types.CALLBACK_CONDITIONED_CRON {
 		callBackData, ok := k.GetCronCallBackData(ctx, cron.Id)
 
 		if !ok { // all ok
-			return nil
+			return 0, nil
 		}
 		// setup params and go to execution
 		cron.Params = []string{
@@ -735,18 +769,18 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 
 	tx, err := k.GetCronTransaction(ctx, cron, nonce)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	bytesTx, err := tx.MarshalBinary()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	ethereumTxCasted := &evmtypes.MsgEthereumTx{}
 	if err := ethereumTxCasted.FromEthereumTx(tx); err != nil {
 		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
-		return err
+		return 0, err
 	}
 
 	// default res for accepted errors
@@ -795,7 +829,7 @@ func (k *Keeper) executeCron(ctx sdk.Context, cron types.Cron) error {
 	k.StoreSetTransactionHashInBlock(ctx, cronTxResult.BlockNumber, tx.Hash().Hex())
 	k.StoreSetNonce(ctx, nonce+1)
 	k.StoreChangeCronExecutedLastBlockTotalCount(ctx, k.GetCronExecutedLastBlockCount(ctx)+1)
-	return nil
+	return resFromExecution.GasUsed, nil
 }
 
 func (k *Keeper) BuildCronCanceledEvent(ctx sdk.Context, a abi.ABI, tx *ethtypes.Transaction, from, to common.Address, cronId uint64, success bool) (*evmtypes.Log, error) {
