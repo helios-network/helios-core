@@ -12,4 +12,11 @@ yes 12345678 | heliades start \
 --json-rpc.api "eth,txpool,personal,net,debug,web3" \
 --json-rpc.address "0.0.0.0:8545" \
 --json-rpc.ws-address "0.0.0.0:8546" \
---p2p.laddr "tcp://0.0.0.0:26656"
+--p2p.laddr "tcp://0.0.0.0:26656" \
+--pruning=custom \
+--pruning-keep-recent=10 \
+--pruning-interval=10 \
+--min-retain-blocks=10 \
+--archive-mode=false \
+--state-sync.snapshot-interval=0 \
+--state-sync.snapshot-keep-recent=0
