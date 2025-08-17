@@ -23,12 +23,15 @@ import (
 	rpctypes "helios-core/helios-chain/rpc/types"
 	chronostypes "helios-core/helios-chain/x/chronos/types"
 	evmtypes "helios-core/helios-chain/x/evm/types"
+	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	svrconfig "helios-core/helios-chain/server/config"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -85,6 +88,8 @@ func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (s
 		return "string", "0x0"
 	case "<*uint64 Value>":
 		return "number", 0
+	case "<*int Value>":
+		return "number", 0
 	case "<*hexutil.Big Value>":
 		return "string", "0x0"
 	case "<*apitypes.TypedData Value>":
@@ -111,6 +116,8 @@ func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (s
 		return "chronostypes.Cron", chronostypes.Cron{}
 	case "<types.TokenBalance Value>":
 		return "rpctypes.TokenBalance", rpctypes.TokenBalance{}
+	case "<*[]interface {} Value>":
+		return "[]interface", []interface{}{}
 	case "<map[string]interface {} Value>":
 		return "map[string]interface", map[string]interface{}{}
 	case "<*map[string]interface {} Value>":
@@ -315,8 +322,184 @@ func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (s
 				Amount: cosmossdk_io_math.NewInt(0),
 			},
 		}
+	case "<*types.ValidatorWithCommissionAndAssetsRPC Value>":
+		return "rpctypes.ValidatorWithCommissionAndAssetsRPC", rpctypes.ValidatorWithCommissionAndAssetsRPC{
+			Validator: rpctypes.ValidatorRPC{
+				ValidatorAddress: "0x0000000000000000000000000000000000000000",
+				Shares:           "0",
+				Moniker:          "default_validator",
+				Commission: stakingtypes.Commission{
+					CommissionRates: stakingtypes.CommissionRates{
+						Rate:          cosmossdk_io_math.LegacyNewDec(0),
+						MaxRate:       cosmossdk_io_math.LegacyNewDec(0),
+						MaxChangeRate: cosmossdk_io_math.LegacyNewDec(0),
+					},
+					UpdateTime: time.Now(),
+				},
+				Description: stakingtypes.Description{
+					Moniker:         "default_validator",
+					Identity:        "",
+					Website:         "",
+					SecurityContact: "",
+					Details:         "",
+				},
+				Status:                  stakingtypes.Bonded,
+				UnbondingHeight:         0,
+				UnbondingIds:            []uint64{},
+				Jailed:                  false,
+				UnbondingOnHoldRefCount: 0,
+				UnbondingTime:           time.Time{},
+				MinSelfDelegation:       cosmossdk_io_math.NewInt(0),
+				Apr:                     "0%",
+			},
+			Assets: []rpctypes.ValidatorAssetRPC{
+				{
+					Denom:           "default_denom",
+					BaseAmount:      cosmossdk_io_math.NewInt(0),
+					ContractAddress: "0x0000000000000000000000000000000000000000",
+					WeightedAmount:  cosmossdk_io_math.NewInt(0),
+				},
+			},
+		}
+	case "<*types.OrchestratorData Value>":
+		return "rpctypes.OrchestratorData", hyperiontypes.OrchestratorData{
+			Orchestrator: "0x0000000000000000000000000000000000000000",
+			OrchestratorHyperionData: []*hyperiontypes.OrchestratorHyperionData{
+				{
+					HyperionId:       0,
+					MinimumTxFee:     cosmossdk_io_math.NewInt(0),
+					MinimumBatchFee:  cosmossdk_io_math.NewInt(0),
+					TotalSlashCount:  0,
+					TotalSlashAmount: cosmossdk_io_math.NewInt(0),
+					SlashData: []*hyperiontypes.SlashData{
+						{
+							SlashAmount:    cosmossdk_io_math.NewInt(0),
+							SlashTimestamp: 0,
+						},
+					},
+					TxOutTransfered:            0,
+					TxInTransfered:             0,
+					BatchCreated:               0,
+					BatchConfirmed:             0,
+					FeeCollected:               cosmossdk_io_math.NewInt(0),
+					ExternalDataTxExecuted:     0,
+					ExternalDataTxFeeCollected: cosmossdk_io_math.NewInt(0),
+				},
+			},
+		}
+	case "<*types.FullMetadata Value>":
+		return "rpctypes.FullMetadata", banktypes.FullMetadata{
+			Metadata: &banktypes.Metadata{
+				Description: "default_description",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom: "default_denom",
+					},
+				},
+				Base:    "default_base",
+				Display: "default_display",
+				Symbol:  "default_symbol",
+				URI:     "default_uri",
+				URIHash: "default_uri_hash",
+			},
+			HoldersCount: 0,
+			TotalSupply:  cosmossdk_io_math.NewInt(0),
+		}
+	case "<[]types.FullMetadata Value>":
+		return "[]rpctypes.FullMetadata", []banktypes.FullMetadata{
+			{
+				Metadata: &banktypes.Metadata{
+					Description: "default_description",
+				},
+			},
+		}
+	case "<*types.AccountTokensBalance Value>":
+		return "rpctypes.AccountTokensBalance", rpctypes.AccountTokensBalance{
+			TotalCount: 0,
+			Balances:   make([]rpctypes.TokenBalance, 0),
+		}
+	case "<*types.ValidatorSignature Value>":
+		return "rpctypes.ValidatorSignature", rpctypes.ValidatorSignature{
+			Address:          "0x0000000000000000000000000000000000000000",
+			Signed:           false,
+			IndexOffset:      0,
+			TotalTokens:      "0",
+			AssetWeights:     make([]*rpctypes.AssetWeight, 0),
+			EpochNumber:      0,
+			Status:           "default_status",
+			Jailed:           false,
+			MissedBlockCount: 0,
+		}
+	case "<*types.CronStatistics Value>":
+		return "rpctypes.CronStatistics", chronostypes.CronStatistics{
+			CronCount:              0,
+			QueueCount:             0,
+			ArchivedCrons:          0,
+			RefundedLastBlockCount: 0,
+			ExecutedLastBlockCount: 0,
+		}
+	case "<*types.EpochCompleteResponse Value>":
+		return "rpctypes.EpochCompleteResponse", rpctypes.EpochCompleteResponse{
+			Epoch:                0,
+			EpochLength:          0,
+			StartHeight:          0,
+			EndHeight:            0,
+			CurrentHeight:        0,
+			BlocksValidated:      0,
+			BlocksRemaining:      0,
+			BlocksUntilNextEpoch: 0,
+			Validators:           make([]*rpctypes.EpochValidatorDetail, 0),
+			TotalTokens:          "0",
+			TotalVotingPower:     "0",
+		}
+	case "<*types.TransferTx Value>":
+		return "rpctypes.TransferTx", hyperiontypes.TransferTx{
+			HyperionId:    0,
+			Id:            0,
+			Height:        0,
+			Sender:        "0x0000000000000000000000000000000000000000",
+			DestAddress:   "0x0000000000000000000000000000000000000000",
+			ReceivedToken: &hyperiontypes.Token{},
+			SentToken:     &hyperiontypes.Token{},
+			ReceivedFee:   &hyperiontypes.Token{},
+			SentFee:       &hyperiontypes.Token{},
+			Status:        "default_status",
+			Direction:     "default_direction",
+			ChainId:       0,
+			Proof:         &hyperiontypes.Proof{},
+			TxHash:        "0x0000000000000000000000000000000000000000",
+			Index:         0,
+		}
+	case "<*types.HyperionChainRPC Value>":
+		return "rpctypes.HyperionChainRPC", rpctypes.HyperionChainRPC{
+			HyperionContractAddress: "0x0000000000000000000000000000000000000000",
+			ChainId:                 0,
+			HyperionId:              0,
+			Name:                    "default_chain_name",
+			ChainType:               "default_chain_type",
+			Logo:                    "default_chain_logo",
+			Paused:                  false,
+		}
+	case "<*types.QueryHistoricalFeesResponse Value>":
+		return "rpctypes.QueryHistoricalFeesResponse", hyperiontypes.QueryHistoricalFeesResponse{
+			HistoricalFees: make([]*sdktypes.Coin, 0),
+			Low:            &sdktypes.Coin{},
+			High:           &sdktypes.Coin{},
+			Average:        &sdktypes.Coin{},
+		}
+	case "<*types.ParsedRPCTransaction Value>":
+		return "rpctypes.ParsedRPCTransaction", rpctypes.ParsedRPCTransaction{
+			RawTransaction: rpctypes.RPCTransaction{},
+			ParsedInfo:     make(map[string]interface{}),
+		}
+	case "<*types.ProposalVoteRPC Value>":
+		return "rpctypes.ProposalVoteRPC", rpctypes.ProposalVoteRPC{
+			Voter:    "0x0000000000000000000000000000000000000000",
+			Options:  make([]rpctypes.ProposalVoteOptionRPC, 0),
+			Metadata: "",
+		}
 	}
-	fmt.Println(fmt.Sprintf("[Swagger RPC] - No Mock method=%s kind=%s, type=%s", methodName, kind, t.String()))
+	fmt.Printf("[Swagger RPC] - No Mock method=%s kind=%s, type=%s", methodName, kind, t.String())
 	return t.String(), t.Interface()
 }
 

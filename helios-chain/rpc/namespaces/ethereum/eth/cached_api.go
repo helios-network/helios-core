@@ -268,7 +268,7 @@ func (c *CachedPublicAPI) GetAccountLastTransactionsInfo(address common.Address)
 }
 
 // GetTokensByChainIdAndPageAndSize returns tokens by chain id and page and size with caching
-func (c *CachedPublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
+func (c *CachedPublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 	methodName := "GetTokensByChainIdAndPageAndSize"
 	args := []interface{}{chainId, page, size}
 
@@ -283,7 +283,7 @@ func (c *CachedPublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page 
 	}
 
 	if len(results) > 0 {
-		if tokens, ok := results[0].([]banktypes.FullMetadata); ok {
+		if tokens, ok := results[0].([]*banktypes.FullMetadata); ok {
 			return tokens, nil
 		}
 	}

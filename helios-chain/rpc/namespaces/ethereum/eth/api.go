@@ -106,9 +106,9 @@ type EthereumAPI interface {
 	ChainSize() (*rpctypes.ChainSize, error)
 
 	// Tokens Information
-	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error)
+	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error)
 	GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error)
-	GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error)
+	GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error)
 
 	// Getting Uncles
 	//
@@ -495,7 +495,7 @@ func (e *PublicAPI) ChainSize() (*rpctypes.ChainSize, error) {
 ///                           Tokens									    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
+func (e *PublicAPI) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 	e.logger.Debug("eth_getTokensByPageAndSize", "page", page, "size", size)
 	return e.backend.GetTokensByPageAndSize(page, size)
 }
@@ -505,7 +505,7 @@ func (e *PublicAPI) GetTokenDetails(tokenAddress common.Address) (*banktypes.Ful
 	return e.backend.GetTokenDetails(tokenAddress)
 }
 
-func (e *PublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
+func (e *PublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 	e.logger.Debug("eth_getTokensByChainIdAndPageAndSize", "chainId", chainId, "page", page, "size", size)
 	return e.backend.GetTokensByChainIdAndPageAndSize(chainId, page, size)
 }

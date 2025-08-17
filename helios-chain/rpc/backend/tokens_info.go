@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
+func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 	// Create pagination request
 	pageReq := &query.PageRequest{
 		Offset:     uint64((page - 1) * size),
@@ -29,7 +29,13 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 		return nil, errorsmod.Wrap(err, "failed to get token pairs")
 	}
 
-	return res.Metadatas, nil
+	metadatas := make([]*banktypes.FullMetadata, len(res.Metadatas))
+
+	for i, metadata := range res.Metadatas {
+		metadatas[i] = &metadata
+	}
+
+	return metadatas, nil
 }
 
 func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error) {
@@ -52,7 +58,7 @@ func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*banktypes.FullM
 	return &bankRes.Metadata, nil
 }
 
-func (b *Backend) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]banktypes.FullMetadata, error) {
+func (b *Backend) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 
 	pageReq := &query.PageRequest{
 		Offset:     uint64((page - 1) * size),
@@ -66,9 +72,15 @@ func (b *Backend) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.
 		OrderByHoldersCount: true,
 	})
 
+	metadatas := make([]*banktypes.FullMetadata, len(res.Metadatas))
+
 	if err != nil {
-		return nil, err
+		return metadatas, err
 	}
 
-	return res.Metadatas, nil
+	for i, metadata := range res.Metadatas {
+		metadatas[i] = &metadata
+	}
+
+	return metadatas, nil
 }
