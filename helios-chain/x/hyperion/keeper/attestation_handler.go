@@ -39,7 +39,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, claim types.EthereumClaim, a
 	doneFn := metrics.ReportFuncTiming(a.svcTags)
 	defer doneFn()
 
-	fmt.Println("Handle======================= claim type", claim.GetType())
+	// fmt.Println("Handle======================= claim type", claim.GetType())
 	switch claim := claim.(type) {
 	// deposit in this context means a deposit into the Ethereum side of the bridge
 	case *types.MsgDepositClaim:
