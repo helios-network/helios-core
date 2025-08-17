@@ -210,7 +210,6 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 // can finally submit the batch
 // -------------
 func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (*types.MsgRequestBatchResponse, error) {
-	fmt.Println("RequestBatch, got msg request batch from hyperion - msg: ", msg)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
@@ -250,7 +249,6 @@ func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (
 }
 
 func (k msgServer) RequestBatchWithMinimumFee(c context.Context, msg *types.MsgRequestBatchWithMinimumFee) (*types.MsgRequestBatchWithMinimumFeeResponse, error) {
-	fmt.Println("RequestBatch, got msg request batch from hyperion - msg: ", msg)
 	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
 	defer doneFn()
 
