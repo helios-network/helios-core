@@ -81,8 +81,6 @@ func StartCDNServer(
 		})
 		if err == nil {
 			logoHash := chainsRes.CounterpartyChainParams.BridgeChainLogo
-
-			logger.Info("logoHash", "logoHash", logoHash)
 			if logoHash != "" {
 				logosClient := logostypes.NewQueryClient(clientCtx.GRPCClient)
 				logoResp, err := logosClient.Logo(r.Context(), &logostypes.QueryLogoRequest{
