@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
 
 	evmtypes "helios-core/helios-chain/x/evm/types"
@@ -18,20 +19,46 @@ import (
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
 // erc20 module account as owner.
-func (k Keeper) DeployERC20Contract(
+func (k *Keeper) DeployERC20Contract(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
+	authorities ...common.Address, // Variadic parameters (optional)
 ) (common.Address, error) {
 	decimals := uint8(0)
 	if len(coinMetadata.DenomUnits) > 0 {
 		decimalsIdx := len(coinMetadata.DenomUnits) - 1
 		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent) //#nosec G115
 	}
+
+	// Determine authorities based on provided parameters
+	var initialOwner, mintAuthority, pauseAuthority, burnAuthority common.Address
+
+	switch len(authorities) {
+	case 0:
+		// LEGACY BEHAVIOR: Module has all roles (as before)
+		initialOwner = types.ModuleAddress
+		mintAuthority = types.ModuleAddress
+		pauseAuthority = types.ModuleAddress
+		burnAuthority = types.ModuleAddress
+	case 4:
+		// NEW BEHAVIOR: Specific roles
+		initialOwner = authorities[0]
+		mintAuthority = authorities[1]
+		pauseAuthority = authorities[2]
+		burnAuthority = authorities[3]
+	default:
+		return common.Address{}, fmt.Errorf("invalid number of authorities: expected 0 or 4, got %d", len(authorities))
+	}
+
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
 		"",
 		coinMetadata.Name,
 		coinMetadata.Symbol,
 		decimals,
+		initialOwner,
+		mintAuthority,
+		pauseAuthority,
+		burnAuthority,
 	)
 	if err != nil {
 		return common.Address{}, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
@@ -77,14 +104,17 @@ func (k Keeper) MintERC20Tokens(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	// Pack the arguments for the mint call: mint(address to, uint256 amount)
-	mintData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", recipient, amount)
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to pack mint call data")
-	}
-
-	// Execute the call from the module account (which has the MINTER_ROLE) to the contract
-	_, err = k.evmKeeper.CallEVMWithData(ctx, types.ModuleAddress, &contractAddr, mintData, true)
+	// Use CallEVM instead of CallEVMWithData for better gas handling
+	_, err := k.evmKeeper.CallEVM(
+		ctx,
+		contracts.ERC20MinterBurnerDecimalsContract.ABI,
+		types.ModuleAddress, // from (module has MINTER_ROLE)
+		contractAddr,        // contract address
+		true,                // commit = true (state-changing call)
+		"mint",              // method name
+		recipient,           // to address
+		amount,              // amount to mint
+	)
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to mint tokens")
 	}
@@ -210,6 +240,153 @@ func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error 
 				types.ErrUnexpectedEvent, "unexpected Approval event",
 			)
 		}
+	}
+
+	return nil
+}
+
+// RevokeTempMinterRole revokes the temporary MINTER_ROLE from module after initial mint
+// FIXED: Uses CallEVM instead of CallEVMWithData for proper gas estimation
+func (k Keeper) RevokeTempMinterRole(
+	ctx sdk.Context,
+	contractAddr common.Address,
+) error {
+	minterRoleHash := crypto.Keccak256Hash([]byte("MINTER_ROLE"))
+
+	// Use CallEVM instead of CallEVMWithData - it handles gas better
+	_, err := k.evmKeeper.CallEVM(
+		ctx,
+		contracts.ERC20MinterBurnerDecimalsContract.ABI,
+		types.ModuleAddress, // from (module has admin role)
+		contractAddr,        // contract address
+		true,                // commit = true (this is a state-changing call)
+		"revokeRole",        // method name
+		minterRoleHash,      // role hash (bytes32)
+		types.ModuleAddress, // account to revoke from (module itself)
+	)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to revoke temp MINTER_ROLE from module")
+	}
+
+	return nil
+}
+
+// SetMintAuthority grants MINTER_ROLE to a specific address
+func (k Keeper) SetMintAuthority(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	mintAuthority common.Address,
+) error {
+	return k.grantRole(ctx, contractAddr, "MINTER_ROLE", mintAuthority)
+}
+
+// SetPauseAuthority grants PAUSER_ROLE to a specific address
+func (k Keeper) SetPauseAuthority(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	pauseAuthority common.Address,
+) error {
+	return k.grantRole(ctx, contractAddr, "PAUSER_ROLE", pauseAuthority)
+}
+
+// SetBurnAuthority grants BURNER_ROLE to a specific address
+func (k Keeper) SetBurnAuthority(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	burnAuthority common.Address,
+) error {
+	return k.grantRole(ctx, contractAddr, "BURNER_ROLE", burnAuthority)
+}
+
+// grantRole is a helper function to grant any role to an address
+// FIXED: Uses CallEVM instead of CallEVMWithData
+func (k Keeper) grantRole(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	role string,
+	account common.Address,
+) error {
+	// Hash the role name
+	roleHash := crypto.Keccak256Hash([]byte(role))
+
+	// Use CallEVM for better gas estimation
+	_, err := k.evmKeeper.CallEVM(
+		ctx,
+		contracts.ERC20MinterBurnerDecimalsContract.ABI,
+		types.ModuleAddress, // from (module has DEFAULT_ADMIN_ROLE)
+		contractAddr,        // contract address
+		true,                // commit = true (state-changing call)
+		"grantRole",         // method name
+		roleHash,            // role hash (bytes32)
+		account,             // account to grant role to
+	)
+	if err != nil {
+		return errorsmod.Wrapf(err, "failed to grant %s to %s", role, account.Hex())
+	}
+
+	return nil
+}
+
+// HasRole checks if an address has a specific role
+func (k Keeper) HasRole(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	role string,
+	account common.Address,
+) (bool, error) {
+	roleHash := crypto.Keccak256Hash([]byte(role))
+
+	// hasRole(bytes32 role, address account) returns (bool)
+	res, err := k.evmKeeper.CallEVM(
+		ctx,
+		contracts.ERC20MinterBurnerDecimalsContract.ABI,
+		types.ModuleAddress,
+		contractAddr,
+		false,
+		"hasRole",
+		roleHash,
+		account,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	unpacked, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Unpack("hasRole", res.Ret)
+	if err != nil || len(unpacked) == 0 {
+		return false, err
+	}
+
+	hasRole, ok := unpacked[0].(bool)
+	if !ok {
+		return false, errorsmod.Wrap(types.ErrABIUnpack, "failed to unpack hasRole result")
+	}
+
+	return hasRole, nil
+}
+
+// RevokeRole revokes a role from an address
+// FIXED: Uses CallEVM instead of CallEVMWithData
+func (k Keeper) RevokeRole(
+	ctx sdk.Context,
+	contractAddr common.Address,
+	role string,
+	account common.Address,
+) error {
+	roleHash := crypto.Keccak256Hash([]byte(role))
+
+	// Use CallEVM for better gas estimation
+	_, err := k.evmKeeper.CallEVM(
+		ctx,
+		contracts.ERC20MinterBurnerDecimalsContract.ABI,
+		types.ModuleAddress, // from (module has admin role)
+		contractAddr,        // contract address
+		true,                // commit = true (state-changing call)
+		"revokeRole",        // method name
+		roleHash,            // role hash (bytes32)
+		account,             // account to revoke role from
+	)
+	if err != nil {
+		return errorsmod.Wrapf(err, "failed to revoke %s from %s", role, account.Hex())
 	}
 
 	return nil
