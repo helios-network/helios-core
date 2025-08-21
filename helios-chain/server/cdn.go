@@ -32,7 +32,7 @@ func StartCDNServer(
 	config svrconfig.Config,
 ) (*http.Server, chan struct{}, error) {
 
-	logger := svrCtx.Logger.With("module", "cdn")
+	// logger := svrCtx.Logger.With("module", "cdn")
 
 	r := mux.NewRouter()
 

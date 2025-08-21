@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/viper"
 
 	"cosmossdk.io/log"
+	cmtcmds "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	cmtcfg "github.com/cometbft/cometbft/config"
 	cmtcli "github.com/cometbft/cometbft/libs/cli"
 	dbm "github.com/cosmos/cosmos-db"
@@ -193,6 +194,8 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		genutilcli.ValidateGenesisCmd(tempApp.BasicModuleManager),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		cmtcli.NewCompletionCmd(rootCmd, true),
+		cmtcmds.NewCompactGoLevelDBCmd(rootCmd, false),
+		cmtcmds.NewPruneBlockByBlockCmd(rootCmd, false),
 		NewTestnetCmd(tempApp.BasicModuleManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
