@@ -174,7 +174,7 @@ func (b *Backend) GetCoinbase() (sdk.AccAddress, error) {
 
 	res, err := b.queryClient.ValidatorAccount(b.ctx, req)
 	if err != nil {
-		return nil, err
+		return sdk.AccAddress{}, err // return zero address if error
 	}
 
 	address, _ := sdk.AccAddressFromBech32(res.AccountAddress) // #nosec G703

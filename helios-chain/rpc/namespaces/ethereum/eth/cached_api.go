@@ -382,6 +382,29 @@ func (c *CachedPublicAPI) BlockNumber() (hexutil.Uint64, error) {
 	return 0, fmt.Errorf("invalid return type for BlockNumber")
 }
 
+// GetCoinbase returns the coinbase with caching
+func (c *CachedPublicAPI) GetCoinbase() (common.Address, error) {
+	methodName := "GetCoinbase"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return common.Address{}, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	if len(results) > 0 {
+		if coinbase, ok := results[0].(common.Address); ok {
+			return coinbase, nil
+		}
+	}
+	return common.Address{}, fmt.Errorf("invalid return type for GetCoinbase")
+}
+
 // GetHyperionHistoricalFees returns hyperion historical fees with caching
 func (c *CachedPublicAPI) GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error) {
 	methodName := "GetHyperionHistoricalFees"
