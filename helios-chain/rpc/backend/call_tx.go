@@ -144,7 +144,7 @@ func (b *Backend) SendRawTransaction(data hexutil.Bytes) (common.Hash, error) {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
 	if err != nil {
-		b.logger.Error("failed to broadcast tx", "error", err.Error())
+		b.logger.Debug("failed to broadcast tx", "error", err.Error())
 		return txHash, err
 	}
 

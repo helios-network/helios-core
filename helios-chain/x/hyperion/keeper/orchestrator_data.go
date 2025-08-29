@@ -12,7 +12,10 @@ func (k *Keeper) GetOrchestratorData(ctx sdk.Context, orchestrator sdk.AccAddres
 	key := types.GetOrchestratorDataKey(orchestrator)
 	bz := store.Get(key)
 	if len(bz) == 0 {
-		return nil, errors.Wrap(types.ErrInvalid, "orchestrator data not found")
+		return &types.OrchestratorData{
+			Orchestrator:             orchestrator.String(),
+			OrchestratorHyperionData: make([]*types.OrchestratorHyperionData, 0),
+		}, nil
 	}
 
 	var orchestratorData types.OrchestratorData

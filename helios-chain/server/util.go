@@ -66,12 +66,12 @@ func AddCommands(
 // - logger: A logger instance used to log debug and error messages.
 func ConnectTmWS(tmRPCAddr, tmEndpoint string, logger log.Logger) *rpcclient.WSClient {
 	tmWsClient, err := rpcclient.NewWS(tmRPCAddr, tmEndpoint,
-		rpcclient.MaxReconnectAttempts(256),
+		// rpcclient.MaxReconnectAttempts(256), // disable maximum reconnect attempts
 		rpcclient.ReadWait(120*time.Second),
 		rpcclient.WriteWait(120*time.Second),
-		rpcclient.PingPeriod(50*time.Second),
+		rpcclient.PingPeriod(60*time.Second),
 		rpcclient.OnReconnect(func() {
-			logger.Debug("EVM RPC reconnects to Tendermint WS", "address", tmRPCAddr+tmEndpoint)
+			logger.Info("EVM RPC reconnects to Tendermint WS", "address", tmRPCAddr+tmEndpoint)
 		}),
 	)
 

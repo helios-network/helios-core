@@ -82,7 +82,7 @@ func (k *Keeper) ExecuteCrons(ctx sdk.Context, batchFees *types.BatchFeesWithIds
 		}
 		_, err := k.executeCron(ctx, cron)
 		if err != nil {
-			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
+			k.Logger(ctx).Debug("Cron Executed With Error", "err", err)
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
@@ -108,7 +108,7 @@ func (k *Keeper) ExecuteCronsWithLimit(ctx sdk.Context, batchFees *types.BatchFe
 		count++
 		executedCrons = append(executedCrons, cron.Id)
 		if err != nil {
-			k.Logger(ctx).Info("Cron Executed With Error", "err", err)
+			k.Logger(ctx).Debug("Cron Executed With Error", "err", err)
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			if currentGasUsed+totalGasUsed >= cronsGasLimit {
@@ -138,13 +138,13 @@ func (k *Keeper) PushReadyCronsToQueue(ctx sdk.Context) uint64 {
 		// check if the cron has enough balance to pay the fees
 		balance := k.CronBalance(ctx, cron)
 		if balance.IsNegative() || balance.BigInt().Cmp(big.NewInt(0)) < 0 {
-			k.Logger(ctx).Info("Cron has not enough balance to pay the fees", "cronId", cron.Id, "balance", balance.BigInt())
+			k.Logger(ctx).Debug("Cron has not enough balance to pay the fees", "cronId", cron.Id, "balance", balance.BigInt())
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
 		}
 		if balance.BigInt().Cmp(sdkmath.NewIntFromBigInt(cron.MaxGasPrice.BigInt()).Mul(sdkmath.NewInt(int64(cron.GasLimit))).BigInt()) <= 0 {
-			k.Logger(ctx).Info("Cron has not enough balance to pay the fees", "cronId", cron.Id, "balance", balance.BigInt())
+			k.Logger(ctx).Debug("Cron has not enough balance to pay the fees", "cronId", cron.Id, "balance", balance.BigInt())
 			k.emitCronCancelledEvent(ctx, cron)
 			k.RemoveCron(ctx, cron.Id, sdk.MustAccAddressFromBech32(cron.OwnerAddress))
 			continue
@@ -1000,7 +1000,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionRPC(ctx sdk.Context
 func (k *Keeper) GetCronTransactionByNonce(ctx sdk.Context, nonce uint64) (*types.CronTransactionRPC, error) {
 	res, ok := k.GetCronTransactionResultByNonce(ctx, nonce)
 	if !ok {
-		k.Logger(ctx).Info("failed to load GetCronTransactionByNonce", "nonce", nonce)
+		k.Logger(ctx).Debug("failed to load GetCronTransactionByNonce", "nonce", nonce)
 		return nil, fmt.Errorf("nonce %d not found", nonce)
 	}
 
@@ -1010,7 +1010,7 @@ func (k *Keeper) GetCronTransactionByNonce(ctx sdk.Context, nonce uint64) (*type
 func (k *Keeper) GetCronTransactionByHash(ctx sdk.Context, hash string) (*types.CronTransactionRPC, error) {
 	res, ok := k.GetCronTransactionResultByHash(ctx, hash)
 	if !ok {
-		k.Logger(ctx).Info("failed to load GetCronTransactionByHash", "hash", hash)
+		k.Logger(ctx).Debug("failed to load GetCronTransactionByHash", "hash", hash)
 		return nil, fmt.Errorf("hash %s not found", hash)
 	}
 
@@ -1021,19 +1021,19 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 	var castedRes ethtypes.Transaction
 	err := castedRes.UnmarshalBinary(txResult.Tx)
 	if err != nil {
-		k.Logger(ctx).Info("failed to unmarshal result", "err", err)
+		k.Logger(ctx).Debug("failed to unmarshal result", "err", err)
 		return nil, fmt.Errorf("failed to unmarshal result")
 	}
 	ethereumTxCasted := &evmtypes.MsgEthereumTx{}
 	if err := ethereumTxCasted.FromEthereumTx(&castedRes); err != nil {
-		k.Logger(ctx).Error("transaction converting failed", "error", err.Error())
+		k.Logger(ctx).Debug("transaction converting failed", "error", err.Error())
 		return nil, fmt.Errorf("transaction converting failed")
 	}
 
 	var castedResponse evmtypes.MsgEthereumTxResponse
 	err = castedResponse.Unmarshal(txResult.Result)
 	if err != nil {
-		k.Logger(ctx).Info("failed to unmarshal result", "err", err)
+		k.Logger(ctx).Debug("failed to unmarshal result", "err", err)
 		return nil, fmt.Errorf("failed to unmarshal result")
 	}
 
@@ -1053,7 +1053,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 
 	txData, err := evmtypes.UnpackTxData(ethereumTxCasted.Data)
 	if err != nil {
-		k.Logger(ctx).Info("failed to unpack tx data", "error", err.Error())
+		k.Logger(ctx).Debug("failed to unpack tx data", "error", err.Error())
 		return nil, fmt.Errorf("failed to unpack tx data")
 	}
 
@@ -1097,7 +1097,7 @@ func (k *Keeper) FormatCronTransactionResultToCronTransactionReceiptRPC(ctx sdk.
 func (k *Keeper) GetTransactionReceipt(ctx sdk.Context, cron types.Cron, ethMsg *evmtypes.MsgEthereumTx, res *evmtypes.MsgEthereumTxResponse) (map[string]interface{}, error) {
 	txData, err := evmtypes.UnpackTxData(ethMsg.Data)
 	if err != nil {
-		k.Logger(ctx).Info("failed to unpack tx data", "error", err.Error())
+		k.Logger(ctx).Debug("failed to unpack tx data", "error", err.Error())
 		return nil, err
 	}
 
@@ -1181,7 +1181,7 @@ func (k *Keeper) StoreCronCallBackData(ctx sdk.Context, cronId uint64, callbackD
 	// set the cron in the queue
 	cron, ok := k.GetCron(ctx, cronId)
 	if !ok {
-		k.Logger(ctx).Info("Cron not found", "cronId", cronId)
+		k.Logger(ctx).Debug("Cron not found", "cronId", cronId)
 		return
 	}
 	if k.ExistsInCronQueue(ctx, cron) {
@@ -1194,7 +1194,7 @@ func (k *Keeper) GetCronCallBackData(ctx sdk.Context, cronId uint64) (*types.Cro
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.CronCallBackDataKey)
 	bz := store.Get(sdk.Uint64ToBigEndian(cronId))
 	if bz == nil {
-		k.Logger(ctx).Info("GetCronCallBackData", "bz", bz)
+		k.Logger(ctx).Debug("GetCronCallBackData", "bz", bz)
 		return nil, false
 	}
 

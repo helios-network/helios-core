@@ -20,7 +20,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"helios-core/helios-chain/testnet"
 	"helios-core/helios-chain/x/chronos/client/cli"
 	"helios-core/helios-chain/x/chronos/keeper"
 	"helios-core/helios-chain/x/chronos/types"
@@ -164,79 +163,50 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(ctx context.Context) error {
-	sdkctx := sdk.UnwrapSDKContext(ctx)
+	// sdkctx := sdk.UnwrapSDKContext(ctx)
 
-	am.keeper.StoreChangeCronRefundedLastBlockTotalCount(sdkctx, 0)
-	am.keeper.StoreChangeCronExecutedLastBlockTotalCount(sdkctx, 0)
+	// am.keeper.StoreChangeCronRefundedLastBlockTotalCount(sdkctx, 0)
+	// am.keeper.StoreChangeCronExecutedLastBlockTotalCount(sdkctx, 0)
 
-	// todo remove crons after delay of 10 hours of timeout
-	am.keeper.DeductFeesActivesCrons(sdkctx)
+	// // todo remove crons after delay of 10 hours of timeout
+	// am.keeper.DeductFeesActivesCrons(sdkctx)
 
-	// todo push ready crons to the queue (priority based on the fees priority)
-	am.keeper.PushReadyCronsToQueue(sdkctx)
+	// // todo push ready crons to the queue (priority based on the fees priority)
+	// am.keeper.PushReadyCronsToQueue(sdkctx)
 
-	if testnet.TESTNET_BLOCK_NUMBER_UPDATE_3 < sdkctx.BlockHeight() {
-		cronGasLimit := types.DefaultMaxCronGasPerBlock
-		totalGasUsed := uint64(0)
+	// cronGasLimit := types.DefaultMaxCronGasPerBlock
+	// totalGasUsed := uint64(0)
 
-		for {
-			batchFees := am.keeper.GetBatchFees(sdkctx)
+	// for {
+	// 	batchFees := am.keeper.GetBatchFees(sdkctx)
 
-			gasUsed, tasksExecuted, executedCrons := am.keeper.ExecuteCronsWithLimit(sdkctx, batchFees, totalGasUsed, cronGasLimit)
+	// 	gasUsed, tasksExecuted, executedCrons := am.keeper.ExecuteCronsWithLimit(sdkctx, batchFees, totalGasUsed, cronGasLimit)
 
-			totalGasUsed += gasUsed
+	// 	totalGasUsed += gasUsed
 
-			// remove expired crons from the queue
-			for _, id := range batchFees.ExpiredIds {
-				cron, ok := am.keeper.GetCron(sdkctx, id)
-				if !ok {
-					continue
-				}
-				am.keeper.RemoveFromCronQueue(sdkctx, cron)
-			}
+	// 	// remove expired crons from the queue
+	// 	for _, id := range batchFees.ExpiredIds {
+	// 		cron, ok := am.keeper.GetCron(sdkctx, id)
+	// 		if !ok {
+	// 			continue
+	// 		}
+	// 		am.keeper.RemoveFromCronQueue(sdkctx, cron)
+	// 	}
 
-			// remove crons from the queue after execution
-			for _, id := range executedCrons {
-				cron, ok := am.keeper.GetCron(sdkctx, id)
-				if !ok {
-					continue
-				}
-				am.keeper.RemoveFromCronQueue(sdkctx, cron)
-			}
-			am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
+	// 	// remove crons from the queue after execution
+	// 	for _, id := range executedCrons {
+	// 		cron, ok := am.keeper.GetCron(sdkctx, id)
+	// 		if !ok {
+	// 			continue
+	// 		}
+	// 		am.keeper.RemoveFromCronQueue(sdkctx, cron)
+	// 	}
+	// 	am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
 
-			if gasUsed == 0 || tasksExecuted == 0 || totalGasUsed >= cronGasLimit {
-				break
-			}
-		}
-
-	} else {
-		// get batch fees from the queue (priority based on the maxGasPrice)
-		batchFees := am.keeper.GetBatchFees(sdkctx)
-
-		// execute crons from the queue in batch of params.ExecutionsLimitPerBlock
-		am.keeper.ExecuteCrons(sdkctx, batchFees)
-
-		// remove expired crons from the queue
-		for _, id := range batchFees.ExpiredIds {
-			cron, ok := am.keeper.GetCron(sdkctx, id)
-			if !ok {
-				continue
-			}
-			am.keeper.RemoveFromCronQueue(sdkctx, cron)
-		}
-
-		// remove crons from the queue after execution
-		for _, id := range batchFees.Ids {
-			cron, ok := am.keeper.GetCron(sdkctx, id)
-			if !ok {
-				continue
-			}
-			am.keeper.RemoveFromCronQueue(sdkctx, cron)
-		}
-
-		am.keeper.SetCronQueueCount(sdkctx, int32(batchFees.TotalQueueCount))
-	}
+	// 	if gasUsed == 0 || tasksExecuted == 0 || totalGasUsed >= cronGasLimit {
+	// 		break
+	// 	}
+	// }
 
 	return nil
 }

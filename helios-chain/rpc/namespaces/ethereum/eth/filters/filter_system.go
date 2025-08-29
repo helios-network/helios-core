@@ -3,6 +3,7 @@ package filters
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -275,7 +276,18 @@ func (es *EventSystem) consumeEvents() {
 			var ev coretypes.ResultEvent
 
 			if rpcResp.Error != nil {
-				time.Sleep(5 * time.Second)
+				// Log the error with more details
+				es.logger.Error("websocket response error", "error", rpcResp.Error.Error())
+
+				// Check if it's a connection error that requires reconnection
+				if isConnectionError(rpcResp.Error) {
+					es.logger.Warn("detected connection error, attempting to reconnect")
+					// Give some time before retrying to avoid rapid reconnection attempts
+					time.Sleep(5 * time.Second)
+				} else {
+					// For other errors, use shorter sleep
+					time.Sleep(1 * time.Second)
+				}
 				continue
 			} else if err := cmtjson.Unmarshal(rpcResp.Result, &ev); err != nil {
 				es.logger.Error("failed to JSON unmarshal ResponsesCh result event", "error", err.Error())
@@ -305,6 +317,35 @@ func (es *EventSystem) consumeEvents() {
 			}
 		}
 
-		time.Sleep(time.Second)
+		// Reduced sleep time to be more responsive to connection issues
+		time.Sleep(500 * time.Millisecond)
 	}
+}
+
+// isConnectionError checks if the error is related to connection issues
+func isConnectionError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errStr := err.Error()
+	// Check for common websocket connection errors
+	connectionErrors := []string{
+		"websocket: close 1006",
+		"websocket: close 1001",
+		"websocket: close 1000",
+		"unexpected EOF",
+		"connection reset",
+		"broken pipe",
+		"connection refused",
+		"network is unreachable",
+	}
+
+	for _, connErr := range connectionErrors {
+		if strings.Contains(errStr, connErr) {
+			return true
+		}
+	}
+
+	return false
 }

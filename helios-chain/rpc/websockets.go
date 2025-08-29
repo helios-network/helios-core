@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -190,7 +191,13 @@ func (s *websocketsServer) readLoop(wsConn *wsConn) {
 		_, mb, err := wsConn.ReadMessage()
 		if err != nil {
 			_ = wsConn.Close() // #nosec G703
-			s.logger.Error("read message error, breaking read loop", "error", err.Error())
+
+			// Log the specific error for better debugging
+			if isWebSocketConnectionError(err) {
+				s.logger.Error("websocket connection error, closing connection", "error", err.Error())
+			} else {
+				s.logger.Error("read message error, breaking read loop", "error", err.Error())
+			}
 			return
 		}
 
@@ -437,7 +444,16 @@ func (api *pubSubAPI) subscribeNewHeads(wsConn *wsConn, subID rpc.ID) (pubsub.Un
 				if !ok {
 					return
 				}
-				api.logger.Debug("dropping NewHeads WebSocket subscription", "subscription-id", subID, "error", err.Error())
+				api.logger.Error("dropping NewHeads WebSocket subscription", "subscription-id", subID, "error", err.Error())
+
+				// Check if this is a connection error that requires closing the websocket
+				if isWebSocketConnectionError(err) {
+					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					try(func() {
+						_ = wsConn.Close()
+					}, api.logger, "closing websocket due to connection error")
+					return
+				}
 			}
 		}
 	}()
@@ -629,8 +645,16 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 				if !ok {
 					return
 				}
-				api.logger.Debug("dropping Logs WebSocket subscription", "subscription-id", subID, "error", err.Error())
-				return
+				api.logger.Error("dropping Logs WebSocket subscription", "subscription-id", subID, "error", err.Error())
+
+				// Check if this is a connection error that requires closing the websocket
+				if isWebSocketConnectionError(err) {
+					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					try(func() {
+						_ = wsConn.Close()
+					}, api.logger, "closing websocket due to connection error")
+					return
+				}
 			}
 		}
 	}()
@@ -687,7 +711,16 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 				if !ok {
 					return
 				}
-				api.logger.Debug("dropping Logs WebSocket subscription", "subscription-id", subID, "error", err.Error())
+				api.logger.Error("dropping Logs WebSocket subscription", "subscription-id", subID, "error", err.Error())
+
+				// Check if this is a connection error that requires closing the websocket
+				if isWebSocketConnectionError(err) {
+					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					try(func() {
+						_ = wsConn.Close()
+					}, api.logger, "closing websocket due to connection error")
+					return
+				}
 			}
 		}
 	}()
@@ -751,7 +784,16 @@ func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID)
 				if !ok {
 					return
 				}
-				api.logger.Debug("dropping PendingTransactions WebSocket subscription", subID, "error", err.Error())
+				api.logger.Error("dropping PendingTransactions WebSocket subscription", "subscription-id", subID, "error", err.Error())
+
+				// Check if this is a connection error that requires closing the websocket
+				if isWebSocketConnectionError(err) {
+					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					try(func() {
+						_ = wsConn.Close()
+					}, api.logger, "closing websocket due to connection error")
+					return
+				}
 			}
 		}
 	}()
@@ -773,5 +815,36 @@ func isBatch(raw []byte) bool {
 		}
 		return c == '['
 	}
+	return false
+}
+
+// isWebSocketConnectionError checks if the error is related to websocket connection issues
+func isWebSocketConnectionError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errStr := err.Error()
+	// Check for common websocket connection errors
+	connectionErrors := []string{
+		"websocket: close 1006",
+		"websocket: close 1001",
+		"websocket: close 1000",
+		"unexpected EOF",
+		"connection reset",
+		"broken pipe",
+		"connection refused",
+		"network is unreachable",
+		"use of closed network connection",
+		"write: broken pipe",
+		"read: connection reset",
+	}
+
+	for _, connErr := range connectionErrors {
+		if strings.Contains(errStr, connErr) {
+			return true
+		}
+	}
+
 	return false
 }
