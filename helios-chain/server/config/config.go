@@ -96,7 +96,7 @@ const (
 	// DefaultHTTPTimeout is the default read/write timeout of the http json-rpc server
 	DefaultHTTPTimeout = 30 * time.Second
 
-	// DefaultHTTPIdleTimeout is the default idle timeout of the http json-rpc server
+	// DefaultHTTPIdleTimeout is the default idle timeout of http json-rpc server
 	DefaultHTTPIdleTimeout = 120 * time.Second
 
 	// DefaultAllowUnprotectedTxs value is false
@@ -104,6 +104,15 @@ const (
 
 	// DefaultMaxOpenConnections represents the amount of open connections (unlimited = 0)
 	DefaultMaxOpenConnections = 0
+
+	// DefaultRateLimitRequestsPerSecond is the default rate limit for requests per second per IP
+	DefaultRateLimitRequestsPerSecond = 10
+
+	// DefaultRateLimitWindow is the default time window for rate limiting
+	DefaultRateLimitWindow = 1 * time.Second
+
+	// DefaultMaxConcurrentConnections is the default maximum number of concurrent connections
+	DefaultMaxConcurrentConnections = 1000
 
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
@@ -229,6 +238,12 @@ type JSONRPCConfig struct {
 	MetricsAddress string `mapstructure:"metrics-address"`
 	// FixRevertGasRefundHeight defines the upgrade height for fix of revert gas refund logic when transaction reverted
 	FixRevertGasRefundHeight int64 `mapstructure:"fix-revert-gas-refund-height"`
+	// RateLimitRequestsPerSecond defines the maximum number of requests per second per IP
+	RateLimitRequestsPerSecond int `mapstructure:"rate-limit-requests-per-second"`
+	// RateLimitWindow defines the time window for rate limiting
+	RateLimitWindow time.Duration `mapstructure:"rate-limit-window"`
+	// MaxConcurrentConnections defines the maximum number of concurrent connections
+	MaxConcurrentConnections int `mapstructure:"max-concurrent-connections"`
 }
 
 // TLSConfig defines the certificate and matching private key for the server.
@@ -347,25 +362,28 @@ func GetAPINamespaces() []string {
 // DefaultJSONRPCConfig returns an EVM config with the JSON-RPC API enabled by default
 func DefaultJSONRPCConfig() *JSONRPCConfig {
 	return &JSONRPCConfig{
-		Enable:                   DefaultJSONRPCEnable,
-		API:                      GetDefaultAPINamespaces(),
-		Address:                  DefaultJSONRPCAddress,
-		WsAddress:                DefaultJSONRPCWsAddress,
-		GasCap:                   DefaultGasCap,
-		AllowInsecureUnlock:      DefaultJSONRPCAllowInsecureUnlock,
-		EVMTimeout:               DefaultEVMTimeout,
-		TxFeeCap:                 DefaultTxFeeCap,
-		FilterCap:                DefaultFilterCap,
-		FeeHistoryCap:            DefaultFeeHistoryCap,
-		BlockRangeCap:            DefaultBlockRangeCap,
-		LogsCap:                  DefaultLogsCap,
-		HTTPTimeout:              DefaultHTTPTimeout,
-		HTTPIdleTimeout:          DefaultHTTPIdleTimeout,
-		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
-		MaxOpenConnections:       DefaultMaxOpenConnections,
-		EnableIndexer:            false,
-		MetricsAddress:           DefaultJSONRPCMetricsAddress,
-		FixRevertGasRefundHeight: DefaultFixRevertGasRefundHeight,
+		Enable:                     DefaultJSONRPCEnable,
+		API:                        GetDefaultAPINamespaces(),
+		Address:                    DefaultJSONRPCAddress,
+		WsAddress:                  DefaultJSONRPCWsAddress,
+		GasCap:                     DefaultGasCap,
+		AllowInsecureUnlock:        DefaultJSONRPCAllowInsecureUnlock,
+		EVMTimeout:                 DefaultEVMTimeout,
+		TxFeeCap:                   DefaultTxFeeCap,
+		FilterCap:                  DefaultFilterCap,
+		FeeHistoryCap:              DefaultFeeHistoryCap,
+		BlockRangeCap:              DefaultBlockRangeCap,
+		LogsCap:                    DefaultLogsCap,
+		HTTPTimeout:                DefaultHTTPTimeout,
+		HTTPIdleTimeout:            DefaultHTTPIdleTimeout,
+		AllowUnprotectedTxs:        DefaultAllowUnprotectedTxs,
+		MaxOpenConnections:         DefaultMaxOpenConnections,
+		EnableIndexer:              false,
+		MetricsAddress:             DefaultJSONRPCMetricsAddress,
+		FixRevertGasRefundHeight:   DefaultFixRevertGasRefundHeight,
+		RateLimitRequestsPerSecond: DefaultRateLimitRequestsPerSecond,
+		RateLimitWindow:            DefaultRateLimitWindow,
+		MaxConcurrentConnections:   DefaultMaxConcurrentConnections,
 	}
 }
 
@@ -397,6 +415,18 @@ func (c JSONRPCConfig) Validate() error {
 
 	if c.BlockRangeCap < 0 {
 		return errors.New("JSON-RPC block range cap cannot be negative")
+	}
+
+	if c.RateLimitRequestsPerSecond <= 0 {
+		return errors.New("JSON-RPC rate limit requests per second must be positive")
+	}
+
+	if c.RateLimitWindow <= 0 {
+		return errors.New("JSON-RPC rate limit window must be positive")
+	}
+
+	if c.MaxConcurrentConnections <= 0 {
+		return errors.New("JSON-RPC max concurrent connections must be positive")
 	}
 
 	if c.HTTPTimeout < 0 {
