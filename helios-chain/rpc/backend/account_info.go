@@ -353,12 +353,13 @@ func convertChronosRPCTransactionToRPCTransaction(tx *chronostypes.CronTransacti
 }
 
 func (b *Backend) GetAccountLastTransactionsInfo(address common.Address) ([]*rpctypes.ParsedRPCTransaction, error) {
-	txs, err := b.GetAccountTransactionsByPageAndSize(address, 1, 5)
-	if err != nil {
-		return nil, err
-	}
+	// txs, err := b.GetAccountTransactionsByPageAndSize(address, 1, 5)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	return b.ParseTransactions(txs)
+	// return b.ParseTransactions(txs)
+	return make([]*rpctypes.ParsedRPCTransaction, 0), nil
 }
 
 // GetAccountTransactionsByPageAndSize returns the transactions at the given page and size for the filtered by address

@@ -83,14 +83,15 @@ metrics-address = "{{ .JSONRPC.MetricsAddress }}"
 # Upgrade height for fix of revert gas refund logic when transaction reverted.
 fix-revert-gas-refund-height = {{ .JSONRPC.FixRevertGasRefundHeight }}
 
-# RateLimitRequestsPerSecond defines the maximum number of requests per second per IP
+# Rate limiting configuration
 rate-limit-requests-per-second = {{ .JSONRPC.RateLimitRequestsPerSecond }}
-
-# RateLimitWindow defines the time window for rate limiting
 rate-limit-window = "{{ .JSONRPC.RateLimitWindow }}"
-
-# MaxConcurrentConnections defines the maximum number of concurrent connections
 max-concurrent-connections = {{ .JSONRPC.MaxConcurrentConnections }}
+max-request-duration = "{{ .JSONRPC.MaxRequestDuration }}"
+
+# Method-specific rate limits (overrides default rate limit)
+# Format: "method1:limit1,method2:limit2"
+method-rate-limits = "{{ .JSONRPC.MethodRateLimits }}"
 
 ###############################################################################
 ###                             TLS Configuration                           ###

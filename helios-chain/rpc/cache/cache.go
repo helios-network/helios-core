@@ -57,7 +57,7 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetTokensByChainIdAndPageAndSize":           60 * time.Second,
 		"GetActiveValidatorCount":                    60 * time.Second,
 		"GetTokenDetails":                            5 * time.Minute,
-		"ChainId":                                    5 * time.Second,
+		"ChainId":                                    5 * time.Minute,
 		"BlockNumber":                                5 * time.Second,
 		"GetHyperionHistoricalFees":                  15 * time.Second,
 		"GetValidatorHyperionData":                   60 * time.Second,

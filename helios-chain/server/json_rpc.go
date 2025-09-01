@@ -2,9 +2,13 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -57,6 +61,34 @@ func extractMethodFromRequestBody(r *http.Request) string {
 	return ""
 }
 
+// parseMethodRateLimits parses the method rate limits configuration string
+// Format: "method1:limit1,method2:limit2" (e.g., "eth_call:1,eth_estimateGas:1")
+func parseMethodRateLimits(configString string) map[string]int {
+	result := make(map[string]int)
+
+	if configString == "" {
+		return result
+	}
+
+	// Split by comma
+	methods := strings.Split(configString, ",")
+	for _, method := range methods {
+		// Split by colon
+		parts := strings.Split(strings.TrimSpace(method), ":")
+		if len(parts) == 2 {
+			methodName := strings.TrimSpace(parts[0])
+			limitStr := strings.TrimSpace(parts[1])
+
+			// Parse limit
+			if limit, err := strconv.Atoi(limitStr); err == nil && limit > 0 {
+				result[methodName] = limit
+			}
+		}
+	}
+
+	return result
+}
+
 // StartJSONRPC starts the JSON-RPC server
 func StartJSONRPC(ctx *server.Context,
 	clientCtx client.Context,
@@ -93,6 +125,20 @@ func StartJSONRPC(ctx *server.Context,
 	// Apply rate limiting and connection limiting middleware
 	// Use configuration values for rate limiting
 	rateLimiter := NewRateLimiter(config.JSONRPC.RateLimitRequestsPerSecond, config.JSONRPC.RateLimitWindow)
+
+	// Create method-based rate limiter with method-specific limits
+	methodRateLimiter := NewMethodRateLimiter(config.JSONRPC.RateLimitRequestsPerSecond, config.JSONRPC.RateLimitWindow)
+
+	// Parse and apply method-specific rate limits from configuration
+	methodLimits := parseMethodRateLimits(config.JSONRPC.MethodRateLimits)
+	for method, limit := range methodLimits {
+		methodRateLimiter.SetMethodLimit(method, limit)
+		ctx.Logger.Info("Applied method-specific rate limit",
+			"method", method,
+			"limit", limit,
+			"window", config.JSONRPC.RateLimitWindow)
+	}
+
 	// Use configuration values for connection limiting
 	connLimiter := NewConnectionLimiter(config.JSONRPC.MaxConcurrentConnections)
 
@@ -107,23 +153,6 @@ func StartJSONRPC(ctx *server.Context,
 		"window_duration", config.JSONRPC.RateLimitWindow,
 		"max_concurrent_connections", config.JSONRPC.MaxConcurrentConnections)
 
-	// Start monitoring goroutine for rate limiting stats
-	go func() {
-		ticker := time.NewTicker(5 * time.Minute)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			rateMetrics := rateLimiter.GetMetrics()
-			connMetrics := connLimiter.GetMetrics()
-
-			ctx.Logger.Info("Rate limiting stats",
-				"ips_tracked", rateMetrics["total_ips_tracked"],
-				"current_connections", connMetrics["current_connections"],
-				"available_slots", connMetrics["available_slots"],
-			)
-		}
-	}()
-
 	for _, api := range apis {
 		//////////////////////////////
 		// Swagger for rpc 8545 eth_
@@ -132,7 +161,10 @@ func StartJSONRPC(ctx *server.Context,
 			apiService, ok := api.Service.(*eth.CachedPublicAPI)
 			if ok {
 				generateSwagger(ctx, apiService, r, config)
+
+				apiService.StartCleanupCacheRoutine()
 			}
+
 		}
 		//////////////////////////////
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {
@@ -150,27 +182,105 @@ func StartJSONRPC(ctx *server.Context,
 		// Extract method from request body before processing
 		method := extractMethodFromRequestBody(r)
 
+		// Get client IP for rate limiting
+		clientIP := getClientIP(r)
+
+		// Check method-specific rate limiting
+		if !methodRateLimiter.Allow(method, clientIP) {
+			ctx.Logger.Warn("Method rate limit exceeded",
+				"method", method,
+				"client_ip", clientIP)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      nil,
+				"error": map[string]interface{}{
+					"code":    -32029,
+					"message": "Method rate limit exceeded",
+					"data":    fmt.Sprintf("Method %s exceeded rate limit", method),
+				},
+			})
+			return
+		}
+
+		// Create context with timeout for max request duration
+		reqCtx, cancel := context.WithTimeout(r.Context(), config.JSONRPC.MaxRequestDuration)
+		defer cancel()
+
 		// Track timing
 		start := time.Now()
 
-		// Call the actual RPC server
-		rpcServer.ServeHTTP(w, r)
+		// Create a channel to signal completion
+		done := make(chan bool, 1)
 
-		// Calculate duration and track
-		duration := time.Since(start)
+		// Run the RPC server in a goroutine
+		go func() {
+			defer func() {
+				done <- true
+			}()
 
-		// Track the method call
-		if method != "" {
-			methodTracker.TrackMethod(method, duration, false)
-		} else {
-			methodTracker.TrackMethod("unknown", duration, false)
-		}
+			// Create a response writer that captures the response
+			rw := &responseWriter{ResponseWriter: w}
 
-		// Log slow requests
-		if duration > 1*time.Second {
-			ctx.Logger.Warn("slow JSON-RPC request",
+			// Call the actual RPC server
+			rpcServer.ServeHTTP(rw, r.WithContext(reqCtx))
+		}()
+
+		// Wait for completion or timeout
+		select {
+		case <-done:
+			// Request completed successfully
+			duration := time.Since(start)
+
+			// Track the method call
+			if method != "" {
+				methodTracker.TrackMethod(method, duration, false)
+			} else {
+				methodTracker.TrackMethod("unknown", duration, false)
+			}
+
+			// Log slow requests
+			if duration > 1*time.Second {
+				ctx.Logger.Warn("slow JSON-RPC request",
+					"method", method,
+					"duration", duration)
+			}
+
+		case <-reqCtx.Done():
+			// Request timed out - cancel the request and return error
+			duration := time.Since(start)
+
+			// Track the timeout as an error
+			if method != "" {
+				methodTracker.TrackMethod(method, duration, true)
+			} else {
+				methodTracker.TrackMethod("unknown", duration, true)
+			}
+
+			// Log the timeout (not critical anymore)
+			ctx.Logger.Warn("JSON-RPC request exceeded max duration, cancelling request",
 				"method", method,
-				"duration", duration)
+				"duration", duration,
+				"max_duration", config.JSONRPC.MaxRequestDuration,
+				"timeout_error", reqCtx.Err().Error())
+
+			// Send error response to client
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusRequestTimeout)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      nil,
+				"error": map[string]interface{}{
+					"code":    -32000,
+					"message": "Request timeout exceeded",
+					"data":    fmt.Sprintf("Request exceeded maximum duration of %v", config.JSONRPC.MaxRequestDuration),
+				},
+			})
+
+			// The request is already cancelled by the context timeout
+			// No need to force exit the process
 		}
 	}).Methods("POST")
 
@@ -190,6 +300,10 @@ func StartJSONRPC(ctx *server.Context,
 				"max_connections":     config.JSONRPC.MaxConcurrentConnections,
 				"current_connections": connLimiter.GetConnectionCount(),
 			},
+			"request_timeout": map[string]interface{}{
+				"enabled":      true,
+				"max_duration": config.JSONRPC.MaxRequestDuration.String(),
+			},
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 		}
 
@@ -204,12 +318,16 @@ func StartJSONRPC(ctx *server.Context,
 
 		// Get detailed metrics from both limiters
 		metrics := map[string]interface{}{
-			"rate_limiter":       rateLimiter.GetMetrics(),
-			"connection_limiter": connLimiter.GetMetrics(),
-			"method_tracker":     methodTracker.GetAllMethodStats(), // Add method tracker metrics
+			"rate_limiter":        rateLimiter.GetMetrics(),
+			"method_rate_limiter": methodRateLimiter.GetAllMethodMetrics(),
+			"connection_limiter":  connLimiter.GetMetrics(),
+			"method_tracker":      methodTracker.GetAllMethodStats(), // Add method tracker metrics
 			"rate_limit_info": map[string]interface{}{
 				"requests_per_second": config.JSONRPC.RateLimitRequestsPerSecond,
 				"window_duration":     config.JSONRPC.RateLimitWindow.String(),
+			},
+			"request_timeout_info": map[string]interface{}{
+				"max_duration": config.JSONRPC.MaxRequestDuration.String(),
 			},
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 		}

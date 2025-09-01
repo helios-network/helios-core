@@ -468,3 +468,18 @@ func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}
 	}
 	return nil, nil
 }
+
+func (c *CachedPublicAPI) CleanupCache() {
+	c.cache.Cleanup()
+}
+
+func (c *CachedPublicAPI) StartCleanupCacheRoutine() {
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			c.cache.Cleanup()
+		}
+	}()
+}

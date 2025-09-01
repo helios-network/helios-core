@@ -181,6 +181,8 @@ func (b *Backend) GetCoinbase() (sdk.AccAddress, error) {
 	return address, nil
 }
 
+var feeHistoryBlockCache = make(map[uint64]rpctypes.OneFeeHistory)
+
 // FeeHistory returns data relevant for fee estimation based on the specified range of blocks.
 func (b *Backend) FeeHistory(
 	userBlockCount rpc.DecimalOrHex, // number blocks to fetch, maximum is 100
@@ -226,6 +228,22 @@ func (b *Backend) FeeHistory(
 	// fetch block
 	for blockID := blockStart; blockID <= blockEnd; blockID++ {
 		index := int32(blockID - blockStart) // #nosec G701 G115
+
+		if oneFeeHistory, ok := feeHistoryBlockCache[uint64(blockID)]; ok {
+			thisBaseFee[index] = (*hexutil.Big)(oneFeeHistory.BaseFee)
+			thisBaseFee[index+1] = (*hexutil.Big)(oneFeeHistory.NextBaseFee)
+			thisGasUsedRatio[index] = oneFeeHistory.GasUsedRatio
+			if calculateRewards {
+				for j := 0; j < rewardCount; j++ {
+					reward[index][j] = (*hexutil.Big)(oneFeeHistory.Reward[j])
+					if reward[index][j] == nil {
+						reward[index][j] = (*hexutil.Big)(big.NewInt(0))
+					}
+				}
+			}
+			continue
+		}
+
 		// tendermint block
 		tendermintblock, err := b.TendermintBlockByNumber(rpctypes.BlockNumber(blockID))
 		if tendermintblock == nil {
@@ -250,7 +268,7 @@ func (b *Backend) FeeHistory(
 		if err != nil {
 			return nil, err
 		}
-
+		feeHistoryBlockCache[uint64(blockID)] = oneFeeHistory
 		// copy
 		thisBaseFee[index] = (*hexutil.Big)(oneFeeHistory.BaseFee)
 		thisBaseFee[index+1] = (*hexutil.Big)(oneFeeHistory.NextBaseFee)
@@ -273,6 +291,28 @@ func (b *Backend) FeeHistory(
 
 	if calculateRewards {
 		feeHistory.Reward = reward
+	}
+
+	// remove old block from cache
+	blockNumber, err := b.BlockNumber()
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect blocks to delete to avoid modifying map during iteration
+	var blocksToDelete []uint64
+	for blockID := range feeHistoryBlockCache {
+		// Keep blocks that are within FeeHistoryCap from current block
+		// Delete blocks that are older than FeeHistoryCap
+		if uint64(blockNumber)-uint64(blockID) <= uint64(b.cfg.JSONRPC.FeeHistoryCap) {
+			continue
+		}
+		blocksToDelete = append(blocksToDelete, blockID)
+	}
+
+	// Delete collected blocks
+	for _, blockID := range blocksToDelete {
+		delete(feeHistoryBlockCache, blockID)
 	}
 
 	return &feeHistory, nil

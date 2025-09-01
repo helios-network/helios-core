@@ -114,6 +114,9 @@ const (
 	// DefaultMaxConcurrentConnections is the default maximum number of concurrent connections
 	DefaultMaxConcurrentConnections = 1000
 
+	// DefaultMaxRequestDuration is the default maximum duration for JSON-RPC requests
+	DefaultMaxRequestDuration = 30 * time.Second
+
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
 
@@ -244,6 +247,13 @@ type JSONRPCConfig struct {
 	RateLimitWindow time.Duration `mapstructure:"rate-limit-window"`
 	// MaxConcurrentConnections defines the maximum number of concurrent connections
 	MaxConcurrentConnections int `mapstructure:"max-concurrent-connections"`
+
+	// MaxRequestDuration is the maximum duration allowed for JSON-RPC requests
+	MaxRequestDuration time.Duration `mapstructure:"max-request-duration"`
+
+	// MethodRateLimits defines specific rate limits for individual methods as a string
+	// Format: "method1:limit1,method2:limit2" (e.g., "eth_call:1,eth_estimateGas:1")
+	MethodRateLimits string `mapstructure:"method-rate-limits"`
 }
 
 // TLSConfig defines the certificate and matching private key for the server.
@@ -384,6 +394,8 @@ func DefaultJSONRPCConfig() *JSONRPCConfig {
 		RateLimitRequestsPerSecond: DefaultRateLimitRequestsPerSecond,
 		RateLimitWindow:            DefaultRateLimitWindow,
 		MaxConcurrentConnections:   DefaultMaxConcurrentConnections,
+		MaxRequestDuration:         DefaultMaxRequestDuration,
+		MethodRateLimits:           "",
 	}
 }
 
@@ -426,7 +438,11 @@ func (c JSONRPCConfig) Validate() error {
 	}
 
 	if c.MaxConcurrentConnections <= 0 {
-		return errors.New("JSON-RPC max concurrent connections must be positive")
+		return fmt.Errorf("max-concurrent-connections must be positive, got %d", c.MaxConcurrentConnections)
+	}
+
+	if c.MaxRequestDuration <= 0 {
+		return fmt.Errorf("max-request-duration must be positive, got %v", c.MaxRequestDuration)
 	}
 
 	if c.HTTPTimeout < 0 {

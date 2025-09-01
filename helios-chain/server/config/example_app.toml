@@ -85,6 +85,16 @@ rate-limit-window = "1s"
 # Default: 1000 connections
 max-concurrent-connections = 1000
 
+# MaxRequestDuration defines the maximum duration for a single request.
+max-request-duration = "30s"
+
+# Fee history configuration
+feehistory-cap = 100
+
+# Method-specific rate limits (overrides default rate limit)
+# Format: "method1:limit1,method2:limit2"
+method-rate-limits = "eth_call:1,eth_estimateGas:1,eth_getLogs:3,eth_getStorageAt:5"
+
 ###############################################################################
 ###                             TLS Configuration                           ###
 ###############################################################################
