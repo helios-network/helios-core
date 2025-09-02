@@ -3,9 +3,10 @@ package keeper
 import (
 	"slices"
 
+	"helios-core/helios-chain/x/erc20/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/x/erc20/types"
 )
 
 var isTrue = []byte("0x01")
@@ -45,23 +46,45 @@ func (k Keeper) UpdateCodeHash(ctx sdk.Context, newParams types.Params) error {
 // It then compares the two arrays and registers the code hash for all precompiles that are newly added
 // and unregisters the code hash for all precompiles that are removed from the list.
 func (k Keeper) RegisterOrUnregisterERC20CodeHashes(ctx sdk.Context, oldPrecompiles, newPrecompiles []string) error {
-	for _, precompile := range oldPrecompiles {
-		if slices.Contains(newPrecompiles, precompile) {
-			continue
-		}
+	// Create maps for O(1) lookup instead of O(n²) slices.Contains
+	newPrecompilesSet := make(map[string]bool, len(newPrecompiles))
+	oldPrecompilesSet := make(map[string]bool, len(oldPrecompiles))
 
-		if err := k.UnRegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
-			return err
+	// Build new precompiles set
+	for _, precompile := range newPrecompiles {
+		if precompile != "" {
+			newPrecompilesSet[precompile] = true
 		}
 	}
 
-	for _, precompile := range newPrecompiles {
-		if slices.Contains(oldPrecompiles, precompile) {
+	// Build old precompiles set
+	for _, precompile := range oldPrecompiles {
+		if precompile != "" {
+			oldPrecompilesSet[precompile] = true
+		}
+	}
+
+	// Unregister precompiles that are no longer in the new set
+	for _, precompile := range oldPrecompiles {
+		if precompile == "" {
 			continue
 		}
+		if !newPrecompilesSet[precompile] {
+			if err := k.UnRegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
+				return err
+			}
+		}
+	}
 
-		if err := k.RegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
-			return err
+	// Register new precompiles that weren't in the old set
+	for _, precompile := range newPrecompiles {
+		if precompile == "" {
+			continue
+		}
+		if !oldPrecompilesSet[precompile] {
+			if err := k.RegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
+				return err
+			}
 		}
 	}
 
