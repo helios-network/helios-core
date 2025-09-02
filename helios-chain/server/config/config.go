@@ -111,11 +111,23 @@ const (
 	// DefaultRateLimitWindow is the default time window for rate limiting
 	DefaultRateLimitWindow = 1 * time.Second
 
+	// DefaultMethodRateLimits is the default method-specific rate limits
+	// Format: "method1:limit1,method2:limit2"
+	// eth_estimateGas:10 = 10 requests per window (more realistic for development)
+	// eth_call:5 = 5 requests per window (reasonable for contract calls)
+	DefaultMethodRateLimits = "eth_call:5,eth_estimateGas:10,eth_getLogs:3,eth_getStorageAt:5"
+
 	// DefaultMaxConcurrentConnections is the default maximum number of concurrent connections
 	DefaultMaxConcurrentConnections = 1000
 
 	// DefaultMaxRequestDuration is the default maximum duration for JSON-RPC requests
 	DefaultMaxRequestDuration = 30 * time.Second
+
+	// DefaultComputeTimeWindow is the default time window for compute time limiting
+	DefaultComputeTimeWindow = 5 * time.Minute
+
+	// DefaultComputeTimeLimitPerWindowPerIP is the default maximum compute time allowed per IP within the compute time window
+	DefaultComputeTimeLimitPerWindowPerIP = 60 * time.Second
 
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
@@ -254,6 +266,12 @@ type JSONRPCConfig struct {
 	// MethodRateLimits defines specific rate limits for individual methods as a string
 	// Format: "method1:limit1,method2:limit2" (e.g., "eth_call:1,eth_estimateGas:1")
 	MethodRateLimits string `mapstructure:"method-rate-limits"`
+
+	// ComputeTimeLimitPerWindowPerIP defines the maximum compute time allowed per IP within the compute time window
+	ComputeTimeLimitPerWindowPerIP time.Duration `mapstructure:"compute-time-limit-per-window-per-ip"`
+
+	// ComputeTimeWindow defines the time window for compute time limiting per IP
+	ComputeTimeWindow time.Duration `mapstructure:"compute-time-window"`
 }
 
 // TLSConfig defines the certificate and matching private key for the server.
@@ -372,30 +390,32 @@ func GetAPINamespaces() []string {
 // DefaultJSONRPCConfig returns an EVM config with the JSON-RPC API enabled by default
 func DefaultJSONRPCConfig() *JSONRPCConfig {
 	return &JSONRPCConfig{
-		Enable:                     DefaultJSONRPCEnable,
-		API:                        GetDefaultAPINamespaces(),
-		Address:                    DefaultJSONRPCAddress,
-		WsAddress:                  DefaultJSONRPCWsAddress,
-		GasCap:                     DefaultGasCap,
-		AllowInsecureUnlock:        DefaultJSONRPCAllowInsecureUnlock,
-		EVMTimeout:                 DefaultEVMTimeout,
-		TxFeeCap:                   DefaultTxFeeCap,
-		FilterCap:                  DefaultFilterCap,
-		FeeHistoryCap:              DefaultFeeHistoryCap,
-		BlockRangeCap:              DefaultBlockRangeCap,
-		LogsCap:                    DefaultLogsCap,
-		HTTPTimeout:                DefaultHTTPTimeout,
-		HTTPIdleTimeout:            DefaultHTTPIdleTimeout,
-		AllowUnprotectedTxs:        DefaultAllowUnprotectedTxs,
-		MaxOpenConnections:         DefaultMaxOpenConnections,
-		EnableIndexer:              false,
-		MetricsAddress:             DefaultJSONRPCMetricsAddress,
-		FixRevertGasRefundHeight:   DefaultFixRevertGasRefundHeight,
-		RateLimitRequestsPerSecond: DefaultRateLimitRequestsPerSecond,
-		RateLimitWindow:            DefaultRateLimitWindow,
-		MaxConcurrentConnections:   DefaultMaxConcurrentConnections,
-		MaxRequestDuration:         DefaultMaxRequestDuration,
-		MethodRateLimits:           "",
+		Enable:                         DefaultJSONRPCEnable,
+		API:                            GetDefaultAPINamespaces(),
+		Address:                        DefaultJSONRPCAddress,
+		WsAddress:                      DefaultJSONRPCWsAddress,
+		GasCap:                         DefaultGasCap,
+		AllowInsecureUnlock:            DefaultJSONRPCAllowInsecureUnlock,
+		EVMTimeout:                     DefaultEVMTimeout,
+		TxFeeCap:                       DefaultTxFeeCap,
+		FilterCap:                      DefaultFilterCap,
+		FeeHistoryCap:                  DefaultFeeHistoryCap,
+		BlockRangeCap:                  DefaultBlockRangeCap,
+		LogsCap:                        DefaultLogsCap,
+		HTTPTimeout:                    DefaultHTTPTimeout,
+		HTTPIdleTimeout:                DefaultHTTPIdleTimeout,
+		AllowUnprotectedTxs:            DefaultAllowUnprotectedTxs,
+		MaxOpenConnections:             DefaultMaxOpenConnections,
+		EnableIndexer:                  false,
+		MetricsAddress:                 DefaultJSONRPCMetricsAddress,
+		FixRevertGasRefundHeight:       DefaultFixRevertGasRefundHeight,
+		RateLimitRequestsPerSecond:     DefaultRateLimitRequestsPerSecond,
+		RateLimitWindow:                DefaultRateLimitWindow,
+		MaxConcurrentConnections:       DefaultMaxConcurrentConnections,
+		MaxRequestDuration:             DefaultMaxRequestDuration,
+		MethodRateLimits:               "",
+		ComputeTimeLimitPerWindowPerIP: DefaultComputeTimeLimitPerWindowPerIP,
+		ComputeTimeWindow:              DefaultComputeTimeWindow,
 	}
 }
 

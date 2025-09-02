@@ -16,6 +16,7 @@ import (
 
 	"helios-core/helios-chain/rpc"
 	"helios-core/helios-chain/rpc/backend"
+	"helios-core/helios-chain/server/middleware"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -25,6 +26,7 @@ import (
 	"helios-core/helios-chain/rpc/namespaces/ethereum/eth"
 
 	svrconfig "helios-core/helios-chain/server/config"
+	"helios-core/helios-chain/server/routes"
 	evmostypes "helios-core/helios-chain/types"
 )
 
@@ -124,10 +126,10 @@ func StartJSONRPC(ctx *server.Context,
 
 	// Apply rate limiting and connection limiting middleware
 	// Use configuration values for rate limiting
-	rateLimiter := NewRateLimiter(config.JSONRPC.RateLimitRequestsPerSecond, config.JSONRPC.RateLimitWindow)
+	rateLimiter := middleware.NewRateLimiter(config.JSONRPC.RateLimitRequestsPerSecond, config.JSONRPC.RateLimitWindow)
 
 	// Create method-based rate limiter with method-specific limits
-	methodRateLimiter := NewMethodRateLimiter(config.JSONRPC.RateLimitRequestsPerSecond, config.JSONRPC.RateLimitWindow)
+	methodRateLimiter := middleware.NewMethodRateLimiter(config.JSONRPC.RateLimitRequestsPerSecond, config.JSONRPC.RateLimitWindow)
 
 	// Parse and apply method-specific rate limits from configuration
 	methodLimits := parseMethodRateLimits(config.JSONRPC.MethodRateLimits)
@@ -140,18 +142,30 @@ func StartJSONRPC(ctx *server.Context,
 	}
 
 	// Use configuration values for connection limiting
-	connLimiter := NewConnectionLimiter(config.JSONRPC.MaxConcurrentConnections)
+	connLimiter := middleware.NewConnectionLimiter(config.JSONRPC.MaxConcurrentConnections)
 
 	// Create method tracker for performance monitoring
-	methodTracker := NewMethodTracker()
+	methodTracker := middleware.NewMethodTracker()
+
+	// Create compute time tracker for intelligent prediction
+	computeTimeTracker := middleware.NewComputeTimeTracker(
+		config.JSONRPC.ComputeTimeLimitPerWindowPerIP,
+		config.JSONRPC.ComputeTimeWindow,
+	)
+
+	// Link method tracker with compute time tracker
+	methodTracker.SetComputeTimeTracker(computeTimeTracker)
 
 	// Apply the combined middleware to all routes
-	r.Use(CombinedMiddleware(rateLimiter, connLimiter, ctx.Logger))
+	r.Use(middleware.CombinedMiddleware(rateLimiter, connLimiter, ctx.Logger))
 
 	ctx.Logger.Info("Applied rate limiting middleware",
 		"requests_per_second", config.JSONRPC.RateLimitRequestsPerSecond,
 		"window_duration", config.JSONRPC.RateLimitWindow,
 		"max_concurrent_connections", config.JSONRPC.MaxConcurrentConnections)
+
+	// Setup organized RPC routes
+	routes.SetupRPCRoutes(r, rateLimiter, methodRateLimiter, connLimiter, methodTracker, computeTimeTracker, &config.JSONRPC)
 
 	for _, api := range apis {
 		//////////////////////////////
@@ -205,6 +219,28 @@ func StartJSONRPC(ctx *server.Context,
 			return
 		}
 
+		// PREDICT compute time before execution to prevent timeouts
+		if !computeTimeTracker.PredictComputeTime(clientIP, method) {
+			ctx.Logger.Warn("Predicted compute time limit exceeded for IP",
+				"ip", clientIP,
+				"method", method,
+				"limit", config.JSONRPC.ComputeTimeLimitPerWindowPerIP)
+
+			// Send error response before execution
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      nil,
+				"error": map[string]interface{}{
+					"code":    -32030,
+					"message": "Predicted compute time limit exceeded",
+					"data":    fmt.Sprintf("IP %s would exceed compute time limit for method %s", clientIP, method),
+				},
+			})
+			return
+		}
+
 		// Create context with timeout for max request duration
 		reqCtx, cancel := context.WithTimeout(r.Context(), config.JSONRPC.MaxRequestDuration)
 		defer cancel()
@@ -218,7 +254,33 @@ func StartJSONRPC(ctx *server.Context,
 		// Run the RPC server in a goroutine
 		go func() {
 			defer func() {
-				done <- true
+				// Recover from any panics
+				if panicErr := recover(); panicErr != nil {
+					ctx.Logger.Error("Panic in RPC server, recovering",
+						"panic", panicErr,
+						"method", method,
+						"client_ip", clientIP)
+
+					// Send error response to client
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusInternalServerError)
+					json.NewEncoder(w).Encode(map[string]interface{}{
+						"jsonrpc": "2.0",
+						"id":      nil,
+						"error": map[string]interface{}{
+							"code":    -32603,
+							"message": "Internal error",
+							"data":    "Server panic recovered",
+						},
+					})
+				}
+
+				// Always signal completion (with timeout protection)
+				select {
+				case done <- true:
+				default:
+					// Channel full, request already handled
+				}
 			}()
 
 			// Create a response writer that captures the response
@@ -234,7 +296,10 @@ func StartJSONRPC(ctx *server.Context,
 			// Request completed successfully
 			duration := time.Since(start)
 
-			// Track the method call
+			// Update compute time limit per IP
+			computeTimeTracker.AddComputeTime(clientIP, duration)
+
+			// Track the method call manually
 			if method != "" {
 				methodTracker.TrackMethod(method, duration, false)
 			} else {
@@ -252,7 +317,7 @@ func StartJSONRPC(ctx *server.Context,
 			// Request timed out - cancel the request and return error
 			duration := time.Since(start)
 
-			// Track the timeout as an error
+			// Track the timeout as an error manually
 			if method != "" {
 				methodTracker.TrackMethod(method, duration, true)
 			} else {
@@ -279,82 +344,26 @@ func StartJSONRPC(ctx *server.Context,
 				},
 			})
 
-			// The request is already cancelled by the context timeout
-			// No need to force exit the process
+		case <-time.After(config.JSONRPC.MaxRequestDuration + 5*time.Second):
+			// Emergency timeout - something went wrong with the goroutine
+			ctx.Logger.Error("Emergency timeout - RPC goroutine did not complete",
+				"method", method,
+				"client_ip", clientIP,
+				"duration", time.Since(start))
+
+			// Send error response to client
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      nil,
+				"error": map[string]interface{}{
+					"code":    -32603,
+					"message": "Internal error",
+					"data":    "Request processing timeout",
+				},
+			})
 		}
-	}).Methods("POST")
-
-	// Add monitoring endpoint for rate limiting and connection stats
-	r.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		status := map[string]interface{}{
-			"rate_limiting": map[string]interface{}{
-				"enabled": true,
-				"limit":   config.JSONRPC.RateLimitRequestsPerSecond,
-				"window":  config.JSONRPC.RateLimitWindow.String(),
-			},
-			"connection_limiting": map[string]interface{}{
-				"enabled":             true,
-				"max_connections":     config.JSONRPC.MaxConcurrentConnections,
-				"current_connections": connLimiter.GetConnectionCount(),
-			},
-			"request_timeout": map[string]interface{}{
-				"enabled":      true,
-				"max_duration": config.JSONRPC.MaxRequestDuration.String(),
-			},
-			"timestamp": time.Now().UTC().Format(time.RFC3339),
-		}
-
-		// Convert to JSON
-		json.NewEncoder(w).Encode(status)
-	}).Methods("GET")
-
-	// Add detailed metrics endpoint for rate limiting
-	r.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		// Get detailed metrics from both limiters
-		metrics := map[string]interface{}{
-			"rate_limiter":        rateLimiter.GetMetrics(),
-			"method_rate_limiter": methodRateLimiter.GetAllMethodMetrics(),
-			"connection_limiter":  connLimiter.GetMetrics(),
-			"method_tracker":      methodTracker.GetAllMethodStats(), // Add method tracker metrics
-			"rate_limit_info": map[string]interface{}{
-				"requests_per_second": config.JSONRPC.RateLimitRequestsPerSecond,
-				"window_duration":     config.JSONRPC.RateLimitWindow.String(),
-			},
-			"request_timeout_info": map[string]interface{}{
-				"max_duration": config.JSONRPC.MaxRequestDuration.String(),
-			},
-			"timestamp": time.Now().UTC().Format(time.RFC3339),
-		}
-
-		json.NewEncoder(w).Encode(metrics)
-	}).Methods("GET")
-
-	// Add reset endpoint for rate limiting (useful for testing and maintenance)
-	r.HandleFunc("/reset", func(w http.ResponseWriter, r *http.Request) {
-		// Only allow POST method for security
-		if r.Method != "POST" {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
-		// Reset rate limiting counters
-		rateLimiter.Reset()
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		response := map[string]interface{}{
-			"message":   "Rate limiting counters reset successfully",
-			"timestamp": time.Now().UTC().Format(time.RFC3339),
-		}
-
-		json.NewEncoder(w).Encode(response)
 	}).Methods("POST")
 
 	handlerWithCors := cors.Default()

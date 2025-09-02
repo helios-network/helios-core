@@ -93,6 +93,10 @@ max-request-duration = "{{ .JSONRPC.MaxRequestDuration }}"
 # Format: "method1:limit1,method2:limit2"
 method-rate-limits = "{{ .JSONRPC.MethodRateLimits }}"
 
+# Compute time limiting configuration
+compute-time-window = "{{ .JSONRPC.ComputeTimeWindow }}"
+compute-time-limit-per-window-per-ip = "{{ .JSONRPC.ComputeTimeLimitPerWindowPerIP }}"
+
 ###############################################################################
 ###                             TLS Configuration                           ###
 ###############################################################################

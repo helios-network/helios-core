@@ -698,6 +698,7 @@ func startJSONRPCServer(
 	ctx = clientCtx.WithChainID(genDoc.ChainID)
 	cmtEndpoint := "/websocket"
 	g.Go(func() error {
+
 		httpSrv, httpSrvDone, err = StartJSONRPC(svrCtx, clientCtx, cmtRPCAddr, cmtEndpoint, &config, idxer)
 		return err
 	})
