@@ -100,10 +100,10 @@ func (rl *RateLimiter) GetMetrics() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
+		"active_requests":   activeRequests,
+		"total_ips_tracked": totalIPs,
 		"limit":             rl.limit,
 		"window_duration":   rl.window.String(),
-		"total_ips_tracked": totalIPs,
-		"active_requests":   activeRequests,
 	}
 }
 
@@ -111,5 +111,9 @@ func (rl *RateLimiter) GetMetrics() map[string]interface{} {
 func (rl *RateLimiter) Reset() {
 	rl.mutex.Lock()
 	defer rl.mutex.Unlock()
-	rl.requests = make(map[string][]time.Time)
+
+	// Clear all requests
+	for ip := range rl.requests {
+		delete(rl.requests, ip)
+	}
 }

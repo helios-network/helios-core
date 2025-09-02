@@ -28,6 +28,10 @@ import (
 	svrconfig "helios-core/helios-chain/server/config"
 	"helios-core/helios-chain/server/routes"
 	evmostypes "helios-core/helios-chain/types"
+	"os"
+	"runtime"
+
+	cosmossdklog "cosmossdk.io/log"
 )
 
 // extractMethodFromRequestBody extracts the method name from a JSON-RPC request body
@@ -89,6 +93,82 @@ func parseMethodRateLimits(configString string) map[string]int {
 	}
 
 	return result
+}
+
+// startMonitoring starts automatic monitoring and logging every minute
+func startMonitoring(
+	logger cosmossdklog.Logger,
+	rateLimiter *middleware.RateLimiter,
+	methodRateLimiter *middleware.MethodRateLimiter,
+	connLimiter *middleware.ConnectionLimiter,
+	methodTracker *middleware.MethodTracker,
+	computeTimeTracker *middleware.ComputeTimeTracker,
+) {
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		// Get system metrics
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		goroutineCount := runtime.NumGoroutine()
+
+		// Create monitoring data
+		monitoringData := map[string]interface{}{
+			"timestamp": time.Now().UTC().Format(time.RFC3339),
+			"system": map[string]interface{}{
+				"goroutines":         goroutineCount,
+				"memory_alloc":       m.Alloc,
+				"memory_total_alloc": m.TotalAlloc,
+				"memory_sys":         m.Sys,
+				"memory_heap_alloc":  m.HeapAlloc,
+				"memory_heap_sys":    m.HeapSys,
+				"memory_heap_idle":   m.HeapIdle,
+				"memory_heap_inuse":  m.HeapInuse,
+				"gc_cycles":          m.NumGC,
+				"gc_pause_total":     m.PauseTotalNs,
+				"cpu_count":          runtime.NumCPU(),
+			},
+			"rate_limiter":        rateLimiter.GetMetrics(),
+			"method_rate_limiter": methodRateLimiter.GetAllMethodMetrics(),
+			"connection_limiter":  connLimiter.GetMetrics(),
+			"method_tracker":      methodTracker.GetAllMethodStats(),
+		}
+
+		if computeTimeTracker != nil {
+			monitoringData["compute_time_tracker"] = computeTimeTracker.GetMetrics()
+		}
+
+		// Convert to JSON
+		jsonData, err := json.MarshalIndent(monitoringData, "", "  ")
+		if err != nil {
+			logger.Error("Failed to marshal monitoring data", "error", err)
+			continue
+		}
+
+		// Log to file
+		filename := fmt.Sprintf("monitoring_%s.log", time.Now().Format("2006-01-02"))
+		if err := os.WriteFile(filename, jsonData, 0644); err != nil {
+			logger.Error("Failed to write monitoring file", "error", err, "filename", filename)
+			continue
+		}
+
+		// Log critical metrics to console
+		logger.Info("Monitoring snapshot",
+			"goroutines", goroutineCount,
+			"memory_alloc_mb", m.Alloc/1024/1024,
+			"memory_heap_mb", m.HeapAlloc/1024/1024,
+			"gc_cycles", m.NumGC,
+			"filename", filename)
+
+		// Alert if critical thresholds are exceeded
+		if goroutineCount > 10000 {
+			logger.Error("CRITICAL: Too many goroutines", "count", goroutineCount)
+		}
+		if m.HeapAlloc > 1<<30 { // 1GB
+			logger.Error("CRITICAL: High memory usage", "heap_alloc_mb", m.HeapAlloc/1024/1024)
+		}
+	}
 }
 
 // StartJSONRPC starts the JSON-RPC server
@@ -155,6 +235,9 @@ func StartJSONRPC(ctx *server.Context,
 
 	// Link method tracker with compute time tracker
 	methodTracker.SetComputeTimeTracker(computeTimeTracker)
+
+	// Start automatic monitoring and logging
+	go startMonitoring(ctx.Logger, rateLimiter, methodRateLimiter, connLimiter, methodTracker, computeTimeTracker)
 
 	// Apply the combined middleware to all routes
 	r.Use(middleware.CombinedMiddleware(rateLimiter, connLimiter, ctx.Logger))

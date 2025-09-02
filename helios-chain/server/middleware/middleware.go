@@ -12,15 +12,8 @@ import (
 
 // RateLimitMiddleware creates a middleware that limits requests per IP
 func RateLimitMiddleware(limiter *RateLimiter, logger log.Logger) func(http.Handler) http.Handler {
-	// Start cleanup goroutine
-	go func() {
-		ticker := time.NewTicker(1 * time.Minute)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			limiter.Cleanup()
-		}
-	}()
+	// REMOVED: Automatic cleanup goroutine that was causing massive goroutine leaks
+	// Cleanup is now handled manually via /reset endpoint or periodic monitoring
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
