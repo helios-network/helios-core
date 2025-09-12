@@ -206,16 +206,16 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) ([]by
 		return nil, fmt.Errorf("failed to EnableDynamicPrecompiles: %w", err)
 	}
 
-	ctx.EventManager().EmitEvent(
-		sdktypes.NewEvent(
-			"erc20_created", // todo: add to sdktypes
-			sdktypes.NewAttribute("denom", denom),
-			sdktypes.NewAttribute("symbol", symbol),
-			sdktypes.NewAttribute("contract_address", contractAddr.String()),
-			sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
-			sdktypes.NewAttribute("supply", supply.String()),
-		),
-	)
+	// ctx.EventManager().EmitEvent(
+	// 	sdktypes.NewEvent(
+	// 		"erc20_created", // todo: add to sdktypes
+	// 		sdktypes.NewAttribute("denom", denom),
+	// 		sdktypes.NewAttribute("symbol", symbol),
+	// 		sdktypes.NewAttribute("contract_address", contractAddr.String()),
+	// 		sdktypes.NewAttribute("decimals", fmt.Sprintf("%d", decimals)),
+	// 		sdktypes.NewAttribute("supply", supply.String()),
+	// 	),
+	// )
 
 	// TODO REMOVE AFTER
 	// asset := types.Asset{

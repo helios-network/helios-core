@@ -3,13 +3,13 @@ package keeper
 import (
 	"fmt"
 
+	"helios-core/helios-chain/precompiles/erc20"
+	"helios-core/helios-chain/precompiles/werc20"
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"helios-core/helios-chain/precompiles/erc20"
-	"helios-core/helios-chain/precompiles/werc20"
-	"helios-core/helios-chain/x/erc20/types"
-	"helios-core/helios-chain/x/evm/core/vm"
 )
 
 // GetERC20PrecompileInstance returns the precompile instance for the given address.
@@ -17,12 +17,11 @@ func (k Keeper) GetERC20PrecompileInstance(
 	ctx sdk.Context,
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
-	params := k.GetParams(ctx)
-	if !k.IsAvailableERC20Precompile(&params, address) {
+	if !k.IsAvailableERC20Precompile(ctx, address) {
 		return nil, false, nil
 	}
 
-	isNative := params.IsNativePrecompile(address)
+	isNative := k.IsNativePrecompileEnabled(ctx, address)
 
 	precompile, err := k.InstantiateERC20Precompile(ctx, address, isNative)
 	if err != nil {
@@ -59,7 +58,7 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 // is contained in the params of the erc20 module.
 // The available ERC-20 precompiles consist of the dynamic precompiles and the native
 // ones.
-func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
-	return params.IsNativePrecompile(address) ||
-		params.IsDynamicPrecompile(address)
+func (k Keeper) IsAvailableERC20Precompile(ctx sdk.Context, address common.Address) bool {
+	return k.IsNativePrecompileEnabled(ctx, address) ||
+		k.IsDynamicPrecompileEnabled(ctx, address)
 }
