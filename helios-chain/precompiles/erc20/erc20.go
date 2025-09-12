@@ -6,23 +6,25 @@ import (
 
 	cmn "helios-core/helios-chain/precompiles/common"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"helios-core/helios-chain/x/evm/core/vm"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+
+	auth "helios-core/helios-chain/precompiles/authorization"
+	erc20types "helios-core/helios-chain/x/erc20/types"
+	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "helios-core/helios-chain/precompiles/authorization"
-	erc20types "helios-core/helios-chain/x/erc20/types"
-	transferkeeper "helios-core/helios-chain/x/ibc/transfer/keeper"
 )
 
 const (
 	// abiPath defines the path to the ERC-20 precompile ABI JSON file.
 	abiPath = "abi.json"
 
-	GasTransfer          = 3_000_000
+	GasTransfer          = 50_000
 	GasApprove           = 30_956
 	GasIncreaseAllowance = 34_605
 	GasDecreaseAllowance = 34_519
