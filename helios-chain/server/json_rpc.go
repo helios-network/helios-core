@@ -61,10 +61,8 @@ func extractMethodFromRequestBody(r *http.Request) string {
 	}
 
 	if err := json.Unmarshal(bodyBytes, &request); err == nil {
-		fmt.Println("RPC: Extracted method", "method", request.Method)
 		return request.Method
 	}
-	fmt.Println("RPC: Failed to extract method", "error", err)
 
 	return ""
 }
