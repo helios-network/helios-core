@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -36,6 +37,9 @@ var (
 
 	_ appmodule.AppModule   = AppModule{}
 	_ module.HasABCIGenesis = AppModule{}
+
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker   = AppModule{}
 )
 
 // app module Basics object
@@ -164,3 +168,30 @@ func (am AppModule) IsAppModule() {}
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (am AppModule) IsOnePerModuleType() {}
+
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	return nil
+}
+
+func (am AppModule) EndBlock(ctx context.Context) error {
+	oldDynamicPrecompiles := am.keeper.GetOldDynamicPrecompiles(sdk.UnwrapSDKContext(ctx))
+	oldNativePrecompiles := am.keeper.GetOldNativePrecompiles(sdk.UnwrapSDKContext(ctx))
+
+	fmt.Println("oldDynamicPrecompiles", oldDynamicPrecompiles)
+	fmt.Println("oldNativePrecompiles", oldNativePrecompiles)
+
+	if len(oldDynamicPrecompiles) > 0 {
+		for _, dynamicPrecompile := range oldDynamicPrecompiles {
+			am.keeper.SetDynamicPrecompileEnabled(sdk.UnwrapSDKContext(ctx), common.HexToAddress(dynamicPrecompile))
+		}
+		am.keeper.SetOldDynamicPrecompiles(sdk.UnwrapSDKContext(ctx), []string{})
+	}
+	if len(oldNativePrecompiles) > 0 {
+		for _, nativePrecompile := range oldNativePrecompiles {
+			am.keeper.SetNativePrecompileEnabled(sdk.UnwrapSDKContext(ctx), common.HexToAddress(nativePrecompile))
+		}
+		am.keeper.SetOldNativePrecompiles(sdk.UnwrapSDKContext(ctx), []string{})
+	}
+
+	return nil
+}

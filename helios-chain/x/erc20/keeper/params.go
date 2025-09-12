@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"slices"
-
 	"helios-core/helios-chain/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,98 +14,18 @@ const addressLength = 42
 // GetParams returns the total set of erc20 parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	enableErc20 := k.IsERC20Enabled(ctx)
-	dynamicPrecompiles := k.getDynamicPrecompiles(ctx)
-	nativePrecompiles := k.getNativePrecompiles(ctx)
-	return types.NewParams(enableErc20, nativePrecompiles, dynamicPrecompiles)
-}
-
-// UpdateCodeHash takes in the updated parameters and
-// compares the new set of native and dynamic precompiles to the current
-// parameter set.
-//
-// If there is a diff, the ERC-20 code hash for all precompiles that are removed from the list
-// will be removed from the store. Meanwhile, for all newly added precompiles the code hash will be
-// registered.
-func (k Keeper) UpdateCodeHash(ctx sdk.Context, newParams types.Params) error {
-	oldNativePrecompiles := k.getNativePrecompiles(ctx)
-	oldDynamicPrecompiles := k.getDynamicPrecompiles(ctx)
-
-	if err := k.RegisterOrUnregisterERC20CodeHashes(ctx, oldDynamicPrecompiles, newParams.DynamicPrecompiles); err != nil {
-		return err
-	}
-
-	return k.RegisterOrUnregisterERC20CodeHashes(ctx, oldNativePrecompiles, newParams.NativePrecompiles)
-}
-
-// RegisterOrUnregisterERC20CodeHashes takes two arrays of precompiles as its argument:
-//   - previously registered precompiles
-//   - new set of precompiles to be registered
-//
-// It then compares the two arrays and registers the code hash for all precompiles that are newly added
-// and unregisters the code hash for all precompiles that are removed from the list.
-func (k Keeper) RegisterOrUnregisterERC20CodeHashes(ctx sdk.Context, oldPrecompiles, newPrecompiles []string) error {
-	// Create maps for O(1) lookup instead of O(n²) slices.Contains
-	newPrecompilesSet := make(map[string]bool, len(newPrecompiles))
-	oldPrecompilesSet := make(map[string]bool, len(oldPrecompiles))
-
-	// Build new precompiles set
-	for _, precompile := range newPrecompiles {
-		if precompile != "" {
-			newPrecompilesSet[precompile] = true
-		}
-	}
-
-	// Build old precompiles set
-	for _, precompile := range oldPrecompiles {
-		if precompile != "" {
-			oldPrecompilesSet[precompile] = true
-		}
-	}
-
-	// Unregister precompiles that are no longer in the new set
-	for _, precompile := range oldPrecompiles {
-		if precompile == "" {
-			continue
-		}
-		if !newPrecompilesSet[precompile] {
-			if err := k.UnRegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Register new precompiles that weren't in the old set
-	for _, precompile := range newPrecompiles {
-		if precompile == "" {
-			continue
-		}
-		if !oldPrecompilesSet[precompile] {
-			if err := k.RegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+	return types.NewParams(enableErc20, []string{}, []string{})
 }
 
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, newParams types.Params) error {
-	// sort to keep params equal between different executions
-	slices.Sort(newParams.DynamicPrecompiles)
-	slices.Sort(newParams.NativePrecompiles)
-
 	if err := newParams.Validate(); err != nil {
 		return err
 	}
 
-	if err := k.UpdateCodeHash(ctx, newParams); err != nil {
-		return err
-	}
-
+	// Direct storage without expensive operations
 	k.setERC20Enabled(ctx, newParams.EnableErc20)
-	k.setDynamicPrecompiles(ctx, newParams.DynamicPrecompiles)
-	k.setNativePrecompiles(ctx, newParams.NativePrecompiles)
+
 	return nil
 }
 
@@ -127,8 +45,30 @@ func (k Keeper) setERC20Enabled(ctx sdk.Context, enable bool) {
 	store.Delete(types.ParamStoreKeyEnableErc20)
 }
 
+func (k Keeper) IsDynamicPrecompileEnabled(ctx sdk.Context, address common.Address) bool {
+	store := ctx.KVStore(k.storeKey)
+	exists := store.Has(append(types.ParamStoreKeyDynamicPrecompilePrefix, address.Bytes()...))
+	return exists
+}
+
+func (k Keeper) SetDynamicPrecompileEnabled(ctx sdk.Context, address common.Address) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(append(types.ParamStoreKeyDynamicPrecompilePrefix, address.Bytes()...), isTrue)
+}
+
+func (k Keeper) IsNativePrecompileEnabled(ctx sdk.Context, address common.Address) bool {
+	store := ctx.KVStore(k.storeKey)
+	exists := store.Has(append(types.ParamStoreKeyNativePrecompilePrefix, address.Bytes()...))
+	return exists
+}
+
+func (k Keeper) SetNativePrecompileEnabled(ctx sdk.Context, address common.Address) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(append(types.ParamStoreKeyNativePrecompilePrefix, address.Bytes()...), isTrue)
+}
+
 // setDynamicPrecompiles sets the DynamicPrecompiles param in the store
-func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []string) {
+func (k Keeper) SetOldDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := make([]byte, 0, addressLength*len(dynamicPrecompiles))
 	for _, str := range dynamicPrecompiles {
@@ -138,7 +78,7 @@ func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []stri
 }
 
 // getDynamicPrecompiles returns the DynamicPrecompiles param from the store
-func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []string) {
+func (k Keeper) GetOldDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
 
@@ -149,7 +89,7 @@ func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []str
 }
 
 // setNativePrecompiles sets the NativePrecompiles param in the store
-func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string) {
+func (k Keeper) SetOldNativePrecompiles(ctx sdk.Context, nativePrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := make([]byte, 0, addressLength*len(nativePrecompiles))
 	for _, str := range nativePrecompiles {
@@ -159,7 +99,7 @@ func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string
 }
 
 // getNativePrecompiles returns the NativePrecompiles param from the store
-func (k Keeper) getNativePrecompiles(ctx sdk.Context) (nativePrecompiles []string) {
+func (k Keeper) GetOldNativePrecompiles(ctx sdk.Context) (nativePrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamStoreKeyNativePrecompiles)
 	for i := 0; i < len(bz); i += addressLength {
@@ -167,3 +107,23 @@ func (k Keeper) getNativePrecompiles(ctx sdk.Context) (nativePrecompiles []strin
 	}
 	return nativePrecompiles
 }
+
+// func (k Keeper) IsOldDynamicPrecompileEnabled(ctx sdk.Context, address common.Address) bool {
+// 	dynamicPrecompiles := k.GetOldDynamicPrecompiles(ctx)
+// 	for _, precompile := range dynamicPrecompiles {
+// 		if precompile == address.Hex() {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+// func (k Keeper) IsOldNativePrecompileEnabled(ctx sdk.Context, address common.Address) bool {
+// 	nativePrecompiles := k.GetOldNativePrecompiles(ctx)
+// 	for _, precompile := range nativePrecompiles {
+// 		if precompile == address.Hex() {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }

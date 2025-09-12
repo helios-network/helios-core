@@ -1,10 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-	"slices"
-
-	"helios-core/helios-chain/utils"
 	"helios-core/helios-chain/x/erc20/types"
 	"helios-core/helios-chain/x/evm/statedb"
 
@@ -93,39 +89,8 @@ func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, erc20Addr common.Addres
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
 // of active dynamic precompiles.
 func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
-	// Get the current params and append the new precompiles
-	params := k.GetParams(ctx)
-	activePrecompiles := params.DynamicPrecompiles
-
-	// Append and sort the new precompiles
-	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
+	for _, address := range addresses {
+		k.SetDynamicPrecompileEnabled(ctx, address)
 	}
-
-	// Update params
-	params.DynamicPrecompiles = updatedPrecompiles
-	return k.SetParams(ctx, params)
-}
-
-// appendPrecompiles append addresses to the existingPrecompiles and sort the resulting slice.
-// The function returns an error is the two sets are overlapping.
-func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
-	// check for duplicates
-	hexAddresses := make([]string, len(addresses))
-	for i := range addresses {
-		addrHex := addresses[i].Hex()
-		if slices.Contains(existingPrecompiles, addrHex) {
-			return nil, fmt.Errorf("attempted to register a duplicate precompile address: %s", addrHex)
-		}
-		hexAddresses[i] = addrHex
-	}
-
-	existingLength := len(existingPrecompiles)
-	updatedPrecompiles := make([]string, existingLength+len(hexAddresses))
-	copy(updatedPrecompiles, existingPrecompiles)
-	copy(updatedPrecompiles[existingLength:], hexAddresses)
-
-	utils.SortSlice(updatedPrecompiles)
-	return updatedPrecompiles, nil
+	return nil
 }

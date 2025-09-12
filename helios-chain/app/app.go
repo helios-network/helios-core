@@ -1457,6 +1457,7 @@ func endBlockerOrder() []string {
 		hyperiontypes.ModuleName,
 		logostypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		erc20types.ModuleName,
 		packetforwardtypes.ModuleName,
 		banktypes.ModuleName,
 		revenuetypes.ModuleName,
