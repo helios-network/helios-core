@@ -18,7 +18,7 @@ func RateLimitMiddleware(limiter *RateLimiter, logger log.Logger) func(http.Hand
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get client IP
-			ip := getClientIP(r)
+			ip := GetClientIP(r)
 
 			// Check rate limit
 			if !limiter.Allow(ip) {
@@ -37,7 +37,7 @@ func ConnectionLimitMiddleware(limiter *ConnectionLimiter, logger log.Logger) fu
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get client IP
-			ip := getClientIP(r)
+			ip := GetClientIP(r)
 
 			// Check connection limit
 			if !limiter.AllowConnection(ip) {
@@ -61,7 +61,7 @@ func MethodTrackingMiddleware(tracker *MethodTracker, logger log.Logger) func(ht
 			start := time.Now()
 
 			// Create a custom response writer to capture status code
-			rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+			rw := &ResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 
 			// Call the next handler
 			next.ServeHTTP(rw, r)
@@ -102,17 +102,17 @@ func CombinedMiddleware(rateLimiter *RateLimiter, connLimiter *ConnectionLimiter
 }
 
 // responseWriter wraps http.ResponseWriter to capture status code
-type responseWriter struct {
+type ResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
 }
 
-func (rw *responseWriter) WriteHeader(code int) {
+func (rw *ResponseWriter) WriteHeader(code int) {
 	rw.statusCode = code
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-func (rw *responseWriter) Write(b []byte) (int, error) {
+func (rw *ResponseWriter) Write(b []byte) (int, error) {
 	return rw.ResponseWriter.Write(b)
 }
 
@@ -177,7 +177,7 @@ func extractMethodFromRequestNonDestructive(r *http.Request) string {
 }
 
 // getClientIP extracts the real client IP from the request
-func getClientIP(r *http.Request) string {
+func GetClientIP(r *http.Request) string {
 	// Check for forwarded headers first
 	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
 		return ip
