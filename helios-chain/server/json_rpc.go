@@ -47,7 +47,7 @@ func extractMethodFromRequestBody(r *http.Request) string {
 	}
 
 	// Read a small portion of the body to extract method without consuming it
-	bodyBytes, err := io.ReadAll(io.LimitReader(r.Body, 1024))
+	bodyBytes, err := io.ReadAll(r.Body) //io.LimitReader(r.Body, 1024))
 	if err != nil {
 		return ""
 	}
@@ -61,8 +61,10 @@ func extractMethodFromRequestBody(r *http.Request) string {
 	}
 
 	if err := json.Unmarshal(bodyBytes, &request); err == nil {
+		fmt.Println("RPC: Extracted method", "method", request.Method)
 		return request.Method
 	}
+	fmt.Println("RPC: Failed to extract method", "error", err)
 
 	return ""
 }
@@ -280,7 +282,7 @@ func StartJSONRPC(ctx *server.Context,
 		method := extractMethodFromRequestBody(r)
 
 		// Get client IP for rate limiting
-		clientIP := getClientIP(r)
+		clientIP := middleware.GetClientIP(r)
 
 		// Check method-specific rate limiting
 		if !methodRateLimiter.Allow(method, clientIP) {
@@ -367,7 +369,7 @@ func StartJSONRPC(ctx *server.Context,
 			}()
 
 			// Create a response writer that captures the response
-			rw := &responseWriter{ResponseWriter: w}
+			rw := &middleware.ResponseWriter{ResponseWriter: w}
 
 			// Call the actual RPC server
 			rpcServer.ServeHTTP(rw, r.WithContext(reqCtx))
