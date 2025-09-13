@@ -73,7 +73,6 @@ func NewPrecompile(
 	return p, nil
 }
 
-// RequiredGas returns the required bare minimum gas to execute the precompile.
 func (p Precompile) RequiredGas(input []byte) uint64 {
 	// NOTE: This check avoid panicking when trying to decode the method ID
 	if len(input) < 4 {
@@ -81,14 +80,48 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 
 	methodID := input[:4]
-
 	method, err := p.MethodById(methodID)
 	if err != nil {
-		// This should never happen since this method is going to fail during Run
 		return 0
 	}
 
-	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
+	switch method.Name {
+	// authorization transactions
+	case authorization.ApproveMethod:
+		return 50_000
+	case authorization.RevokeMethod:
+		return 50_000
+	case authorization.IncreaseAllowanceMethod:
+		return 50_000
+	case authorization.DecreaseAllowanceMethod:
+		return 50_000
+	case authorization.AllowanceMethod:
+		return 50_000
+	// staking transactions
+	case CreateValidatorMethod:
+		return 50_000
+	case EditValidatorMethod:
+		return 50_000
+	case DelegateMethod:
+		return 50_000
+	case UndelegateMethod:
+		return 50_000
+	case CancelUnbondingDelegationMethod:
+		return 50_000
+	// staking queries
+	case DelegationMethod:
+		return 50_000
+	case UnbondingDelegationMethod:
+		return 50_000
+	case ValidatorMethod:
+		return 50_000
+	case ValidatorsMethod:
+		return 50_000
+	case UnjailMethod:
+		return 50_000
+	default:
+		return 0
+	}
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.
@@ -111,6 +144,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.IncreaseAllowance(ctx, evm.Origin, stateDB, method, args)
 	case authorization.DecreaseAllowanceMethod:
 		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
+	// Authorization queries
+	case authorization.AllowanceMethod:
+		bz, err = p.Allowance(ctx, method, contract, args)
 	// Staking transactions
 	case CreateValidatorMethod:
 		bz, err = p.CreateValidator(ctx, evm.Origin, contract, stateDB, method, args)
@@ -133,11 +169,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Validators(ctx, method, contract, args)
 	case UnjailMethod:
 		bz, err = p.Unjail(ctx, evm.Origin, contract, stateDB, method, args)
-	/*case RedelegationMethod:
-	bz, err = p.Redelegation(ctx, method, contract, args)*/
-	// Authorization queries
-	case authorization.AllowanceMethod:
-		bz, err = p.Allowance(ctx, method, contract, args)
 	}
 
 	if err != nil {
