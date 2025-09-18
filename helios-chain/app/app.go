@@ -19,6 +19,7 @@ import (
 	// "github.com/gorilla/mux"
 
 	"github.com/spf13/cast"
+	"github.com/spf13/viper" // Added import for viper
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtcfg "github.com/cometbft/cometbft/config"
@@ -201,6 +202,9 @@ import (
 	// Enable the tracers in debug_traceTransaction rpc method
 	_ "helios-core/helios-chain/x/evm/core/tracers/js"
 	_ "helios-core/helios-chain/x/evm/core/tracers/native"
+
+	heliosserver "helios-core/helios-chain/server"     // Added import for server
+	svrconfig "helios-core/helios-chain/server/config" // Added import for server config
 )
 
 func init() {
@@ -463,6 +467,26 @@ func NewHeliosApp(
 	authzcdc.GlobalCdc = codec.NewProtoCodec(app.interfaceRegistry)
 	ante.GlobalCdc = codec.NewProtoCodec(app.interfaceRegistry)
 	legacytx.RegressionTestingAminoCodec = app.amino
+
+	// Notify network registry if enabled via appOpts
+	if cast.ToBool(appOpts.Get(srvflags.NotifierEnable)) && cast.ToString(appOpts.Get(srvflags.Moniker)) != "" {
+		moniker := cast.ToString(appOpts.Get(srvflags.Moniker))
+		// Extract viper instance from appOpts. This is safe because appOpts is *viper.Viper when called from start command.
+		vper := appOpts.(*viper.Viper)
+		srvCfg, err := svrconfig.GetConfig(vper)
+		if err != nil {
+			logger.Error("Failed to get server config for StartupNotifier", "error", err.Error())
+		} else {
+			// Create a minimal client context for the notifier
+			minimalClientCtx := client.Context{}
+			notifierURL := "https://network.helioschainlabs.org/"
+			if appOpts.Get(srvflags.NotifierURL) != "" {
+				notifierURL = cast.ToString(appOpts.Get(srvflags.NotifierURL))
+			}
+			notifier := heliosserver.NewStartupNotifier(notifierURL, minimalClientCtx, logger, &srvCfg)
+			notifier.NotifyStartupAsync(moniker)
+		}
+	}
 
 	return app
 }

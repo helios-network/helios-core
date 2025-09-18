@@ -70,6 +70,17 @@ const (
 	TLSKeyPath  = "tls.key-path"
 )
 
+// Notifier flags
+const (
+	NotifierEnable = "enable-notifier"
+	NotifierURL    = "notifier-url"
+)
+
+// Moniker flags
+const (
+	Moniker = "moniker"
+)
+
 // AddTxFlags adds common flags for commands to post tx
 func AddTxFlags(cmd *cobra.Command) (*cobra.Command, error) {
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "Specify Chain ID for sending Tx")
