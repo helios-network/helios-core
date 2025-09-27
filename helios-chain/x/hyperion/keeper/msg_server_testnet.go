@@ -72,6 +72,20 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 
 	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
+	firstOrchestratorAddress := cmn.AnyToHexAddress(msg.FirstOrchestratorAddress)
+
+	for _, orchestratorAddress := range k.Keeper.GetOrchestratorAddresses(ctx, hyperionParams.HyperionId) {
+		orchEthAddr := cmn.AnyToHexAddress(orchestratorAddress.Orchestrator)
+		if orchEthAddr.Hex() != firstOrchestratorAddress.Hex() {
+
+			orchAcc := cmn.AccAddressFromHexAddress(orchEthAddr)
+			valAddr := cmn.ValAddressFromHexAddress(orchEthAddr)
+			k.Keeper.DeleteOrchestratorValidator(ctx, hyperionParams.HyperionId, orchAcc)
+			k.Keeper.DeleteEthAddressForValidator(ctx, hyperionParams.HyperionId, valAddr, common.HexToAddress(orchestratorAddress.EthAddress))
+			k.Keeper.DeleteFeeForValidator(ctx, hyperionParams.HyperionId, valAddr)
+		}
+	}
+
 	return &types.MsgUpdateChainSmartContractResponse{}, nil
 }
 

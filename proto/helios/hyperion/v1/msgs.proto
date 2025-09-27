@@ -627,6 +627,7 @@ message MsgUpdateChainSmartContract {
   string bridge_contract_address = 3;
   uint64 bridge_contract_start_height = 4;
   string contract_source_hash = 5;
+  string first_orchestrator_address = 6;
 }
 
 message MsgUpdateChainSmartContractResponse {}
