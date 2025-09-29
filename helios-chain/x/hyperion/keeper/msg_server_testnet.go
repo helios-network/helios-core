@@ -7,6 +7,7 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/Helios-Chain-Labs/metrics"
@@ -65,7 +66,6 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 	hyperionParams.BridgeContractStartHeight = msg.BridgeContractStartHeight
 	hyperionParams.ContractSourceHash = msg.ContractSourceHash
 
-	k.Keeper.setLastObservedEventNonce(ctx, hyperionParams.HyperionId, 0)
 	k.Keeper.SetLastObservedEthereumBlockHeight(ctx, hyperionParams.HyperionId, msg.BridgeContractStartHeight-1, uint64(ctx.BlockHeight()))
 	k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(hyperionParams.HyperionId), 0)
 	hyperionParams.OffsetValsetNonce = uint64(0)
@@ -85,6 +85,30 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 			k.Keeper.DeleteFeeForValidator(ctx, hyperionParams.HyperionId, valAddr)
 		}
 	}
+
+	k.Keeper.CleanValsets(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanValsetConfirms(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanAllNonceObserved(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanPoolTransactions(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanAttestations(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanBatchConfirms(ctx, hyperionParams.HyperionId)
+	k.Keeper.CleanLastEventByValidator(ctx, hyperionParams.HyperionId) // clean last event by validator (it's last events nonce of each validators)
+
+	// set first valset
+	k.Keeper.SetLastObservedValset(ctx, hyperionParams.HyperionId, types.Valset{
+		HyperionId: hyperionParams.HyperionId,
+		Nonce:      1,
+		Members: []*types.BridgeValidator{
+			{
+				Power:           4294967295,
+				EthereumAddress: firstOrchestratorAddress.Hex(),
+			},
+		},
+		Height:       msg.BridgeContractStartHeight - 1,
+		RewardAmount: math.NewIntFromUint64(0),
+		RewardToken:  common.Address{0x0000000000000000000000000000000000000000}.Hex(),
+	})
+	k.Keeper.setLastObservedEventNonce(ctx, hyperionParams.HyperionId, 1)
 
 	return &types.MsgUpdateChainSmartContractResponse{}, nil
 }

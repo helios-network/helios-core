@@ -570,7 +570,18 @@ func (k *Keeper) setLastEventByValidatorAndHyperionId(ctx sdk.Context, hyperionI
 	}
 
 	store.Set(types.GetLastEventByValidatorKey(hyperionId, validator), k.cdc.MustMarshal(&lastClaimEvent))
+}
 
+func (k *Keeper) CleanLastEventByValidator(ctx sdk.Context, hyperionId uint64) {
+	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
+	defer doneFn()
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.LastEventByValidatorKey, sdk.Uint64ToBigEndian(hyperionId)...))
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		store.Delete(iter.Key())
+	}
 }
 
 // GetLastEventByValidator returns the latest event for a given validator

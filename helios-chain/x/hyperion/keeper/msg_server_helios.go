@@ -322,14 +322,13 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	// set proposer as first validator
 	k.Keeper.SetOrchestratorValidator(ctx, msg.CounterpartyChainParams.HyperionId, cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)), cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)))
 	k.Keeper.SetEthAddressForValidator(ctx, msg.CounterpartyChainParams.HyperionId, cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)), cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer))
-
 	// set first valset
 	k.Keeper.SetLastObservedValset(ctx, msg.CounterpartyChainParams.HyperionId, types.Valset{
 		HyperionId: msg.CounterpartyChainParams.HyperionId,
 		Nonce:      1,
 		Members: []*types.BridgeValidator{
 			{
-				Power:           1431655765,
+				Power:           4294967295,
 				EthereumAddress: cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer).Hex(),
 			},
 		},

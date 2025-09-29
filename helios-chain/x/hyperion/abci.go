@@ -270,7 +270,7 @@ func (h *BlockHandler) cleanupTimedOutBatches(ctx sdk.Context, counterParty *typ
 	batches := h.k.GetOutgoingTxBatches(ctx, hyperionId)
 
 	for _, batch := range batches {
-		if batch.BatchTimeout < ethereumHeight {
+		if batch.BatchTimeout < ethereumHeight || counterParty.Paused {
 			err := h.k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
 			if err != nil {
 				ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
@@ -288,7 +288,7 @@ func (h *BlockHandler) cleanupTimedOutOutgoingTx(ctx sdk.Context, counterParty *
 	txs := h.k.GetPoolTransactions(ctx, hyperionId)
 
 	for _, tx := range txs {
-		if tx.TxTimeout < projectedEthereumHeight {
+		if tx.TxTimeout < projectedEthereumHeight || counterParty.Paused {
 			alreadyInBatch := false
 
 			batches := h.k.GetOutgoingTxBatches(ctx, hyperionId)

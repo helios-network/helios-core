@@ -43,12 +43,13 @@ func (k *Keeper) AddToOutgoingPool(ctx sdk.Context, sender sdk.AccAddress, count
 		return 0, errors.Wrapf(types.ErrInvalid, "token not found")
 	}
 
-	pendingTxs := k.GetPoolTransactions(ctx, hyperionId)
-	for _, tx := range pendingTxs {
-		if tx.Sender == sender.String() && tx.HyperionId == hyperionId {
-			return 0, errors.Wrap(types.ErrInvalid, "sender already has a pending tx")
-		}
-	}
+	// TODO: remove this check
+	// pendingTxs := k.GetPoolTransactions(ctx, hyperionId)
+	// for _, tx := range pendingTxs {
+	// 	if tx.Sender == sender.String() && tx.HyperionId == hyperionId {
+	// 		return 0, errors.Wrap(types.ErrInvalid, "sender already has a pending tx")
+	// 	}
+	// }
 
 	isCosmosOriginated := tokenAddressToDenom.IsCosmosOriginated
 	tokenContract := common.HexToAddress(tokenAddressToDenom.TokenAddress)

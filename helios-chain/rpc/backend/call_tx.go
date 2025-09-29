@@ -293,6 +293,7 @@ func (b *Backend) EstimateGas(args evmtypes.TransactionArgs, blockNrOptional *rp
 
 	header, err := b.TendermintBlockByNumber(blockNr)
 	if err != nil {
+		b.logger.Error("EstimateGas failed to get tendermint block by number", "error", err.Error())
 		// the error message imitates geth behavior
 		return 0, errors.New("header not found")
 	}
@@ -328,6 +329,7 @@ func (b *Backend) DoCall(
 	}
 	header, err := b.TendermintBlockByNumber(blockNr)
 	if err != nil {
+		b.logger.Error("DoCall failed to get tendermint block by number", "error", err.Error())
 		// the error message imitates geth behavior
 		return nil, errors.New("header not found")
 	}

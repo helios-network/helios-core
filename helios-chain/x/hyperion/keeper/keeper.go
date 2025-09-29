@@ -1426,3 +1426,13 @@ func (k *Keeper) NonceAlreadyObserved(ctx sdk.Context, hyperionId uint64, nonce 
 	nonceObservedStore := prefix.NewStore(store, types.NonceObservedKey)
 	return nonceObservedStore.Has(types.GetNonceObservedKey(hyperionId, nonce))
 }
+
+func (k *Keeper) CleanAllNonceObserved(ctx sdk.Context, hyperionId uint64) {
+	store := ctx.KVStore(k.storeKey)
+	nonceObservedStore := prefix.NewStore(store, types.NonceObservedKey)
+	iter := nonceObservedStore.Iterator(nil, nil)
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		nonceObservedStore.Delete(iter.Key())
+	}
+}
