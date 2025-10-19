@@ -1436,3 +1436,56 @@ func (k *Keeper) CleanAllNonceObserved(ctx sdk.Context, hyperionId uint64) {
 		nonceObservedStore.Delete(iter.Key())
 	}
 }
+
+func (k *Keeper) CleanAllBatchesAndTxs(ctx sdk.Context, hyperionId uint64) {
+	batches := k.GetOutgoingTxBatches(ctx, hyperionId)
+
+	for _, batch := range batches {
+		err := k.CancelOutgoingTXBatch(ctx, common.HexToAddress(batch.TokenContract), batch.BatchNonce, batch.HyperionId)
+		if err != nil {
+			ctx.Logger().Error("failed to cancel outgoing tx batch", "error", err, "block", batch.Block, "batch_nonce", batch.BatchNonce)
+		}
+	}
+
+	txs := k.GetPoolTransactions(ctx, hyperionId)
+
+	for _, tx := range txs {
+		alreadyInBatch := false
+		batches := k.GetOutgoingTxBatches(ctx, hyperionId)
+		for _, batch := range batches {
+			for _, batchTx := range batch.Transactions {
+				if batchTx.Id == tx.Id {
+					alreadyInBatch = true
+					break
+				}
+			}
+		}
+
+		if !alreadyInBatch { // we can process cancel
+			sender, _ := sdk.AccAddressFromBech32(tx.Sender)
+			err := k.RemoveFromOutgoingPoolAndRefund(ctx, hyperionId, tx.Id, sender)
+			if err != nil {
+				ctx.Logger().Error("failed to cancel outgoing tx", "error", err, "txId", tx.Id, "sender", tx.Sender)
+			}
+		}
+	}
+}
+
+func (k *Keeper) SetWhitelistedAddresses(ctx sdk.Context, hyperionId uint64, whitelistedAddresses *types.WhitelistedAddresses) {
+	store := ctx.KVStore(k.storeKey)
+	whitelistStore := prefix.NewStore(store, types.WhitelistKey)
+	whitelistBytes := k.cdc.MustMarshalJSON(whitelistedAddresses)
+	whitelistStore.Set(types.GetWhitelistKey(hyperionId), whitelistBytes)
+}
+
+func (k *Keeper) GetWhitelistedAddresses(ctx sdk.Context, hyperionId uint64) *types.WhitelistedAddresses {
+	store := ctx.KVStore(k.storeKey)
+	whitelistStore := prefix.NewStore(store, types.WhitelistKey)
+	whitelistBytes := whitelistStore.Get(types.GetWhitelistKey(hyperionId))
+	if whitelistBytes == nil {
+		return nil
+	}
+	whitelistedAddresses := &types.WhitelistedAddresses{}
+	k.cdc.MustUnmarshalJSON(whitelistBytes, whitelistedAddresses)
+	return whitelistedAddresses
+}

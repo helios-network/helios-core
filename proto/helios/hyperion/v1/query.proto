@@ -203,6 +203,11 @@ service Query {
       returns (QueryOutgoingTxBatchesWithOptionsResponse) {
     option (google.api.http).get = "/hyperion/v1/batch/outgoingtx/options";
   }
+
+  rpc QueryGetWhitelistedAddresses(QueryGetWhitelistedAddressesRequest)
+      returns (QueryGetWhitelistedAddressesResponse) {
+    option (google.api.http).get = "/hyperion/v1/whitelisted_addresses";
+  }
 }
 
 message QueryParamsRequest {}
@@ -519,4 +524,12 @@ message QueryOutgoingTxBatchesWithOptionsRequest {
 
 message QueryOutgoingTxBatchesWithOptionsResponse {
   repeated OutgoingTxBatch batches = 1;
+}
+
+message QueryGetWhitelistedAddressesRequest {
+  uint64 hyperion_id = 1;
+}
+
+message QueryGetWhitelistedAddressesResponse {
+  repeated string addresses = 1;
 }

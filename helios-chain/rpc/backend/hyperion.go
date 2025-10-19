@@ -121,3 +121,14 @@ func (b *Backend) GetValidatorHyperionData(address common.Address) (*hyperiontyp
 	}
 	return res.OrchestratorData, nil
 }
+
+func (b *Backend) GetWhitelistedAddresses(hyperionId uint64) ([]string, error) {
+	res, err := b.queryClient.Hyperion.QueryGetWhitelistedAddresses(b.ctx, &hyperiontypes.QueryGetWhitelistedAddressesRequest{
+		HyperionId: hyperionId,
+	})
+	if err != nil {
+		b.logger.Error("GetWhitelistedAddresses", "error", err)
+		return nil, err
+	}
+	return res.Addresses, nil
+}

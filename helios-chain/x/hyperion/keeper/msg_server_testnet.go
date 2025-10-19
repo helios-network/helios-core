@@ -70,6 +70,9 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 	k.Keeper.SetID(ctx, types.GetLastOutgoingBatchIDKey(hyperionParams.HyperionId), 0)
 	hyperionParams.OffsetValsetNonce = uint64(0)
 
+	// set AverageBlockTime > 0 to force reset of the network after specifique block
+	hyperionParams.AverageBlockTime = 100
+
 	k.Keeper.SetCounterpartyChainParams(ctx, msg.ChainId, hyperionParams)
 
 	firstOrchestratorAddress := cmn.AnyToHexAddress(msg.FirstOrchestratorAddress)
@@ -86,13 +89,13 @@ func (k msgServer) UpdateChainSmartContract(c context.Context, msg *types.MsgUpd
 		}
 	}
 
-	k.Keeper.CleanValsets(ctx, hyperionParams.HyperionId)
-	k.Keeper.CleanValsetConfirms(ctx, hyperionParams.HyperionId)
-	k.Keeper.CleanAllNonceObserved(ctx, hyperionParams.HyperionId)
-	k.Keeper.CleanPoolTransactions(ctx, hyperionParams.HyperionId)
-	k.Keeper.CleanAttestations(ctx, hyperionParams.HyperionId)
-	k.Keeper.CleanBatchConfirms(ctx, hyperionParams.HyperionId)
-	k.Keeper.CleanLastEventByValidator(ctx, hyperionParams.HyperionId) // clean last event by validator (it's last events nonce of each validators)
+	// k.Keeper.CleanValsets(ctx, hyperionParams.HyperionId)
+	// k.Keeper.CleanValsetConfirms(ctx, hyperionParams.HyperionId)
+	// k.Keeper.CleanAllNonceObserved(ctx, hyperionParams.HyperionId)
+	// k.Keeper.CleanPoolTransactions(ctx, hyperionParams.HyperionId)
+	// k.Keeper.CleanAttestations(ctx, hyperionParams.HyperionId)
+	// k.Keeper.CleanBatchConfirms(ctx, hyperionParams.HyperionId)
+	// k.Keeper.CleanLastEventByValidator(ctx, hyperionParams.HyperionId) // clean last event by validator (it's last events nonce of each validators)
 
 	// set first valset
 	k.Keeper.SetLastObservedValset(ctx, hyperionParams.HyperionId, types.Valset{
@@ -842,4 +845,102 @@ func (k msgServer) SetLastBatchNonce(c context.Context, msg *types.MsgSetLastBat
 	k.Keeper.SetID(ctx, key, msg.BatchNonce)
 
 	return &types.MsgSetLastBatchNonceResponse{}, nil
+}
+
+func (k msgServer) SetWhitelistedAddresses(c context.Context, msg *types.MsgSetWhitelistedAddresses) (*types.MsgSetWhitelistedAddressesResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.HyperionId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	for _, address := range msg.Addresses {
+		if !common.IsHexAddress(address) {
+			return nil, errors.Wrap(types.ErrInvalid, "Address "+address+" is not a valid Ethereum address")
+		}
+	}
+
+	k.Keeper.SetWhitelistedAddresses(ctx, msg.HyperionId, &types.WhitelistedAddresses{Addresses: msg.Addresses})
+
+	return &types.MsgSetWhitelistedAddressesResponse{}, nil
+}
+
+func (k msgServer) AddOneWhitelistedAddress(c context.Context, msg *types.MsgAddOneWhitelistedAddress) (*types.MsgAddOneWhitelistedAddressResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.HyperionId)
+
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+
+	if msg.Address == "" {
+		return nil, errors.Wrap(types.ErrInvalid, "Address cannot be empty")
+	}
+
+	if !common.IsHexAddress(msg.Address) {
+		return nil, errors.Wrap(types.ErrInvalid, "Address is not a valid Ethereum address")
+	}
+
+	whitelistedAddresses := k.Keeper.GetWhitelistedAddresses(ctx, msg.HyperionId)
+	if whitelistedAddresses == nil {
+		whitelistedAddresses = &types.WhitelistedAddresses{Addresses: make([]string, 0)}
+	}
+
+	whitelistedAddresses.Addresses = append(whitelistedAddresses.Addresses, msg.Address)
+	k.Keeper.SetWhitelistedAddresses(ctx, msg.HyperionId, whitelistedAddresses)
+
+	return &types.MsgAddOneWhitelistedAddressResponse{}, nil
+}
+
+func (k msgServer) RemoveOneWhitelistedAddress(c context.Context, msg *types.MsgRemoveOneWhitelistedAddress) (*types.MsgRemoveOneWhitelistedAddressResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	hyperionParams := k.Keeper.GetHyperionParamsFromChainId(ctx, msg.HyperionId)
+	if hyperionParams == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "HyperionParams not found")
+	}
+
+	if k.Keeper.authority != msg.Signer && cmn.AnyToHexAddress(hyperionParams.Initializer).Hex() != cmn.AnyToHexAddress(msg.Signer).Hex() {
+		return nil, errors.Wrap(types.ErrInvalid, "not the initializer")
+	}
+	if msg.Address == "" {
+		return nil, errors.Wrap(types.ErrInvalid, "Address cannot be empty")
+	}
+	if !common.IsHexAddress(msg.Address) {
+		return nil, errors.Wrap(types.ErrInvalid, "Address is not a valid Ethereum address")
+	}
+
+	whitelistedAddresses := k.Keeper.GetWhitelistedAddresses(ctx, msg.HyperionId)
+	if whitelistedAddresses == nil {
+		whitelistedAddresses = &types.WhitelistedAddresses{Addresses: make([]string, 0)}
+	}
+	newAddresses := make([]string, 0)
+	for _, address := range whitelistedAddresses.Addresses {
+		if address != msg.Address {
+			newAddresses = append(newAddresses, address)
+		}
+	}
+	whitelistedAddresses.Addresses = newAddresses
+	k.Keeper.SetWhitelistedAddresses(ctx, msg.HyperionId, whitelistedAddresses)
+	return &types.MsgRemoveOneWhitelistedAddressResponse{Addresses: newAddresses}, nil
 }

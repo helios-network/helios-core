@@ -186,6 +186,7 @@ type EVMBackend interface {
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
 	GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error)
 	GetValidatorHyperionData(address common.Address) (*hyperiontypes.OrchestratorData, error)
+	GetWhitelistedAddresses(hyperionId uint64) ([]string, error)
 
 	ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes.ParsedRPCTransaction, error)
 }

@@ -41,8 +41,18 @@ func (h *BlockHandler) EndBlocker(ctx sdk.Context) {
 
 	params := h.k.GetParams(ctx)
 	for _, counterpartyChainParams := range params.CounterpartyChainParams {
-		if counterpartyChainParams.Paused {
-			continue
+		if counterpartyChainParams.AverageBlockTime > 0 {
+			counterpartyChainParams.AverageBlockTime = 0
+			// clean all
+			h.k.SetCounterpartyChainParams(ctx, counterpartyChainParams.HyperionId, counterpartyChainParams)
+			h.k.CleanValsets(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanValsetConfirms(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanAllNonceObserved(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanAllBatchesAndTxs(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanPoolTransactions(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanAttestations(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanBatchConfirms(ctx, counterpartyChainParams.HyperionId)
+			h.k.CleanLastEventByValidator(ctx, counterpartyChainParams.HyperionId) // clean last event by validator (it's last events nonce of each validators)
 		}
 		h.slashing(ctx, counterpartyChainParams)
 		h.attestationTally(ctx, counterpartyChainParams)

@@ -244,6 +244,21 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/set_last_batch_nonce";
   }
 
+  rpc SetWhitelistedAddresses(MsgSetWhitelistedAddresses)
+      returns (MsgSetWhitelistedAddressesResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/set_whitelisted_addresses";
+  }
+
+  rpc AddOneWhitelistedAddress(MsgAddOneWhitelistedAddress)
+      returns (MsgAddOneWhitelistedAddressResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/add_one_whitelisted_address";
+  }
+
+  rpc RemoveOneWhitelistedAddress(MsgRemoveOneWhitelistedAddress)
+      returns (MsgRemoveOneWhitelistedAddressResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/remove_one_whitelisted_address";
+  }
+
   // <-- Testnet
 }
 
@@ -946,3 +961,38 @@ message MsgSetLastBatchNonce {
 }
 
 message MsgSetLastBatchNonceResponse {}
+
+message MsgSetWhitelistedAddresses {
+  option (amino.name) = "hyperion/MsgSetWhitelistedAddresses";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 hyperion_id = 2;
+  repeated string addresses = 3;
+}
+
+message MsgSetWhitelistedAddressesResponse {}
+
+message MsgAddOneWhitelistedAddress {
+  option (amino.name) = "hyperion/MsgAddOneWhitelistedAddress";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 hyperion_id = 2;
+  string address = 3;
+}
+
+message MsgAddOneWhitelistedAddressResponse {}
+
+message MsgRemoveOneWhitelistedAddress {
+  option (amino.name) = "hyperion/MsgRemoveOneWhitelistedAddress";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 hyperion_id = 2;
+  string address = 3;
+}
+
+message MsgRemoveOneWhitelistedAddressResponse {
+  repeated string addresses = 1;
+}

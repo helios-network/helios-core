@@ -175,3 +175,7 @@ message OrchestratorData {
   string orchestrator = 1;
   repeated OrchestratorHyperionData orchestrator_hyperion_data = 2;
 }
+
+message WhitelistedAddresses {
+  repeated string addresses = 1;
+}

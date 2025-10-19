@@ -210,7 +210,24 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 		if err != nil {
 			return err
 		}
-
+	case *types.MsgSetWhitelistedAddresses:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).SetWhitelistedAddresses(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgAddOneWhitelistedAddress:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).AddOneWhitelistedAddress(ctx, msg)
+		if err != nil {
+			return err
+		}
+	case *types.MsgRemoveOneWhitelistedAddress:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).RemoveOneWhitelistedAddress(ctx, msg)
+		if err != nil {
+			return err
+		}
 	default:
 		return errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized hyperion proposal message type: %T", msg)
 	}

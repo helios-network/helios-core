@@ -719,3 +719,14 @@ func (k *Keeper) QueryGetOrchestratorHyperionData(c context.Context, req *types.
 		OrchestratorHyperionData: orchestratorData,
 	}, nil
 }
+
+func (k *Keeper) QueryGetWhitelistedAddresses(c context.Context, req *types.QueryGetWhitelistedAddressesRequest) (*types.QueryGetWhitelistedAddressesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	whitelistedAddresses := k.GetWhitelistedAddresses(ctx, req.HyperionId)
+	if whitelistedAddresses == nil {
+		return nil, errors.Wrap(types.ErrInvalid, "WhitelistedAddresses not found")
+	}
+
+	return &types.QueryGetWhitelistedAddressesResponse{Addresses: whitelistedAddresses.Addresses}, nil
+}

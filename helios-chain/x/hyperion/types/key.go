@@ -126,6 +126,8 @@ var (
 	FeeByValidatorKey = []byte{0x22}
 
 	OrchestratorDataKey = []byte{0x23}
+
+	WhitelistKey = []byte{0x24}
 )
 
 var (
@@ -442,5 +444,12 @@ func GetOrchestratorDataKey(orchestrator sdk.AccAddress) []byte {
 	buf := make([]byte, 0, len(OrchestratorDataKey)+len(orchestrator))
 	buf = append(buf, OrchestratorDataKey...)
 	buf = append(buf, orchestrator.Bytes()...)
+	return buf
+}
+
+func GetWhitelistKey(hyperionId uint64) []byte {
+	buf := make([]byte, 0, len(WhitelistKey)+8)
+	buf = append(buf, WhitelistKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
 	return buf
 }

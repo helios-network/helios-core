@@ -72,6 +72,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateChainTokenLogo{},
 		&MsgUpdateAverageBlockTime{},
 		&MsgSetLastBatchNonce{},
+
+		&MsgSetWhitelistedAddresses{},
+		&MsgAddOneWhitelistedAddress{},
+		&MsgRemoveOneWhitelistedAddress{},
 	)
 
 	registry.RegisterInterface(
@@ -141,6 +145,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateChainTokenLogo{}, "hyperion/MsgUpdateChainTokenLogo", nil)
 	cdc.RegisterConcrete(&MsgUpdateAverageBlockTime{}, "hyperion/MsgUpdateAverageBlockTime", nil)
 	cdc.RegisterConcrete(&MsgSetLastBatchNonce{}, "hyperion/MsgSetLastBatchNonce", nil)
+	cdc.RegisterConcrete(&MsgSetWhitelistedAddresses{}, "hyperion/MsgSetWhitelistedAddresses", nil)
+	cdc.RegisterConcrete(&MsgAddOneWhitelistedAddress{}, "hyperion/MsgAddOneWhitelistedAddress", nil)
+	cdc.RegisterConcrete(&MsgRemoveOneWhitelistedAddress{}, "hyperion/MsgRemoveOneWhitelistedAddress", nil)
 
 	cdc.RegisterConcrete(&Params{}, "hyperion/Params", nil)
 }

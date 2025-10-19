@@ -60,6 +60,14 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 		return nil, errors.Wrap(types.ErrResetDelegateKeys, validatorAddr.String())
 	}
 
+	// check if the orchestrator address is whitelisted if whitelist is enabled
+	whitelistedAddresses := k.Keeper.GetWhitelistedAddresses(ctx, msg.HyperionId)
+	if whitelistedAddresses != nil { // whitelist is enabled
+		if !whitelistedAddresses.ContainsAddress(ethAddress.Hex()) {
+			return nil, errors.Wrap(types.ErrInvalid, "Orchestrator address is not whitelisted")
+		}
+	}
+
 	// set the orchestrator address
 	k.Keeper.SetOrchestratorValidator(ctx, msg.HyperionId, validatorAddr, orchestratorAddr)
 	// set the ethereum address
@@ -131,6 +139,14 @@ func (k msgServer) SetOrchestratorAddressesWithFee(c context.Context, msg *types
 	} else if foundExistingOrchestratorKey || foundExistingEthAddress {
 		metrics.ReportFuncError(k.svcTags)
 		return nil, errors.Wrap(types.ErrResetDelegateKeys, validatorAddr.String())
+	}
+
+	// check if the orchestrator address is whitelisted if whitelist is enabled
+	whitelistedAddresses := k.Keeper.GetWhitelistedAddresses(ctx, msg.HyperionId)
+	if whitelistedAddresses != nil { // whitelist is enabled
+		if !whitelistedAddresses.ContainsAddress(ethAddress.Hex()) {
+			return nil, errors.Wrap(types.ErrInvalid, "Orchestrator address is not whitelisted")
+		}
 	}
 
 	// set the orchestrator address
@@ -309,6 +325,9 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 			return nil, errors.Wrap(types.ErrDuplicate, "BridgeChainId already exists")
 		}
 	}
+
+	// set zero by default
+	msg.CounterpartyChainParams.AverageBlockTime = 0
 
 	params.CounterpartyChainParams = append(params.CounterpartyChainParams, msg.CounterpartyChainParams)
 	k.Keeper.SetParams(ctx, params)
