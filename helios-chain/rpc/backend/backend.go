@@ -65,6 +65,7 @@ type EVMBackend interface {
 
 	// Proposals Info
 	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error)
 	GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 	GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalVoteRPC, error)
 	GetProposalsCount() (*hexutil.Uint64, error)

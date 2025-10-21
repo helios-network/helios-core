@@ -3,6 +3,10 @@
 package backend
 
 import (
+	"strconv"
+	"strings"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
@@ -10,16 +14,13 @@ import (
 	cmn "helios-core/helios-chain/precompiles/common"
 	rpctypes "helios-core/helios-chain/rpc/types"
 
-	govprecompilestypes "helios-core/helios-chain/x/erc20/types"
-	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params) (map[string]interface{}, error) {
+func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, codec codec.Codec) (map[string]interface{}, error) {
 	statusTypes := map[govtypes.ProposalStatus]interface{}{
 		govtypes.ProposalStatus_PROPOSAL_STATUS_UNSPECIFIED:    "UNSPECIFIED",
 		govtypes.ProposalStatus_PROPOSAL_STATUS_DEPOSIT_PERIOD: "DEPOSIT_PERIOD",
@@ -40,46 +41,60 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params) (map
 		if err != nil {
 			continue
 		}
-		newAssetConsensusProposal := &govprecompilestypes.AddNewAssetConsensusProposal{}
-		err = proto.Unmarshal(msg.Content.Value, newAssetConsensusProposal)
-		if err == nil {
+
+		var msgDecodec []map[string]interface{}
+
+		if err := codec.UnmarshalInterfaceJSON(msg.Content.Value, &msgDecodec); err != nil {
 			details = append(details, map[string]interface{}{
-				"type":   "AddNewAssetConsensusProposal",
-				"assets": newAssetConsensusProposal.Assets,
+				"type": "UnknownProposalType",
 			})
 			continue
 		}
-		updateAssetConsensusProposal := &govprecompilestypes.UpdateAssetConsensusProposal{}
-		err = proto.Unmarshal(msg.Content.Value, updateAssetConsensusProposal)
-		if err == nil {
-			details = append(details, map[string]interface{}{
-				"type":    "UpdateAssetConsensusProposal",
-				"updates": updateAssetConsensusProposal.Updates,
-			})
-			continue
-		}
-		removeAssetConsensusProposal := &govprecompilestypes.RemoveAssetConsensusProposal{}
-		err = proto.Unmarshal(msg.Content.Value, removeAssetConsensusProposal)
-		if err == nil {
-			details = append(details, map[string]interface{}{
-				"type":   "RemoveAssetConsensusProposal",
-				"denoms": removeAssetConsensusProposal.Denoms,
-			})
-			continue
-		}
-		hyperionProposal := &hyperiontypes.HyperionProposal{}
-		err = proto.Unmarshal(msg.Content.Value, hyperionProposal)
-		if err == nil {
-			details = append(details, map[string]interface{}{
-				"type": "HyperionProposal",
-				"msg":  hyperionProposal.Msg,
-			})
-			continue
-		}
-		// TODO: manage unknow proposals
 		details = append(details, map[string]interface{}{
-			"type": "UnknownProposalType",
+			"type":  msg.Content.TypeUrl,
+			"value": msgDecodec,
 		})
+
+		// newAssetConsensusProposal := &govprecompilestypes.AddNewAssetConsensusProposal{}
+		// err = proto.Unmarshal(msg.Content.Value, newAssetConsensusProposal)
+		// if err == nil {
+		// 	details = append(details, map[string]interface{}{
+		// 		"type":   "AddNewAssetConsensusProposal",
+		// 		"assets": newAssetConsensusProposal.Assets,
+		// 	})
+		// 	continue
+		// }
+		// updateAssetConsensusProposal := &govprecompilestypes.UpdateAssetConsensusProposal{}
+		// err = proto.Unmarshal(msg.Content.Value, updateAssetConsensusProposal)
+		// if err == nil {
+		// 	details = append(details, map[string]interface{}{
+		// 		"type":    "UpdateAssetConsensusProposal",
+		// 		"updates": updateAssetConsensusProposal.Updates,
+		// 	})
+		// 	continue
+		// }
+		// removeAssetConsensusProposal := &govprecompilestypes.RemoveAssetConsensusProposal{}
+		// err = proto.Unmarshal(msg.Content.Value, removeAssetConsensusProposal)
+		// if err == nil {
+		// 	details = append(details, map[string]interface{}{
+		// 		"type":   "RemoveAssetConsensusProposal",
+		// 		"denoms": removeAssetConsensusProposal.Denoms,
+		// 	})
+		// 	continue
+		// }
+		// hyperionProposal := &hyperiontypes.HyperionProposal{}
+		// err = proto.Unmarshal(msg.Content.Value, hyperionProposal)
+		// if err == nil {
+		// 	details = append(details, map[string]interface{}{
+		// 		"type": "HyperionProposal",
+		// 		"msg":  hyperionProposal.Msg,
+		// 	})
+		// 	continue
+		// }
+		// TODO: manage unknow proposals
+		// details = append(details, map[string]interface{}{
+		// 	"type": "UnknownProposalType",
+		// })
 	}
 
 	return map[string]interface{}{
@@ -128,7 +143,7 @@ func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Ui
 		return nil, err
 	}
 	for _, proposal := range proposals.Proposals {
-		formattedProposal, err := ParseProposal(proposal, resParams.Params)
+		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.clientCtx.Codec)
 		if err != nil {
 			continue
 		}
@@ -151,7 +166,7 @@ func (b *Backend) GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	formattedProposal, err := ParseProposal(proposalResponse.Proposal, resParams.Params)
+	formattedProposal, err := ParseProposal(proposalResponse.Proposal, resParams.Params, b.clientCtx.Codec)
 	if err != nil {
 		return nil, err
 	}
@@ -203,4 +218,81 @@ func (b *Backend) GetProposalsCount() (*hexutil.Uint64, error) {
 	}
 	totalCount := hexutil.Uint64(response.Count)
 	return &totalCount, nil
+}
+
+type ProposalFilter struct {
+	Status      govtypes.ProposalStatus
+	Proposer    string
+	Title       string
+	Description string
+	Request     *govtypes.QueryProposalsRequest
+}
+
+func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error) {
+	// filters examples:
+	// status=1
+	// status=2
+	// status=3
+	// proposer=0xffffffffffffffffffffffffffffffffffffffff
+	// title-matches=test
+	// description-matches=test
+	// status=1&proposer=0xffffffffffffffffffffffffffffffffffffffff&title-matches=test&description-matches=test
+
+	var proposalFilter ProposalFilter
+	proposalFilter.Status = govtypes.ProposalStatus_PROPOSAL_STATUS_UNSPECIFIED
+	proposalFilter.Proposer = ""
+	proposalFilter.Title = ""
+	proposalFilter.Description = ""
+	proposalFilter.Request = &govtypes.QueryProposalsRequest{
+		Pagination: &query.PageRequest{
+			Offset:  (uint64(page) - 1) * uint64(size),
+			Limit:   uint64(size),
+			Reverse: true,
+		},
+	}
+
+	for _, filter := range strings.Split(filter, "&") {
+		parts := strings.Split(filter, "=")
+		if len(parts) != 2 {
+			continue
+		}
+		switch parts[0] {
+		case "status":
+			parsedStatus, err := strconv.ParseUint(parts[1], 10, 32)
+			if err != nil {
+				continue
+			}
+			proposalFilter.Status = govtypes.ProposalStatus(uint32(parsedStatus))
+			proposalFilter.Request.ProposalStatus = proposalFilter.Status
+		case "proposer":
+			proposalFilter.Proposer = cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
+			proposalFilter.Request.Depositor = proposalFilter.Proposer
+		case "title-matches":
+			proposalFilter.Title = parts[1]
+		case "description-matches":
+			proposalFilter.Description = parts[1]
+		}
+	}
+
+	proposalsResult := make([]map[string]interface{}, 0)
+	proposals, err := b.queryClient.Gov.Proposals(b.ctx, proposalFilter.Request)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := &govtypes.QueryParamsRequest{
+		ParamsType: "voting",
+	}
+	resParams, err := b.queryClient.Gov.Params(b.ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+	for _, proposal := range proposals.Proposals {
+		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.clientCtx.Codec)
+		if err != nil {
+			continue
+		}
+		proposalsResult = append(proposalsResult, formattedProposal)
+	}
+	return proposalsResult, nil
 }

@@ -44,6 +44,7 @@ type EthereumAPI interface {
 
 	// GetProposalBy(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
 	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
+	GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error)
 	GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 	GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalVoteRPC, error)
 	GetProposalsCount() (*hexutil.Uint64, error)
@@ -237,6 +238,11 @@ func (e *PublicAPI) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uin
 func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
 	e.logger.Debug("eth_getProposalsByPageAndSize", "page", page, "size", size, "full")
 	return e.backend.GetProposalsByPageAndSize(page, size)
+}
+
+func (e *PublicAPI) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error) {
+	e.logger.Debug("eth_getProposalsByPageAndSizeWithFilter", "page", page, "size", size, "filter", filter)
+	return e.backend.GetProposalsByPageAndSizeWithFilter(page, size, filter)
 }
 
 func (e *PublicAPI) GetProposal(id hexutil.Uint64) (map[string]interface{}, error) {
