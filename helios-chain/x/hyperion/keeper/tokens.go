@@ -97,11 +97,11 @@ func (k *Keeper) GetTokenFromDenom(ctx sdk.Context, hyperionId uint64, denom str
 	return nil, false
 }
 
-func (k *Keeper) RemoveTokenFromChainMetadata(ctx sdk.Context, hyperionId uint64, token *types.TokenAddressToDenom) {
+func (k *Keeper) RemoveTokenFromChainMetadata(ctx sdk.Context, hyperionId uint64, denom string) {
 	ctx, doneFn := metrics.ReportFuncCallAndTimingSdkCtx(ctx, k.svcTags)
 	defer doneFn()
 
-	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, token.Denom)
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, denom)
 	if !found {
 		return
 	}

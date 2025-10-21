@@ -748,7 +748,12 @@ message MsgSetTokenToChain {
 
   string signer = 1;
   uint64 chain_id = 2;
-  TokenAddressToDenom token = 3;
+  string token_address = 3;
+  string denom = 4;
+  string symbol = 5;
+  uint64 decimals = 6;
+  bool is_cosmos_originated = 7;
+  bool is_concensus_token = 8;
 }
 
 message MsgSetTokenToChainResponse {}
@@ -759,7 +764,7 @@ message MsgRemoveTokenFromChain {
 
   string signer = 1;
   uint64 chain_id = 2;
-  TokenAddressToDenom token = 3;
+  string denom = 3;
 }
 
 message MsgRemoveTokenFromChainResponse {}
