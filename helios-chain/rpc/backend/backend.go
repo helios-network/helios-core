@@ -17,6 +17,7 @@ import (
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -205,6 +206,7 @@ type Backend struct {
 	cfg                 config.Config
 	allowUnprotectedTxs bool
 	indexer             evmostypes.EVMTxIndexer
+	AppCodec            codec.Codec
 }
 
 // NewBackend creates a new Backend instance for cosmos and ethereum namespaces
@@ -214,6 +216,7 @@ func NewBackend(
 	clientCtx client.Context,
 	allowUnprotectedTxs bool,
 	indexer evmostypes.EVMTxIndexer,
+	appCodec codec.Codec,
 ) *Backend {
 
 	chainID, err := evmostypes.ParseChainID(clientCtx.ChainID)
@@ -246,5 +249,6 @@ func NewBackend(
 		cfg:                 appConf,
 		allowUnprotectedTxs: allowUnprotectedTxs,
 		indexer:             indexer,
+		AppCodec:            appCodec,
 	}
 }

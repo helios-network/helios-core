@@ -20,6 +20,27 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+func anyToJSON(cdc codec.Codec, exec *govtypes.MsgExecLegacyContent) (interface{}, error) {
+	var msg sdk.Msg
+	if err := cdc.UnpackAny(exec.Content, &msg); err != nil {
+		return nil, err
+	}
+	// content := &codectypes.Any{
+	// 	TypeUrl: exec.Content.TypeUrl,
+	// 	Value:   exec.Content.Value,
+	// }
+	// contentJSON, err := cdc.MarshalInterfaceJSON(content)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// var content map[string]interface{}
+	// if err := cdc.UnmarshalInterfaceJSON(contentJSON, &content); err != nil {
+	// 	return nil, err
+	// }
+	return cdc.MarshalInterfaceJSON(msg)
+}
+
 func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, codec codec.Codec) (map[string]interface{}, error) {
 	statusTypes := map[govtypes.ProposalStatus]interface{}{
 		govtypes.ProposalStatus_PROPOSAL_STATUS_UNSPECIFIED:    "UNSPECIFIED",
@@ -35,66 +56,31 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, code
 		return nil, err
 	}
 	details := make([]map[string]interface{}, 0)
+
 	for _, anyJSON := range proposal.Messages {
 		msg := &govtypes.MsgExecLegacyContent{}
+
 		err := proto.Unmarshal(anyJSON.Value, msg)
 		if err != nil {
+			details = append(details, map[string]interface{}{
+				"type":  "UnknownProposalType",
+				"error": err.Error(),
+			})
 			continue
 		}
 
-		var msgDecodec []map[string]interface{}
-
-		if err := codec.UnmarshalInterfaceJSON(msg.Content.Value, &msgDecodec); err != nil {
+		contentJson, err := anyToJSON(codec, msg)
+		if err != nil {
 			details = append(details, map[string]interface{}{
-				"type": "UnknownProposalType",
+				"type":  msg.Content.TypeUrl,
+				"error": err.Error(),
 			})
 			continue
 		}
 		details = append(details, map[string]interface{}{
 			"type":  msg.Content.TypeUrl,
-			"value": msgDecodec,
+			"value": contentJson,
 		})
-
-		// newAssetConsensusProposal := &govprecompilestypes.AddNewAssetConsensusProposal{}
-		// err = proto.Unmarshal(msg.Content.Value, newAssetConsensusProposal)
-		// if err == nil {
-		// 	details = append(details, map[string]interface{}{
-		// 		"type":   "AddNewAssetConsensusProposal",
-		// 		"assets": newAssetConsensusProposal.Assets,
-		// 	})
-		// 	continue
-		// }
-		// updateAssetConsensusProposal := &govprecompilestypes.UpdateAssetConsensusProposal{}
-		// err = proto.Unmarshal(msg.Content.Value, updateAssetConsensusProposal)
-		// if err == nil {
-		// 	details = append(details, map[string]interface{}{
-		// 		"type":    "UpdateAssetConsensusProposal",
-		// 		"updates": updateAssetConsensusProposal.Updates,
-		// 	})
-		// 	continue
-		// }
-		// removeAssetConsensusProposal := &govprecompilestypes.RemoveAssetConsensusProposal{}
-		// err = proto.Unmarshal(msg.Content.Value, removeAssetConsensusProposal)
-		// if err == nil {
-		// 	details = append(details, map[string]interface{}{
-		// 		"type":   "RemoveAssetConsensusProposal",
-		// 		"denoms": removeAssetConsensusProposal.Denoms,
-		// 	})
-		// 	continue
-		// }
-		// hyperionProposal := &hyperiontypes.HyperionProposal{}
-		// err = proto.Unmarshal(msg.Content.Value, hyperionProposal)
-		// if err == nil {
-		// 	details = append(details, map[string]interface{}{
-		// 		"type": "HyperionProposal",
-		// 		"msg":  hyperionProposal.Msg,
-		// 	})
-		// 	continue
-		// }
-		// TODO: manage unknow proposals
-		// details = append(details, map[string]interface{}{
-		// 	"type": "UnknownProposalType",
-		// })
 	}
 
 	return map[string]interface{}{
@@ -143,7 +129,7 @@ func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Ui
 		return nil, err
 	}
 	for _, proposal := range proposals.Proposals {
-		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.clientCtx.Codec)
+		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.AppCodec)
 		if err != nil {
 			continue
 		}
@@ -166,7 +152,7 @@ func (b *Backend) GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	formattedProposal, err := ParseProposal(proposalResponse.Proposal, resParams.Params, b.clientCtx.Codec)
+	formattedProposal, err := ParseProposal(proposalResponse.Proposal, resParams.Params, b.AppCodec)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +274,7 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 		return nil, err
 	}
 	for _, proposal := range proposals.Proposals {
-		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.clientCtx.Codec)
+		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.AppCodec)
 		if err != nil {
 			continue
 		}
