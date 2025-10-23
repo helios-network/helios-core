@@ -72,10 +72,6 @@ type AppWithCometBftConfig interface {
 	RegisterCometBftConfig(config *cmtcfg.Config)
 }
 
-type AppWithAppCodec interface {
-	GetAppCodec() codec.Codec
-}
-
 // NewDefaultStartOptions use the default db opener provided in tm-db.
 func NewDefaultStartOptions(appCreator types.AppCreator, defaultNodeHome string) StartOptions {
 	return StartOptions{
@@ -370,10 +366,10 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	}
 
 	app := opts.AppCreator(svrCtx.Logger, db, traceWriter, svrCtx.Viper)
-	helApp, ok := app.(AppWithAppCodec)
-	if !ok {
-		return fmt.Errorf("expected app to be of type *heliosapp.HeliosApp, got %T", app)
-	}
+	// helApp, ok := app.(AppWithAppCodec)
+	// if !ok {
+	// 	return fmt.Errorf("expected app to be of type *heliosapp.HeliosApp, got %T", app)
+	// }
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
@@ -494,7 +490,11 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	if apiSrv != nil {
 		defer apiSrv.Close()
 	}
-	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress, idxer, helApp.GetAppCodec())
+
+	// prepare codec with all interfaces registered
+	// cdc := codec.NewProtoCodec(helApp.GetInterfaceRegistry())
+
+	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress, idxer, nil)
 	if httpSrv != nil {
 		defer func() {
 			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)

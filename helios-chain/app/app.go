@@ -588,8 +588,6 @@ func (app *HeliosApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 	return app.ScopedIBCKeeper
 }
 
-func (app *HeliosApp) GetAppCodec() codec.Codec { return app.codec }
-
 func (app *HeliosApp) GetTxConfig() client.TxConfig { return app.txConfig }
 
 // AutoCliOpts returns the autocli options for the app.

@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -20,26 +21,13 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-func anyToJSON(cdc codec.Codec, exec *govtypes.MsgExecLegacyContent) (interface{}, error) {
-	var msg sdk.Msg
-	if err := cdc.UnpackAny(exec.Content, &msg); err != nil {
-		return nil, err
-	}
-	// content := &codectypes.Any{
-	// 	TypeUrl: exec.Content.TypeUrl,
-	// 	Value:   exec.Content.Value,
-	// }
-	// contentJSON, err := cdc.MarshalInterfaceJSON(content)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// var content map[string]interface{}
-	// if err := cdc.UnmarshalInterfaceJSON(contentJSON, &content); err != nil {
-	// 	return nil, err
-	// }
-	return cdc.MarshalInterfaceJSON(msg)
-}
+// func anyToJSON(cdc codec.Codec, exec *govtypes.MsgExecLegacyContent) (interface{}, error) {
+// 	var msg sdk.Msg
+// 	if err := cdc.UnpackAny(exec.Content, &msg); err != nil {
+// 		return nil, err
+// 	}
+// 	return cdc.MarshalInterfaceJSON(msg)
+// }
 
 func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, codec codec.Codec) (map[string]interface{}, error) {
 	statusTypes := map[govtypes.ProposalStatus]interface{}{
@@ -69,7 +57,7 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, code
 			continue
 		}
 
-		contentJson, err := anyToJSON(codec, msg)
+		contentJson, err := codec.MarshalInterfaceJSON(msg)
 		if err != nil {
 			details = append(details, map[string]interface{}{
 				"type":  msg.Content.TypeUrl,
@@ -77,10 +65,33 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, code
 			})
 			continue
 		}
-		details = append(details, map[string]interface{}{
-			"type":  msg.Content.TypeUrl,
-			"value": contentJson,
-		})
+		// json to interface
+		var content map[string]interface{}
+		err = json.Unmarshal(contentJson, &content)
+		if err != nil {
+			details = append(details, map[string]interface{}{
+				"type":  msg.Content.TypeUrl,
+				"error": err.Error(),
+			})
+			continue
+		}
+		decodedContent := content["content"].(map[string]interface{})
+
+		// check if msg field exists and is string
+		if decodedContent["msg"] != nil && decodedContent["msg"].(string) != "" {
+			var interfaceMsgMap map[string]interface{}
+			err = json.Unmarshal([]byte(decodedContent["msg"].(string)), &interfaceMsgMap)
+			if err != nil {
+				details = append(details, map[string]interface{}{
+					"type":  msg.Content.TypeUrl,
+					"error": err.Error(),
+				})
+				continue
+			}
+			decodedContent["msg"] = interfaceMsgMap
+		}
+
+		details = append(details, content["content"].(map[string]interface{}))
 	}
 
 	return map[string]interface{}{
@@ -129,7 +140,7 @@ func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Ui
 		return nil, err
 	}
 	for _, proposal := range proposals.Proposals {
-		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.AppCodec)
+		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.clientCtx.Codec)
 		if err != nil {
 			continue
 		}
@@ -152,7 +163,7 @@ func (b *Backend) GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	formattedProposal, err := ParseProposal(proposalResponse.Proposal, resParams.Params, b.AppCodec)
+	formattedProposal, err := ParseProposal(proposalResponse.Proposal, resParams.Params, b.clientCtx.Codec)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +285,7 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 		return nil, err
 	}
 	for _, proposal := range proposals.Proposals {
-		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.AppCodec)
+		formattedProposal, err := ParseProposal(proposal, resParams.Params, b.clientCtx.Codec)
 		if err != nil {
 			continue
 		}
