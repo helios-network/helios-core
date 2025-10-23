@@ -366,6 +366,10 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	}
 
 	app := opts.AppCreator(svrCtx.Logger, db, traceWriter, svrCtx.Viper)
+	// helApp, ok := app.(AppWithAppCodec)
+	// if !ok {
+	// 	return fmt.Errorf("expected app to be of type *heliosapp.HeliosApp, got %T", app)
+	// }
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
@@ -427,6 +431,8 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	if (config.API.Enable || config.GRPC.Enable || config.JSONRPC.Enable || config.JSONRPC.EnableIndexer) && tmNode != nil {
 		clientCtx = clientCtx.WithClient(local.New(tmNode))
 
+		// clientCtx = clientCtx.WithCodec(svrCtx.Backend.GetCodec())
+
 		app.RegisterTxService(clientCtx)
 		app.RegisterTendermintService(clientCtx)
 		app.RegisterNodeService(clientCtx, config.Config)
@@ -484,7 +490,11 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	if apiSrv != nil {
 		defer apiSrv.Close()
 	}
-	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress, idxer)
+
+	// prepare codec with all interfaces registered
+	// cdc := codec.NewProtoCodec(helApp.GetInterfaceRegistry())
+
+	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress, idxer, nil)
 	if httpSrv != nil {
 		defer func() {
 			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
@@ -679,6 +689,7 @@ func startAPIServer(
 // - genDocProvider: A function that provides the Genesis document, used to retrieve the chain ID.
 // - cmtRPCAddr: The address of the CometBFT RPC server for WebSocket connections.
 // - idxer: The EVM transaction indexer for indexing transactions.
+// - appCodec: The application's codec, used for marshaling and unmarshaling.
 func startJSONRPCServer(
 	svrCtx *server.Context,
 	clientCtx client.Context,
@@ -687,6 +698,7 @@ func startJSONRPCServer(
 	genDocProvider node.GenesisDocProvider,
 	cmtRPCAddr string,
 	idxer evmostypes.EVMTxIndexer,
+	appCodec codec.Codec,
 ) (ctx client.Context, httpSrv *http.Server, httpSrvDone chan struct{}, err error) {
 	ctx = clientCtx
 	if !config.JSONRPC.Enable {
@@ -702,7 +714,7 @@ func startJSONRPCServer(
 	cmtEndpoint := "/websocket"
 	g.Go(func() error {
 
-		httpSrv, httpSrvDone, err = StartJSONRPC(svrCtx, clientCtx, cmtRPCAddr, cmtEndpoint, &config, idxer)
+		httpSrv, httpSrvDone, err = StartJSONRPC(svrCtx, clientCtx, cmtRPCAddr, cmtEndpoint, &config, idxer, appCodec)
 		return err
 	})
 	return

@@ -18,6 +18,8 @@ import (
 	"helios-core/helios-chain/rpc/backend"
 	"helios-core/helios-chain/server/middleware"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	ethlog "github.com/ethereum/go-ethereum/log"
@@ -178,6 +180,7 @@ func StartJSONRPC(ctx *server.Context,
 	tmEndpoint string,
 	config *svrconfig.Config,
 	indexer evmostypes.EVMTxIndexer,
+	appCodec codec.Codec,
 ) (*http.Server, chan struct{}, error) {
 
 	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
@@ -200,7 +203,7 @@ func StartJSONRPC(ctx *server.Context,
 	allowUnprotectedTxs := config.JSONRPC.AllowUnprotectedTxs
 	rpcAPIArr := config.JSONRPC.API
 
-	apis := rpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, indexer, rpcAPIArr)
+	apis := rpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, indexer, rpcAPIArr, appCodec)
 
 	r := mux.NewRouter()
 
@@ -494,7 +497,7 @@ func StartJSONRPC(ctx *server.Context,
 
 	// allocate separate WS connection to Tendermint
 	tmWsClient = ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
-	backend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer)
+	backend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer, appCodec)
 	wsSrv := rpc.NewWebsocketsServer(clientCtx, ctx.Logger, tmWsClient, config, backend)
 	wsSrv.Start()
 	return httpSrv, httpSrvDone, nil
