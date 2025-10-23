@@ -254,7 +254,7 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 			proposalFilter.Status = govtypes.ProposalStatus(uint32(parsedStatus))
 			proposalFilter.Request.ProposalStatus = proposalFilter.Status
 		case "proposer":
-			proposalFilter.Proposer = cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
+			proposalFilter.Proposer = cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
 			proposalFilter.Request.Depositor = proposalFilter.Proposer
 		case "title-matches":
 			proposalFilter.Title = parts[1]
