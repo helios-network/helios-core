@@ -214,6 +214,7 @@ type ProposalFilter struct {
 	Proposer    string
 	Title       string
 	Description string
+	Voter       string
 	Request     *govtypes.QueryProposalsRequest
 }
 
@@ -256,6 +257,9 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 		case "proposer":
 			proposalFilter.Proposer = cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
 			proposalFilter.Request.Depositor = proposalFilter.Proposer
+		case "voter":
+			proposalFilter.Voter = cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
+			proposalFilter.Request.Voter = proposalFilter.Voter
 		case "title-matches":
 			proposalFilter.Title = parts[1]
 		case "description-matches":
