@@ -911,7 +911,7 @@ func (k msgServer) AddOneWhitelistedAddress(c context.Context, msg *types.MsgAdd
 		whitelistedAddresses = &types.WhitelistedAddresses{Addresses: make([]string, 0)}
 	}
 
-	whitelistedAddresses.Addresses = append(whitelistedAddresses.Addresses, msg.Address)
+	whitelistedAddresses.Addresses = append(whitelistedAddresses.Addresses, cmn.AnyToHexAddress(msg.Address).Hex())
 	k.Keeper.SetWhitelistedAddresses(ctx, msg.HyperionId, whitelistedAddresses)
 
 	return &types.MsgAddOneWhitelistedAddressResponse{}, nil
@@ -942,9 +942,10 @@ func (k msgServer) RemoveOneWhitelistedAddress(c context.Context, msg *types.Msg
 	if whitelistedAddresses == nil {
 		whitelistedAddresses = &types.WhitelistedAddresses{Addresses: make([]string, 0)}
 	}
+	addressToRemove := cmn.AnyToHexAddress(msg.Address).Hex()
 	newAddresses := make([]string, 0)
 	for _, address := range whitelistedAddresses.Addresses {
-		if address != msg.Address {
+		if address != addressToRemove {
 			newAddresses = append(newAddresses, address)
 		}
 	}

@@ -41,6 +41,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	} else {
 		orchestratorAddr = validatorAccountAddr
 	}
+	evmAddress := cmn.AnyToHexAddress(orchestratorAddr.String()).Hex()
 
 	valAddr, foundExistingOrchestratorKey := k.Keeper.GetOrchestratorValidator(ctx, msg.HyperionId, orchestratorAddr)
 	ethAddress, foundExistingEthAddress := k.Keeper.GetEthAddressByValidator(ctx, msg.HyperionId, validatorAddr)
@@ -63,7 +64,7 @@ func (k msgServer) SetOrchestratorAddresses(c context.Context, msg *types.MsgSet
 	// check if the orchestrator address is whitelisted if whitelist is enabled
 	whitelistedAddresses := k.Keeper.GetWhitelistedAddresses(ctx, msg.HyperionId)
 	if whitelistedAddresses != nil { // whitelist is enabled
-		if !whitelistedAddresses.ContainsAddress(ethAddress.Hex()) {
+		if !whitelistedAddresses.ContainsAddress(evmAddress) {
 			return nil, errors.Wrap(types.ErrInvalid, "Orchestrator address is not whitelisted")
 		}
 	}
@@ -118,6 +119,7 @@ func (k msgServer) SetOrchestratorAddressesWithFee(c context.Context, msg *types
 	} else {
 		orchestratorAddr = validatorAccountAddr
 	}
+	evmAddress := cmn.AnyToHexAddress(orchestratorAddr.String()).Hex()
 
 	if msg.MinimumTxFee.Denom != sdk.DefaultBondDenom || msg.MinimumBatchFee.Denom != sdk.DefaultBondDenom {
 		return nil, errors.Wrap(types.ErrInvalid, "fee denom must be "+sdk.DefaultBondDenom)
@@ -144,7 +146,7 @@ func (k msgServer) SetOrchestratorAddressesWithFee(c context.Context, msg *types
 	// check if the orchestrator address is whitelisted if whitelist is enabled
 	whitelistedAddresses := k.Keeper.GetWhitelistedAddresses(ctx, msg.HyperionId)
 	if whitelistedAddresses != nil { // whitelist is enabled
-		if !whitelistedAddresses.ContainsAddress(ethAddress.Hex()) {
+		if !whitelistedAddresses.ContainsAddress(evmAddress) {
 			return nil, errors.Wrap(types.ErrInvalid, "Orchestrator address is not whitelisted")
 		}
 	}
