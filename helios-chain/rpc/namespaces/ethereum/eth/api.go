@@ -182,6 +182,7 @@ type EthereumAPI interface {
 	GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error)
 	GetValidatorHyperionData(address common.Address) (*hyperiontypes.OrchestratorData, error)
 	GetWhitelistedAddresses(hyperionId uint64) ([]string, error)
+	GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error)
 
 	GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error)
 }
@@ -847,6 +848,11 @@ func (e *PublicAPI) GetValidatorHyperionData(address common.Address) (*hyperiont
 func (e *PublicAPI) GetWhitelistedAddresses(hyperionId uint64) ([]string, error) {
 	e.logger.Debug("eth_getWhitelistedAddresses", "hyperionId", hyperionId)
 	return e.backend.GetWhitelistedAddresses(hyperionId)
+}
+
+func (e *PublicAPI) GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error) {
+	e.logger.Debug("eth_getHyperionProjectedCurrentNetworkHeight", "hyperionId", hyperionId)
+	return e.backend.GetHyperionProjectedCurrentNetworkHeight(hyperionId)
 }
 
 // Dans helios-chain/rpc/namespaces/ethereum/eth/api.go

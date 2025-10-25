@@ -408,10 +408,14 @@ func StartJSONRPC(ctx *server.Context,
 			}
 
 			// Log the timeout (not critical anymore)
-			ctx.Logger.Warn("JSON-RPC request exceeded max duration, cancelling request",
+			logMsg := "JSON-RPC request exceeded max duration, cancelling request"
+			if reqCtx.Err() != nil && strings.Contains(reqCtx.Err().Error(), "context canceled") && methodTracker.IsComputeTimeExceeded(method, clientIP) {
+				logMsg = "JSON-RPC request cancelled due to predicted compute time limit exceeding"
+			}
+			ctx.Logger.Warn(logMsg,
 				"method", method,
-				"duration", duration,
-				"max_duration", config.JSONRPC.MaxRequestDuration,
+				"duration", duration.Milliseconds(),
+				"max_duration", config.JSONRPC.MaxRequestDuration.Milliseconds(),
 				"timeout_error", reqCtx.Err().Error())
 
 			// Send error response to client

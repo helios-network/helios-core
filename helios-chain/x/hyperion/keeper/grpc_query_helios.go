@@ -730,3 +730,8 @@ func (k *Keeper) QueryGetWhitelistedAddresses(c context.Context, req *types.Quer
 
 	return &types.QueryGetWhitelistedAddressesResponse{Addresses: whitelistedAddresses.Addresses}, nil
 }
+
+func (k *Keeper) QueryEstimateLatestBlockOfChain(c context.Context, req *types.QueryEstimateLatestBlockOfChainRequest) (*types.QueryEstimateLatestBlockOfChainResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return &types.QueryEstimateLatestBlockOfChainResponse{LatestBlock: k.GetProjectedCurrentEthereumHeight(ctx, req.HyperionId)}, nil
+}

@@ -37,6 +37,16 @@ func (mt *MethodTracker) SetComputeTimeTracker(ctt *ComputeTimeTracker) {
 	mt.computeTimeTracker = ctt
 }
 
+// IsComputeTimeExceeded checks if the predicted compute time limit was exceeded for a given method and IP
+func (mt *MethodTracker) IsComputeTimeExceeded(method, ip string) bool {
+	if mt.computeTimeTracker == nil {
+		return false
+	}
+
+	// Use the PredictComputeTime logic (inverse of what's in json_rpc.go)
+	return !mt.computeTimeTracker.PredictComputeTime(ip, method)
+}
+
 // TrackMethod tracks a method call and its response time
 func (mt *MethodTracker) TrackMethod(method string, duration time.Duration, isError bool) {
 	mt.mutex.Lock()

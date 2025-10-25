@@ -132,3 +132,14 @@ func (b *Backend) GetWhitelistedAddresses(hyperionId uint64) ([]string, error) {
 	}
 	return res.Addresses, nil
 }
+
+func (b *Backend) GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error) {
+	res, err := b.queryClient.Hyperion.QueryEstimateLatestBlockOfChain(b.ctx, &hyperiontypes.QueryEstimateLatestBlockOfChainRequest{
+		HyperionId: hyperionId,
+	})
+	if err != nil {
+		b.logger.Error("HyperionEstimateLatestBlockOfChain", "error", err)
+		return 0, err
+	}
+	return res.LatestBlock, nil
+}

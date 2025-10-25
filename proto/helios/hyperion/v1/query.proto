@@ -208,6 +208,11 @@ service Query {
       returns (QueryGetWhitelistedAddressesResponse) {
     option (google.api.http).get = "/hyperion/v1/whitelisted_addresses";
   }
+
+  rpc QueryEstimateLatestBlockOfChain(QueryEstimateLatestBlockOfChainRequest)
+      returns (QueryEstimateLatestBlockOfChainResponse) {
+    option (google.api.http).get = "/hyperion/v1/estimate_latest_block_of_chain";
+  }
 }
 
 message QueryParamsRequest {}
@@ -532,4 +537,12 @@ message QueryGetWhitelistedAddressesRequest {
 
 message QueryGetWhitelistedAddressesResponse {
   repeated string addresses = 1;
+}
+
+message QueryEstimateLatestBlockOfChainRequest {
+  uint64 hyperion_id = 1;
+}
+
+message QueryEstimateLatestBlockOfChainResponse {
+  uint64 latest_block = 1;
 }
