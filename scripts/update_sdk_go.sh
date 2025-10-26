@@ -82,3 +82,5 @@ for type in "${types[@]}"; do
   gsed -i "s/github.com\/Helios-Chain-Labs\/helios-core\/helios-chain\/x/github.com\/Helios-Chain-Labs\/sdk-go\/chain/g" *.go
   cd "$current_dir" || exit
 done
+
+cp -r helios-chain/x/logos/types/default-logos/ ../sdk-go/chain/logos/types/default-logos/
