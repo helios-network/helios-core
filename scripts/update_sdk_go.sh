@@ -70,7 +70,7 @@ process_files() {
 cp -r proto/ ../sdk-go/proto
 
 current_dir=$(pwd)
-types=("chronos/types" "epochs/types" "erc20/types" "evm/types" "evm/statedb" "evm/core/vm" "hyperion/types" "ibc/transfer/types" "inflation/types" "tokenfactory/types" "vesting/types" "feemarket/types")
+types=("chronos/types" "epochs/types" "erc20/types" "evm/types" "evm/statedb" "evm/core/vm" "hyperion/types" "logos/types" "ibc/transfer/types" "inflation/types" "tokenfactory/types" "vesting/types" "feemarket/types")
 
 for type in "${types[@]}"; do
 
