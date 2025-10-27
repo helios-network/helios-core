@@ -130,7 +130,7 @@ func (c *CachedPublicAPI) GetCacheStats() map[string]interface{} {
 // Method call wrappers with exact signatures matching the original PublicAPI
 
 // GetAllHyperionTransferTxs returns all hyperion transfer transactions with caching
-func (c *CachedPublicAPI) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+func (c *CachedPublicAPI) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.QueryTransferTx, error) {
 	methodName := "GetAllHyperionTransferTxs"
 	args := []interface{}{size}
 
@@ -145,7 +145,7 @@ func (c *CachedPublicAPI) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyp
 	}
 
 	if len(results) > 0 {
-		if txs, ok := results[0].([]*hyperiontypes.TransferTx); ok {
+		if txs, ok := results[0].([]*hyperiontypes.QueryTransferTx); ok {
 			return txs, nil
 		}
 	}
@@ -153,7 +153,7 @@ func (c *CachedPublicAPI) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyp
 }
 
 // GetHyperionAccountTransferTxsByPageAndSize returns hyperion account transfer transactions with caching
-func (c *CachedPublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+func (c *CachedPublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.QueryTransferTx, error) {
 	methodName := "GetHyperionAccountTransferTxsByPageAndSize"
 	args := []interface{}{address, page, size}
 
@@ -168,7 +168,7 @@ func (c *CachedPublicAPI) GetHyperionAccountTransferTxsByPageAndSize(address com
 	}
 
 	if len(results) > 0 {
-		if txs, ok := results[0].([]*hyperiontypes.TransferTx); ok {
+		if txs, ok := results[0].([]*hyperiontypes.QueryTransferTx); ok {
 			return txs, nil
 		}
 	}
