@@ -340,9 +340,6 @@ func (k msgServer) AddCounterpartyChainParams(c context.Context, msg *types.MsgA
 	// setup a default value LastObservedEthereumBlockHeight
 	k.Keeper.SetNewLastObservedEthereumBlockHeight(ctx, msg.CounterpartyChainParams.HyperionId, msg.CounterpartyChainParams.BridgeContractStartHeight)
 
-	// set proposer as first validator
-	k.Keeper.SetOrchestratorValidator(ctx, msg.CounterpartyChainParams.HyperionId, cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)), cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)))
-	k.Keeper.SetEthAddressForValidator(ctx, msg.CounterpartyChainParams.HyperionId, cmn.ValAddressFromHexAddress(cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer)), cmn.AnyToHexAddress(msg.CounterpartyChainParams.Initializer))
 	// set first valset
 	k.Keeper.SetLastObservedValset(ctx, msg.CounterpartyChainParams.HyperionId, types.Valset{
 		HyperionId: msg.CounterpartyChainParams.HyperionId,
