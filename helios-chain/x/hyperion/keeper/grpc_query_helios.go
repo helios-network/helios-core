@@ -279,7 +279,7 @@ func (k Keeper) Attestation(c context.Context, req *types.QueryAttestationReques
 	}, nil
 }
 
-func formatErc20TransferTxs(ctx sdk.Context, k *Keeper, txs []*types.TransferTx) []*types.TransferTx {
+func formatErc20TransferTxs(ctx sdk.Context, k *Keeper, txs []*types.QueryTransferTx) []*types.QueryTransferTx {
 	tokenPairHLS, existsHLS := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, sdk.DefaultBondDenom))
 	for _, tx := range txs {
 		if tx.ReceivedToken == nil {
@@ -339,31 +339,23 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 
 	startIndex := req.Pagination.Offset
 	endIndex := req.Pagination.Offset + req.Pagination.Limit
-	txs := make([]*types.TransferTx, 0)
+	txs := make([]*types.QueryTransferTx, 0)
 	currentCount := uint64(0) // Track how many transactions we've counted
 
 	// 1. HIGHEST PRIORITY: Process incoming transactions from attestations
 	params := k.GetParams(ctx)
 
 	// Collect all incoming transactions first (to process newest first)
-	incomingTxs := make([]*types.TransferTx, 0)
+	incomingTxs := make([]*types.QueryTransferTx, 0)
 
-	// 1. SECOND PRIORITY: Process outgoing transactions
+	// 1. First PRIORITY: Process outgoing transactions (unbatched)
 	// Adjust indices based on incoming transactions
 	remainingSlots := req.Pagination.Limit - uint64(len(txs))
 	if remainingSlots > 0 {
 		// Get outgoing transactions
-		batches := k.GetAllOutgoingTxBatches(ctx)
-		unbatchedTx := k.GetAllPoolTransactions(ctx)
-
-		outTransfersInBatches := make([]*types.OutgoingTransferTx, 0)
-		for _, batch := range batches {
-			outTransfersInBatches = append(outTransfersInBatches, batch.Transactions...)
-		}
-		allOuts := append(outTransfersInBatches, unbatchedTx...)
-
+		allOuts := k.GetAllPoolTransactions(ctx)
 		// Filter by address and convert to TransferTx
-		outgoingTxs := make([]*types.TransferTx, 0)
+		outgoingTxs := make([]*types.QueryTransferTx, 0)
 		for _, tx := range allOuts {
 			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address || req.Address == "" {
 				receivedTokenToDenom := ""
@@ -372,7 +364,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 					receivedTokenToDenom = denom.Denom
 				}
 
-				outgoingTxs = append(outgoingTxs, &types.TransferTx{
+				outgoingTxs = append(outgoingTxs, &types.QueryTransferTx{
 					HyperionId:  tx.HyperionId,
 					Id:          tx.Id,
 					Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
@@ -393,12 +385,13 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 						Amount:   tx.Fee.Amount,
 						Contract: sdk.DefaultBondDenom,
 					},
-					Status:    "PROGRESS",
+					Status:    "PROGRESS_UNBATCHED",
 					Direction: "OUT",
 					ChainId:   k.GetBridgeChainID(ctx)[tx.HyperionId],
 					Height:    uint64(ctx.BlockHeight()),
 					Proof:     &types.Proof{},
 					TxHash:    tx.TxHash,
+					Timeout:   tx.TxTimeout,
 				})
 			}
 		}
@@ -431,7 +424,89 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		}
 	}
 
-	// 2. SECOND PRIORITY: Process incoming transactions
+	// 2. SECOND PRIORITY: Process batched transactions
+	remainingSlots = req.Pagination.Limit - uint64(len(txs))
+	if remainingSlots > 0 {
+		// Get outgoing transactions
+		batches := k.GetAllOutgoingTxBatches(ctx)
+
+		outTransfersInBatches := make([]*types.OutgoingTransferTx, 0)
+		for _, batch := range batches {
+			outTransfersInBatches = append(outTransfersInBatches, batch.Transactions...)
+		}
+		allOuts := outTransfersInBatches
+
+		// Filter by address and convert to TransferTx
+		outgoingTxs := make([]*types.QueryTransferTx, 0)
+		for _, tx := range allOuts {
+			if cmn.AnyToHexAddress(tx.Sender).String() == req.Address || req.Address == "" {
+				receivedTokenToDenom := ""
+				if tx.Token.Contract != "" {
+					denom, _ := k.GetTokenFromAddress(ctx, tx.HyperionId, common.HexToAddress(tx.Token.Contract))
+					receivedTokenToDenom = denom.Denom
+				}
+
+				outgoingTxs = append(outgoingTxs, &types.QueryTransferTx{
+					HyperionId:  tx.HyperionId,
+					Id:          tx.Id,
+					Sender:      cmn.AnyToHexAddress(tx.Sender).String(),
+					DestAddress: cmn.AnyToHexAddress(tx.DestAddress).String(),
+					ReceivedToken: &types.Token{
+						Amount:   tx.Token.Amount,
+						Contract: receivedTokenToDenom,
+					},
+					ReceivedFee: &types.Token{
+						Amount:   tx.Fee.Amount,
+						Contract: sdk.DefaultBondDenom,
+					},
+					SentToken: &types.Token{
+						Amount:   tx.Token.Amount,
+						Contract: receivedTokenToDenom,
+					},
+					SentFee: &types.Token{
+						Amount:   tx.Fee.Amount,
+						Contract: sdk.DefaultBondDenom,
+					},
+					Status:    "PROGRESS_BATCHED",
+					Direction: "OUT",
+					ChainId:   k.GetBridgeChainID(ctx)[tx.HyperionId],
+					Height:    uint64(ctx.BlockHeight()),
+					Proof:     &types.Proof{},
+					TxHash:    tx.TxHash,
+					Timeout:   tx.TxTimeout,
+				})
+			}
+		}
+
+		// Sort outgoing transactions by ID (newest first)
+		sort.Slice(outgoingTxs, func(i, j int) bool {
+			return outgoingTxs[i].Id > outgoingTxs[j].Id
+		})
+
+		// Calculate adjusted indices for outgoing transactions
+		outgoingStartIndex := uint64(0)
+		if startIndex > currentCount {
+			outgoingStartIndex = startIndex - currentCount
+		} else {
+			outgoingStartIndex = 0
+		}
+		outgoingEndIndex := outgoingStartIndex + remainingSlots
+
+		// Add outgoing transactions with pagination
+		for i, tx := range outgoingTxs {
+			if uint64(i) >= outgoingStartIndex && uint64(i) < outgoingEndIndex {
+				txs = append(txs, tx)
+			}
+			currentCount++
+
+			// If we've filled our page, break
+			if uint64(len(txs)) >= req.Pagination.Limit {
+				break
+			}
+		}
+	}
+
+	// 3. THIRD PRIORITY: Process incoming transactions
 	remainingSlots = req.Pagination.Limit - uint64(len(txs))
 	if remainingSlots > 0 {
 		for _, counterpartyChainParam := range params.CounterpartyChainParams {
@@ -472,7 +547,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 						receivedTokenToDenom = denom.Denom
 					}
 
-					incomingTxs = append(incomingTxs, &types.TransferTx{
+					incomingTxs = append(incomingTxs, &types.QueryTransferTx{
 						HyperionId:  claim.HyperionId,
 						Id:          claim.EventNonce,
 						Height:      claim.BlockHeight,
@@ -499,6 +574,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 						ChainId:   counterpartyChainParam.BridgeChainId,
 						Proof:     proof,
 						TxHash:    claim.TxHash,
+						Timeout:   0,
 					})
 				}
 			}
@@ -523,7 +599,7 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		}
 	}
 
-	// 3. LOWEST PRIORITY: Get finalized transactions
+	// 4. LOWEST PRIORITY: Get finalized transactions
 	// Adjust indices based on prior transactions
 	remainingSlots = req.Pagination.Limit - uint64(len(txs))
 	if remainingSlots > 0 && req.Address != "" {
@@ -545,14 +621,14 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 		// reverse the txs
 		mutable.Reverse(finalizedTxs)
 
-		txs = append(txs, finalizedTxs...)
+		txs = append(txs, formatQueryTransferTxs(finalizedTxs)...)
 	} else if req.Address == "" {
 		finalizedTxs, err := k.GetLastFinalizedTxIndex(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to search finalized txs")
 		}
 		mutable.Reverse(finalizedTxs.Txs)
-		txs = append(txs, finalizedTxs.Txs...)
+		txs = append(txs, formatQueryTransferTxs(finalizedTxs.Txs)...)
 	}
 
 	// Format ERC20 tokens if requested
@@ -563,6 +639,30 @@ func (k *Keeper) QueryGetTransactionsByPageAndSize(c context.Context, req *types
 	return &types.QueryGetTransactionsByPageAndSizeResponse{
 		Txs: txs,
 	}, nil
+}
+
+func formatQueryTransferTxs(txs []*types.TransferTx) []*types.QueryTransferTx {
+	queryTxs := make([]*types.QueryTransferTx, 0)
+	for _, tx := range txs {
+		queryTxs = append(queryTxs, &types.QueryTransferTx{
+			HyperionId:    tx.HyperionId,
+			Id:            tx.Id,
+			Height:        tx.Height,
+			Sender:        tx.Sender,
+			DestAddress:   tx.DestAddress,
+			SentToken:     tx.SentToken,
+			SentFee:       tx.SentFee,
+			ReceivedToken: tx.ReceivedToken,
+			ReceivedFee:   tx.ReceivedFee,
+			Status:        tx.Status,
+			Direction:     tx.Direction,
+			ChainId:       tx.ChainId,
+			Proof:         tx.Proof,
+			TxHash:        tx.TxHash,
+			Timeout:       0,
+		})
+	}
+	return queryTxs
 }
 
 func (k *Keeper) QueryGetCounterpartyChainParamsByChainId(c context.Context, req *types.QueryGetCounterpartyChainParamsByChainIdRequest) (*types.QueryGetCounterpartyChainParamsByChainIdResponse, error) {

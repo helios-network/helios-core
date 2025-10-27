@@ -106,6 +106,25 @@ message TransferTx {
   // todo add INFO
 }
 
+message QueryTransferTx {
+  uint64 hyperion_id = 1 [(gogoproto.jsontag) = "hyperionId"];
+  uint64 id = 2;
+  uint64 height = 3;
+  string sender = 4;
+  string dest_address = 5 [(gogoproto.jsontag) = "destAddress"];
+  Token received_token = 6 [(gogoproto.jsontag) = "receivedToken"];
+  Token sent_token = 7 [(gogoproto.jsontag) = "sentToken"];
+  Token received_fee = 8 [(gogoproto.jsontag) = "receivedFee"];
+  Token sent_fee = 9 [(gogoproto.jsontag) = "sentFee"];
+  string status = 10;
+  string direction = 11;
+  uint64 chain_id = 12 [(gogoproto.jsontag) = "chainId"];
+  Proof proof = 13;
+  string tx_hash = 14 [(gogoproto.jsontag) = "txHash"];
+  uint64 index = 15;
+  uint64 timeout = 16;
+}
+
 message Rpc {
   string url = 1;
   uint64 reputation = 2;

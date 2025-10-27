@@ -14,7 +14,7 @@ import (
 )
 
 // GetAccountTransactionsByPageAndSize returns the transactions at the given page and size for the filtered by address
-func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.QueryTransferTx, error) {
 	if page == 0 || size == 0 || size > 100 {
 		return nil, errors.New("invalid page or size parameters")
 	}
@@ -31,17 +31,17 @@ func (b *Backend) GetHyperionAccountTransferTxsByPageAndSize(address common.Addr
 
 	if err != nil {
 		b.logger.Error("GetHyperionAccountTransferTxsByPageAndSize", "error", err)
-		return []*hyperiontypes.TransferTx{}, err
+		return []*hyperiontypes.QueryTransferTx{}, err
 	}
 
 	if res.Txs == nil {
-		return []*hyperiontypes.TransferTx{}, nil
+		return []*hyperiontypes.QueryTransferTx{}, nil
 	}
 
 	return res.Txs, nil
 }
 
-func (b *Backend) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error) {
+func (b *Backend) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.QueryTransferTx, error) {
 	if size == 0 || size > 100 {
 		return nil, errors.New("invalid size parameters")
 	}
@@ -56,7 +56,7 @@ func (b *Backend) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontyp
 	}
 	res, err := b.queryClient.Hyperion.QueryGetTransactionsByPageAndSize(b.ctx, req)
 	if err != nil || res.Txs == nil {
-		return []*hyperiontypes.TransferTx{}, err
+		return []*hyperiontypes.QueryTransferTx{}, err
 	}
 
 	return res.Txs, nil

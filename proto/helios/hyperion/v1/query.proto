@@ -427,7 +427,7 @@ message QueryGetTransactionsByPageAndSizeRequest {
 }
 
 message QueryGetTransactionsByPageAndSizeResponse {
-  repeated TransferTx txs = 1;
+  repeated QueryTransferTx txs = 1;
 }
 
 message QueryGetCounterpartyChainParamsByChainIdRequest {

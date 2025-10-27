@@ -182,8 +182,8 @@ type EVMBackend interface {
 	GetCronStatistics() (*chronostypes.CronStatistics, error)
 
 	// hyperion
-	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
-	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.TransferTx, error)
+	GetHyperionAccountTransferTxsByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) ([]*hyperiontypes.QueryTransferTx, error)
+	GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontypes.QueryTransferTx, error)
 	GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error)
 	GetHyperionHistoricalFees(hyperionId uint64) (*hyperiontypes.QueryHistoricalFeesResponse, error)
 	GetValidatorHyperionData(address common.Address) (*hyperiontypes.OrchestratorData, error)
