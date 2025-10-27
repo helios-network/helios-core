@@ -235,7 +235,7 @@ func (b *Backend) FeeHistory(
 			thisGasUsedRatio[index] = oneFeeHistory.GasUsedRatio
 			if calculateRewards {
 				for j := 0; j < rewardCount; j++ {
-					if len(reward[index]) >= j && oneFeeHistory.Reward != nil && len(oneFeeHistory.Reward) >= j {
+					if oneFeeHistory.Reward != nil && len(oneFeeHistory.Reward) > j {
 						reward[index][j] = (*hexutil.Big)(oneFeeHistory.Reward[j])
 						if reward[index][j] == nil {
 							reward[index][j] = (*hexutil.Big)(big.NewInt(0))
