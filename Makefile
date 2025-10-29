@@ -218,6 +218,11 @@ publish-ts:
 grpc-ui:
 	grpcui -plaintext -protoset ./heliades.protoset localhost:9900
 
+release: 
+	@docker build --platform=linux/amd64 -t helios-core-release -f Dockerfile .
+	@docker run --platform=linux/amd64 --rm \
+		helios-core-release
+
 .PHONY: proto proto-gen proto-lint proto-check-breaking proto-update-deps
 
 

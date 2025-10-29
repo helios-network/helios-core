@@ -15,7 +15,8 @@ import (
 
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/version"
+
+	"helios-core/version"
 
 	"cosmossdk.io/log"
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
