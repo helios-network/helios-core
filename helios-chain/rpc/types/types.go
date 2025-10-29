@@ -4,6 +4,9 @@ import (
 	"math/big"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	cosmossdk_io_math "cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -303,4 +306,23 @@ type ProposalVoteRPC struct {
 	Voter    string                  `json:"voter"`
 	Options  []ProposalVoteOptionRPC `json:"options"`
 	Metadata string                  `json:"metadata"`
+}
+
+type ProposalRPC struct {
+	Id                 uint64                   `json:"id"`
+	StatusCode         string                   `json:"statusCode"`
+	Status             string                   `json:"status"`
+	Proposer           string                   `json:"proposer"`
+	Title              string                   `json:"title"`
+	Metadata           string                   `json:"metadata"`
+	Summary            string                   `json:"summary"`
+	Details            []map[string]interface{} `json:"details"`
+	Options            []ProposalVoteOptionRPC  `json:"options"`
+	VotingStartTime    time.Time                `json:"votingStartTime"`
+	VotingEndTime      time.Time                `json:"votingEndTime"`
+	SubmitTime         time.Time                `json:"submitTime"`
+	TotalDeposit       sdk.Coins                `json:"totalDeposit"`
+	MinDeposit         sdk.Coins                `json:"minDeposit"`
+	FinalTallyResult   govtypes.TallyResult     `json:"finalTallyResult"`
+	CurrentTallyResult govtypes.TallyResult     `json:"currentTallyResult"`
 }

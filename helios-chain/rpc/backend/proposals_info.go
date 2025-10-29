@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 
 	cmn "helios-core/helios-chain/precompiles/common"
@@ -18,11 +17,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, codec codec.Codec) (map[string]interface{}, error) {
-	statusTypes := map[govtypes.ProposalStatus]interface{}{
+func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, codec codec.Codec) (*rpctypes.ProposalRPC, error) {
+	statusTypes := map[govtypes.ProposalStatus]string{
 		govtypes.ProposalStatus_PROPOSAL_STATUS_UNSPECIFIED:    "UNSPECIFIED",
 		govtypes.ProposalStatus_PROPOSAL_STATUS_DEPOSIT_PERIOD: "DEPOSIT_PERIOD",
 		govtypes.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD:  "VOTING_PERIOD",
@@ -86,33 +86,57 @@ func ParseProposal(proposal *govtypes.Proposal, govParams *govtypes.Params, code
 		details = append(details, content["content"].(map[string]interface{}))
 	}
 
-	return map[string]interface{}{
-		"id":         proposal.Id,
-		"statusCode": proposal.Status,
-		"status":     statusTypes[proposal.Status],
-		"proposer":   common.BytesToAddress(proposerAddr.Bytes()).String(),
-		"title":      proposal.Title,
-		"metadata":   proposal.Metadata,
-		"summary":    proposal.Summary,
-		"details":    details,
-		"options": []*govtypes.WeightedVoteOption{
-			{Option: govtypes.OptionYes, Weight: "Yes"},
-			{Option: govtypes.OptionAbstain, Weight: "Abstain"},
-			{Option: govtypes.OptionNo, Weight: "No"},
-			{Option: govtypes.OptionNoWithVeto, Weight: "No With Veto"},
+	// return map[string]interface{}{
+	// 	"id":         proposal.Id,
+	// 	"statusCode": proposal.Status,
+	// 	"status":     statusTypes[proposal.Status],
+	// 	"proposer":   common.BytesToAddress(proposerAddr.Bytes()).String(),
+	// 	"title":      proposal.Title,
+	// 	"metadata":   proposal.Metadata,
+	// 	"summary":    proposal.Summary,
+	// 	"details":    details,
+	// 	"options": []*govtypes.WeightedVoteOption{
+	// 		{Option: govtypes.OptionYes, Weight: "Yes"},
+	// 		{Option: govtypes.OptionAbstain, Weight: "Abstain"},
+	// 		{Option: govtypes.OptionNo, Weight: "No"},
+	// 		{Option: govtypes.OptionNoWithVeto, Weight: "No With Veto"},
+	// 	},
+	// 	"votingStartTime":    proposal.VotingStartTime,
+	// 	"votingEndTime":      proposal.VotingEndTime,
+	// 	"submitTime":         proposal.SubmitTime,
+	// 	"totalDeposit":       proposal.TotalDeposit,
+	// 	"minDeposit":         proposal.GetMinDepositFromParams(*govParams),
+	// 	"finalTallyResult":   proposal.FinalTallyResult,
+	// 	"currentTallyResult": proposal.CurrentTallyResult,
+	// }, nil
+
+	return &rpctypes.ProposalRPC{
+		Id:         proposal.Id,
+		StatusCode: proposal.Status.String(),
+		Status:     statusTypes[proposal.Status],
+		Proposer:   common.BytesToAddress(proposerAddr.Bytes()).String(),
+		Title:      proposal.Title,
+		Metadata:   proposal.Metadata,
+		Summary:    proposal.Summary,
+		Details:    details,
+		Options: []rpctypes.ProposalVoteOptionRPC{
+			{Option: govtypes.OptionYes.String(), Weight: "Yes"},
+			{Option: govtypes.OptionAbstain.String(), Weight: "Abstain"},
+			{Option: govtypes.OptionNo.String(), Weight: "No"},
+			{Option: govtypes.OptionNoWithVeto.String(), Weight: "No With Veto"},
 		},
-		"votingStartTime":    proposal.VotingStartTime,
-		"votingEndTime":      proposal.VotingEndTime,
-		"submitTime":         proposal.SubmitTime,
-		"totalDeposit":       proposal.TotalDeposit,
-		"minDeposit":         proposal.GetMinDepositFromParams(*govParams),
-		"finalTallyResult":   proposal.FinalTallyResult,
-		"currentTallyResult": proposal.CurrentTallyResult,
+		VotingStartTime:    *proposal.VotingStartTime,
+		VotingEndTime:      *proposal.VotingEndTime,
+		SubmitTime:         *proposal.SubmitTime,
+		TotalDeposit:       proposal.TotalDeposit,
+		MinDeposit:         proposal.GetMinDepositFromParams(*govParams),
+		FinalTallyResult:   *proposal.FinalTallyResult,
+		CurrentTallyResult: *proposal.CurrentTallyResult,
 	}, nil
 }
 
-func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
-	proposalsResult := make([]map[string]interface{}, 0)
+func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalRPC, error) {
+	proposalsResult := make([]*rpctypes.ProposalRPC, 0)
 	proposals, err := b.queryClient.Gov.Proposals(b.ctx, &govtypes.QueryProposalsRequest{
 		Pagination: &query.PageRequest{
 			Offset:  (uint64(page) - 1) * uint64(size),
@@ -141,7 +165,7 @@ func (b *Backend) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Ui
 	return proposalsResult, nil
 }
 
-func (b *Backend) GetProposal(id hexutil.Uint64) (map[string]interface{}, error) {
+func (b *Backend) GetProposal(id hexutil.Uint64) (*rpctypes.ProposalRPC, error) {
 	proposalResponse, err := b.queryClient.Gov.Proposal(b.ctx, &govtypes.QueryProposalRequest{
 		ProposalId: uint64(id),
 	})
@@ -215,10 +239,11 @@ type ProposalFilter struct {
 	Title       string
 	Description string
 	Voter       string
+	Depositor   string
 	Request     *govtypes.QueryProposalsRequest
 }
 
-func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error) {
+func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]*rpctypes.ProposalRPC, error) {
 	// filters examples:
 	// status=1
 	// status=2
@@ -231,6 +256,8 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 	var proposalFilter ProposalFilter
 	proposalFilter.Status = govtypes.ProposalStatus_PROPOSAL_STATUS_UNSPECIFIED
 	proposalFilter.Proposer = ""
+	proposalFilter.Voter = ""
+	proposalFilter.Depositor = ""
 	proposalFilter.Title = ""
 	proposalFilter.Description = ""
 	proposalFilter.Request = &govtypes.QueryProposalsRequest{
@@ -256,7 +283,10 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 			proposalFilter.Request.ProposalStatus = proposalFilter.Status
 		case "proposer":
 			proposalFilter.Proposer = cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
-			proposalFilter.Request.Depositor = proposalFilter.Proposer
+			proposalFilter.Request.Proposer = proposalFilter.Proposer
+		case "depositor":
+			proposalFilter.Depositor = cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
+			proposalFilter.Request.Depositor = proposalFilter.Depositor
 		case "voter":
 			proposalFilter.Voter = cmn.AccAddressFromHexAddress(cmn.AnyToHexAddress(parts[1])).String()
 			proposalFilter.Request.Voter = proposalFilter.Voter
@@ -267,7 +297,7 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 		}
 	}
 
-	proposalsResult := make([]map[string]interface{}, 0)
+	proposalsResult := make([]*rpctypes.ProposalRPC, 0)
 	proposals, err := b.queryClient.Gov.Proposals(b.ctx, proposalFilter.Request)
 	if err != nil {
 		return nil, err

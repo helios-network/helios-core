@@ -64,9 +64,9 @@ type EVMBackend interface {
 	GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
 
 	// Proposals Info
-	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
-	GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error)
-	GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
+	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalRPC, error)
+	GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]*rpctypes.ProposalRPC, error)
+	GetProposal(id hexutil.Uint64) (*rpctypes.ProposalRPC, error)
 	GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalVoteRPC, error)
 	GetProposalsCount() (*hexutil.Uint64, error)
 

@@ -451,6 +451,52 @@ func (c *CachedPublicAPI) GetValidatorHyperionData(address common.Address) (*hyp
 	return nil, fmt.Errorf("invalid return type for GetValidatorHyperionData")
 }
 
+// GetProposalsByPageAndSize returns proposals by page and size with caching
+func (c *CachedPublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalRPC, error) {
+	methodName := "GetProposalsByPageAndSize"
+	args := []interface{}{page, size}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if proposals, ok := results[0].([]*rpctypes.ProposalRPC); ok {
+			return proposals, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetProposalsByPageAndSize")
+}
+
+// GetProposalsByPageAndSizeWithFilter returns proposals by page and size with filter with caching
+func (c *CachedPublicAPI) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]*rpctypes.ProposalRPC, error) {
+	methodName := "GetProposalsByPageAndSizeWithFilter"
+	args := []interface{}{page, size, filter}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if proposals, ok := results[0].([]*rpctypes.ProposalRPC); ok {
+			return proposals, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetProposalsByPageAndSizeWithFilter")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

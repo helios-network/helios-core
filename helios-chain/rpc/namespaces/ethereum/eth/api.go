@@ -43,9 +43,9 @@ type EthereumAPI interface {
 	GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uint64, fullTx bool) ([]map[string]interface{}, error)
 
 	// GetProposalBy(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
-	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error)
-	GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error)
-	GetProposal(id hexutil.Uint64) (map[string]interface{}, error)
+	GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalRPC, error)
+	GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]*rpctypes.ProposalRPC, error)
+	GetProposal(id hexutil.Uint64) (*rpctypes.ProposalRPC, error)
 	GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalVoteRPC, error)
 	GetProposalsCount() (*hexutil.Uint64, error)
 
@@ -236,17 +236,17 @@ func (e *PublicAPI) GetBlocksByPageAndSize(page hexutil.Uint64, size hexutil.Uin
 
 // Proposals
 
-func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]map[string]interface{}, error) {
+func (e *PublicAPI) GetProposalsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalRPC, error) {
 	e.logger.Debug("eth_getProposalsByPageAndSize", "page", page, "size", size, "full")
 	return e.backend.GetProposalsByPageAndSize(page, size)
 }
 
-func (e *PublicAPI) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]map[string]interface{}, error) {
+func (e *PublicAPI) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size hexutil.Uint64, filter string) ([]*rpctypes.ProposalRPC, error) {
 	e.logger.Debug("eth_getProposalsByPageAndSizeWithFilter", "page", page, "size", size, "filter", filter)
 	return e.backend.GetProposalsByPageAndSizeWithFilter(page, size, filter)
 }
 
-func (e *PublicAPI) GetProposal(id hexutil.Uint64) (map[string]interface{}, error) {
+func (e *PublicAPI) GetProposal(id hexutil.Uint64) (*rpctypes.ProposalRPC, error) {
 	e.logger.Debug("eth_getProposal", "id", id)
 	return e.backend.GetProposal(id)
 }
