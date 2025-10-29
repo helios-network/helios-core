@@ -2,13 +2,13 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
-// const RPC_URL = 'https://testnet1.helioschainlabs.org';
-const RPC_URL = 'http://localhost:8545';
+const RPC_URL = 'https://testnet1.helioschainlabs.org';
+// const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
-const PRIVATE_KEY = '2c37c3d09d7a1c957f01ad200cec69bc287d0a9cc85b4dce694611a4c9c24036';
+const PRIVATE_KEY = '';
 
-const PRIVATE_KEY2 = 'e1ab51c450698b0af4722e074e39394bd99822f0b00f1a787a131b48c14d4483'
+const PRIVATE_KEY2 = ''
 
 const PRECOMPILE_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000806';
 
@@ -40,6 +40,72 @@ async function hyperionProposal({ title, description, msg }) {
   }
 }
 
+async function updateChainSmartContractProposal(chainId, bridgeContractAddress, bridgeContractStartHeight, contractSourceHash) {
+  await hyperionProposal({
+    title: "clean all batches and txs chain id " + chainId,
+    description: "clean all batches and txs chain id " + chainId,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgUpdateChainSmartContract",
+      "chain_id": chainId,
+      "bridge_contract_address": bridgeContractAddress,
+      "bridge_contract_start_height": bridgeContractStartHeight,
+      "contract_source_hash": contractSourceHash,
+      "first_orchestrator_address": wallet.address,
+      "signer": wallet.address
+    })
+  })
+}
+
+async function setPauseProposal(chainId) {
+  await hyperionProposal({
+    title: `Pause Chain Hyperion ${chainId}`,
+    description: `Pause Chain Hyperion ${chainId}`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgPauseChain",
+      "chain_id": chainId,
+      "signer": wallet.address
+    })
+  })
+}
+
+async function setUnpauseProposal(chainId) {
+  await hyperionProposal({
+    title: `Unpause Chain Hyperion ${chainId}`,
+    description: `Unpause Chain Hyperion ${chainId}`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgUnpauseChain",
+      "chain_id": chainId,
+      "signer": wallet.address
+    })
+  })
+}
+
+async function setWhitelistedAddressesProposal(hyperionId, addresses) {
+  await hyperionProposal({
+    title: `Set Whitelisted Addresses Hyperion ${hyperionId}`,
+    description: `Set Whitelisted Addresses Hyperion ${hyperionId}`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgSetWhitelistedAddresses",
+      "hyperion_id": hyperionId,
+      "addresses": addresses,
+      "signer": wallet.address
+    })
+  })
+}
+
+async function addOneWhitelistedAddressProposal(hyperionId, address) {
+  await hyperionProposal({
+    title: `Add One Whitelisted Address Hyperion ${hyperionId}`,
+    description: `Add One Whitelisted Address Hyperion ${hyperionId}`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgAddOneWhitelistedAddress",
+      "hyperion_id": hyperionId,
+      "address": address,
+      "signer": wallet.address
+    })
+  })
+}
+
 async function vote(proposalId){
   const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
   const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", abi, wallet);
@@ -59,7 +125,7 @@ async function vote(proposalId){
   }
 }
 
-async function main() {
+async function addCounterpartyChainProposal() {
   await hyperionProposal({
     title: "test",
     description: "test",
@@ -112,8 +178,57 @@ async function main() {
       }
     })
   });
+}
 
-  // await vote(1);
+async function setTokenToChainProposal(chainId) {
+  await hyperionProposal({
+    title: `Set Token To Chain Hyperion ${chainId}`,
+    description: `Set Token To Chain Hyperion ${chainId}`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgSetTokenToChain",
+      "chain_id": chainId,
+      "token_address": "0x47Fa8b2c03bb62aA9e7F1a931536b4629785D123",
+      "denom": "ahelios",
+      "symbol": "HLS",
+      "decimals": 18,
+      "is_cosmos_originated": true,
+      "is_concensus_token": true,
+      "signer": wallet.address
+    })
+  })
+}
+
+async function removeTokenFromChainProposal(chainId) {
+  await hyperionProposal({
+    title: `Remove Token From Chain Hyperion ${chainId}`,
+    description: `Remove Token From Chain Hyperion ${chainId}`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgRemoveTokenFromChain",
+      "chain_id": chainId,
+      "denom": "ahelios",
+      "signer": wallet.address
+    })
+  })
+}
+
+async function main() {
+
+  // await setPauseProposal(97);
+
+  // await setUnpauseProposal(97);
+  // await setUnpauseProposal(11155111);
+
+
+  // await updateChainSmartContractProposal(97, "0xB8ed88AcD8b7ac80d9f546F4D75F33DD19dD5746", 58396704, "0x0000000000000000000000000000000000000000000000000000000000000000");
+  // await vote(104316);
+  // await vote(104933);
+
+  // await addOneWhitelistedAddressProposal(97, "0x7e62c5e7Eba41fC8c25e605749C476C0236e0604");
+  await addOneWhitelistedAddressProposal(42161, "0x7e62c5e7Eba41fC8c25e605749C476C0236e0604");
+
+  // await setTokenToChainProposal(11155111);
+
+  // await removeTokenFromChainProposal(11155111);
 }
 
 main();
