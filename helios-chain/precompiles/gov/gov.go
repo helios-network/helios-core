@@ -159,6 +159,11 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 			evm.Origin,
 			p.govKeeper,
 			ctx, method, contract, args)
+	case ModularProposalMethod:
+		bz, err = p.ModularProposal(
+			evm.Origin,
+			p.govKeeper,
+			ctx, method, contract, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
