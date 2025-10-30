@@ -9,15 +9,16 @@ import (
 
 	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/precompiles/staking"
 	"helios-core/helios-chain/precompiles/testutil"
 	evmosutiltx "helios-core/helios-chain/testutil/tx"
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/statedb"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 func (s *PrecompileTestSuite) TestCreateValidator() {
@@ -1057,163 +1058,6 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().Equal(undelegations[0].DelegatorAddress, delegator.AccAddr.String())
 				s.Require().Equal(undelegations[0].ValidatorAddress, s.network.GetValidators()[0].OperatorAddress)
 				s.Require().Equal(undelegations[0].Entries[0].Balance, math.NewIntFromBigInt(tc.expUndelegationShares))
-			}
-		})
-	}
-}
-
-func (s *PrecompileTestSuite) TestRedelegate() {
-	var ctx sdk.Context
-	method := s.precompile.Methods[staking.RedelegateMethod]
-
-	testCases := []struct {
-		name                  string
-		malleate              func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{}
-		postCheck             func(data []byte)
-		gas                   uint64
-		expRedelegationShares *big.Int
-		expError              bool
-		errContains           string
-	}{
-		{
-			"fail - empty input args",
-			func(_, _ testkeyring.Key, _, _ string) []interface{} {
-				return []interface{}{}
-			},
-			func([]byte) {},
-			200000,
-			big.NewInt(0),
-			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
-		},
-		// TODO: check case if authorization does not exist
-		{
-			name: "fail - different origin than delegator",
-			malleate: func(_, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
-				return []interface{}{
-					differentAddr,
-					srcOperatorAddr,
-					dstOperatorAddr,
-					big.NewInt(1000000000000000000),
-				}
-			},
-			gas:         200000,
-			expError:    true,
-			errContains: "is not the same as delegator",
-		},
-		{
-			"fail - invalid delegator address",
-			func(_, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				return []interface{}{
-					"",
-					srcOperatorAddr,
-					dstOperatorAddr,
-					big.NewInt(1),
-				}
-			},
-			func([]byte) {},
-			200000,
-			big.NewInt(1),
-			true,
-			fmt.Sprintf(cmn.ErrInvalidDelegator, ""),
-		},
-		{
-			"fail - invalid amount",
-			func(delegator, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				return []interface{}{
-					delegator.Addr,
-					srcOperatorAddr,
-					dstOperatorAddr,
-					nil,
-				}
-			},
-			func([]byte) {},
-			200000,
-			big.NewInt(1),
-			true,
-			fmt.Sprintf(cmn.ErrInvalidAmount, nil),
-		},
-		{
-			"fail - invalid shares amount",
-			func(delegator, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				return []interface{}{
-					delegator.Addr,
-					srcOperatorAddr,
-					dstOperatorAddr,
-					big.NewInt(-1),
-				}
-			},
-			func([]byte) {},
-			200000,
-			big.NewInt(1),
-			true,
-			"invalid shares amount",
-		},
-		{
-			"success",
-			func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				// TODO: necessary?
-				err := s.CreateAuthorization(ctx, delegator.AccAddr, grantee.AccAddr, staking.RedelegateAuthz, nil)
-				s.Require().NoError(err)
-				return []interface{}{
-					delegator.Addr,
-					srcOperatorAddr,
-					dstOperatorAddr,
-					big.NewInt(1000000000000000000),
-				}
-			},
-			func(data []byte) {
-				args, err := s.precompile.Unpack(staking.RedelegateMethod, data)
-				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(args, 1)
-				completionTime, ok := args[0].(int64)
-				s.Require().True(ok, "completion time type %T", args[0])
-				params, err := s.network.App.StakingKeeper.GetParams(ctx)
-				s.Require().NoError(err)
-				expCompletionTime := ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
-				s.Require().Equal(expCompletionTime, completionTime)
-			},
-			200000,
-			big.NewInt(1),
-			false,
-			"",
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-			ctx = s.network.GetContext()
-			delegator := s.keyring.GetKey(0)
-			// TODO: even necessary??
-			grantee := s.keyring.GetKey(1)
-
-			contract, ctx := testutil.NewPrecompileContract(s.T(), ctx, delegator.Addr, s.precompile, tc.gas)
-
-			redelegateArgs := tc.malleate(
-				delegator,
-				grantee,
-				s.network.GetValidators()[0].OperatorAddress,
-				s.network.GetValidators()[1].OperatorAddress,
-			)
-			bz, err := s.precompile.Redelegate(ctx, delegator.Addr, contract, s.network.GetStateDB(), &method, redelegateArgs)
-
-			// query the redelegations in the staking keeper
-			redelegations, redelErr := s.network.App.StakingKeeper.GetRedelegations(ctx, delegator.AccAddr, 5)
-			s.Require().NoError(redelErr)
-
-			if tc.expError {
-				s.Require().ErrorContains(err, tc.errContains)
-				s.Require().Empty(bz)
-			} else {
-				s.Require().NoError(err)
-				s.Require().NotEmpty(bz)
-
-				s.Require().Equal(redelegations[0].DelegatorAddress, delegator.AccAddr.String())
-				s.Require().Equal(redelegations[0].ValidatorSrcAddress, s.network.GetValidators()[0].OperatorAddress)
-				s.Require().Equal(redelegations[0].ValidatorDstAddress, s.network.GetValidators()[1].OperatorAddress)
-				s.Require().Equal(redelegations[0].Entries[0].SharesDst, math.LegacyNewDecFromBigInt(tc.expRedelegationShares))
 			}
 		})
 	}

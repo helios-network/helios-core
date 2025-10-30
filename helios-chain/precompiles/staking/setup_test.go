@@ -53,6 +53,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		*s.network.App.StakingKeeper,
 		s.network.App.AuthzKeeper,
 		s.network.App.Erc20Keeper,
+		s.network.App.SlashingKeeper,
 	); err != nil {
 		panic(err)
 	}

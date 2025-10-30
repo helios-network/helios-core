@@ -7,13 +7,14 @@ import (
 
 	"helios-core/helios-chain/precompiles/authorization"
 
+	cmn "helios-core/helios-chain/precompiles/common"
+	"helios-core/helios-chain/x/evm/core/vm"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "helios-core/helios-chain/precompiles/common"
-	"helios-core/helios-chain/x/evm/core/vm"
 )
 
 const (
@@ -231,45 +232,6 @@ func (p Precompile) EmitUnbondEvent(ctx sdk.Context, stateDB vm.StateDB, msg *st
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeUnbond]
 	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
-	if err != nil {
-		return err
-	}
-
-	// Prepare the event data
-	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(big.NewInt(completionTime))))
-
-	stateDB.AddLog(&ethtypes.Log{
-		Address:     p.Address(),
-		Topics:      topics,
-		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
-	})
-
-	return nil
-}
-
-// EmitRedelegateEvent creates a new redelegate event emitted on a Redelegate transaction.
-func (p Precompile) EmitRedelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgBeginRedelegate, delegatorAddr common.Address, completionTime int64) error {
-	valSrcAddr, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
-	if err != nil {
-		return err
-	}
-
-	valDstAddr, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
-	if err != nil {
-		return err
-	}
-
-	// Prepare the event topics
-	event := p.ABI.Events[EventTypeRedelegate]
-	topics, err := p.createStakingTxTopics(4, event, delegatorAddr, common.BytesToAddress(valSrcAddr.Bytes()))
-	if err != nil {
-		return err
-	}
-
-	topics[3], err = cmn.MakeTopic(common.BytesToAddress(valDstAddr.Bytes()))
 	if err != nil {
 		return err
 	}

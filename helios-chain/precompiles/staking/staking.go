@@ -195,7 +195,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - EditValidator
 //   - Delegate
 //   - Undelegate
-//   - Redelegate
 //   - CancelUnbondingDelegation
 //
 // Available authorization transactions are:
@@ -209,7 +208,6 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 		EditValidatorMethod,
 		DelegateMethod,
 		UndelegateMethod,
-		RedelegateMethod,
 		CancelUnbondingDelegationMethod,
 		authorization.ApproveMethod,
 		authorization.RevokeMethod,

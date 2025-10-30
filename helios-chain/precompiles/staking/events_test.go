@@ -8,14 +8,15 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"helios-core/helios-chain/precompiles/authorization"
 	cmn "helios-core/helios-chain/precompiles/common"
 	"helios-core/helios-chain/precompiles/staking"
 	"helios-core/helios-chain/x/evm/core/vm"
 	"helios-core/helios-chain/x/evm/statedb"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {
@@ -558,84 +559,6 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 				s.Require().Contains(err.Error(), tc.errContains)
 			} else {
 				s.Require().NoError(err)
-				tc.postCheck(delegator.Addr)
-			}
-		})
-	}
-}
-
-func (s *PrecompileTestSuite) TestRedelegateEvent() {
-	var (
-		stDB *statedb.StateDB
-		ctx  sdk.Context
-	)
-	method := s.precompile.Methods[staking.RedelegateMethod]
-
-	testCases := []struct {
-		name        string
-		malleate    func(delegator common.Address) []interface{}
-		expErr      bool
-		errContains string
-		postCheck   func(delegator common.Address)
-	}{
-		{
-			"success - the correct event is emitted",
-			func(delegator common.Address) []interface{} {
-				return []interface{}{
-					delegator,
-					s.network.GetValidators()[0].OperatorAddress,
-					s.network.GetValidators()[1].OperatorAddress,
-					big.NewInt(1000000000000000000),
-				}
-			},
-			false,
-			"",
-			func(delegator common.Address) {
-				log := stDB.Logs()[0]
-				// Check event signature matches the one emitted
-				event := s.precompile.ABI.Events[staking.EventTypeRedelegate]
-				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
-
-				optSrcAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
-				s.Require().NoError(err)
-				optSrcHexAddr := common.BytesToAddress(optSrcAddr)
-
-				optDstAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[1].OperatorAddress)
-				s.Require().NoError(err)
-				optDstHexAddr := common.BytesToAddress(optDstAddr)
-
-				var redelegateEvent staking.EventRedelegate
-				err = cmn.UnpackLog(s.precompile.ABI, &redelegateEvent, staking.EventTypeRedelegate, *log)
-				s.Require().NoError(err)
-				s.Require().Equal(delegator, redelegateEvent.DelegatorAddress)
-				s.Require().Equal(optSrcHexAddr, redelegateEvent.ValidatorSrcAddress)
-				s.Require().Equal(optDstHexAddr, redelegateEvent.ValidatorDstAddress)
-				s.Require().Equal(big.NewInt(1000000000000000000), redelegateEvent.Amount)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest() // reset
-			ctx = s.network.GetContext()
-			stDB = s.network.GetStateDB()
-
-			delegator := s.keyring.GetKey(0)
-			grantee := s.keyring.GetKey(1)
-
-			err := s.CreateAuthorization(ctx, delegator.AccAddr, grantee.AccAddr, staking.RedelegateAuthz, nil)
-			s.Require().NoError(err)
-
-			contract := vm.NewContract(vm.AccountRef(delegator.Addr), s.precompile, big.NewInt(0), 20000)
-			_, err = s.precompile.Redelegate(ctx, delegator.Addr, contract, stDB, &method, tc.malleate(delegator.Addr))
-			s.Require().NoError(err)
-
-			if tc.expErr {
-				s.Require().Error(err)
-				s.Require().Contains(err.Error(), tc.errContains)
-			} else {
 				tc.postCheck(delegator.Addr)
 			}
 		})
