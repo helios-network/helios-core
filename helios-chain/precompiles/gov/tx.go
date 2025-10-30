@@ -2,6 +2,7 @@ package gov
 
 import (
 	"fmt"
+	"strings"
 
 	"cosmossdk.io/math"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -14,6 +15,7 @@ import (
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1betav1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,6 +39,8 @@ const (
 	UpdateBlockParamsProposalMethod = "updateBlockParamsProposal"
 	// HyperionProposalMethod defines the method name for hyperion proposal
 	HyperionProposalMethod = "hyperionProposal"
+	// ModularProposalMethod defines the method name for modular proposal
+	ModularProposalMethod = "modularProposal"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -396,4 +400,159 @@ func (p *Precompile) HyperionProposal(
 	}
 
 	return method.Outputs.Pack(proposal.ProposalId)
+}
+
+func InferRouteFromMsg(msg sdk.Msg) string {
+	typeURL := sdk.MsgTypeURL(msg)
+
+	// Exemple : "/cosmos.slashing.v1beta1.MsgUpdateParams"
+	// On découpe la string et on récupère le segment du module.
+	parts := strings.Split(typeURL, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+
+	module := parts[1] // "slashing" dans l’exemple
+	return module
+}
+
+func (p *Precompile) ModularProposal(
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	fmt.Println("args: ", args)
+	modularProposalArgs, err := ParseModularProposalArgs(p.cdc, args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse modularProposal arguments: %w", err)
+	}
+	// proposer := sdk.AccAddress(origin.Bytes())
+
+	var m sdk.Msg
+	if err := p.cdc.UnmarshalInterfaceJSON([]byte(modularProposalArgs.Msg), &m); err != nil {
+		return nil, fmt.Errorf("invalid msg JSON: %w", err)
+	}
+
+	anyMsg, err := codectypes.NewAnyWithValue(m)
+	if err != nil {
+		return nil, err
+	}
+
+	// route : soit modularProposalArgs.ProposalRoute, soit map depuis type_url
+	route := InferRouteFromMsg(m) // ex: "slashing"
+
+	content := &v1betav1.ModuleExecProposal{
+		Title:       modularProposalArgs.Title,
+		Description: modularProposalArgs.Description,
+		Route:       route,
+		Messages:    []*codectypes.Any{anyMsg},
+	}
+
+	execLegacy, err := v1.NewLegacyContent(content, p.govKeeper.GetAuthority())
+	if err != nil {
+		return nil, err
+	}
+
+	execLegacyAny, err := codectypes.NewAnyWithValue(execLegacy)
+	if err != nil {
+		return nil, err
+	}
+
+	submit := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{execLegacyAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewIntFromBigInt(modularProposalArgs.InitialDeposit)),
+		),
+		Proposer: sdk.AccAddress(origin.Bytes()).String(),
+		Title:    modularProposalArgs.Title,
+		Summary:  modularProposalArgs.Description,
+	}
+	res, err := govkeeper.NewMsgServerImpl(&p.govKeeper).SubmitProposal(ctx, submit)
+	if err != nil {
+		return nil, err
+	}
+	return method.Outputs.Pack(res.ProposalId)
+
+	// // fmt.Println("modularProposalArgs: ", modularProposalArgs)
+
+	// // jsonContent, err := json.Marshal(map[string]interface{}{
+	// // 	"@type":       modularProposalArgs.ProposalType, // example: "/cosmos.slashing.v1beta1.SlashingProposal",
+	// // 	"title":       modularProposalArgs.Title,
+	// // 	"description": modularProposalArgs.Description,
+	// // 	"msg":         modularProposalArgs.Msg,
+	// // })
+
+	// // fmt.Println("jsonContent: ", string(jsonContent))
+
+	// // // var msgContent v1beta1.Content
+	// // // err = p.cdc.UnmarshalInterfaceJSON(jsonContent, &msgContent)
+	// // // if err != nil {
+	// // // 	return nil, fmt.Errorf("HHH failed to unmarshal content: %w", err)
+	// // // }
+
+	// // // fmt.Println("msgContent: ", msgContent)
+
+	// // proposalContent := &slashingtypes.SlashingProposal{
+	// // 	Title:       modularProposalArgs.Title,
+	// // 	Description: modularProposalArgs.Description,
+	// // 	Msg:         modularProposalArgs.Msg,
+	// // }
+
+	// // contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	// // // contentMsg, err := v1.StringToLegacyContent(p.cdc, string(jsonContent), govKeeper.GetAuthority()) // todo : recheck here
+	// // if err != nil {
+	// // 	return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+	// // }
+
+	// // fmt.Println("contentMsg: ", contentMsg)
+
+	// // contentAny, err := codectypes.NewAnyWithValue(contentMsg)
+	// // if err != nil {
+	// // 	return nil, fmt.Errorf("failed to pack content message: %w", err)
+	// // }
+
+	// var genericMsg sdk.Msg
+	// if err := p.cdc.UnmarshalInterfaceJSON([]byte(modularProposalArgs.Msg), &genericMsg); err != nil {
+	// 	return nil, fmt.Errorf("invalid msg JSON: %w", err)
+	// }
+
+	// // // 2) Si c’est un MsgUpdateParams de slashing, impose l’authority
+	// // if m, ok := genericMsg.(*slashingtypes.MsgUpdateParams); ok {
+	// // 	auth := p.govKeeper.GetAuthority()
+	// // 	if m.Authority == "" {
+	// // 		m.Authority = auth
+	// // 	} else if m.Authority != auth {
+	// // 		return nil, fmt.Errorf("invalid authority: got %s, want %s", m.Authority, auth)
+	// // 	}
+	// // }
+
+	// // 3) Pack en Any et construire MsgSubmitProposal (gov v1)
+	// anyMsg, err := codectypes.NewAnyWithValue(genericMsg)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("pack msg into Any: %w", err)
+	// }
+
+	// msg := &v1.MsgSubmitProposal{
+	// 	Messages: []*codectypes.Any{anyMsg},
+	// 	InitialDeposit: sdk.NewCoins(
+	// 		sdk.NewCoin("ahelios", math.NewIntFromBigInt(modularProposalArgs.InitialDeposit)), // todo: change ahelios by default var
+	// 	),
+	// 	Proposer: proposer.String(),
+	// 	Metadata: modularProposalArgs.ProposalType,
+	// 	Title:    modularProposalArgs.Title,
+	// 	Summary:  modularProposalArgs.Description,
+	// }
+
+	// fmt.Println("msg: ", msg)
+
+	// msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	// proposal, err := msgSrv.SubmitProposal(ctx, msg)
+	// if err != nil {
+	// 	fmt.Println("error: ", err)
+	// 	return nil, err
+	// }
+	// return method.Outputs.Pack(proposal.ProposalId)
 }
