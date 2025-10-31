@@ -162,6 +162,7 @@ type EVMBackend interface {
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
+	GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error)
 
 	//cron
 	GetCron(id uint64) (*chronostypes.Cron, error)

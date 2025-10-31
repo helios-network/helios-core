@@ -156,6 +156,7 @@ type EthereumAPI interface {
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
+	GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error)
 	// eth_getDelegations
 
 	// cron
@@ -718,6 +719,11 @@ func (e *PublicAPI) GetValidatorWithHisDelegationAndCommission(address common.Ad
 func (e *PublicAPI) GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error) {
 	e.logger.Debug("eth_getValidatorWithHisAssetsAndCommission", "address", address)
 	return e.backend.GetValidatorWithHisAssetsAndCommission(address)
+}
+
+func (e *PublicAPI) GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error) {
+	e.logger.Debug("eth_getValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation", "page", page, "size", size)
+	return e.backend.GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page, size)
 }
 
 func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {

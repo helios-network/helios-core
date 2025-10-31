@@ -198,6 +198,29 @@ func (c *CachedPublicAPI) GetValidatorWithHisAssetsAndCommission(address common.
 	return nil, fmt.Errorf("invalid return type for GetValidatorWithHisAssetsAndCommission")
 }
 
+// GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation returns validators by page and size with assets, commission and delegation with caching
+func (c *CachedPublicAPI) GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]types.ValidatorWithAssetsAndCommissionAndDelegationRPC, error) {
+	methodName := "GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation"
+	args := []interface{}{page, size}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if validators, ok := results[0].([]types.ValidatorWithAssetsAndCommissionAndDelegationRPC); ok {
+			return validators, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation")
+}
+
 // GetAllWhitelistedAssets returns all whitelisted assets with caching
 func (c *CachedPublicAPI) GetAllWhitelistedAssets() ([]types.WhitelistedAssetRPC, error) {
 	methodName := "GetAllWhitelistedAssets"

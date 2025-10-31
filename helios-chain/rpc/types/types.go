@@ -217,6 +217,22 @@ type ValidatorWithCommissionAndAssetsRPC struct {
 	Commission ValidatorCommissionRPC `json:"commission"`
 }
 
+type ValidatorWithAssetsAndCommissionAndDelegationRPC struct {
+	Validator  ValidatorRPC           `json:"validator"`
+	Assets     []ValidatorAssetRPC    `json:"assets"`
+	Commission ValidatorCommissionRPC `json:"commission"`
+	Delegation DelegationRPC          `json:"delegation"`
+}
+
+type ValidatorsWithAssetsAndCommissionAndDelegationRPC struct {
+	Validators []ValidatorWithAssetsAndCommissionAndDelegationRPC `json:"validators"`
+}
+
+type ValidatorWithAssetsRPC struct {
+	Validator ValidatorRPC        `json:"validator"`
+	Assets    []ValidatorAssetRPC `json:"assets"`
+}
+
 type WhitelistedAssetRPC struct {
 	Denom                         string                `json:"denom"`
 	BaseWeight                    uint64                `json:"baseWeight"`
