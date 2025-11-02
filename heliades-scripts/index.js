@@ -67,6 +67,7 @@ const unstakingAbi = [
   }
 ];
 
+// NEW SIMPLIFIED Asset format (2 fields only - matches backend migration)
 const proposalAbi = [
   {
     "inputs": [
@@ -74,12 +75,8 @@ const proposalAbi = [
       { "internalType": "string", "name": "description", "type": "string" },
       {
         "components": [
-          { "internalType": "string", "name": "denom", "type": "string" },
           { "internalType": "string", "name": "contractAddress", "type": "string" },
-          { "internalType": "string", "name": "chainId", "type": "string" },
-          { "internalType": "uint32", "name": "decimals", "type": "uint32" },
-          { "internalType": "uint64", "name": "baseWeight", "type": "uint64" },
-          { "internalType": "string", "name": "metadata", "type": "string" }
+          { "internalType": "uint64", "name": "baseWeight", "type": "uint64" }
         ],
         "internalType": "struct Asset[]",
         "name": "assets",
@@ -248,7 +245,7 @@ async function delegate() {
     console.log('Délégation en cours...');
 
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', delegateAbi, wallet);
-    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "ueth");
+    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "ahelios");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -260,35 +257,38 @@ async function delegate() {
   }
 }
 
+// ✅ UPDATED: Using NEW simplified Asset format (2 fields only)
 async function addNewConsensusProposal() {
   const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
   const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", abi, wallet);
 
   const title = 'Whitelist BTC2 into the consensus with a base stake of power 100';
   const description = 'Explaining why BTC2 would be a good potential for Helios consensus and why it would secure the market';
+  
+  // NEW FORMAT: Only contractAddress and baseWeight (no denom, chainId, decimals, metadata)
   const assets = [
     {
-      contractAddress: '0x5fd55a1b9fc24967c4db09c513c3ba0dfa7ff687',
-      baseWeight: 100,
+      contractAddress: '0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd', // ✅ BTC2 token (uBTC222)
+      baseWeight: 100
     }
   ];
 
   try {
-    console.log('Ajout d\'une nouvelle proposition au consensus...');
-    console.log('Arguments envoyés au contrat :', { title, description, assets });
+    console.log('✅ Creating asset addition proposal (simplified format)...');
+    console.log('Arguments:', { title, description, assets });
     
     const tx = await contract.addNewAssetProposal(title, description, assets, "1000000000000000000", {
       gasPrice: 50000000000,
       gasLimit: 500000
     });
-    console.log('Transaction envoyée, hash :', tx.hash);
+    console.log('Transaction sent, hash:', tx.hash);
 
     const receipt = await tx.wait();
-    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+    console.log('Transaction confirmed in block:', receipt.blockNumber);
 
-    console.log('Proposition soumise avec succès !');
+    console.log('✅ Proposal submitted successfully!');
   } catch (error) {
-    console.error('Erreur lors de la soumission de la proposition :', error);
+    console.error('❌ Error submitting proposal:', error);
   }
 }
 
@@ -375,6 +375,213 @@ async function vote(){
     console.error('Erreur lors de la soumission de la proposition :', error);
   }
 }
+
+// ========================================
+// 🆕 GENERIC MODULAR PROPOSAL FUNCTIONS
+// ========================================
+
+/**
+ * Generic modular proposal function - can create ANY type of proposal
+ * by passing the appropriate message JSON
+ * 
+ * @param {Object} params
+ * @param {string} params.title - Proposal title
+ * @param {string} params.description - Proposal description
+ * @param {string} params.msg - JSON string of the message (with @type)
+ * @param {string} params.proposalType - The proposal type (route)
+ * @param {string} params.initialDepositAmount - Deposit amount in wei (default: 1 HLS)
+ */
+async function modularProposal({ title, description, msg, proposalType, initialDepositAmount = "1000000000000000000" }) {
+  const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", abi, wallet);
+
+  try {
+    console.log('\n' + '='.repeat(80));
+    console.log('🚀 CREATING MODULAR PROPOSAL');
+    console.log('='.repeat(80));
+    console.log('📝 Title:', title);
+    console.log('📝 Description:', description);
+    console.log('🔧 Proposal Type:', proposalType);
+    console.log('💰 Initial Deposit:', ethers.formatEther(initialDepositAmount), 'HLS');
+    console.log('\n📦 SDK Message:');
+    console.log(JSON.stringify(JSON.parse(msg), null, 2));
+    console.log('='.repeat(80) + '\n');
+    
+    const startTime = Date.now();
+    
+    const tx = await contract.modularProposal(title, description, msg, initialDepositAmount, proposalType, {
+      gasPrice: 50000000000,
+      gasLimit: 5000000,
+      value: 0  // Function is payable but we don't send native tokens
+    });
+    
+    console.log('📤 Transaction sent!');
+    console.log('   Hash:', tx.hash);
+    console.log('   Waiting for confirmation...');
+
+    const receipt = await tx.wait();
+    const executionTime = ((Date.now() - startTime) / 1000).toFixed(2);
+    
+    console.log('\n✅ PROPOSAL SUBMITTED SUCCESSFULLY!');
+    console.log('   Block:', receipt.blockNumber);
+    console.log('   Gas used:', receipt.gasUsed.toString());
+    console.log('   Execution time:', executionTime, 'seconds');
+    
+    // Try to extract proposal ID from logs
+    if (receipt.logs && receipt.logs.length > 0) {
+      console.log('   Logs count:', receipt.logs.length);
+      // TODO: Parse proposal ID from logs if available
+    }
+    
+    console.log('='.repeat(80) + '\n');
+    return receipt;
+  } catch (error) {
+    console.error('\n❌ ERROR SUBMITTING MODULAR PROPOSAL');
+    console.error('='.repeat(80));
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    if (error.data) {
+      console.error('Error data:', error.data);
+    }
+    if (error.reason) {
+      console.error('Error reason:', error.reason);
+    }
+    console.error('='.repeat(80) + '\n');
+    throw error;
+  }
+}
+
+/**
+ * TEST: Add asset to consensus using modularProposal (generic method)
+ * Uses the BTC2 token created with denom uBTC222
+ */
+async function addAssetModularProposal() {
+  const msg = JSON.stringify({
+    "@type": "/helios.erc20.v1.MsgAddAssetConsensus",
+    "authority": "helios10d07y265gmmuvt4z0w9aw880jnsr700j6z2zm3", // Gov module authority
+    "assets": [{
+      "contract_address": "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd", // ✅ BTC2 token (uBTC222)
+      "base_weight": 100
+    }]
+  });
+
+  await modularProposal({
+    title: "Add BTC2 to consensus (via modular)",
+    description: "Testing modular proposal to add BTC2 asset",
+    msg: msg,
+    proposalType: "/helios.erc20.v1.Erc20Proposal",
+    initialDepositAmount: "1000000000000000000"
+  });
+}
+
+/**
+ * TEST: Remove asset from consensus using modularProposal
+ */
+async function removeAssetModularProposal() {
+  const msg = JSON.stringify({
+    "@type": "/helios.erc20.v1.MsgRemoveAssetConsensus",
+    "authority": "helios10d07y265gmmuvt4z0w9aw880jnsr700j6z2zm3",
+    "denoms": ["uBTC222"] // Replace with actual denom to remove
+  });
+
+  await modularProposal({
+    title: "Remove BTC2 from consensus",
+    description: "Testing modular proposal to remove BTC2 asset",
+    msg: msg,
+    proposalType: "/helios.erc20.v1.Erc20Proposal",
+    initialDepositAmount: "1000000000000000000"
+  });
+}
+
+/**
+ * TEST: Update asset weight using modularProposal
+ */
+async function updateAssetModularProposal() {
+  const msg = JSON.stringify({
+    "@type": "/helios.erc20.v1.MsgUpdateAssetConsensus",
+    "authority": "helios10d07y265gmmuvt4z0w9aw880jnsr700j6z2zm3",
+    "updates": [{
+      "denom": "BNB",
+      "magnitude": "high",
+      "direction": "up"
+    }]
+  });
+
+  await modularProposal({
+    title: "Update BNB weight",
+    description: "Testing modular proposal to increase BNB weight",
+    msg: msg,
+    proposalType: "/helios.erc20.v1.Erc20Proposal",
+    initialDepositAmount: "1000000000000000000"
+  });
+}
+
+/**
+ * TEST ALL: Execute all modular proposal tests sequentially
+ * This demonstrates the complete modular system workflow
+ */
+async function testAllModularProposals() {
+  console.log('\n' + '█'.repeat(80));
+  console.log('🧪 TESTING MODULAR PROPOSAL SYSTEM - COMPLETE WORKFLOW');
+  console.log('█'.repeat(80) + '\n');
+  
+  const tests = [
+    { name: 'ADD ASSET', fn: addAssetModularProposal, description: 'Add BTC2 to consensus whitelist' },
+    { name: 'UPDATE ASSET', fn: updateAssetModularProposal, description: 'Update BNB weight' },
+    { name: 'REMOVE ASSET', fn: removeAssetModularProposal, description: 'Remove BTC2 from consensus' }
+  ];
+  
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (let i = 0; i < tests.length; i++) {
+    const test = tests[i];
+    console.log(`\n[${i + 1}/${tests.length}] TEST: ${test.name}`);
+    console.log(`Description: ${test.description}`);
+    console.log('-'.repeat(80));
+    
+    try {
+      await test.fn();
+      successCount++;
+      console.log(`✅ Test ${i + 1} PASSED: ${test.name}\n`);
+    } catch (error) {
+      failCount++;
+      console.error(`❌ Test ${i + 1} FAILED: ${test.name}`);
+      console.error(`   Error: ${error.message}\n`);
+    }
+    
+    // Wait 2 seconds between tests
+    if (i < tests.length - 1) {
+      console.log('⏳ Waiting 2 seconds before next test...\n');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+  
+  console.log('\n' + '█'.repeat(80));
+  console.log('📊 TEST SUMMARY');
+  console.log('█'.repeat(80));
+  console.log(`✅ Passed: ${successCount}/${tests.length}`);
+  console.log(`❌ Failed: ${failCount}/${tests.length}`);
+  console.log(`📈 Success Rate: ${((successCount / tests.length) * 100).toFixed(0)}%`);
+  console.log('█'.repeat(80) + '\n');
+}
+
+/**
+ * HELPER: Check if proposal exists and get its status
+ * Requires a running chain with RPC access
+ */
+async function checkProposalStatus(proposalId) {
+  try {
+    console.log(`\n🔍 Checking proposal ${proposalId} status...`);
+    // This would require querying the chain via RPC
+    // For now, just a placeholder
+    console.log('   (Proposal status check not implemented yet)');
+  } catch (error) {
+    console.error('   Error checking proposal:', error.message);
+  }
+}
+
+// ========================================
 
 async function undelegate() {
 
@@ -717,45 +924,36 @@ async function uploadLogo() {
 }
 
 async function main() {
-  // await createCronCallBackData();
-  await createCron();
-  // await getEvents();
-  // await getEventsCronCancelled();
-  // await cancelCron();
-  // await getEventsEVMCallScheduled();
-  // await create();
-  //await fetch();
-  // await delegate();
-  // await addNewConsensusProposal();
-  //await updateConsensusProposal();
-  // await vote();
+  console.log('\n' + '🌟'.repeat(40));
+  console.log('🌟 HELIOS CHAIN - TEST SUITE');
+  console.log('🌟'.repeat(40));
+  console.log('Connected wallet:', wallet.address);
+  console.log('RPC URL:', RPC_URL);
+  
+  // Check balance
+  const balance = await wallet.provider.getBalance(wallet.address);
+  console.log('Wallet balance:', ethers.formatEther(balance), 'HLS');
+  console.log('');
+  
+  // ========================================
+  // 🧪 MODULAR GOVERNANCE PROPOSAL TESTS
+  // ========================================
+  
+  // Test ALL modular proposals sequentially
+  await testAllModularProposals();
   // await undelegate();
-
-  // await getEventsCronCreated();
-
   // await getRewards();
-
   // await sendToChain("12");
-  // await sendToChain("5");
   // await setOrchestratorAddresses();
   // await addCounterpartyChainParams();
   // await uploadLogo();
-
+  //await create();
+  // Check balance
   // const balance = await wallet.provider.getBalance(wallet.address);
-  // console.log("Balance :", ethers.formatEther(balance));
-
-  // let nonce = await wallet.getNonce();
-
-  // const tx = await wallet.sendTransaction({
-  //   to: "0x8cbF1A9167F66B9B3310Aab56E4fEFc17514d23A",
-  //   value: ethers.parseEther("10"),
-  //   gasLimit: 1000000,
-  //   gasPrice: ethers.parseUnits("10", "gwei"),
-  //   nonce: nonce++,
-  // })
-
-  // const receipt = await tx.wait();
-  // console.log("Transaction confirmée dans le bloc :", receipt.blockNumber);
+  // console.log("Balance:", ethers.formatEther(balance), "HLS");
 }
 
-main();
+main().catch(error => {
+  console.error('\n💥 FATAL ERROR:', error);
+  process.exit(1);
+});
