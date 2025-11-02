@@ -32,18 +32,13 @@ func NewGenericProposalHandler(
 				return fmt.Errorf("failed to unpack msg: %w", err)
 			}
 
-			// ---- [1] Injection automatique de Authority si applicable ----
 			overrideAuthority(msg, govKeeper.GetAuthority())
 
-			fmt.Println("GenericProposalHandler executing:", sdk.MsgTypeURL(msg))
-
-			// ---- [2] Recherche du handler du message ----
 			h := msr.Handler(msg)
 			if h == nil {
 				return fmt.Errorf("no handler found for message type %T", msg)
 			}
 
-			// ---- [3] Exécution du message ----
 			if _, err := h(ctx, msg); err != nil {
 				return fmt.Errorf("failed to execute %T: %w", msg, err)
 			}
@@ -53,7 +48,6 @@ func NewGenericProposalHandler(
 	}
 }
 
-// overrideAuthority remplace le champ "Authority" d’un sdk.Msg si présent
 func overrideAuthority(msg sdk.Msg, newAuthority string) {
 	v := reflect.ValueOf(msg)
 	if v.Kind() == reflect.Ptr {

@@ -15,7 +15,7 @@ import (
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	v1betav1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,6 +29,8 @@ const (
 	VoteMethod = "vote"
 	// VoteWeightedMethod defines the ABI method name for the gov VoteWeighted transaction.
 	VoteWeightedMethod = "voteWeighted"
+	// ModularProposalMethod defines the universal method for modular governance proposals (slashing only).
+	ModularProposalMethod = "modularProposal"
 	// AddNewAssetProposalMethod defines the method name for add new proposal
 	AddNewAssetProposalMethod = "addNewAssetProposal"
 	// UpdateAssetProposalMethod defines the method name for add new proposal
@@ -39,8 +41,6 @@ const (
 	UpdateBlockParamsProposalMethod = "updateBlockParamsProposal"
 	// HyperionProposalMethod defines the method name for hyperion proposal
 	HyperionProposalMethod = "hyperionProposal"
-	// ModularProposalMethod defines the method name for modular proposal
-	ModularProposalMethod = "modularProposal"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -133,36 +133,15 @@ func (p *Precompile) AddNewAssetProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
-	// Create the new MsgAddAssetConsensus (generic proposal system)
-	// Convert []*Asset to []Asset
-	assets := make([]types.Asset, len(addNewAssetProposalReq.Assets))
-	for i, asset := range addNewAssetProposalReq.Assets {
-		assets[i] = *asset
-	}
-
-	addAssetMsg := &types.MsgAddAssetConsensus{
-		Authority: govKeeper.GetAuthority(),
-		Assets:    assets,
-	}
-
-	// Encode the message as Any
-	msgAny, err := codectypes.NewAnyWithValue(addAssetMsg)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encode message: %w", err)
-	}
-
-	// Create a ModuleExecProposal wrapping the message
-	moduleProposal := &v1betav1.ModuleExecProposal{
+	proposalContent := &types.AddNewAssetConsensusProposal{
 		Title:       addNewAssetProposalReq.Title,
 		Description: addNewAssetProposalReq.Description,
-		Route:       types.RouterKey, // "erc20"
-		Messages:    []*codectypes.Any{msgAny},
+		Assets:      addNewAssetProposalReq.Assets,
 	}
 
-	// Wrap in MsgExecLegacyContent for v1beta1 compatibility
-	contentMsg, err := v1.NewLegacyContent(moduleProposal, govKeeper.GetAuthority())
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
 	if err != nil {
-		return nil, fmt.Errorf("error converting to legacy content: %w", err)
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
 	}
 
 	// Convert sdk.Msg to *types.Any
@@ -213,36 +192,15 @@ func (p *Precompile) UpdateAssetProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
-	// Create the new MsgUpdateAssetConsensus (generic proposal system)
-	// Convert []*WeightUpdate to []WeightUpdate
-	updates := make([]types.WeightUpdate, len(updateProposalReq.Updates))
-	for i, update := range updateProposalReq.Updates {
-		updates[i] = *update
-	}
-
-	updateAssetMsg := &types.MsgUpdateAssetConsensus{
-		Authority: govKeeper.GetAuthority(),
-		Updates:   updates,
-	}
-
-	// Encode the message as Any
-	msgAny, err := codectypes.NewAnyWithValue(updateAssetMsg)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encode message: %w", err)
-	}
-
-	// Create a ModuleExecProposal wrapping the message
-	moduleProposal := &v1betav1.ModuleExecProposal{
+	proposalContent := &types.UpdateAssetConsensusProposal{
 		Title:       updateProposalReq.Title,
 		Description: updateProposalReq.Description,
-		Route:       types.RouterKey, // "erc20"
-		Messages:    []*codectypes.Any{msgAny},
+		Updates:     updateProposalReq.Updates,
 	}
 
-	// Wrap in MsgExecLegacyContent for v1beta1 compatibility
-	contentMsg, err := v1.NewLegacyContent(moduleProposal, govKeeper.GetAuthority())
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
 	if err != nil {
-		return nil, fmt.Errorf("error converting to legacy content: %w", err)
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
 	}
 
 	// Convert sdk.Msg to *types.Any
@@ -293,30 +251,16 @@ func (p *Precompile) RemoveAssetProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
-	// Create the new MsgRemoveAssetConsensus (generic proposal system)
-	removeAssetMsg := &types.MsgRemoveAssetConsensus{
-		Authority: govKeeper.GetAuthority(),
-		Denoms:    removeProposalReq.Denoms,
+	proposalContent := &types.RemoveAssetConsensusProposal{
+		Title:          removeProposalReq.Title,
+		Description:    removeProposalReq.Description,
+		Denoms:         removeProposalReq.Denoms,
+		InitialDeposit: removeProposalReq.InitialDeposit,
 	}
 
-	// Encode the message as Any
-	msgAny, err := codectypes.NewAnyWithValue(removeAssetMsg)
+	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode message: %w", err)
-	}
-
-	// Create a ModuleExecProposal wrapping the message
-	moduleProposal := &v1betav1.ModuleExecProposal{
-		Title:       removeProposalReq.Title,
-		Description: removeProposalReq.Description,
-		Route:       types.RouterKey, // "erc20"
-		Messages:    []*codectypes.Any{msgAny},
-	}
-
-	// Wrap in MsgExecLegacyContent for v1beta1 compatibility
-	contentMsg, err := v1.NewLegacyContent(moduleProposal, govKeeper.GetAuthority())
-	if err != nil {
-		return nil, fmt.Errorf("error converting to legacy content: %w", err)
+		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
 	}
 
 	// Convert sdk.Msg to *types.Any
@@ -328,12 +272,12 @@ func (p *Precompile) RemoveAssetProposal(
 	msg := &v1.MsgSubmitProposal{
 		Messages: []*codectypes.Any{contentAny},
 		InitialDeposit: sdk.NewCoins(
-			sdk.NewCoin("ahelios", math.NewInt(int64(removeProposalReq.InitialDeposit))), // todo: change ahelios by default var
+			sdk.NewCoin("ahelios", math.NewInt(int64(proposalContent.InitialDeposit))), // todo: change ahelios by default var
 		),
 		Proposer: proposer.String(),
 		Metadata: "Optional metadata", // todo update !!
-		Title:    removeProposalReq.Title,
-		Summary:  removeProposalReq.Description,
+		Title:    proposalContent.Title,
+		Summary:  proposalContent.Description,
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
@@ -458,20 +402,17 @@ func (p *Precompile) HyperionProposal(
 	return method.Outputs.Pack(proposal.ProposalId)
 }
 
+// InferRouteFromMsg derives the module route from the message type URL.
 func InferRouteFromMsg(msg sdk.Msg) string {
 	typeURL := sdk.MsgTypeURL(msg)
-
-	// Exemple : "/cosmos.slashing.v1beta1.MsgUpdateParams"
-	// On découpe la string et on récupère le segment du module.
 	parts := strings.Split(typeURL, ".")
 	if len(parts) < 2 {
 		return ""
 	}
-
-	module := parts[1] // "slashing" dans l’exemple
-	return module
+	return parts[1]
 }
 
+// ModularProposal submits a governance proposal using the generic modular path (currently for slashing).
 func (p *Precompile) ModularProposal(
 	origin common.Address,
 	govKeeper govkeeper.Keeper,
@@ -480,45 +421,45 @@ func (p *Precompile) ModularProposal(
 	_ *vm.Contract,
 	args []interface{},
 ) ([]byte, error) {
-	fmt.Println("args: ", args)
 	modularProposalArgs, err := ParseModularProposalArgs(p.cdc, args)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse modularProposal arguments: %w", err)
 	}
-	// proposer := sdk.AccAddress(origin.Bytes())
 
-	var m sdk.Msg
-	if err := p.cdc.UnmarshalInterfaceJSON([]byte(modularProposalArgs.Msg), &m); err != nil {
+	var msg sdk.Msg
+	if err := p.cdc.UnmarshalInterfaceJSON([]byte(modularProposalArgs.Msg), &msg); err != nil {
 		return nil, fmt.Errorf("invalid msg JSON: %w", err)
 	}
 
-	anyMsg, err := codectypes.NewAnyWithValue(m)
+	msgAny, err := codectypes.NewAnyWithValue(msg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pack message: %w", err)
 	}
 
-	// route : soit modularProposalArgs.ProposalRoute, soit map depuis type_url
-	route := InferRouteFromMsg(m) // ex: "slashing"
+	route := modularProposalArgs.ProposalType
+	if route == "" {
+		route = InferRouteFromMsg(msg)
+	}
 
-	content := &v1betav1.ModuleExecProposal{
+	content := &v1beta1.ModuleExecProposal{
 		Title:       modularProposalArgs.Title,
 		Description: modularProposalArgs.Description,
 		Route:       route,
-		Messages:    []*codectypes.Any{anyMsg},
+		Messages:    []*codectypes.Any{msgAny},
 	}
 
-	execLegacy, err := v1.NewLegacyContent(content, p.govKeeper.GetAuthority())
+	legacyContent, err := v1.NewLegacyContent(content, govKeeper.GetAuthority())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("wrap legacy content: %w", err)
 	}
 
-	execLegacyAny, err := codectypes.NewAnyWithValue(execLegacy)
+	legacyAny, err := codectypes.NewAnyWithValue(legacyContent)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pack legacy content: %w", err)
 	}
 
 	submit := &v1.MsgSubmitProposal{
-		Messages: []*codectypes.Any{execLegacyAny},
+		Messages: []*codectypes.Any{legacyAny},
 		InitialDeposit: sdk.NewCoins(
 			sdk.NewCoin("ahelios", math.NewIntFromBigInt(modularProposalArgs.InitialDeposit)),
 		),
@@ -526,89 +467,12 @@ func (p *Precompile) ModularProposal(
 		Title:    modularProposalArgs.Title,
 		Summary:  modularProposalArgs.Description,
 	}
-	res, err := govkeeper.NewMsgServerImpl(&p.govKeeper).SubmitProposal(ctx, submit)
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	res, err := msgSrv.SubmitProposal(ctx, submit)
 	if err != nil {
 		return nil, err
 	}
+
 	return method.Outputs.Pack(res.ProposalId)
-
-	// // fmt.Println("modularProposalArgs: ", modularProposalArgs)
-
-	// // jsonContent, err := json.Marshal(map[string]interface{}{
-	// // 	"@type":       modularProposalArgs.ProposalType, // example: "/cosmos.slashing.v1beta1.SlashingProposal",
-	// // 	"title":       modularProposalArgs.Title,
-	// // 	"description": modularProposalArgs.Description,
-	// // 	"msg":         modularProposalArgs.Msg,
-	// // })
-
-	// // fmt.Println("jsonContent: ", string(jsonContent))
-
-	// // // var msgContent v1beta1.Content
-	// // // err = p.cdc.UnmarshalInterfaceJSON(jsonContent, &msgContent)
-	// // // if err != nil {
-	// // // 	return nil, fmt.Errorf("HHH failed to unmarshal content: %w", err)
-	// // // }
-
-	// // // fmt.Println("msgContent: ", msgContent)
-
-	// // proposalContent := &slashingtypes.SlashingProposal{
-	// // 	Title:       modularProposalArgs.Title,
-	// // 	Description: modularProposalArgs.Description,
-	// // 	Msg:         modularProposalArgs.Msg,
-	// // }
-
-	// // contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
-	// // // contentMsg, err := v1.StringToLegacyContent(p.cdc, string(jsonContent), govKeeper.GetAuthority()) // todo : recheck here
-	// // if err != nil {
-	// // 	return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
-	// // }
-
-	// // fmt.Println("contentMsg: ", contentMsg)
-
-	// // contentAny, err := codectypes.NewAnyWithValue(contentMsg)
-	// // if err != nil {
-	// // 	return nil, fmt.Errorf("failed to pack content message: %w", err)
-	// // }
-
-	// var genericMsg sdk.Msg
-	// if err := p.cdc.UnmarshalInterfaceJSON([]byte(modularProposalArgs.Msg), &genericMsg); err != nil {
-	// 	return nil, fmt.Errorf("invalid msg JSON: %w", err)
-	// }
-
-	// // // 2) Si c’est un MsgUpdateParams de slashing, impose l’authority
-	// // if m, ok := genericMsg.(*slashingtypes.MsgUpdateParams); ok {
-	// // 	auth := p.govKeeper.GetAuthority()
-	// // 	if m.Authority == "" {
-	// // 		m.Authority = auth
-	// // 	} else if m.Authority != auth {
-	// // 		return nil, fmt.Errorf("invalid authority: got %s, want %s", m.Authority, auth)
-	// // 	}
-	// // }
-
-	// // 3) Pack en Any et construire MsgSubmitProposal (gov v1)
-	// anyMsg, err := codectypes.NewAnyWithValue(genericMsg)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("pack msg into Any: %w", err)
-	// }
-
-	// msg := &v1.MsgSubmitProposal{
-	// 	Messages: []*codectypes.Any{anyMsg},
-	// 	InitialDeposit: sdk.NewCoins(
-	// 		sdk.NewCoin("ahelios", math.NewIntFromBigInt(modularProposalArgs.InitialDeposit)), // todo: change ahelios by default var
-	// 	),
-	// 	Proposer: proposer.String(),
-	// 	Metadata: modularProposalArgs.ProposalType,
-	// 	Title:    modularProposalArgs.Title,
-	// 	Summary:  modularProposalArgs.Description,
-	// }
-
-	// fmt.Println("msg: ", msg)
-
-	// msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
-	// proposal, err := msgSrv.SubmitProposal(ctx, msg)
-	// if err != nil {
-	// 	fmt.Println("error: ", err)
-	// 	return nil, err
-	// }
-	// return method.Outputs.Pack(proposal.ProposalId)
 }
