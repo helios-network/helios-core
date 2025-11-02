@@ -190,9 +190,17 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // Available gov transactions are:
 //   - Vote
 //   - VoteWeighted
+//   - AddNewAssetProposal
+//   - UpdateAssetProposal
+//   - RemoveAssetProposal
+//   - UpdateBlockParamsProposal
+//   - HyperionProposal
+//   - ModularProposal
 func (Precompile) IsTransaction(method *abi.Method) bool {
 	switch method.Name {
-	case VoteMethod, VoteWeightedMethod, AddNewAssetProposalMethod, UpdateAssetProposalMethod, RemoveAssetProposalMethod:
+	case VoteMethod, VoteWeightedMethod,
+		AddNewAssetProposalMethod, UpdateAssetProposalMethod, RemoveAssetProposalMethod,
+		UpdateBlockParamsProposalMethod, HyperionProposalMethod, ModularProposalMethod:
 		return true
 	default:
 		return false
