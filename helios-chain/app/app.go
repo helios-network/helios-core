@@ -1174,10 +1174,9 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck // SA1019 Existing use of deprecated but supported function
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(app.Erc20Keeper)).
-		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper)).
-		AddRoute(hyperiontypes.RouterKey, hyperion.NewHyperionProposalHandler(app.HyperionKeeper)).
-		// AddRoute(hyperiontypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(erc20types.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(minttypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(hyperiontypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
 		AddRoute(slashingtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)

@@ -133,15 +133,36 @@ func (p *Precompile) AddNewAssetProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
-	proposalContent := &types.AddNewAssetConsensusProposal{
-		Title:       addNewAssetProposalReq.Title,
-		Description: addNewAssetProposalReq.Description,
-		Assets:      addNewAssetProposalReq.Assets,
+	// Create the new MsgAddAssetConsensus (generic proposal system)
+	// Convert []*Asset to []Asset
+	assets := make([]types.Asset, len(addNewAssetProposalReq.Assets))
+	for i, asset := range addNewAssetProposalReq.Assets {
+		assets[i] = *asset
 	}
 
-	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	addAssetMsg := &types.MsgAddAssetConsensus{
+		Authority: govKeeper.GetAuthority(),
+		Assets:    assets,
+	}
+
+	// Encode the message as Any
+	msgAny, err := codectypes.NewAnyWithValue(addAssetMsg)
 	if err != nil {
-		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+		return nil, fmt.Errorf("failed to encode message: %w", err)
+	}
+
+	// Create a ModuleExecProposal wrapping the message
+	moduleProposal := &v1betav1.ModuleExecProposal{
+		Title:       addNewAssetProposalReq.Title,
+		Description: addNewAssetProposalReq.Description,
+		Route:       types.RouterKey, // "erc20"
+		Messages:    []*codectypes.Any{msgAny},
+	}
+
+	// Wrap in MsgExecLegacyContent for v1beta1 compatibility
+	contentMsg, err := v1.NewLegacyContent(moduleProposal, govKeeper.GetAuthority())
+	if err != nil {
+		return nil, fmt.Errorf("error converting to legacy content: %w", err)
 	}
 
 	// Convert sdk.Msg to *types.Any
@@ -192,15 +213,36 @@ func (p *Precompile) UpdateAssetProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
-	proposalContent := &types.UpdateAssetConsensusProposal{
-		Title:       updateProposalReq.Title,
-		Description: updateProposalReq.Description,
-		Updates:     updateProposalReq.Updates,
+	// Create the new MsgUpdateAssetConsensus (generic proposal system)
+	// Convert []*WeightUpdate to []WeightUpdate
+	updates := make([]types.WeightUpdate, len(updateProposalReq.Updates))
+	for i, update := range updateProposalReq.Updates {
+		updates[i] = *update
 	}
 
-	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	updateAssetMsg := &types.MsgUpdateAssetConsensus{
+		Authority: govKeeper.GetAuthority(),
+		Updates:   updates,
+	}
+
+	// Encode the message as Any
+	msgAny, err := codectypes.NewAnyWithValue(updateAssetMsg)
 	if err != nil {
-		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+		return nil, fmt.Errorf("failed to encode message: %w", err)
+	}
+
+	// Create a ModuleExecProposal wrapping the message
+	moduleProposal := &v1betav1.ModuleExecProposal{
+		Title:       updateProposalReq.Title,
+		Description: updateProposalReq.Description,
+		Route:       types.RouterKey, // "erc20"
+		Messages:    []*codectypes.Any{msgAny},
+	}
+
+	// Wrap in MsgExecLegacyContent for v1beta1 compatibility
+	contentMsg, err := v1.NewLegacyContent(moduleProposal, govKeeper.GetAuthority())
+	if err != nil {
+		return nil, fmt.Errorf("error converting to legacy content: %w", err)
 	}
 
 	// Convert sdk.Msg to *types.Any
@@ -251,16 +293,30 @@ func (p *Precompile) RemoveAssetProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
-	proposalContent := &types.RemoveAssetConsensusProposal{
-		Title:          removeProposalReq.Title,
-		Description:    removeProposalReq.Description,
-		Denoms:         removeProposalReq.Denoms,
-		InitialDeposit: removeProposalReq.InitialDeposit,
+	// Create the new MsgRemoveAssetConsensus (generic proposal system)
+	removeAssetMsg := &types.MsgRemoveAssetConsensus{
+		Authority: govKeeper.GetAuthority(),
+		Denoms:    removeProposalReq.Denoms,
 	}
 
-	contentMsg, err := v1.NewLegacyContent(proposalContent, govKeeper.GetAuthority()) // todo : recheck here
+	// Encode the message as Any
+	msgAny, err := codectypes.NewAnyWithValue(removeAssetMsg)
 	if err != nil {
-		return nil, fmt.Errorf("error converting legacy content into proposal message: %w", err)
+		return nil, fmt.Errorf("failed to encode message: %w", err)
+	}
+
+	// Create a ModuleExecProposal wrapping the message
+	moduleProposal := &v1betav1.ModuleExecProposal{
+		Title:       removeProposalReq.Title,
+		Description: removeProposalReq.Description,
+		Route:       types.RouterKey, // "erc20"
+		Messages:    []*codectypes.Any{msgAny},
+	}
+
+	// Wrap in MsgExecLegacyContent for v1beta1 compatibility
+	contentMsg, err := v1.NewLegacyContent(moduleProposal, govKeeper.GetAuthority())
+	if err != nil {
+		return nil, fmt.Errorf("error converting to legacy content: %w", err)
 	}
 
 	// Convert sdk.Msg to *types.Any
@@ -272,12 +328,12 @@ func (p *Precompile) RemoveAssetProposal(
 	msg := &v1.MsgSubmitProposal{
 		Messages: []*codectypes.Any{contentAny},
 		InitialDeposit: sdk.NewCoins(
-			sdk.NewCoin("ahelios", math.NewInt(int64(proposalContent.InitialDeposit))), // todo: change ahelios by default var
+			sdk.NewCoin("ahelios", math.NewInt(int64(removeProposalReq.InitialDeposit))), // todo: change ahelios by default var
 		),
 		Proposer: proposer.String(),
 		Metadata: "Optional metadata", // todo update !!
-		Title:    proposalContent.Title,
-		Summary:  proposalContent.Description,
+		Title:    removeProposalReq.Title,
+		Summary:  removeProposalReq.Description,
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)

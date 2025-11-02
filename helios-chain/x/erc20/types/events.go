@@ -12,11 +12,16 @@ const (
 	EventTypeRegisterERC20          = "register_erc20"
 	EventTypeToggleTokenConversion  = "toggle_token_conversion" // #nosec
 	EventTypeRegisterERC20Extension = "register_erc20_extension"
+	EventTypeAddAssetConsensus      = "add_asset_consensus"
+	EventTypeRemoveAssetConsensus   = "remove_asset_consensus"
+	EventTypeUpdateAssetConsensus   = "update_asset_consensus"
 
-	AttributeCoinSourceChannel = "source_channel"
-	AttributeKeyCosmosCoin     = "cosmos_coin"
-	AttributeKeyERC20Token     = "erc20_token" // #nosec
-	AttributeKeyReceiver       = "receiver"
+	AttributeCoinSourceChannel  = "source_channel"
+	AttributeKeyCosmosCoin      = "cosmos_coin"
+	AttributeKeyERC20Token      = "erc20_token" // #nosec
+	AttributeKeyReceiver        = "receiver"
+	AttributeKeyDenom           = "denom"
+	AttributeKeyContractAddress = "contract_address"
 )
 
 // LogTransfer Event type for Transfer(address from, address to, uint256 value)
