@@ -44,10 +44,23 @@ interface HyperionI {
         uint256 gasLimit
     ) external returns (uint256 taskId);
 
+    /// @notice Updates the counterparty chain information parameters
+    /// @param bridgeChainId The target chain ID
+    /// @param bridgeChainLogo The logo of the target chain
+    /// @param bridgeChainName The name of the target chain
+    /// @return success Whether the update was successful
     function updateCounterpartyChainInfosParams(
         uint64 bridgeChainId,
         string memory bridgeChainLogo,
         string memory bridgeChainName
     ) external returns (bool success);
 
+    /// @notice Cancels a send to chain transaction
+    /// @param chainId The target chain ID
+    /// @param transactionId The transaction ID to cancel
+    /// @return success Whether the cancellation was successful
+    function cancelSendToChain(
+        uint64 chainId,
+        uint64 transactionId
+    ) external returns (bool success);
 }
