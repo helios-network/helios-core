@@ -666,6 +666,18 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 	}, nil
 }
 
+func (b *Backend) GetDelegationForValidators(address common.Address, validatorAddresses []string) ([]*rpctypes.DelegationRPC, error) {
+	delegations := make([]*rpctypes.DelegationRPC, 0)
+	for _, validatorAddress := range validatorAddresses {
+		delegation, err := b.GetDelegation(address, common.HexToAddress(validatorAddress))
+		if err != nil {
+			return nil, err
+		}
+		delegations = append(delegations, delegation)
+	}
+	return delegations, nil
+}
+
 func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
 	// Get validator commission rate
 	validator, err := b.queryClient.Staking.Validator(b.ctx, &stakingtypes.QueryValidatorRequest{

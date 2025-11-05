@@ -150,6 +150,7 @@ type EVMBackend interface {
 	// Staking [to update]
 	GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error)
 	GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error)
+	GetDelegationForValidators(address common.Address, validatorAddresses []string) ([]*rpctypes.DelegationRPC, error)
 	GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error)
 	GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error)
 	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
