@@ -24,7 +24,6 @@ func NewHyperionProposalHandler(k keeper.Keeper) govtypes.Handler {
 }
 
 func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.HyperionProposal) error {
-	// Validate the proposal
 	if err := proposal.ValidateBasic(); err != nil {
 		return err
 	}

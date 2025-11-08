@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -351,4 +352,176 @@ func (k *Keeper) validateAuthority(authority string) error {
 		return errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, authority)
 	}
 	return nil
+}
+
+// AddAssetConsensus implements the gRPC MsgServer interface for adding assets
+// to the consensus whitelist via governance
+func (k *Keeper) AddAssetConsensus(goCtx context.Context, msg *types.MsgAddAssetConsensus) (*types.MsgAddAssetConsensusResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if err := k.validateAuthority(msg.Authority); err != nil {
+		return nil, err
+	}
+
+	// Iterate over the assets in the message and add them to the consensus whitelist
+	for _, asset := range msg.Assets {
+		contractAddress := common.HexToAddress(asset.ContractAddress)
+		exist, err := k.DoesERC20ContractExist(ctx, contractAddress)
+		if err != nil {
+			return nil, errorsmod.Wrapf(types.ErrAssetNotFound, "failed to check if ERC20 contract exists for asset %s: %v", asset.Denom, err)
+		}
+		if !exist {
+			return nil, errorsmod.Wrapf(types.ErrAssetNotFound, "failed to add asset %s in consensus whitelist as the ERC20 contract does not exist", asset.Denom)
+		}
+
+		// AddAssetToConsensusWhitelist will handle both new assets and unarchiving archived assets
+		if err := k.AddAssetToConsensusWhitelist(ctx, asset); err != nil {
+			return nil, errorsmod.Wrapf(err, "failed to add asset %s to consensus whitelist", asset.Denom)
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeAddAssetConsensus,
+				sdk.NewAttribute(types.AttributeKeyDenom, asset.Denom),
+				sdk.NewAttribute(types.AttributeKeyContractAddress, asset.ContractAddress),
+			),
+		)
+	}
+
+	return &types.MsgAddAssetConsensusResponse{}, nil
+}
+
+// RemoveAssetConsensus implements the gRPC MsgServer interface for removing
+// assets from the consensus whitelist via governance
+func (k *Keeper) RemoveAssetConsensus(goCtx context.Context, msg *types.MsgRemoveAssetConsensus) (*types.MsgRemoveAssetConsensusResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if err := k.validateAuthority(msg.Authority); err != nil {
+		return nil, err
+	}
+
+	for _, denom := range msg.Denoms {
+		if !k.IsAssetWhitelisted(ctx, denom) {
+			return nil, errorsmod.Wrapf(types.ErrAssetNotFound, "asset %s is not whitelisted", denom)
+		}
+
+		// Archive the asset instead of completely removing it
+		// This ensures users can still undelegate any staked amount of this asset
+		err := k.RemoveAssetFromConsensusWhitelist(ctx, denom)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRemoveAssetConsensus,
+				sdk.NewAttribute(types.AttributeKeyDenom, denom),
+			),
+		)
+	}
+
+	return &types.MsgRemoveAssetConsensusResponse{}, nil
+}
+
+// UpdateAssetConsensus implements the gRPC MsgServer interface for updating
+// asset weights in the consensus whitelist via governance
+func (k *Keeper) UpdateAssetConsensus(goCtx context.Context, msg *types.MsgUpdateAssetConsensus) (*types.MsgUpdateAssetConsensusResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if err := k.validateAuthority(msg.Authority); err != nil {
+		return nil, err
+	}
+
+	// Iterate over the updates in the message
+	for _, update := range msg.Updates {
+		// Validate and retrieve the asset
+		if !k.IsAssetWhitelisted(ctx, update.Denom) {
+			return nil, errorsmod.Wrapf(types.ErrAssetNotFound, "asset %s is not whitelisted", update.Denom)
+		}
+
+		asset, err := k.GetAssetFromWhitelist(ctx, update.Denom)
+		if err != nil {
+			return nil, errorsmod.Wrapf(err, "failed to retrieve asset %s from whitelist", update.Denom)
+		}
+
+		// Determine the adjustment factor
+		percentFactor, adjustmentFactor, err := getAdjustmentFactors(asset, update.Magnitude, update.Direction)
+		if err != nil {
+			return nil, err
+		}
+
+		// Apply the adjustment to the asset weight
+		updatedAsset, increaseWeight, err := applyWeightAdjustment(asset, update.Direction, adjustmentFactor)
+		if err != nil {
+			return nil, err
+		}
+
+		// Update the asset in the whitelist
+		if err := k.UpdateAssetInConsensusWhitelist(ctx, updatedAsset); err != nil {
+			return nil, errorsmod.Wrapf(err, "failed to update asset %s in whitelist", update.Denom)
+		}
+
+		// Update delegation stakes with the new weighted amount
+		if err := k.UpdateAssetNativeSharesWeight(ctx, update.Denom, percentFactor, increaseWeight, 0); err != nil {
+			return nil, errorsmod.Wrapf(err, "failed to update native delegation shares weight: %s", err)
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeUpdateAssetConsensus,
+				sdk.NewAttribute(types.AttributeKeyDenom, update.Denom),
+				sdk.NewAttribute("magnitude", update.Magnitude),
+				sdk.NewAttribute("direction", update.Direction),
+			),
+		)
+	}
+
+	return &types.MsgUpdateAssetConsensusResponse{}, nil
+}
+
+// Helper to determine adjustment factors based on magnitude
+func getAdjustmentFactors(asset types.Asset, magnitude string, direction string) (math.LegacyDec, float64, error) {
+	var baseFactor float64
+	switch magnitude {
+	case "small":
+		baseFactor = 0.05
+	case "medium":
+		baseFactor = 0.15
+	case "high":
+		baseFactor = 0.30
+	default:
+		return math.LegacyDec{}, 0, errorsmod.Wrapf(types.ErrInvalidAssetQuery, "invalid magnitude: %s", magnitude)
+	}
+
+	// manage the weight one by one under 10 baseWeight
+	adjustedFactor := baseFactor
+	if asset.BaseWeight < 10 {
+		if direction == "down" {
+			if asset.BaseWeight == 1 {
+				return math.LegacyDec{}, 0, errorsmod.Wrapf(types.ErrInvalidAssetQuery, "BaseWeight minimum reach")
+			}
+			targetWeight := float64(asset.BaseWeight - 1)
+			adjustedFactor = (float64(asset.BaseWeight) - targetWeight) / float64(asset.BaseWeight)
+		} else {
+			targetWeight := float64(asset.BaseWeight + 1)
+			adjustedFactor = (targetWeight - float64(asset.BaseWeight)) / float64(asset.BaseWeight)
+		}
+	}
+	adjustedFactorStr := fmt.Sprintf("%.2f", adjustedFactor) // 2 decimals
+	return math.LegacyMustNewDecFromStr(adjustedFactorStr), adjustedFactor, nil
+}
+
+// Helper to apply weight adjustment based on direction
+func applyWeightAdjustment(asset types.Asset, direction string, adjustmentFactor float64) (types.Asset, bool, error) {
+	increaseWeight := false
+	switch direction {
+	case "up":
+		asset.BaseWeight += uint64(float64(asset.BaseWeight) * adjustmentFactor)
+		increaseWeight = true
+	case "down":
+		asset.BaseWeight -= uint64(float64(asset.BaseWeight) * adjustmentFactor)
+	default:
+		return asset, false, errorsmod.Wrapf(types.ErrInvalidAssetQuery, "invalid direction: %s", direction)
+	}
+	return asset, increaseWeight, nil
 }

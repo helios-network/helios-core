@@ -7,6 +7,7 @@ import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "helios/erc20/v1/erc20.proto";
 import "helios/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -34,6 +35,21 @@ service Msg {
   // module account
   rpc ToggleConversion(MsgToggleConversion)
       returns (MsgToggleConversionResponse);
+  // AddAssetConsensus defines a governance operation for adding new assets
+  // to the consensus whitelist. The authority is hard-coded to the Cosmos SDK
+  // x/gov module account
+  rpc AddAssetConsensus(MsgAddAssetConsensus)
+      returns (MsgAddAssetConsensusResponse);
+  // RemoveAssetConsensus defines a governance operation for removing assets
+  // from the consensus whitelist. The authority is hard-coded to the Cosmos SDK
+  // x/gov module account
+  rpc RemoveAssetConsensus(MsgRemoveAssetConsensus)
+      returns (MsgRemoveAssetConsensusResponse);
+  // UpdateAssetConsensus defines a governance operation for updating asset
+  // weights in the consensus whitelist. The authority is hard-coded to the
+  // Cosmos SDK x/gov module account
+  rpc UpdateAssetConsensus(MsgUpdateAssetConsensus)
+      returns (MsgUpdateAssetConsensusResponse);
 }
 
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
@@ -128,3 +144,54 @@ message MsgToggleConversion {
 // MsgToggleConversionResponse defines the response structure for executing a
 // ToggleConversion message.
 message MsgToggleConversionResponse {}
+
+// MsgAddAssetConsensus is the Msg/AddAssetConsensus request type for adding
+// new assets to the consensus whitelist.
+message MsgAddAssetConsensus {
+  option (amino.name) = "evmos/x/erc20/MsgAddAssetConsensus";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // assets is the list of assets to add to the consensus whitelist
+  repeated Asset assets = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgAddAssetConsensusResponse defines the response structure for executing a
+// MsgAddAssetConsensus message.
+message MsgAddAssetConsensusResponse {}
+
+// MsgRemoveAssetConsensus is the Msg/RemoveAssetConsensus request type for
+// removing assets from the consensus whitelist.
+message MsgRemoveAssetConsensus {
+  option (amino.name) = "evmos/x/erc20/MsgRemoveAssetConsensus";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // denoms is the list of asset denominations to remove
+  repeated string denoms = 2;
+}
+
+// MsgRemoveAssetConsensusResponse defines the response structure for executing
+// a MsgRemoveAssetConsensus message.
+message MsgRemoveAssetConsensusResponse {}
+
+// MsgUpdateAssetConsensus is the Msg/UpdateAssetConsensus request type for
+// updating asset weights in the consensus whitelist.
+message MsgUpdateAssetConsensus {
+  option (amino.name) = "evmos/x/erc20/MsgUpdateAssetConsensus";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // updates is the list of weight updates to apply
+  repeated WeightUpdate updates = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgUpdateAssetConsensusResponse defines the response structure for executing
+// a MsgUpdateAssetConsensus message.
+message MsgUpdateAssetConsensusResponse {}

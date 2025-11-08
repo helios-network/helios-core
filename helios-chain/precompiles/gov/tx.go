@@ -2,6 +2,7 @@ package gov
 
 import (
 	"fmt"
+	"strings"
 
 	"cosmossdk.io/math"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -14,6 +15,7 @@ import (
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,6 +29,8 @@ const (
 	VoteMethod = "vote"
 	// VoteWeightedMethod defines the ABI method name for the gov VoteWeighted transaction.
 	VoteWeightedMethod = "voteWeighted"
+	// ModularProposalMethod defines the universal method for modular governance proposals (slashing only).
+	ModularProposalMethod = "modularProposal"
 	// AddNewAssetProposalMethod defines the method name for add new proposal
 	AddNewAssetProposalMethod = "addNewAssetProposal"
 	// UpdateAssetProposalMethod defines the method name for add new proposal
@@ -396,4 +400,79 @@ func (p *Precompile) HyperionProposal(
 	}
 
 	return method.Outputs.Pack(proposal.ProposalId)
+}
+
+// InferRouteFromMsg derives the module route from the message type URL.
+func InferRouteFromMsg(msg sdk.Msg) string {
+	typeURL := sdk.MsgTypeURL(msg)
+	parts := strings.Split(typeURL, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+	return parts[1]
+}
+
+// ModularProposal submits a governance proposal using the generic modular path (currently for slashing).
+func (p *Precompile) ModularProposal(
+	origin common.Address,
+	govKeeper govkeeper.Keeper,
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	modularProposalArgs, err := ParseModularProposalArgs(p.cdc, args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse modularProposal arguments: %w", err)
+	}
+
+	var msg sdk.Msg
+	if err := p.cdc.UnmarshalInterfaceJSON([]byte(modularProposalArgs.Msg), &msg); err != nil {
+		return nil, fmt.Errorf("invalid msg JSON: %w", err)
+	}
+
+	msgAny, err := codectypes.NewAnyWithValue(msg)
+	if err != nil {
+		return nil, fmt.Errorf("pack message: %w", err)
+	}
+
+	route := modularProposalArgs.ProposalType
+	if route == "" {
+		route = InferRouteFromMsg(msg)
+	}
+
+	content := &v1beta1.ModuleExecProposal{
+		Title:       modularProposalArgs.Title,
+		Description: modularProposalArgs.Description,
+		Route:       route,
+		Messages:    []*codectypes.Any{msgAny},
+	}
+
+	legacyContent, err := v1.NewLegacyContent(content, govKeeper.GetAuthority())
+	if err != nil {
+		return nil, fmt.Errorf("wrap legacy content: %w", err)
+	}
+
+	legacyAny, err := codectypes.NewAnyWithValue(legacyContent)
+	if err != nil {
+		return nil, fmt.Errorf("pack legacy content: %w", err)
+	}
+
+	submit := &v1.MsgSubmitProposal{
+		Messages: []*codectypes.Any{legacyAny},
+		InitialDeposit: sdk.NewCoins(
+			sdk.NewCoin("ahelios", math.NewIntFromBigInt(modularProposalArgs.InitialDeposit)),
+		),
+		Proposer: sdk.AccAddress(origin.Bytes()).String(),
+		Title:    modularProposalArgs.Title,
+		Summary:  modularProposalArgs.Description,
+	}
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	res, err := msgSrv.SubmitProposal(ctx, submit)
+	if err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(res.ProposalId)
 }

@@ -527,6 +527,288 @@ func (m *MsgToggleConversionResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgToggleConversionResponse proto.InternalMessageInfo
 
+// MsgAddAssetConsensus is the Msg/AddAssetConsensus request type for adding
+// new assets to the consensus whitelist.
+type MsgAddAssetConsensus struct {
+	// authority is the address of the governance account.
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
+	// assets is the list of assets to add to the consensus whitelist
+	Assets []Asset `protobuf:"bytes,2,rep,name=assets,proto3" json:"assets"`
+}
+
+func (m *MsgAddAssetConsensus) Reset()         { *m = MsgAddAssetConsensus{} }
+func (m *MsgAddAssetConsensus) String() string { return proto.CompactTextString(m) }
+func (*MsgAddAssetConsensus) ProtoMessage()    {}
+func (*MsgAddAssetConsensus) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a553f77c501c46b9, []int{10}
+}
+func (m *MsgAddAssetConsensus) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgAddAssetConsensus) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgAddAssetConsensus.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgAddAssetConsensus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgAddAssetConsensus.Merge(m, src)
+}
+func (m *MsgAddAssetConsensus) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgAddAssetConsensus) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgAddAssetConsensus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgAddAssetConsensus proto.InternalMessageInfo
+
+func (m *MsgAddAssetConsensus) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
+func (m *MsgAddAssetConsensus) GetAssets() []Asset {
+	if m != nil {
+		return m.Assets
+	}
+	return nil
+}
+
+// MsgAddAssetConsensusResponse defines the response structure for executing a
+// MsgAddAssetConsensus message.
+type MsgAddAssetConsensusResponse struct {
+}
+
+func (m *MsgAddAssetConsensusResponse) Reset()         { *m = MsgAddAssetConsensusResponse{} }
+func (m *MsgAddAssetConsensusResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgAddAssetConsensusResponse) ProtoMessage()    {}
+func (*MsgAddAssetConsensusResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a553f77c501c46b9, []int{11}
+}
+func (m *MsgAddAssetConsensusResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgAddAssetConsensusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgAddAssetConsensusResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgAddAssetConsensusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgAddAssetConsensusResponse.Merge(m, src)
+}
+func (m *MsgAddAssetConsensusResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgAddAssetConsensusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgAddAssetConsensusResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgAddAssetConsensusResponse proto.InternalMessageInfo
+
+// MsgRemoveAssetConsensus is the Msg/RemoveAssetConsensus request type for
+// removing assets from the consensus whitelist.
+type MsgRemoveAssetConsensus struct {
+	// authority is the address of the governance account.
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
+	// denoms is the list of asset denominations to remove
+	Denoms []string `protobuf:"bytes,2,rep,name=denoms,proto3" json:"denoms,omitempty"`
+}
+
+func (m *MsgRemoveAssetConsensus) Reset()         { *m = MsgRemoveAssetConsensus{} }
+func (m *MsgRemoveAssetConsensus) String() string { return proto.CompactTextString(m) }
+func (*MsgRemoveAssetConsensus) ProtoMessage()    {}
+func (*MsgRemoveAssetConsensus) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a553f77c501c46b9, []int{12}
+}
+func (m *MsgRemoveAssetConsensus) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRemoveAssetConsensus) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRemoveAssetConsensus.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRemoveAssetConsensus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRemoveAssetConsensus.Merge(m, src)
+}
+func (m *MsgRemoveAssetConsensus) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRemoveAssetConsensus) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRemoveAssetConsensus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRemoveAssetConsensus proto.InternalMessageInfo
+
+func (m *MsgRemoveAssetConsensus) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
+func (m *MsgRemoveAssetConsensus) GetDenoms() []string {
+	if m != nil {
+		return m.Denoms
+	}
+	return nil
+}
+
+// MsgRemoveAssetConsensusResponse defines the response structure for executing
+// a MsgRemoveAssetConsensus message.
+type MsgRemoveAssetConsensusResponse struct {
+}
+
+func (m *MsgRemoveAssetConsensusResponse) Reset()         { *m = MsgRemoveAssetConsensusResponse{} }
+func (m *MsgRemoveAssetConsensusResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgRemoveAssetConsensusResponse) ProtoMessage()    {}
+func (*MsgRemoveAssetConsensusResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a553f77c501c46b9, []int{13}
+}
+func (m *MsgRemoveAssetConsensusResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRemoveAssetConsensusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRemoveAssetConsensusResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRemoveAssetConsensusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRemoveAssetConsensusResponse.Merge(m, src)
+}
+func (m *MsgRemoveAssetConsensusResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRemoveAssetConsensusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRemoveAssetConsensusResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRemoveAssetConsensusResponse proto.InternalMessageInfo
+
+// MsgUpdateAssetConsensus is the Msg/UpdateAssetConsensus request type for
+// updating asset weights in the consensus whitelist.
+type MsgUpdateAssetConsensus struct {
+	// authority is the address of the governance account.
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
+	// updates is the list of weight updates to apply
+	Updates []WeightUpdate `protobuf:"bytes,2,rep,name=updates,proto3" json:"updates"`
+}
+
+func (m *MsgUpdateAssetConsensus) Reset()         { *m = MsgUpdateAssetConsensus{} }
+func (m *MsgUpdateAssetConsensus) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateAssetConsensus) ProtoMessage()    {}
+func (*MsgUpdateAssetConsensus) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a553f77c501c46b9, []int{14}
+}
+func (m *MsgUpdateAssetConsensus) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdateAssetConsensus) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdateAssetConsensus.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdateAssetConsensus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateAssetConsensus.Merge(m, src)
+}
+func (m *MsgUpdateAssetConsensus) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdateAssetConsensus) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateAssetConsensus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdateAssetConsensus proto.InternalMessageInfo
+
+func (m *MsgUpdateAssetConsensus) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
+func (m *MsgUpdateAssetConsensus) GetUpdates() []WeightUpdate {
+	if m != nil {
+		return m.Updates
+	}
+	return nil
+}
+
+// MsgUpdateAssetConsensusResponse defines the response structure for executing
+// a MsgUpdateAssetConsensus message.
+type MsgUpdateAssetConsensusResponse struct {
+}
+
+func (m *MsgUpdateAssetConsensusResponse) Reset()         { *m = MsgUpdateAssetConsensusResponse{} }
+func (m *MsgUpdateAssetConsensusResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateAssetConsensusResponse) ProtoMessage()    {}
+func (*MsgUpdateAssetConsensusResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a553f77c501c46b9, []int{15}
+}
+func (m *MsgUpdateAssetConsensusResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdateAssetConsensusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdateAssetConsensusResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdateAssetConsensusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateAssetConsensusResponse.Merge(m, src)
+}
+func (m *MsgUpdateAssetConsensusResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdateAssetConsensusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateAssetConsensusResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdateAssetConsensusResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgConvertERC20)(nil), "helios.erc20.v1.MsgConvertERC20")
 	proto.RegisterType((*MsgConvertERC20Response)(nil), "helios.erc20.v1.MsgConvertERC20Response")
@@ -538,58 +820,76 @@ func init() {
 	proto.RegisterType((*MsgRegisterERC20Response)(nil), "helios.erc20.v1.MsgRegisterERC20Response")
 	proto.RegisterType((*MsgToggleConversion)(nil), "helios.erc20.v1.MsgToggleConversion")
 	proto.RegisterType((*MsgToggleConversionResponse)(nil), "helios.erc20.v1.MsgToggleConversionResponse")
+	proto.RegisterType((*MsgAddAssetConsensus)(nil), "helios.erc20.v1.MsgAddAssetConsensus")
+	proto.RegisterType((*MsgAddAssetConsensusResponse)(nil), "helios.erc20.v1.MsgAddAssetConsensusResponse")
+	proto.RegisterType((*MsgRemoveAssetConsensus)(nil), "helios.erc20.v1.MsgRemoveAssetConsensus")
+	proto.RegisterType((*MsgRemoveAssetConsensusResponse)(nil), "helios.erc20.v1.MsgRemoveAssetConsensusResponse")
+	proto.RegisterType((*MsgUpdateAssetConsensus)(nil), "helios.erc20.v1.MsgUpdateAssetConsensus")
+	proto.RegisterType((*MsgUpdateAssetConsensusResponse)(nil), "helios.erc20.v1.MsgUpdateAssetConsensusResponse")
 }
 
 func init() { proto.RegisterFile("helios/erc20/v1/tx.proto", fileDescriptor_a553f77c501c46b9) }
 
 var fileDescriptor_a553f77c501c46b9 = []byte{
-	// 733 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xcf, 0x4f, 0x13, 0x4d,
-	0x18, 0xee, 0x52, 0x20, 0x5f, 0x07, 0x3e, 0xe0, 0xdb, 0x8f, 0x1f, 0xcb, 0x2a, 0x0b, 0x6c, 0x94,
-	0x14, 0x22, 0x3b, 0xb4, 0x18, 0x0f, 0x3d, 0x69, 0x89, 0x07, 0x0f, 0x4d, 0xcc, 0xaa, 0x17, 0x12,
-	0x43, 0x86, 0xed, 0x38, 0x9d, 0x40, 0x67, 0x9a, 0x9d, 0xa1, 0x81, 0x9b, 0x21, 0x9e, 0x3c, 0x99,
-	0x78, 0xf2, 0x0f, 0x30, 0xf1, 0xc8, 0xc1, 0xe8, 0xbf, 0xc0, 0x91, 0xc8, 0xc5, 0x78, 0x20, 0x06,
-	0x4c, 0xf8, 0x37, 0xcc, 0xec, 0x4c, 0x4b, 0xbb, 0xad, 0xc1, 0x70, 0x69, 0xfa, 0xbe, 0xef, 0xf3,
-	0xbe, 0xfb, 0x3c, 0xef, 0xfb, 0xec, 0x02, 0xa7, 0x86, 0x77, 0x29, 0x17, 0x10, 0xc7, 0x51, 0x71,
-	0x0d, 0x36, 0x0b, 0x50, 0xee, 0x07, 0x8d, 0x98, 0x4b, 0x6e, 0x8f, 0xeb, 0x4a, 0x90, 0x54, 0x82,
-	0x66, 0xc1, 0xfd, 0x0f, 0xd5, 0x29, 0xe3, 0x30, 0xf9, 0xd5, 0x18, 0xd7, 0x8b, 0xb8, 0xa8, 0x73,
-	0x01, 0xb7, 0x91, 0xc0, 0xb0, 0x59, 0xd8, 0xc6, 0x12, 0x15, 0x60, 0xc4, 0x29, 0x33, 0xf5, 0x19,
-	0x53, 0xaf, 0x0b, 0xa2, 0x66, 0xd7, 0x05, 0x31, 0x85, 0x59, 0x5d, 0xd8, 0x4a, 0x22, 0xa8, 0x03,
-	0x53, 0x9a, 0x4b, 0x33, 0x22, 0x98, 0x61, 0x41, 0x5b, 0xe5, 0x49, 0xc2, 0x09, 0xd7, 0x6d, 0xea,
-	0x9f, 0xc9, 0xde, 0x26, 0x9c, 0x93, 0x5d, 0x0c, 0x51, 0x83, 0x42, 0xc4, 0x18, 0x97, 0x48, 0x52,
-	0xce, 0x4c, 0x8f, 0x7f, 0x6a, 0x81, 0xf1, 0x8a, 0x20, 0x1b, 0x9c, 0x35, 0x71, 0x2c, 0x1f, 0x87,
-	0x1b, 0xc5, 0x35, 0x7b, 0x19, 0x4c, 0x44, 0x9c, 0xc9, 0x18, 0x45, 0x72, 0x0b, 0x55, 0xab, 0x31,
-	0x16, 0xc2, 0xb1, 0x16, 0xac, 0x7c, 0x2e, 0x1c, 0x6f, 0xe5, 0x1f, 0xe9, 0xb4, 0x5d, 0x02, 0xc3,
-	0xa8, 0xce, 0xf7, 0x98, 0x74, 0x06, 0x14, 0xa0, 0xec, 0x1f, 0x9f, 0xcd, 0x67, 0x7e, 0x9c, 0xcd,
-	0x4f, 0x69, 0xde, 0xa2, 0xba, 0x13, 0x50, 0x0e, 0xeb, 0x48, 0xd6, 0x82, 0x27, 0x4c, 0x7e, 0xba,
-	0x3c, 0x5a, 0xb1, 0x42, 0xd3, 0x61, 0xbb, 0xe0, 0x9f, 0x18, 0x47, 0x98, 0x36, 0x71, 0xec, 0x64,
-	0x93, 0xf1, 0xed, 0xd8, 0x9e, 0x06, 0xc3, 0x02, 0xb3, 0x2a, 0x8e, 0x9d, 0xc1, 0xa4, 0x62, 0xa2,
-	0xd2, 0xdd, 0xc3, 0xcb, 0xa3, 0x15, 0x13, 0xbc, 0xbd, 0x3c, 0x5a, 0x99, 0xc2, 0x4d, 0xb5, 0xc4,
-	0x94, 0x02, 0x7f, 0x16, 0xcc, 0xa4, 0x52, 0x21, 0x16, 0x0d, 0xce, 0x04, 0xf6, 0x0f, 0xc0, 0xd8,
-	0x55, 0x69, 0x83, 0x53, 0x66, 0xaf, 0x83, 0x41, 0x75, 0x97, 0x44, 0xe2, 0x48, 0x71, 0x36, 0x30,
-	0x2b, 0x57, 0x87, 0x0b, 0xcc, 0xe1, 0x02, 0x05, 0x2c, 0x0f, 0x2a, 0x71, 0x61, 0x02, 0xee, 0x22,
-	0x3f, 0xf0, 0x47, 0xf2, 0xd9, 0x4e, 0xf2, 0xbe, 0x03, 0xa6, 0xbb, 0x1f, 0xdd, 0x26, 0xf5, 0x55,
-	0x5f, 0xe1, 0x45, 0xa3, 0x8a, 0x24, 0x7e, 0x8a, 0x62, 0x54, 0x17, 0xf6, 0x03, 0x90, 0x43, 0x7b,
-	0xb2, 0xc6, 0x63, 0x2a, 0x0f, 0xf4, 0xfa, 0xcb, 0xce, 0xb7, 0xcf, 0xab, 0x93, 0x86, 0x9e, 0xb9,
-	0xc0, 0x33, 0x19, 0x53, 0x46, 0xc2, 0x2b, 0xa8, 0x3a, 0x49, 0x23, 0x99, 0x90, 0xf0, 0x1a, 0x29,
-	0xce, 0x04, 0x29, 0xb7, 0x06, 0xfa, 0x01, 0xe5, 0x9c, 0x92, 0x63, 0x4e, 0xa2, 0x3b, 0x4a, 0x6b,
-	0x6a, 0xbd, 0x57, 0xb3, 0xd4, 0x86, 0xe7, 0xf4, 0x86, 0xf7, 0x8d, 0xe9, 0x52, 0x2c, 0xcd, 0xa6,
-	0x3b, 0x53, 0x6d, 0x51, 0x1f, 0x2d, 0x30, 0x51, 0x11, 0x24, 0xc4, 0x84, 0x0a, 0x89, 0x63, 0xed,
-	0xad, 0x9b, 0xaa, 0x5a, 0x02, 0x63, 0x09, 0x01, 0xe3, 0x47, 0xac, 0xd4, 0x65, 0xf3, 0xb9, 0x30,
-	0x95, 0x2d, 0x15, 0x7a, 0x15, 0x78, 0x3d, 0x0a, 0xba, 0x28, 0xf9, 0x2e, 0x70, 0xd2, 0xb9, 0xb6,
-	0x86, 0x0f, 0x16, 0xf8, 0xbf, 0x22, 0xc8, 0x73, 0x4e, 0xc8, 0x2e, 0xd6, 0x97, 0x13, 0x94, 0xb3,
-	0x1b, 0xcb, 0x98, 0x04, 0x43, 0x92, 0xef, 0x60, 0x66, 0x3c, 0xa3, 0x83, 0xd2, 0xfd, 0x5e, 0xd2,
-	0x8b, 0x3d, 0xa4, 0xd3, 0x1c, 0xfc, 0x39, 0x70, 0xab, 0x4f, 0xba, 0x45, 0xbd, 0xf8, 0x25, 0x0b,
-	0xb2, 0x15, 0x41, 0xec, 0x37, 0x16, 0x18, 0xed, 0x7a, 0xbd, 0x17, 0x7a, 0x0c, 0x91, 0x7a, 0x57,
-	0xdc, 0xfc, 0x75, 0x88, 0xf6, 0x7e, 0xf2, 0x87, 0xa7, 0xbf, 0xde, 0x0f, 0xf8, 0xf6, 0x02, 0xd4,
-	0x7c, 0x3b, 0xbe, 0x95, 0x30, 0xd2, 0x0d, 0x5b, 0x49, 0xce, 0xde, 0x04, 0xa3, 0x5d, 0xf6, 0xee,
-	0xcb, 0xa2, 0x13, 0xd1, 0x9f, 0x45, 0x3f, 0xa7, 0xd9, 0x2f, 0xc1, 0xbf, 0xdd, 0x2e, 0x5b, 0xec,
-	0xd7, 0xda, 0x05, 0x71, 0x97, 0xaf, 0x85, 0xb4, 0xc7, 0xbf, 0x02, 0x13, 0x3d, 0x06, 0xb8, 0xd3,
-	0xaf, 0x3d, 0x8d, 0x72, 0xef, 0xfd, 0x0d, 0xaa, 0xf5, 0x1c, 0x77, 0xe8, 0xb5, 0x7a, 0x19, 0xcb,
-	0x0f, 0x8f, 0xcf, 0x3d, 0xeb, 0xe4, 0xdc, 0xb3, 0x7e, 0x9e, 0x7b, 0xd6, 0xbb, 0x0b, 0x2f, 0x73,
-	0x72, 0xe1, 0x65, 0xbe, 0x5f, 0x78, 0x99, 0xcd, 0x25, 0x3d, 0x6d, 0x35, 0xe2, 0x31, 0x86, 0xad,
-	0xff, 0x35, 0x44, 0x59, 0xdb, 0x27, 0xf2, 0xa0, 0x81, 0xc5, 0xf6, 0x70, 0xf2, 0x6d, 0x5f, 0xff,
-	0x1d, 0x00, 0x00, 0xff, 0xff, 0x72, 0x3a, 0x62, 0x80, 0xc2, 0x06, 0x00, 0x00,
+	// 926 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0x41, 0x6b, 0x24, 0x45,
+	0x14, 0x4e, 0x27, 0xd9, 0xd1, 0x54, 0xd6, 0x4d, 0xb6, 0x9d, 0x4d, 0x3a, 0xbd, 0x9b, 0x4e, 0xd2,
+	0x98, 0x65, 0x36, 0x98, 0xee, 0xcc, 0xec, 0x2a, 0x32, 0x20, 0x98, 0x09, 0x1e, 0x3c, 0x0c, 0x48,
+	0xab, 0x08, 0x0b, 0x12, 0x2a, 0xdd, 0x65, 0x4d, 0xb1, 0xe9, 0xaa, 0xa1, 0xab, 0x32, 0x6c, 0x6e,
+	0xb2, 0x78, 0xd1, 0x93, 0xe0, 0xc9, 0xb3, 0x08, 0x1e, 0x73, 0x10, 0x3c, 0xf8, 0x07, 0x16, 0x4f,
+	0x8b, 0x7b, 0x11, 0x0f, 0x8b, 0x24, 0x42, 0xfe, 0x86, 0x54, 0x57, 0x4d, 0x67, 0xa6, 0xab, 0x77,
+	0x77, 0x08, 0xb9, 0x84, 0xa9, 0xf7, 0xbe, 0xf7, 0xde, 0xf7, 0xbd, 0xf7, 0xaa, 0x3a, 0xc0, 0xe9,
+	0xa1, 0x43, 0xc2, 0x78, 0x88, 0xb2, 0xb8, 0xb5, 0x13, 0x0e, 0x9a, 0xa1, 0x78, 0x1c, 0xf4, 0x33,
+	0x26, 0x98, 0xbd, 0xa0, 0x3c, 0x41, 0xee, 0x09, 0x06, 0x4d, 0xf7, 0x26, 0x4c, 0x09, 0x65, 0x61,
+	0xfe, 0x57, 0x61, 0x5c, 0x2f, 0x66, 0x3c, 0x65, 0x3c, 0x3c, 0x80, 0x1c, 0x85, 0x83, 0xe6, 0x01,
+	0x12, 0xb0, 0x19, 0xc6, 0x8c, 0x50, 0xed, 0x5f, 0xd6, 0xfe, 0x94, 0x63, 0x99, 0x3b, 0xe5, 0x58,
+	0x3b, 0x56, 0x94, 0x63, 0x3f, 0x3f, 0x85, 0xea, 0xa0, 0x5d, 0xb7, 0xcb, 0x8c, 0x14, 0x01, 0xe5,
+	0x5c, 0x2d, 0x3b, 0x31, 0xa2, 0x88, 0x93, 0x61, 0x6c, 0x1d, 0x33, 0xcc, 0x54, 0x4e, 0xf9, 0x4b,
+	0x5b, 0xef, 0x60, 0xc6, 0xf0, 0x21, 0x0a, 0x61, 0x9f, 0x84, 0x90, 0x52, 0x26, 0xa0, 0x20, 0x8c,
+	0xea, 0x18, 0xff, 0xb9, 0x05, 0x16, 0xba, 0x1c, 0xef, 0x31, 0x3a, 0x40, 0x99, 0xf8, 0x38, 0xda,
+	0x6b, 0xed, 0xd8, 0xf7, 0xc0, 0x62, 0xcc, 0xa8, 0xc8, 0x60, 0x2c, 0xf6, 0x61, 0x92, 0x64, 0x88,
+	0x73, 0xc7, 0x5a, 0xb7, 0x1a, 0x73, 0xd1, 0xc2, 0xd0, 0xbe, 0xab, 0xcc, 0x76, 0x1b, 0xd4, 0x60,
+	0xca, 0x8e, 0xa8, 0x70, 0xa6, 0x25, 0xa0, 0xe3, 0x3f, 0x7d, 0xb1, 0x36, 0xf5, 0xcf, 0x8b, 0xb5,
+	0x5b, 0x4a, 0x14, 0x4f, 0x1e, 0x05, 0x84, 0x85, 0x29, 0x14, 0xbd, 0xe0, 0x13, 0x2a, 0x7e, 0x3d,
+	0x3f, 0xd9, 0xb2, 0x22, 0x1d, 0x61, 0xbb, 0xe0, 0xcd, 0x0c, 0xc5, 0x88, 0x0c, 0x50, 0xe6, 0xcc,
+	0xe4, 0xe9, 0x8b, 0xb3, 0xbd, 0x04, 0x6a, 0x1c, 0xd1, 0x04, 0x65, 0xce, 0x6c, 0xee, 0xd1, 0xa7,
+	0xf6, 0xe6, 0x93, 0xf3, 0x93, 0x2d, 0x7d, 0xf8, 0xfe, 0xfc, 0x64, 0xeb, 0x16, 0x1a, 0xc8, 0x0e,
+	0x97, 0x14, 0xf8, 0x2b, 0x60, 0xb9, 0x64, 0x8a, 0x10, 0xef, 0x33, 0xca, 0x91, 0x7f, 0x0c, 0x6e,
+	0x5c, 0xb8, 0xf6, 0x18, 0xa1, 0xf6, 0x7d, 0x30, 0x2b, 0x87, 0x96, 0x4b, 0x9c, 0x6f, 0xad, 0x04,
+	0x7a, 0x1e, 0x72, 0xaa, 0x81, 0x9e, 0x6a, 0x20, 0x81, 0x9d, 0x59, 0x29, 0x2e, 0xca, 0xc1, 0x63,
+	0xe4, 0xa7, 0x5f, 0x4a, 0x7e, 0x66, 0x94, 0xbc, 0xef, 0x80, 0xa5, 0xf1, 0xd2, 0x05, 0xa9, 0xdf,
+	0xd5, 0x14, 0xbe, 0xe8, 0x27, 0x50, 0xa0, 0x4f, 0x61, 0x06, 0x53, 0x6e, 0xbf, 0x0f, 0xe6, 0xe0,
+	0x91, 0xe8, 0xb1, 0x8c, 0x88, 0x63, 0xd5, 0xfe, 0x8e, 0xf3, 0xd7, 0x6f, 0xdb, 0x75, 0x4d, 0x4f,
+	0x4f, 0xe0, 0x33, 0x91, 0x11, 0x8a, 0xa3, 0x0b, 0xa8, 0x1c, 0x49, 0x3f, 0xcf, 0x90, 0xf3, 0x9a,
+	0x6f, 0x2d, 0x07, 0xa5, 0x55, 0x0e, 0x54, 0x81, 0xce, 0x9c, 0x94, 0xa3, 0x47, 0xa2, 0x22, 0xda,
+	0x3b, 0xb2, 0xbd, 0x17, 0xb9, 0x64, 0x87, 0x57, 0x55, 0x87, 0x1f, 0xeb, 0xa5, 0x2b, 0xb1, 0xd4,
+	0x9d, 0x1e, 0x35, 0x15, 0xa2, 0x7e, 0xb1, 0xc0, 0x62, 0x97, 0xe3, 0x08, 0x61, 0xc2, 0x05, 0xca,
+	0xd4, 0x6e, 0x5d, 0x56, 0xd5, 0x5d, 0x70, 0x23, 0x27, 0xa0, 0xf7, 0x11, 0x49, 0x75, 0x33, 0x8d,
+	0xb9, 0xa8, 0x64, 0x6d, 0x37, 0x4d, 0x05, 0x9e, 0xa1, 0x60, 0x8c, 0x92, 0xef, 0x02, 0xa7, 0x6c,
+	0x2b, 0x34, 0xfc, 0x64, 0x81, 0xb7, 0xbb, 0x1c, 0x7f, 0xce, 0x30, 0x3e, 0x44, 0x6a, 0x72, 0x9c,
+	0x30, 0x7a, 0x69, 0x19, 0x75, 0x70, 0x4d, 0xb0, 0x47, 0x88, 0xea, 0x9d, 0x51, 0x87, 0xf6, 0x03,
+	0x93, 0xf4, 0x86, 0x41, 0xba, 0xcc, 0xc1, 0x5f, 0x05, 0xb7, 0x2b, 0xcc, 0x05, 0xf5, 0x3f, 0x2c,
+	0x50, 0xef, 0x72, 0xbc, 0x9b, 0x24, 0xbb, 0x9c, 0x23, 0xb1, 0x27, 0x8d, 0x94, 0x1f, 0x5d, 0x7e,
+	0xb1, 0x1e, 0x80, 0x1a, 0x94, 0x99, 0x54, 0xeb, 0xe7, 0x5b, 0x4b, 0xc6, 0x62, 0xe5, 0x85, 0xf4,
+	0x35, 0xd1, 0xd8, 0xf6, 0x7b, 0xa6, 0x36, 0xdf, 0xd0, 0x66, 0x90, 0xf4, 0x3d, 0x70, 0xa7, 0xca,
+	0x5e, 0xa8, 0xfb, 0xd9, 0xca, 0x17, 0x2f, 0x42, 0x29, 0x1b, 0xa0, 0x2b, 0x12, 0xb8, 0x04, 0x6a,
+	0x09, 0xa2, 0x2c, 0x1d, 0xee, 0x96, 0x3e, 0xb5, 0x3f, 0x30, 0x25, 0x6c, 0x56, 0xec, 0x94, 0xc9,
+	0xc4, 0xdf, 0x00, 0x6b, 0x2f, 0x71, 0x15, 0x42, 0xfe, 0xb4, 0x46, 0x6e, 0xd0, 0x15, 0x09, 0xf9,
+	0x10, 0xbc, 0x71, 0x94, 0xe7, 0x1b, 0x8e, 0x6a, 0xd5, 0x18, 0xd5, 0x97, 0x88, 0xe0, 0x9e, 0x50,
+	0x55, 0xf5, 0xc4, 0x86, 0x31, 0x93, 0xe9, 0xad, 0x22, 0xac, 0xf5, 0x56, 0xb9, 0x86, 0x7a, 0x5b,
+	0xdf, 0xd5, 0xc0, 0x4c, 0x97, 0x63, 0xfb, 0x5b, 0x0b, 0x5c, 0x1f, 0xfb, 0xea, 0xac, 0x1b, 0x1c,
+	0x4b, 0x4f, 0xb8, 0xdb, 0x78, 0x1d, 0xa2, 0x68, 0x6a, 0xe3, 0xc9, 0xf3, 0xff, 0x7e, 0x9c, 0xf6,
+	0xed, 0xf5, 0x50, 0xf1, 0x1e, 0xf9, 0xbe, 0x87, 0xb1, 0x0a, 0xd8, 0xcf, 0x6d, 0xf6, 0x43, 0x70,
+	0x7d, 0xec, 0xd5, 0xad, 0x64, 0x31, 0x8a, 0xa8, 0x66, 0x51, 0xf5, 0x00, 0xda, 0x5f, 0x81, 0xb7,
+	0xc6, 0x1f, 0xbf, 0x8d, 0xaa, 0xd0, 0x31, 0x88, 0x7b, 0xef, 0xb5, 0x90, 0x22, 0xfd, 0xd7, 0x60,
+	0xd1, 0x78, 0x97, 0xde, 0xa9, 0x0a, 0x2f, 0xa3, 0xdc, 0x77, 0x27, 0x41, 0x15, 0x75, 0x08, 0xb8,
+	0x69, 0x3e, 0x22, 0x9b, 0x55, 0x29, 0x0c, 0x98, 0xbb, 0x3d, 0x11, 0xac, 0x28, 0x95, 0x81, 0x7a,
+	0xe5, 0x8d, 0x6e, 0x54, 0x77, 0xc5, 0x44, 0xba, 0x3b, 0x93, 0x22, 0x47, 0x6b, 0x56, 0x5e, 0xbe,
+	0x57, 0xcc, 0x79, 0x92, 0x9a, 0xaf, 0xba, 0x04, 0xee, 0xb5, 0x6f, 0xe4, 0x67, 0xb7, 0xf3, 0xd1,
+	0xd3, 0x53, 0xcf, 0x7a, 0x76, 0xea, 0x59, 0xff, 0x9e, 0x7a, 0xd6, 0x0f, 0x67, 0xde, 0xd4, 0xb3,
+	0x33, 0x6f, 0xea, 0xef, 0x33, 0x6f, 0xea, 0xe1, 0x5d, 0x95, 0x71, 0x3b, 0x66, 0x19, 0x0a, 0x87,
+	0xbf, 0x7b, 0x90, 0xd0, 0xe2, 0x0a, 0x8a, 0xe3, 0x3e, 0xe2, 0x07, 0xb5, 0xfc, 0xbf, 0xb8, 0xfb,
+	0xff, 0x07, 0x00, 0x00, 0xff, 0xff, 0x9b, 0xd6, 0xdc, 0xf3, 0xc9, 0x0a, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -619,6 +919,18 @@ type MsgClient interface {
 	// token pair conversion. The authority is hard-coded to the Cosmos SDK x/gov
 	// module account
 	ToggleConversion(ctx context.Context, in *MsgToggleConversion, opts ...grpc.CallOption) (*MsgToggleConversionResponse, error)
+	// AddAssetConsensus defines a governance operation for adding new assets
+	// to the consensus whitelist. The authority is hard-coded to the Cosmos SDK
+	// x/gov module account
+	AddAssetConsensus(ctx context.Context, in *MsgAddAssetConsensus, opts ...grpc.CallOption) (*MsgAddAssetConsensusResponse, error)
+	// RemoveAssetConsensus defines a governance operation for removing assets
+	// from the consensus whitelist. The authority is hard-coded to the Cosmos SDK
+	// x/gov module account
+	RemoveAssetConsensus(ctx context.Context, in *MsgRemoveAssetConsensus, opts ...grpc.CallOption) (*MsgRemoveAssetConsensusResponse, error)
+	// UpdateAssetConsensus defines a governance operation for updating asset
+	// weights in the consensus whitelist. The authority is hard-coded to the
+	// Cosmos SDK x/gov module account
+	UpdateAssetConsensus(ctx context.Context, in *MsgUpdateAssetConsensus, opts ...grpc.CallOption) (*MsgUpdateAssetConsensusResponse, error)
 }
 
 type msgClient struct {
@@ -665,6 +977,33 @@ func (c *msgClient) ToggleConversion(ctx context.Context, in *MsgToggleConversio
 	return out, nil
 }
 
+func (c *msgClient) AddAssetConsensus(ctx context.Context, in *MsgAddAssetConsensus, opts ...grpc.CallOption) (*MsgAddAssetConsensusResponse, error) {
+	out := new(MsgAddAssetConsensusResponse)
+	err := c.cc.Invoke(ctx, "/helios.erc20.v1.Msg/AddAssetConsensus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) RemoveAssetConsensus(ctx context.Context, in *MsgRemoveAssetConsensus, opts ...grpc.CallOption) (*MsgRemoveAssetConsensusResponse, error) {
+	out := new(MsgRemoveAssetConsensusResponse)
+	err := c.cc.Invoke(ctx, "/helios.erc20.v1.Msg/RemoveAssetConsensus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) UpdateAssetConsensus(ctx context.Context, in *MsgUpdateAssetConsensus, opts ...grpc.CallOption) (*MsgUpdateAssetConsensusResponse, error) {
+	out := new(MsgUpdateAssetConsensusResponse)
+	err := c.cc.Invoke(ctx, "/helios.erc20.v1.Msg/UpdateAssetConsensus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
@@ -682,6 +1021,18 @@ type MsgServer interface {
 	// token pair conversion. The authority is hard-coded to the Cosmos SDK x/gov
 	// module account
 	ToggleConversion(context.Context, *MsgToggleConversion) (*MsgToggleConversionResponse, error)
+	// AddAssetConsensus defines a governance operation for adding new assets
+	// to the consensus whitelist. The authority is hard-coded to the Cosmos SDK
+	// x/gov module account
+	AddAssetConsensus(context.Context, *MsgAddAssetConsensus) (*MsgAddAssetConsensusResponse, error)
+	// RemoveAssetConsensus defines a governance operation for removing assets
+	// from the consensus whitelist. The authority is hard-coded to the Cosmos SDK
+	// x/gov module account
+	RemoveAssetConsensus(context.Context, *MsgRemoveAssetConsensus) (*MsgRemoveAssetConsensusResponse, error)
+	// UpdateAssetConsensus defines a governance operation for updating asset
+	// weights in the consensus whitelist. The authority is hard-coded to the
+	// Cosmos SDK x/gov module account
+	UpdateAssetConsensus(context.Context, *MsgUpdateAssetConsensus) (*MsgUpdateAssetConsensusResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -699,6 +1050,15 @@ func (*UnimplementedMsgServer) RegisterERC20(ctx context.Context, req *MsgRegist
 }
 func (*UnimplementedMsgServer) ToggleConversion(ctx context.Context, req *MsgToggleConversion) (*MsgToggleConversionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ToggleConversion not implemented")
+}
+func (*UnimplementedMsgServer) AddAssetConsensus(ctx context.Context, req *MsgAddAssetConsensus) (*MsgAddAssetConsensusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAssetConsensus not implemented")
+}
+func (*UnimplementedMsgServer) RemoveAssetConsensus(ctx context.Context, req *MsgRemoveAssetConsensus) (*MsgRemoveAssetConsensusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveAssetConsensus not implemented")
+}
+func (*UnimplementedMsgServer) UpdateAssetConsensus(ctx context.Context, req *MsgUpdateAssetConsensus) (*MsgUpdateAssetConsensusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAssetConsensus not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -777,6 +1137,61 @@ func _Msg_ToggleConversion_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_AddAssetConsensus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgAddAssetConsensus)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).AddAssetConsensus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/helios.erc20.v1.Msg/AddAssetConsensus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).AddAssetConsensus(ctx, req.(*MsgAddAssetConsensus))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_RemoveAssetConsensus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRemoveAssetConsensus)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).RemoveAssetConsensus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/helios.erc20.v1.Msg/RemoveAssetConsensus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).RemoveAssetConsensus(ctx, req.(*MsgRemoveAssetConsensus))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_UpdateAssetConsensus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateAssetConsensus)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).UpdateAssetConsensus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/helios.erc20.v1.Msg/UpdateAssetConsensus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).UpdateAssetConsensus(ctx, req.(*MsgUpdateAssetConsensus))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var Msg_serviceDesc = _Msg_serviceDesc
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "helios.erc20.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -796,6 +1211,18 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ToggleConversion",
 			Handler:    _Msg_ToggleConversion_Handler,
+		},
+		{
+			MethodName: "AddAssetConsensus",
+			Handler:    _Msg_AddAssetConsensus_Handler,
+		},
+		{
+			MethodName: "RemoveAssetConsensus",
+			Handler:    _Msg_RemoveAssetConsensus_Handler,
+		},
+		{
+			MethodName: "UpdateAssetConsensus",
+			Handler:    _Msg_UpdateAssetConsensus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1134,6 +1561,202 @@ func (m *MsgToggleConversionResponse) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgAddAssetConsensus) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgAddAssetConsensus) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgAddAssetConsensus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Assets) > 0 {
+		for iNdEx := len(m.Assets) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Assets[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgAddAssetConsensusResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgAddAssetConsensusResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgAddAssetConsensusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgRemoveAssetConsensus) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRemoveAssetConsensus) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRemoveAssetConsensus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Denoms) > 0 {
+		for iNdEx := len(m.Denoms) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Denoms[iNdEx])
+			copy(dAtA[i:], m.Denoms[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Denoms[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgRemoveAssetConsensusResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRemoveAssetConsensusResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRemoveAssetConsensusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUpdateAssetConsensus) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdateAssetConsensus) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdateAssetConsensus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Updates) > 0 {
+		for iNdEx := len(m.Updates) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Updates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUpdateAssetConsensusResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdateAssetConsensusResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdateAssetConsensusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -1275,6 +1898,90 @@ func (m *MsgToggleConversion) Size() (n int) {
 }
 
 func (m *MsgToggleConversionResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgAddAssetConsensus) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Assets) > 0 {
+		for _, e := range m.Assets {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgAddAssetConsensusResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgRemoveAssetConsensus) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Denoms) > 0 {
+		for _, s := range m.Denoms {
+			l = len(s)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgRemoveAssetConsensusResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgUpdateAssetConsensus) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Updates) > 0 {
+		for _, e := range m.Updates {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgUpdateAssetConsensusResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2186,6 +2893,502 @@ func (m *MsgToggleConversionResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgToggleConversionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgAddAssetConsensus) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgAddAssetConsensus: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgAddAssetConsensus: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Assets", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Assets = append(m.Assets, Asset{})
+			if err := m.Assets[len(m.Assets)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgAddAssetConsensusResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgAddAssetConsensusResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgAddAssetConsensusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRemoveAssetConsensus) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRemoveAssetConsensus: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRemoveAssetConsensus: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Denoms", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Denoms = append(m.Denoms, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRemoveAssetConsensusResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRemoveAssetConsensusResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRemoveAssetConsensusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdateAssetConsensus) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdateAssetConsensus: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdateAssetConsensus: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Updates", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Updates = append(m.Updates, WeightUpdate{})
+			if err := m.Updates[len(m.Updates)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdateAssetConsensusResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdateAssetConsensusResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdateAssetConsensusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

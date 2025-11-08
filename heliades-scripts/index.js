@@ -241,14 +241,14 @@ async function delegate() {
 
   
   const validatorAddress = wallet.address;//'0x17267eb1fec301848d4b5140eddcfc48945427ab'; // Adresse du validateur
-  const delegateAmount = ethers.parseUnits('10', 18); // Montant à déléguer (ex: 10 tokens)
+  const delegateAmount = ethers.parseUnits('5', 18); // Montant à déléguer (ex: 10 tokens)
     // Extraire et afficher la clé publique
     console.log("wallet : ", wallet.address)
   try {
     console.log('Délégation en cours...');
 
     const contract = new ethers.Contract('0x0000000000000000000000000000000000000800', delegateAbi, wallet);
-    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "ueth");
+    const tx = await contract.delegate(wallet.address, validatorAddress, delegateAmount, "uBTC222");
     console.log('Transaction envoyée, hash :', tx.hash);
 
     const receipt = await tx.wait();
@@ -716,20 +716,55 @@ async function uploadLogo() {
   console.log("Event LogoUploaded :", uploadedEvent);
 }
 
+async function testSlashingUpdateParamsProposal() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.slashing.v1beta1.MsgUpdateParams",
+    authority: wallet.address,
+    params: {
+      signed_blocks_window: "9000",
+      min_signed_per_window: "0.99",
+      downtime_jail_duration: "12000s",
+      slash_fraction_double_sign: "0.09",
+      slash_fraction_downtime: "0.066"
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal slashing...');
+    const tx = await contract.modularProposal(
+      'Test slashing params update',
+      'Validation du flux modularProposal pour le module slashing',
+      message,
+      '1000000000000000000',
+      'slashing'
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition slashing :', error);
+  }
+}
+
 async function main() {
   // await createCronCallBackData();
-  await createCron();
+  //await createCron();
   // await getEvents();
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  // await create();
+  //await create();
   //await fetch();
-  // await delegate();
+  //await delegate();
   // await addNewConsensusProposal();
   //await updateConsensusProposal();
   // await vote();
   // await undelegate();
+   await testSlashingUpdateParamsProposal();
 
   // await getEventsCronCreated();
 

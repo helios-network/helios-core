@@ -32,6 +32,10 @@ const (
 	registerAssetConsensus = "helios/erc20/NewAssetConsensusProposal"
 	removeAssetConsensus   = "helios/erc20/RemoveAssetConsensusProposal"
 	updateAssetConsensus   = "helios/erc20/UpdateAssetConsensusProposal"
+	// New Msg types for generic proposal system
+	addAssetConsensusMsg    = "evmos/x/erc20/MsgAddAssetConsensus"
+	removeAssetConsensusMsg = "evmos/x/erc20/MsgRemoveAssetConsensus"
+	updateAssetConsensusMsg = "evmos/x/erc20/MsgUpdateAssetConsensus"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -49,6 +53,9 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgUpdateParams{},
 		&MsgRegisterERC20{},
 		&MsgToggleConversion{},
+		&MsgAddAssetConsensus{},
+		&MsgRemoveAssetConsensus{},
+		&MsgUpdateAssetConsensus{},
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
@@ -75,4 +82,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&AddNewAssetConsensusProposal{}, registerAssetConsensus, nil)
 	cdc.RegisterConcrete(&RemoveAssetConsensusProposal{}, removeAssetConsensus, nil)
 	cdc.RegisterConcrete(&UpdateAssetConsensusProposal{}, updateAssetConsensus, nil)
+	// New Msg types for generic proposal system
+	cdc.RegisterConcrete(&MsgAddAssetConsensus{}, addAssetConsensusMsg, nil)
+	cdc.RegisterConcrete(&MsgRemoveAssetConsensus{}, removeAssetConsensusMsg, nil)
+	cdc.RegisterConcrete(&MsgUpdateAssetConsensus{}, updateAssetConsensusMsg, nil)
 }

@@ -2,20 +2,15 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
-const RPC_URL = 'https://testnet1.helioschainlabs.org';
-// const RPC_URL = 'http://localhost:8545';
+// const RPC_URL = 'https://testnet1.helioschainlabs.org';
+const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
 const PRIVATE_KEY = '';
 
-const PRIVATE_KEY2 = ''
-
-const PRECOMPILE_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000806';
-
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-const wallet2 = new ethers.Wallet(PRIVATE_KEY2, provider);
 
 async function hyperionProposal({ title, description, msg }) {
   const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
@@ -26,6 +21,32 @@ async function hyperionProposal({ title, description, msg }) {
     console.log('Arguments envoyés au contrat :', { title, description });
     
     const tx = await contract.hyperionProposal(title, description, msg, "1000000000000000000", {
+      gasPrice: 50000000000,
+      gasLimit: 5000000
+    });
+    console.log('Transaction envoyée, hash :', tx.hash);
+
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+
+    console.log('Proposition soumise avec succès !');
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition :', error);
+  }
+}
+
+async function modularProposal({ title, description, msg, proposalType }) {
+  const abi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract("0x0000000000000000000000000000000000000805", abi, wallet);
+
+  try {
+    console.log('Ajout d\'une nouvelle proposition au consensus...');
+    console.log('Arguments envoyés au contrat :', { title, description });
+
+    const call = await contract.modularProposal.estimateGas(title, description, msg, "1000000000000000000", proposalType);
+    console.log('call: ', call);
+    
+    const tx = await contract.modularProposal(title, description, msg, "1000000000000000000", proposalType, {
       gasPrice: 50000000000,
       gasLimit: 5000000
     });
@@ -224,11 +245,30 @@ async function main() {
   // await vote(104933);
 
   // await addOneWhitelistedAddressProposal(97, "0x7e62c5e7Eba41fC8c25e605749C476C0236e0604");
-  await addOneWhitelistedAddressProposal(42161, "0x7e62c5e7Eba41fC8c25e605749C476C0236e0604");
+  // await addOneWhitelistedAddressProposal(42161, "0x7e62c5e7Eba41fC8c25e605749C476C0236e0604");
 
   // await setTokenToChainProposal(11155111);
 
   // await removeTokenFromChainProposal(11155111);
+
+  await modularProposal({
+    title: "test modular proposal",
+    description: "test modular proposal",
+    msg: JSON.stringify({
+      "@type": "/cosmos.slashing.v1beta1.MsgUpdateParams",
+      "params": {
+        // "@type": "/cosmos.slashing.v1beta1.Params", / not neccessary to define the type of childs protos
+        "signedBlocksWindow": 1000000,
+        "minSignedPerWindow": "0.5",
+        "downtimeJailDuration": "1000000s",
+        "slashFractionDoubleSign": "0.01",
+        "slashFractionDowntime": "0.01",
+      },
+      "authority": wallet.address
+    }),
+    proposalType: "/cosmos.slashing.v1beta1.SlashingProposal",
+    initialDepositAmount: "1000000000000000000"
+  });
 }
 
 main();

@@ -662,6 +662,57 @@ func ParseHyperionProposalArgs(cdc codec.Codec, args []interface{}) (*HyperionPr
 	}, nil
 }
 
+func ParseModularProposalArgs(cdc codec.Codec, args []interface{}) (*ModularProposalArgs, error) {
+	if len(args) != 5 {
+		return nil, fmt.Errorf("invalid number of arguments, expected 5, got %d", len(args))
+	}
+
+	title, ok := args[0].(string)
+	if !ok || title == "" {
+		return nil, fmt.Errorf("invalid title argument: %v", args[0])
+	}
+
+	description, ok := args[1].(string)
+	if !ok || description == "" {
+		return nil, fmt.Errorf("invalid description argument: %v", args[1])
+	}
+
+	msgContent, ok := args[2].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid msg argument: %v", args[2])
+	}
+
+	// var msg sdk.Msg
+
+	// if err := cdc.UnmarshalInterfaceJSON([]byte(msgContent), &msg); err != nil {
+	// 	return nil, err
+	// }
+
+	// Extract and validate the initialDeposit (must be a non-negative *big.Int).
+	initialDeposit, ok := args[3].(*big.Int)
+	if !ok || initialDeposit == nil || initialDeposit.Sign() < 0 {
+		return nil, fmt.Errorf("invalid or missing initialDeposit argument: %v", args[3])
+	}
+
+	// Ensure the initialDeposit value fits within a uint64.
+	if initialDeposit.BitLen() > 64 {
+		return nil, fmt.Errorf("initialDeposit value out of range for uint64: %v", initialDeposit)
+	}
+
+	proposalType, ok := args[4].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid proposal type argument: %v", args[4])
+	}
+
+	return &ModularProposalArgs{
+		Title:          title,
+		Description:    description,
+		Msg:            msgContent,
+		InitialDeposit: initialDeposit,
+		ProposalType:   proposalType,
+	}, nil
+}
+
 func (do *DepositOutput) FromResponse(res *govv1.QueryDepositResponse) *DepositOutput {
 	hexDepositor, err := utils.Bech32ToHexAddr(res.Deposit.Depositor)
 	if err != nil {
@@ -735,6 +786,14 @@ type HyperionProposalArgs struct {
 	Description    string
 	Msg            string
 	InitialDeposit *big.Int
+}
+
+type ModularProposalArgs struct {
+	Title          string
+	Description    string
+	Msg            string
+	InitialDeposit *big.Int
+	ProposalType   string
 }
 
 // parseUpdateParamsProposalArgs parses the arguments for the UpdateParamsProposal method
