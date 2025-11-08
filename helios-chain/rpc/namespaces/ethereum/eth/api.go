@@ -48,6 +48,7 @@ type EthereumAPI interface {
 	GetProposal(id hexutil.Uint64) (*rpctypes.ProposalRPC, error)
 	GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*rpctypes.ProposalVoteRPC, error)
 	GetProposalsCount() (*hexutil.Uint64, error)
+	GovCatalog() ([]rpctypes.MsgCatalogEntry, error)
 
 	// Reading Transactions
 	//
@@ -261,6 +262,11 @@ func (e *PublicAPI) GetProposalVotesByPageAndSize(id uint64, page hexutil.Uint64
 func (e *PublicAPI) GetProposalsCount() (*hexutil.Uint64, error) {
 	e.logger.Debug("eth_getProposalsCount")
 	return e.backend.GetProposalsCount()
+}
+
+func (e *PublicAPI) GovCatalog() ([]rpctypes.MsgCatalogEntry, error) {
+	e.logger.Debug("eth_govCatalog")
+	return e.backend.GovCatalog()
 }
 
 ///////////////////////////////////////////////////////////////////////////////

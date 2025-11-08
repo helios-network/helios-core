@@ -4,12 +4,16 @@ package backend
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
 
 	cmn "helios-core/helios-chain/precompiles/common"
 	rpctypes "helios-core/helios-chain/rpc/types"
@@ -319,3 +323,208 @@ func (b *Backend) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint64, size 
 	}
 	return proposalsResult, nil
 }
+
+func InferModuleFromTypeURL(typeURL string) string {
+	// "/cosmos.slashing.v1beta1.MsgUpdateParams" -> "slashing"
+	s := strings.TrimPrefix(typeURL, "/")
+	parts := strings.Split(s, ".")
+	if len(parts) >= 2 {
+		return parts[1]
+	}
+	return ""
+}
+
+func (b *Backend) MessageRequiresAuthority(protoFullName string) (bool, error) {
+	// normaliser : enlever le slash initial si présent
+	protoFullNameWithoutSlash := strings.TrimPrefix(protoFullName, "/")
+
+	// 1) try GlobalTypes first
+	if mt, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(protoFullNameWithoutSlash)); err == nil {
+		return mdHasAuthority(mt.Descriptor()), nil
+	}
+
+	// 2) fallback: search in GlobalFiles
+	md, err := findMessageDescriptorInFiles(protoFullNameWithoutSlash)
+	if err != nil {
+		return false, err
+	}
+	return mdHasAuthority(md), nil
+}
+
+func findMessageDescriptorInFiles(fullName string) (protoreflect.MessageDescriptor, error) {
+	var found protoreflect.MessageDescriptor
+	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
+		// iterate top-level messages
+		for i := 0; i < fd.Messages().Len(); i++ {
+			if md := searchMessageRec(fd.Messages().Get(i), fullName); md != nil {
+				found = md
+				return false // stop iteration early
+			}
+		}
+		return true
+	})
+	if found == nil {
+		return nil, fmt.Errorf("message %s not found in protoregistry.GlobalFiles", fullName)
+	}
+	return found, nil
+}
+
+func searchMessageRec(md protoreflect.MessageDescriptor, fullName string) protoreflect.MessageDescriptor {
+	if string(md.FullName()) == fullName {
+		return md
+	}
+	// nested messages
+	nested := md.Messages()
+	for i := 0; i < nested.Len(); i++ {
+		if res := searchMessageRec(nested.Get(i), fullName); res != nil {
+			return res
+		}
+	}
+	return nil
+}
+
+// GovCatalog construit et retourne le catalogue (tu peux le cacher après le build)
+func (b *Backend) GovCatalog() ([]rpctypes.MsgCatalogEntry, error) {
+	// récupère toutes les impls de Msg (type_url list)
+	impls := b.clientCtx.InterfaceRegistry.ListImplementations("cosmos.base.v1beta1.Msg")
+
+	var out []rpctypes.MsgCatalogEntry
+	for _, typeURL := range impls {
+		// normalise: " /cosmos.bank.v1beta1.MsgSend" -> "cosmos.bank.v1beta1.MsgSend"
+		protoName := strings.TrimPrefix(typeURL, "/")
+
+		// récupère descriptor via InterfaceRegistry
+		desc, err := b.clientCtx.Codec.InterfaceRegistry().FindDescriptorByName(protoreflect.FullName(protoName))
+		if err != nil {
+			// ignore les non trouvés (logging utile)
+			fmt.Println("FindDescriptorByName failed for", protoName, ":", err)
+			continue
+		}
+
+		// desc est un protoreflect.MessageDescriptor (implémentation de Descriptor)
+		md, ok := desc.(protoreflect.MessageDescriptor)
+		if !ok {
+			fmt.Println("descriptor cast failed for", protoName)
+			continue
+		}
+
+		module := InferModuleFromTypeURL(typeURL)
+		requiresAuth := mdHasAuthority(md)
+		tmpl := buildJSONTemplateFromDescriptor(md)
+
+		entry := rpctypes.MsgCatalogEntry{
+			TypeURL:       typeURL,
+			ProtoFullName: protoName,
+			Module:        module,
+			Service:       "", // on peut remplir via protoregistry si nécessaire
+			Method:        "",
+			RequiresAuth:  requiresAuth,
+			JSONTemplate:  tmpl,
+		}
+		out = append(out, entry)
+	}
+
+	return out, nil
+}
+
+// mdHasAuthority regarde si le message a un champ "authority" (insensible à la casse)
+func mdHasAuthority(md protoreflect.MessageDescriptor) bool {
+	flds := md.Fields()
+	for i := 0; i < flds.Len(); i++ {
+		f := flds.Get(i)
+		if strings.EqualFold(string(f.Name()), "authority") {
+			return true
+		}
+	}
+	return false
+}
+
+// buildJSONTemplateFromDescriptor génère un map[string]interface{} récursif minimal
+func buildJSONTemplateFromDescriptor(md protoreflect.MessageDescriptor) map[string]interface{} {
+	out := make(map[string]interface{})
+	fields := md.Fields()
+	for i := 0; i < fields.Len(); i++ {
+		f := fields.Get(i)
+		jsonName := string(f.JSONName())
+
+		var val interface{}
+		switch f.Kind() {
+		case protoreflect.StringKind:
+			val = ""
+		case protoreflect.BoolKind:
+			val = false
+		case protoreflect.Int32Kind, protoreflect.Int64Kind,
+			protoreflect.Uint32Kind, protoreflect.Uint64Kind:
+			// Cosmos préfère parfois string pour big ints: on met "0"
+			val = "0"
+		case protoreflect.FloatKind, protoreflect.DoubleKind:
+			val = 0.0
+		case protoreflect.BytesKind:
+			val = "" // base64 attendu parfois
+		case protoreflect.EnumKind:
+			// on met le nom vide (le front peut lister les valeurs si besoin)
+			val = ""
+		case protoreflect.MessageKind:
+			full := string(f.Message().FullName())
+			// cas spéciaux Cosmos courants
+			switch full {
+			case "cosmos.base.v1beta1.Coin":
+				val = map[string]string{"denom": "", "amount": "0"}
+			case "cosmos.base.v1beta1.DecCoin":
+				val = map[string]string{"denom": "", "amount": "0.0"}
+			case "google.protobuf.Duration":
+				val = "0s"
+			case "google.protobuf.Timestamp":
+				val = time.Now().UTC().Format(time.RFC3339)
+			default:
+				// récursif
+				val = buildJSONTemplateFromDescriptor(f.Message())
+			}
+		default:
+			val = nil
+		}
+
+		// gestion des repeated
+		if f.Cardinality() == protoreflect.Repeated {
+			out[jsonName] = []interface{}{val}
+		} else {
+			out[jsonName] = val
+		}
+	}
+	return out
+}
+
+// func (b *Backend) GovCatalog(id uint64) (interface{}, error) {
+// 	// impls := b.clientCtx.InterfaceRegistry.ListImplementations("cosmos.base.v1beta1.Msg")
+// 	// for _, impl := range impls {
+// 	// 	module := InferModuleFromTypeURL(impl)
+// 	// 	if module == "" {
+// 	// 		continue
+// 	// 	}
+// 	// 	requiresAuthority, err := b.MessageRequiresAuthority(impl)
+// 	// 	if err != nil {
+// 	// 		fmt.Println(impl, err.Error())
+// 	// 		continue
+// 	// 	}
+// 	// 	fmt.Println(impl, module, requiresAuthority)
+// 	// }
+
+// 	b.DebugProtoRegistry([]string{
+// 		"helios.hyperion.v1.MsgUpdateChainTokenLogo",
+// 		"helios.hyperion.v1.MsgAddOneWhitelistedAddress",
+// 		"cosmos.slashing.v1beta1.MsgUpdateParams",
+// 	})
+// 	return "", nil
+// }
+
+// func (b *Backend) DebugProtoRegistry(targets []string) {
+
+// 	for _, target := range targets {
+// 		desc, err := b.clientCtx.Codec.InterfaceRegistry().FindDescriptorByName(protoreflect.FullName(target))
+// 		if err != nil {
+// 			fmt.Println("Error finding descriptor for", target, ":", err.Error())
+// 			return
+// 		}
+// 		fmt.Println("Found descriptor for", target, ":", desc.FullName())
+// 	}
+// }

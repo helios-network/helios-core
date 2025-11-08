@@ -342,3 +342,13 @@ type ProposalRPC struct {
 	FinalTallyResult   govtypes.TallyResult     `json:"finalTallyResult"`
 	CurrentTallyResult govtypes.TallyResult     `json:"currentTallyResult"`
 }
+
+type MsgCatalogEntry struct {
+	TypeURL       string                 `json:"type_url"`
+	ProtoFullName string                 `json:"proto_full_name"`
+	Module        string                 `json:"module"`
+	Service       string                 `json:"service"`
+	Method        string                 `json:"method"`
+	RequiresAuth  bool                   `json:"requires_authority"`
+	JSONTemplate  map[string]interface{} `json:"json_template"`
+}
