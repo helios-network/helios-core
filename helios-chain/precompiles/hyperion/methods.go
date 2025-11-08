@@ -31,6 +31,7 @@ const (
 	SetOrchestratorAddressesMethod           = "setOrchestratorAddresses"
 	SendToChainMethod                        = "sendToChain"
 	RequestDataHyperion                      = "requestData"
+	CancelSendToChainMethod                  = "cancelSendToChain"
 )
 
 func (p Precompile) AddCounterpartyChainParams(
@@ -446,6 +447,43 @@ func (p Precompile) UpdateCounterpartyChainInfosParams(
 	// if err := p.EmitCronCreatedEvent(ctx, stateDB, origin, p.Address(), resp.CronId); err != nil {
 	// 	return nil, err
 	// }
+
+	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) CancelSendToChain(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	chainId, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 chainId")
+	}
+
+	transactionId, ok := args[1].(uint64)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint64 transactionId")
+	}
+
+	msg := &hyperiontypes.MsgCancelSendToChain{
+		TransactionId: transactionId,
+		Sender:        cmn.AccAddressFromHexAddress(origin).String(),
+		ChainId:       chainId,
+	}
+
+	msgSrv := hyperionkeeper.NewMsgServerImpl(p.hyperionKeeper)
+	_, err := msgSrv.CancelSendToChain(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
 
 	return method.Outputs.Pack(true)
 }

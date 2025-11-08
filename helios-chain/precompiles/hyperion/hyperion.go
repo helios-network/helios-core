@@ -117,6 +117,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.SetOrchestratorAddresses(ctx, evm.Origin, contract, stateDB, method, args)
 	case UpdateCounterpartyChainInfosParamsMethod:
 		bz, err = p.UpdateCounterpartyChainInfosParams(ctx, evm.Origin, contract, stateDB, method, args)
+	case CancelSendToChainMethod:
+		bz, err = p.CancelSendToChain(ctx, evm.Origin, contract, stateDB, method, args)
 	// ask for external chain datas
 	case RequestDataHyperion:
 		bz, err = p.RequestData(ctx, evm.Origin, contract, stateDB, method, args)
@@ -153,6 +155,8 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 	case RequestDataHyperion:
 		return true
 	case UpdateCounterpartyChainInfosParamsMethod:
+		return true
+	case CancelSendToChainMethod:
 		return true
 	default:
 		return false

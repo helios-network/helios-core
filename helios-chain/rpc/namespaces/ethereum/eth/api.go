@@ -144,6 +144,7 @@ type EthereumAPI interface {
 	// Staking
 	GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error)
 	GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error)
+	GetDelegationForValidators(address common.Address, validatorAddresses []string) ([]*rpctypes.DelegationRPC, error)
 	GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error)
 	GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error)
 	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
@@ -156,6 +157,7 @@ type EthereumAPI interface {
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
+	GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error)
 	// eth_getDelegations
 
 	// cron
@@ -720,6 +722,11 @@ func (e *PublicAPI) GetValidatorWithHisAssetsAndCommission(address common.Addres
 	return e.backend.GetValidatorWithHisAssetsAndCommission(address)
 }
 
+func (e *PublicAPI) GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error) {
+	e.logger.Debug("eth_getValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation", "page", page, "size", size)
+	return e.backend.GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page, size)
+}
+
 func (e *PublicAPI) GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error) {
 	e.logger.Debug("eth_getValidatorAndHisCommission", "address", address)
 	return e.backend.GetValidatorAndHisCommission(address)
@@ -738,6 +745,11 @@ func (e *PublicAPI) GetActiveValidatorCount() (int, error) {
 func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
 	e.logger.Debug("eth_getDelegation", "address", address.Hex(), "validatorAddress", validatorAddress)
 	return e.backend.GetDelegation(address, validatorAddress)
+}
+
+func (e *PublicAPI) GetDelegationForValidators(address common.Address, validatorAddresses []string) ([]*rpctypes.DelegationRPC, error) {
+	e.logger.Debug("eth_getDelegationForValidators", "address", address.Hex(), "validatorAddresses", validatorAddresses)
+	return e.backend.GetDelegationForValidators(address, validatorAddresses)
 }
 
 func (e *PublicAPI) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error) {

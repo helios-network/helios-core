@@ -60,11 +60,6 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 			true,
 		},
 		{
-			staking.RedelegateMethod,
-			s.precompile.Methods[staking.RedelegateMethod],
-			true,
-		},
-		{
 			staking.CancelUnbondingDelegationMethod,
 			s.precompile.Methods[staking.CancelUnbondingDelegationMethod],
 			true,
@@ -208,27 +203,6 @@ func (s *PrecompileTestSuite) TestRun() {
 			false,
 			true,
 			"",
-		},
-		{
-			"pass - redelegate transaction",
-			func(delegator, grantee testkeyring.Key) []byte {
-				err := s.CreateAuthorization(ctx, delegator.AccAddr, grantee.AccAddr, staking.RedelegateAuthz, nil)
-				s.Require().NoError(err)
-
-				input, err := s.precompile.Pack(
-					staking.RedelegateMethod,
-					delegator.Addr,
-					s.network.GetValidators()[0].GetOperator(),
-					s.network.GetValidators()[1].GetOperator(),
-					big.NewInt(1),
-				)
-				s.Require().NoError(err, "failed to pack input")
-				return input
-			},
-			1000000,
-			false,
-			true,
-			"failed to redelegate tokens",
 		},
 		{
 			"pass - cancel unbonding delegation transaction",

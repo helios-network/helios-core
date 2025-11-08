@@ -150,6 +150,7 @@ type EVMBackend interface {
 	// Staking [to update]
 	GetDelegations(address common.Address) ([]rpctypes.DelegationRPC, error)
 	GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error)
+	GetDelegationForValidators(address common.Address, validatorAddresses []string) ([]*rpctypes.DelegationRPC, error)
 	GetValidator(address common.Address) (*rpctypes.ValidatorRPC, error)
 	GetValidatorAndHisDelegation(address common.Address) (*rpctypes.ValidatorWithDelegationRPC, error)
 	GetValidatorCommission(address common.Address) (*rpctypes.ValidatorCommissionRPC, error)
@@ -162,6 +163,7 @@ type EVMBackend interface {
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
+	GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error)
 
 	//cron
 	GetCron(id uint64) (*chronostypes.Cron, error)

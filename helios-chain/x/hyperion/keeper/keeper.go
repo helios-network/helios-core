@@ -1343,11 +1343,6 @@ func (k *Keeper) GetProjectedCurrentEthereumHeight(ctx sdk.Context, hyperionId u
 // If AverageBlockTime is set in params, it uses that value.
 // Otherwise, it falls back to CometBFT's TimeoutCommit converted to milliseconds.
 func (k *Keeper) GetEffectiveAverageBlockTime(ctx sdk.Context, params *types.CounterpartyChainParams) uint64 {
-	// If AverageBlockTime is explicitly set and non-zero, use it
-	// if params.AverageBlockTime > 0 {
-	// 	return params.AverageBlockTime
-	// }
-
 	// Fallback to CometBFT's TimeoutCommit stored in the keeper
 	return k.timeoutCommit
 }
