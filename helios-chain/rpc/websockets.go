@@ -194,9 +194,9 @@ func (s *websocketsServer) readLoop(wsConn *wsConn) {
 
 			// Log the specific error for better debugging
 			if isWebSocketConnectionError(err) {
-				s.logger.Error("websocket connection error, closing connection", "error", err.Error())
+				s.logger.Error("[readLoop] websocket connection error, closing connection", "error", err.Error())
 			} else {
-				s.logger.Error("read message error, breaking read loop", "error", err.Error())
+				s.logger.Error("[readLoop] read message error, breaking read loop", "error", err.Error())
 			}
 			return
 		}
@@ -448,7 +448,7 @@ func (api *pubSubAPI) subscribeNewHeads(wsConn *wsConn, subID rpc.ID) (pubsub.Un
 
 				// Check if this is a connection error that requires closing the websocket
 				if isWebSocketConnectionError(err) {
-					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					api.logger.Error("[subscribeNewHeads] connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
 					try(func() {
 						_ = wsConn.Close()
 					}, api.logger, "closing websocket due to connection error")
@@ -649,7 +649,7 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 
 				// Check if this is a connection error that requires closing the websocket
 				if isWebSocketConnectionError(err) {
-					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					api.logger.Error("[subscribeLogs] connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
 					try(func() {
 						_ = wsConn.Close()
 					}, api.logger, "closing websocket due to connection error")
@@ -715,7 +715,7 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 
 				// Check if this is a connection error that requires closing the websocket
 				if isWebSocketConnectionError(err) {
-					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					api.logger.Error("[subscribeLogs] connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
 					try(func() {
 						_ = wsConn.Close()
 					}, api.logger, "closing websocket due to connection error")
@@ -788,7 +788,7 @@ func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID)
 
 				// Check if this is a connection error that requires closing the websocket
 				if isWebSocketConnectionError(err) {
-					api.logger.Warn("connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
+					api.logger.Error("[subscribePendingTransactions] connection error detected, closing websocket", "subscription-id", subID, "error", err.Error())
 					try(func() {
 						_ = wsConn.Close()
 					}, api.logger, "closing websocket due to connection error")
