@@ -436,10 +436,7 @@ func (p *Precompile) ModularProposal(
 		return nil, fmt.Errorf("pack message: %w", err)
 	}
 
-	route := modularProposalArgs.ProposalType
-	if route == "" {
-		route = InferRouteFromMsg(msg)
-	}
+	route := computeModuleRoute(modularProposalArgs.ProposalType, msg)
 
 	content := &v1beta1.ModuleExecProposal{
 		Title:       modularProposalArgs.Title,
@@ -475,4 +472,18 @@ func (p *Precompile) ModularProposal(
 	}
 
 	return method.Outputs.Pack(res.ProposalId)
+}
+
+func computeModuleRoute(explicitRoute string, msg sdk.Msg) string {
+	route := strings.TrimSpace(explicitRoute)
+	if route == "" {
+		route = InferRouteFromMsg(msg)
+	}
+
+	switch msg.(type) {
+	case *types.MsgAddAssetConsensus, *types.MsgUpdateAssetConsensus, *types.MsgRemoveAssetConsensus:
+		return types.ModularRouterKey
+	default:
+		return route
+	}
 }

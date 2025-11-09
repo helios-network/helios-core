@@ -722,7 +722,7 @@ async function testSlashingUpdateParamsProposal() {
 
   const message = JSON.stringify({
     "@type": "/cosmos.slashing.v1beta1.MsgUpdateParams",
-    authority: wallet.address,
+    authority: "",
     params: {
       signed_blocks_window: "9000",
       min_signed_per_window: "0.99",
@@ -739,7 +739,7 @@ async function testSlashingUpdateParamsProposal() {
       'Validation du flux modularProposal pour le module slashing',
       message,
       '1000000000000000000',
-      'slashing'
+      ''  // Let backend infer route from @type
     );
 
     console.log('Transaction envoyée, hash :', tx.hash);
@@ -750,6 +750,104 @@ async function testSlashingUpdateParamsProposal() {
   }
 }
 
+const TEST_ERC20_DENOM = "uBTC222";
+
+async function testERC20AddAssetModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/helios.erc20.v1.MsgAddAssetConsensus",
+    authority: "",
+    assets: [{
+      denom: TEST_ERC20_DENOM,
+      contractAddress: "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
+      chainId: "42000",
+      decimals: 6,
+      baseWeight: 100,
+      symbol: "BTC2",
+      chainName: "Ethereum"
+    }]
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal ERC20 AddAsset...');
+    const tx = await contract.modularProposal(
+      'Add BTC2 to consensus whitelist',
+      'Testing modular proposal for ERC20 asset addition',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition ERC20 AddAsset :', error);
+  }
+}
+
+async function testERC20UpdateAssetModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/helios.erc20.v1.MsgUpdateAssetConsensus",
+    authority: "",
+    updates: [{
+      denom: TEST_ERC20_DENOM,
+      magnitude: "medium",
+      direction: "up"
+    }]
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal ERC20 UpdateAsset...');
+    const tx = await contract.modularProposal(
+      'Update BTC2 weight',
+      'Testing modular proposal for ERC20 asset weight update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition ERC20 UpdateAsset :', error);
+  }
+}
+
+async function testERC20RemoveAssetModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/helios.erc20.v1.MsgRemoveAssetConsensus",
+    authority: "",
+    denoms: [TEST_ERC20_DENOM]
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal ERC20 RemoveAsset...');
+    const tx = await contract.modularProposal(
+      'Remove BTC2 from consensus',
+      'Testing modular proposal for ERC20 asset removal',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition ERC20 RemoveAsset :', error);
+  }
+}
+
 async function main() {
   // await createCronCallBackData();
   //await createCron();
@@ -757,14 +855,14 @@ async function main() {
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  //await create();
+  await testERC20RemoveAssetModular();
   //await fetch();
   //await delegate();
   // await addNewConsensusProposal();
   //await updateConsensusProposal();
   // await vote();
   // await undelegate();
-   await testSlashingUpdateParamsProposal();
+  //await testSlashingUpdateParamsProposal();
 
   // await getEventsCronCreated();
 

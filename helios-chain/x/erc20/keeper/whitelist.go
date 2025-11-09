@@ -119,7 +119,7 @@ func (k Keeper) ArchiveAssetInConsensusWhitelist(ctx sdk.Context, denom string) 
 	}
 
 	// Update delegation shares based on the weight change
-	if err := k.UpdateAssetNativeSharesWeight(ctx, denom, math.LegacyDec{}, false, originalWeight); err != nil {
+	if err := k.UpdateAssetNativeSharesWeight(ctx, denom, math.LegacyNewDec(0), false, originalWeight); err != nil {
 		return errorsmod.Wrapf(err, "failed to update native delegation shares weight during archival for asset %s", denom)
 	}
 
@@ -252,13 +252,15 @@ func (k Keeper) UpdateAssetInConsensusWhitelist(ctx sdk.Context, asset types.Ass
 }
 
 func (k Keeper) UpdateAssetNativeSharesWeight(ctx sdk.Context, denom string, percentage math.LegacyDec, increase bool, originalWeight uint64) error {
-	// Ensure percentage is not negative, although calculations should prevent this
-	if percentage.IsNegative() {
-		return fmt.Errorf("invalid negative percentage provided for weight update: %s", percentage.String())
-	}
 	// If percentage is zero, no update needed
 	if percentage.IsZero() {
 		return nil
 	}
+
+	// Ensure percentage is not negative
+	if percentage.IsNegative() {
+		return fmt.Errorf("invalid negative percentage provided for weight update: %s", percentage.String())
+	}
+
 	return k.stakingKeeper.UpdateAssetWeight(ctx, denom, percentage, increase, originalWeight)
 }

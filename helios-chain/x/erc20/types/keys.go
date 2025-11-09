@@ -15,6 +15,9 @@ const (
 
 	// RouterKey to be used for message routing
 	RouterKey = ModuleName
+
+	// ModularRouterKey to be used for modular proposal routing
+	ModularRouterKey = "erc20modular"
 )
 
 // ModuleAddress is the native module address for ERC-20
