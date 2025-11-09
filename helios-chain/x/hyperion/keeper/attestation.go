@@ -245,7 +245,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force b
 				}
 
 				// handle the case where user sends arbitrary data in the MsgDepositClaim
-				// k.ProcessClaimData(ctx, claim)
+				k.ProcessClaimData(ctx, claim)
 				break
 			}
 		}
@@ -357,7 +357,7 @@ func (k *Keeper) HandleMsg(ctx sdk.Context, msg sdk.Msg) error {
 
 	// Si le casting échoue, vous pouvez gérer l'erreur
 	// k.Logger(ctx).Error("Failed to cast msg to MsgSendToChain")
-	return types.ErrUnknown // Ou une autre erreur appropriée
+	return nil // Ou une autre erreur appropriée
 }
 
 // SetAttestation sets the attestation in the store
