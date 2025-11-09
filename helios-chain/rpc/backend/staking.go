@@ -687,7 +687,7 @@ func (b *Backend) GetDelegationForValidators(address common.Address, validatorAd
 	delegations := make([]*rpctypes.DelegationRPC, 0)
 	for _, validatorAddress := range validatorAddresses {
 		delegation, err := b.GetDelegation(address, common.HexToAddress(validatorAddress))
-		if err != nil && delegation != nil {
+		if err != nil || delegation == nil {
 			continue
 		}
 		if len(delegation.Assets) == 0 && delegation.TotalBoost == "0" {
