@@ -143,3 +143,28 @@ func (b *Backend) GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (u
 	}
 	return res.LatestBlock, nil
 }
+
+func (b *Backend) GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uint64) (bool, error) {
+	res, err := b.queryClient.Hyperion.QueryIsNonceAlreadyObserved(b.ctx, &hyperiontypes.QueryIsNonceAlreadyObservedRequest{
+		HyperionId: hyperionId,
+		Nonce:      nonce,
+	})
+	if err != nil {
+		b.logger.Error("GetHyperionNonceAlreadyObserved", "error", err)
+		return false, err
+	}
+	return res.IsNonceAlreadyObserved, nil
+}
+
+func (b *Backend) GetHyperionUnObservedNonces(hyperionId uint64, startNonce uint64, endNonce uint64) ([]uint64, error) {
+	res, err := b.queryClient.Hyperion.QueryGetUnObservedNonces(b.ctx, &hyperiontypes.QueryGetUnObservedNoncesRequest{
+		HyperionId: hyperionId,
+		StartNonce: startNonce,
+		EndNonce:   endNonce,
+	})
+	if err != nil {
+		b.logger.Error("GetHyperionUnObservedNonces", "error", err)
+		return nil, err
+	}
+	return res.UnObservedNonces, nil
+}

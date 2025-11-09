@@ -835,3 +835,32 @@ func (k *Keeper) QueryEstimateLatestBlockOfChain(c context.Context, req *types.Q
 	ctx := sdk.UnwrapSDKContext(c)
 	return &types.QueryEstimateLatestBlockOfChainResponse{LatestBlock: k.GetProjectedCurrentEthereumHeight(ctx, req.HyperionId)}, nil
 }
+
+func (k *Keeper) QueryIsNonceAlreadyObserved(c context.Context, req *types.QueryIsNonceAlreadyObservedRequest) (*types.QueryIsNonceAlreadyObservedResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return &types.QueryIsNonceAlreadyObservedResponse{IsNonceAlreadyObserved: k.NonceAlreadyObserved(ctx, req.HyperionId, req.Nonce)}, nil
+}
+
+func (k *Keeper) QueryGetUnObservedNonces(c context.Context, req *types.QueryGetUnObservedNoncesRequest) (*types.QueryGetUnObservedNoncesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetHyperionParamsFromChainId(ctx, req.HyperionId)
+
+	if params.HyperionId != req.HyperionId {
+		return nil, errors.Wrap(types.ErrInvalid, "hyperionId not found")
+	}
+	latestObservedNonce := k.GetLastObservedEventNonce(ctx, req.HyperionId)
+
+	unObservedNonces := make([]uint64, 0)
+	for nonce := req.StartNonce; nonce <= req.EndNonce; nonce++ {
+		if nonce > latestObservedNonce {
+			break
+		}
+		if !k.NonceAlreadyObserved(ctx, req.HyperionId, nonce) {
+			unObservedNonces = append(unObservedNonces, nonce)
+		}
+	}
+
+	return &types.QueryGetUnObservedNoncesResponse{
+		UnObservedNonces: unObservedNonces,
+	}, nil
+}

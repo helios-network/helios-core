@@ -213,6 +213,16 @@ service Query {
       returns (QueryEstimateLatestBlockOfChainResponse) {
     option (google.api.http).get = "/hyperion/v1/estimate_latest_block_of_chain";
   }
+
+  rpc QueryIsNonceAlreadyObserved(QueryIsNonceAlreadyObservedRequest)
+      returns (QueryIsNonceAlreadyObservedResponse) {
+    option (google.api.http).get = "/hyperion/v1/is_nonce_already_observed";
+  }
+
+  rpc QueryGetUnObservedNonces(QueryGetUnObservedNoncesRequest)
+      returns (QueryGetUnObservedNoncesResponse) {
+    option (google.api.http).get = "/hyperion/v1/get_un_observed_nonces";
+  }
 }
 
 message QueryParamsRequest {}
@@ -545,4 +555,23 @@ message QueryEstimateLatestBlockOfChainRequest {
 
 message QueryEstimateLatestBlockOfChainResponse {
   uint64 latest_block = 1;
+}
+
+message QueryIsNonceAlreadyObservedRequest {
+  uint64 hyperion_id = 1;
+  uint64 nonce = 2;
+}
+
+message QueryIsNonceAlreadyObservedResponse {
+  bool is_nonce_already_observed = 1;
+}
+
+message QueryGetUnObservedNoncesRequest {
+  uint64 hyperion_id = 1;
+  uint64 start_nonce = 2;
+  uint64 end_nonce = 3;
+}
+
+message QueryGetUnObservedNoncesResponse {
+  repeated uint64 un_observed_nonces = 1;
 }

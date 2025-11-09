@@ -192,6 +192,8 @@ type EVMBackend interface {
 	GetValidatorHyperionData(address common.Address) (*hyperiontypes.OrchestratorData, error)
 	GetWhitelistedAddresses(hyperionId uint64) ([]string, error)
 	GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error)
+	GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uint64) (bool, error)
+	GetHyperionUnObservedNonces(hyperionId uint64, startNonce uint64, endNonce uint64) ([]uint64, error)
 
 	ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes.ParsedRPCTransaction, error)
 }
