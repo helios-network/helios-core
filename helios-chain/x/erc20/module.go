@@ -177,9 +177,6 @@ func (am AppModule) EndBlock(ctx context.Context) error {
 	oldDynamicPrecompiles := am.keeper.GetOldDynamicPrecompiles(sdk.UnwrapSDKContext(ctx))
 	oldNativePrecompiles := am.keeper.GetOldNativePrecompiles(sdk.UnwrapSDKContext(ctx))
 
-	fmt.Println("oldDynamicPrecompiles", oldDynamicPrecompiles)
-	fmt.Println("oldNativePrecompiles", oldNativePrecompiles)
-
 	if len(oldDynamicPrecompiles) > 0 {
 		for _, dynamicPrecompile := range oldDynamicPrecompiles {
 			am.keeper.SetDynamicPrecompileEnabled(sdk.UnwrapSDKContext(ctx), common.HexToAddress(dynamicPrecompile))

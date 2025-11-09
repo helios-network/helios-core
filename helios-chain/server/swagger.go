@@ -499,7 +499,7 @@ func getDefaultForType(methodName string, kind reflect.Kind, t reflect.Value) (s
 			Metadata: "",
 		}
 	}
-	fmt.Printf("[Swagger RPC] - No Mock method=%s kind=%s, type=%s", methodName, kind, t.String())
+	// fmt.Printf("[Swagger RPC] - No Mock method=%s kind=%s, type=%s", methodName, kind, t.String())
 	return t.String(), t.Interface()
 }
 
