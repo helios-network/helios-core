@@ -2,8 +2,8 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
-// const RPC_URL = 'https://testnet1.helioschainlabs.org';
-const RPC_URL = 'http://localhost:8545';
+const RPC_URL = 'https://testnet1.helioschainlabs.org';
+// const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
 const PRIVATE_KEY = '';
@@ -252,21 +252,21 @@ async function main() {
   // await removeTokenFromChainProposal(11155111);
 
   await modularProposal({
-    title: "test modular proposal",
-    description: "test modular proposal",
+    title: "Update slashing params",
+    description: "Update slashing params",
     msg: JSON.stringify({
       "@type": "/cosmos.slashing.v1beta1.MsgUpdateParams",
       "params": {
         // "@type": "/cosmos.slashing.v1beta1.Params", / not neccessary to define the type of childs protos
-        "signedBlocksWindow": 1000000,
-        "minSignedPerWindow": "0.5",
-        "downtimeJailDuration": "1000000s",
-        "slashFractionDoubleSign": "0.01",
+        "signedBlocksWindow": 1000,
+        "minSignedPerWindow": "0.2",
+        "downtimeJailDuration": "600s",
+        "slashFractionDoubleSign": "0.05",
         "slashFractionDowntime": "0.01",
       },
       "authority": wallet.address
     }),
-    proposalType: "/cosmos.slashing.v1beta1.SlashingProposal",
+    proposalType: "slashing",
     initialDepositAmount: "1000000000000000000"
   });
 }
