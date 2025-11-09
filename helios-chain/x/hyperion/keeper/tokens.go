@@ -329,9 +329,9 @@ func (k *Keeper) parseClaimData(ctx sdk.Context, claimData string) (*types.Token
 		}
 	}
 	// Check if the claim data is a valid sdk msg
-	if err := k.cdc.UnmarshalInterfaceJSON([]byte(claimDataFull), &msg); err != nil {
-		return data.Metadata, nil, err
-	}
+	// if err := k.cdc.UnmarshalInterfaceJSON([]byte(claimDataFull), &msg); err != nil {
+	// 	return data.Metadata, nil, err
+	// }
 
 	return data.Metadata, &msg, nil
 }

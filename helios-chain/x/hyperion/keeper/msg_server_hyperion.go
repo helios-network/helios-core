@@ -443,7 +443,7 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 
 	// Check if the claim data is a valid sdk.Msg. If not, ignore the data
 	if msg.Data != "" {
-		metadata, msg, err := k.Keeper.parseClaimData(ctx, msg.Data)
+		metadata, _, err := k.Keeper.parseClaimData(ctx, msg.Data)
 		if err != nil {
 			k.Keeper.Logger(ctx).Info("claim data is not valid", "err", err)
 			return nil, err
@@ -454,12 +454,12 @@ func (k msgServer) DepositClaim(c context.Context, msg *types.MsgDepositClaim) (
 				return nil, err
 			}
 		}
-		if msg != nil {
-			if _, err := k.Keeper.handleValidateMsg(ctx, msg); err != nil {
-				k.Keeper.Logger(ctx).Info("claim data is not valid - sdk.Msg is not valid", "err", err)
-				return nil, err
-			}
-		}
+		// if msg != nil {
+		// 	if _, err := k.Keeper.handleValidateMsg(ctx, msg); err != nil {
+		// 		k.Keeper.Logger(ctx).Info("claim data is not valid - sdk.Msg is not valid", "err", err)
+		// 		return nil, err
+		// 	}
+		// }
 	}
 
 	a, err := codectypes.NewAnyWithValue(msg)

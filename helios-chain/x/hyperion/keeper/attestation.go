@@ -245,7 +245,7 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force b
 				}
 
 				// handle the case where user sends arbitrary data in the MsgDepositClaim
-				k.ProcessClaimData(ctx, claim)
+				// k.ProcessClaimData(ctx, claim)
 				break
 			}
 		}
