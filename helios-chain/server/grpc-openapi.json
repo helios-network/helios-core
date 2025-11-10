@@ -118,6 +118,72 @@
         ]
       }
     },
+    "/helios/chronos/block/transaction/receipts/hashs/{block_number}": {
+      "get": {
+        "operationId": "QueryGetCronTransactionReceiptsHashsByBlockNumber",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hashs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "block_number",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/helios/chronos/block/transaction/receipts/{block_number}": {
       "get": {
         "operationId": "QueryGetCronTransactionReceiptsByBlockNumber",
@@ -372,6 +438,10 @@
                     },
                     "archived": {
                       "type": "boolean"
+                    },
+                    "queue_timestamp": {
+                      "type": "string",
+                      "format": "int64"
                     }
                   },
                   "title": "Cron for autonomous EVM smart-contract execution"
@@ -909,6 +979,10 @@
                     },
                     "archived": {
                       "type": "boolean"
+                    },
+                    "queue_timestamp": {
+                      "type": "string",
+                      "format": "int64"
                     }
                   },
                   "title": "Cron for autonomous EVM smart-contract execution"
@@ -1043,6 +1117,10 @@
                       },
                       "archived": {
                         "type": "boolean"
+                      },
+                      "queue_timestamp": {
+                        "type": "string",
+                        "format": "int64"
                       }
                     },
                     "title": "Cron for autonomous EVM smart-contract execution"
@@ -1225,6 +1303,10 @@
                       },
                       "archived": {
                         "type": "boolean"
+                      },
+                      "queue_timestamp": {
+                        "type": "string",
+                        "format": "int64"
                       }
                     },
                     "title": "Cron for autonomous EVM smart-contract execution"
@@ -1597,6 +1679,82 @@
                     }
                   },
                   "description": "Defines the parameters for the cron module."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/helios/chronos/statistics": {
+      "get": {
+        "operationId": "QueryGetCronStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statistics": {
+                  "type": "object",
+                  "properties": {
+                    "cron_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "queue_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "archived_crons": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "refunded_last_block_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "executed_last_block_count": {
+                      "type": "string",
+                      "format": "uint64"
+                    }
+                  }
                 }
               }
             }
@@ -3865,6 +4023,183 @@
         ]
       }
     },
+    "/hyperion/v1/batch/outgoingtx/options": {
+      "get": {
+        "operationId": "OutgoingTxBatchesWithOptions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "batches": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hyperion_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "batch_nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "batch_timeout": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "transactions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "hyperion_id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "id": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "sender": {
+                              "type": "string"
+                            },
+                            "dest_address": {
+                              "type": "string"
+                            },
+                            "token": {
+                              "type": "object",
+                              "properties": {
+                                "contract": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                }
+                              },
+                              "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                            },
+                            "fee": {
+                              "type": "object",
+                              "properties": {
+                                "contract": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                }
+                              },
+                              "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                            },
+                            "tx_timeout": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            }
+                          },
+                          "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
+                        }
+                      },
+                      "token_contract": {
+                        "type": "string"
+                      },
+                      "block": {
+                        "type": "string",
+                        "format": "uint64"
+                      }
+                    },
+                    "title": "OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "batch_nonce",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "token_contract",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "batch_timeout",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "check_if_i_have_signed_batch",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/batchfees": {
       "get": {
         "operationId": "BatchFees",
@@ -4913,6 +5248,73 @@
         ]
       }
     },
+    "/hyperion/v1/estimate_latest_block_of_chain": {
+      "get": {
+        "operationId": "QueryEstimateLatestBlockOfChain",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "latest_block": {
+                  "type": "string",
+                  "format": "uint64"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/historical_fees": {
       "get": {
         "operationId": "QueryHistoricalFees",
@@ -5016,6 +5418,79 @@
         "parameters": [
           {
             "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/is_nonce_already_observed": {
+      "get": {
+        "operationId": "QueryIsNonceAlreadyObserved",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "is_nonce_already_observed": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "nonce",
             "in": "query",
             "required": false,
             "type": "string",
@@ -7095,6 +7570,89 @@
         ]
       }
     },
+    "/hyperion/v1/skipped_nonces": {
+      "get": {
+        "operationId": "QueryGetSkippedNonces",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "skipped_nonces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "start_height": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "end_height": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/tokens/denom_to_token_address": {
       "get": {
         "operationId": "DenomToTokenAddress",
@@ -7350,6 +7908,10 @@
                         "type": "string"
                       },
                       "index": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "timeout": {
                         "type": "string",
                         "format": "uint64"
                       }
@@ -7932,6 +8494,75 @@
                       }
                     },
                     "title": "Valset is the Ethereum Bridge Multsig Set, each hyperion validator also\nmaintains an ETH key to sign messages for each counterparty chain, these are \nused to check signatures on counterparty chain because of the significant gas savings"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/hyperion/v1/whitelisted_addresses": {
+      "get": {
+        "operationId": "QueryGetWhitelistedAddresses",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "addresses": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
                   }
                 }
               }
@@ -29936,9 +30567,38 @@
         },
         "archived": {
           "type": "boolean"
+        },
+        "queue_timestamp": {
+          "type": "string",
+          "format": "int64"
         }
       },
       "title": "Cron for autonomous EVM smart-contract execution"
+    },
+    "helios.chronos.v1.CronStatistics": {
+      "type": "object",
+      "properties": {
+        "cron_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "queue_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "archived_crons": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "refunded_last_block_count": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "executed_last_block_count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
     },
     "helios.chronos.v1.CronTransactionRPC": {
       "type": "object",
@@ -30432,6 +31092,10 @@
             },
             "archived": {
               "type": "boolean"
+            },
+            "queue_timestamp": {
+              "type": "string",
+              "format": "int64"
             }
           },
           "title": "Cron for autonomous EVM smart-contract execution"
@@ -30509,9 +31173,43 @@
             },
             "archived": {
               "type": "boolean"
+            },
+            "queue_timestamp": {
+              "type": "string",
+              "format": "int64"
             }
           },
           "title": "Cron for autonomous EVM smart-contract execution"
+        }
+      }
+    },
+    "helios.chronos.v1.QueryGetCronStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "statistics": {
+          "type": "object",
+          "properties": {
+            "cron_count": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "queue_count": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "archived_crons": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "refunded_last_block_count": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "executed_last_block_count": {
+              "type": "string",
+              "format": "uint64"
+            }
+          }
         }
       }
     },
@@ -31200,6 +31898,17 @@
         }
       }
     },
+    "helios.chronos.v1.QueryGetCronTransactionReceiptsHashsByBlockNumberResponse": {
+      "type": "object",
+      "properties": {
+        "hashs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "helios.chronos.v1.QueryGetCronTransactionsByPageAndSizeResponse": {
       "type": "object",
       "properties": {
@@ -31357,6 +32066,10 @@
               },
               "archived": {
                 "type": "boolean"
+              },
+              "queue_timestamp": {
+                "type": "string",
+                "format": "int64"
               }
             },
             "title": "Cron for autonomous EVM smart-contract execution"
@@ -31453,6 +32166,10 @@
               },
               "archived": {
                 "type": "boolean"
+              },
+              "queue_timestamp": {
+                "type": "string",
+                "format": "int64"
               }
             },
             "title": "Cron for autonomous EVM smart-contract execution"
@@ -34388,6 +35105,15 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryEstimateLatestBlockOfChainResponse": {
+      "type": "object",
+      "properties": {
+        "latest_block": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "helios.hyperion.v1.QueryGetCounterpartyChainParamsByChainIdResponse": {
       "type": "object",
       "properties": {
@@ -34877,6 +35603,31 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryGetSkippedNoncesResponse": {
+      "type": "object",
+      "properties": {
+        "skipped_nonces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "start_height": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "end_height": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "nonce": {
+                "type": "string",
+                "format": "uint64"
+              }
+            }
+          }
+        }
+      }
+    },
     "helios.hyperion.v1.QueryGetTokensOfChainResponse": {
       "type": "object",
       "properties": {
@@ -35114,8 +35865,23 @@
               "index": {
                 "type": "string",
                 "format": "uint64"
+              },
+              "timeout": {
+                "type": "string",
+                "format": "uint64"
               }
             }
+          }
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryGetWhitelistedAddressesResponse": {
+      "type": "object",
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }
@@ -35173,6 +35939,14 @@
             }
           },
           "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
+        }
+      }
+    },
+    "helios.hyperion.v1.QueryIsNonceAlreadyObservedResponse": {
+      "type": "object",
+      "properties": {
+        "is_nonce_already_observed": {
+          "type": "boolean"
         }
       }
     },
@@ -36258,6 +37032,93 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryOutgoingTxBatchesWithOptionsResponse": {
+      "type": "object",
+      "properties": {
+        "batches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hyperion_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "batch_nonce": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "batch_timeout": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "transactions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hyperion_id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "sender": {
+                      "type": "string"
+                    },
+                    "dest_address": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "object",
+                      "properties": {
+                        "contract": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                    },
+                    "fee": {
+                      "type": "object",
+                      "properties": {
+                        "contract": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+                    },
+                    "tx_timeout": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "tx_hash": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "OutgoingTransferTx represents an individual send from Hyperion to ETH"
+                }
+              },
+              "token_contract": {
+                "type": "string"
+              },
+              "block": {
+                "type": "string",
+                "format": "uint64"
+              }
+            },
+            "title": "OutgoingTxBatch represents a batch of transactions going from Hyperion to ETH"
+          }
+        }
+      }
+    },
     "helios.hyperion.v1.QueryParamsResponse": {
       "type": "object",
       "properties": {
@@ -36577,6 +37438,109 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryTransferTx": {
+      "type": "object",
+      "properties": {
+        "hyperion_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "dest_address": {
+          "type": "string"
+        },
+        "received_token": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "sent_token": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "received_fee": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "sent_fee": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          },
+          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
+        },
+        "status": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "chain_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "proof": {
+          "type": "object",
+          "properties": {
+            "orchestrators": {
+              "type": "string"
+            },
+            "hashs": {
+              "type": "string"
+            }
+          }
+        },
+        "tx_hash": {
+          "type": "string"
+        },
+        "index": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "timeout": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "helios.hyperion.v1.QueryValsetConfirmResponse": {
       "type": "object",
       "properties": {
@@ -36698,6 +37662,23 @@
         }
       }
     },
+    "helios.hyperion.v1.SkippedNonceFullInfo": {
+      "type": "object",
+      "properties": {
+        "start_height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "end_height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "nonce": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "helios.hyperion.v1.SlashData": {
       "type": "object",
       "properties": {
@@ -36797,105 +37778,6 @@
         },
         "logo": {
           "type": "string"
-        }
-      }
-    },
-    "helios.hyperion.v1.TransferTx": {
-      "type": "object",
-      "properties": {
-        "hyperion_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "height": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "sender": {
-          "type": "string"
-        },
-        "dest_address": {
-          "type": "string"
-        },
-        "received_token": {
-          "type": "object",
-          "properties": {
-            "contract": {
-              "type": "string"
-            },
-            "amount": {
-              "type": "string"
-            }
-          },
-          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
-        },
-        "sent_token": {
-          "type": "object",
-          "properties": {
-            "contract": {
-              "type": "string"
-            },
-            "amount": {
-              "type": "string"
-            }
-          },
-          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
-        },
-        "received_fee": {
-          "type": "object",
-          "properties": {
-            "contract": {
-              "type": "string"
-            },
-            "amount": {
-              "type": "string"
-            }
-          },
-          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
-        },
-        "sent_fee": {
-          "type": "object",
-          "properties": {
-            "contract": {
-              "type": "string"
-            },
-            "amount": {
-              "type": "string"
-            }
-          },
-          "title": "Token unique identifier for an Bridged token.\nCONTRACT:\nThe contract address on Originating chain of the token, this could be a Cosmos\noriginated token, if so it will be the address of the representation\n(note: developers should look up the token symbol using the address on original chain to\ndisplay for UI)"
-        },
-        "status": {
-          "type": "string"
-        },
-        "direction": {
-          "type": "string"
-        },
-        "chain_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "proof": {
-          "type": "object",
-          "properties": {
-            "orchestrators": {
-              "type": "string"
-            },
-            "hashs": {
-              "type": "string"
-            }
-          }
-        },
-        "tx_hash": {
-          "type": "string"
-        },
-        "index": {
-          "type": "string",
-          "format": "uint64"
         }
       }
     },

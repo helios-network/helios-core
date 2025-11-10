@@ -841,26 +841,16 @@ func (k *Keeper) QueryIsNonceAlreadyObserved(c context.Context, req *types.Query
 	return &types.QueryIsNonceAlreadyObservedResponse{IsNonceAlreadyObserved: k.NonceAlreadyObserved(ctx, req.HyperionId, req.Nonce)}, nil
 }
 
-func (k *Keeper) QueryGetUnObservedNonces(c context.Context, req *types.QueryGetUnObservedNoncesRequest) (*types.QueryGetUnObservedNoncesResponse, error) {
+func (k *Keeper) QueryGetSkippedNonces(c context.Context, req *types.QueryGetSkippedNoncesRequest) (*types.QueryGetSkippedNoncesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetHyperionParamsFromChainId(ctx, req.HyperionId)
 
 	if params.HyperionId != req.HyperionId {
 		return nil, errors.Wrap(types.ErrInvalid, "hyperionId not found")
 	}
-	latestObservedNonce := k.GetLastObservedEventNonce(ctx, req.HyperionId)
+	skippedNonces := k.GetAllSkippedNonces(ctx, req.HyperionId)
 
-	unObservedNonces := make([]uint64, 0)
-	for nonce := req.StartNonce; nonce <= req.EndNonce; nonce++ {
-		if nonce > latestObservedNonce {
-			break
-		}
-		if !k.NonceAlreadyObserved(ctx, req.HyperionId, nonce) {
-			unObservedNonces = append(unObservedNonces, nonce)
-		}
-	}
-
-	return &types.QueryGetUnObservedNoncesResponse{
-		UnObservedNonces: unObservedNonces,
+	return &types.QueryGetSkippedNoncesResponse{
+		SkippedNonces: skippedNonces,
 	}, nil
 }

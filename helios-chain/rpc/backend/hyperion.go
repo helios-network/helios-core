@@ -156,15 +156,19 @@ func (b *Backend) GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uint6
 	return res.IsNonceAlreadyObserved, nil
 }
 
-func (b *Backend) GetHyperionUnObservedNonces(hyperionId uint64, startNonce uint64, endNonce uint64) ([]uint64, error) {
-	res, err := b.queryClient.Hyperion.QueryGetUnObservedNonces(b.ctx, &hyperiontypes.QueryGetUnObservedNoncesRequest{
+func (b *Backend) GetHyperionSkippedNonces(hyperionId uint64) ([]*hyperiontypes.SkippedNonceFullInfo, error) {
+	res, err := b.queryClient.Hyperion.QueryGetSkippedNonces(b.ctx, &hyperiontypes.QueryGetSkippedNoncesRequest{
 		HyperionId: hyperionId,
-		StartNonce: startNonce,
-		EndNonce:   endNonce,
 	})
 	if err != nil {
-		b.logger.Error("GetHyperionUnObservedNonces", "error", err)
+		b.logger.Error("GetHyperionSkippedNonces", "error", err)
 		return nil, err
 	}
-	return res.UnObservedNonces, nil
+	if res.SkippedNonces == nil {
+		return []*hyperiontypes.SkippedNonceFullInfo{}, nil
+	}
+	if len(res.SkippedNonces) == 0 {
+		return []*hyperiontypes.SkippedNonceFullInfo{}, nil
+	}
+	return res.SkippedNonces, nil
 }

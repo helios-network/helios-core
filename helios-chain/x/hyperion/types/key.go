@@ -128,6 +128,8 @@ var (
 	OrchestratorDataKey = []byte{0x23}
 
 	WhitelistKey = []byte{0x24}
+
+	SkippedNonceKey = []byte{0x25}
 )
 
 var (
@@ -435,6 +437,14 @@ func GetOutgoingExternalDataBlockKey(hyperionId uint64, block uint64) []byte {
 func GetNonceObservedKey(hyperionId uint64, nonce uint64) []byte {
 	buf := make([]byte, 0, len(NonceObservedKey)+8+8)
 	buf = append(buf, NonceObservedKey...)
+	buf = append(buf, UInt64Bytes(hyperionId)...)
+	buf = append(buf, UInt64Bytes(nonce)...)
+	return buf
+}
+
+func GetSkippedNonceKey(hyperionId uint64, nonce uint64) []byte {
+	buf := make([]byte, 0, len(SkippedNonceKey)+8+8)
+	buf = append(buf, SkippedNonceKey...)
 	buf = append(buf, UInt64Bytes(hyperionId)...)
 	buf = append(buf, UInt64Bytes(nonce)...)
 	return buf

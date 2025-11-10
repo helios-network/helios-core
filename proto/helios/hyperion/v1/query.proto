@@ -219,10 +219,11 @@ service Query {
     option (google.api.http).get = "/hyperion/v1/is_nonce_already_observed";
   }
 
-  rpc QueryGetUnObservedNonces(QueryGetUnObservedNoncesRequest)
-      returns (QueryGetUnObservedNoncesResponse) {
-    option (google.api.http).get = "/hyperion/v1/get_un_observed_nonces";
+  rpc QueryGetSkippedNonces(QueryGetSkippedNoncesRequest)
+      returns (QueryGetSkippedNoncesResponse) {
+    option (google.api.http).get = "/hyperion/v1/skipped_nonces";
   }
+
 }
 
 message QueryParamsRequest {}
@@ -566,12 +567,10 @@ message QueryIsNonceAlreadyObservedResponse {
   bool is_nonce_already_observed = 1;
 }
 
-message QueryGetUnObservedNoncesRequest {
+message QueryGetSkippedNoncesRequest {
   uint64 hyperion_id = 1;
-  uint64 start_nonce = 2;
-  uint64 end_nonce = 3;
 }
 
-message QueryGetUnObservedNoncesResponse {
-  repeated uint64 un_observed_nonces = 1;
+message QueryGetSkippedNoncesResponse {
+  repeated SkippedNonceFullInfo skipped_nonces = 1;
 }

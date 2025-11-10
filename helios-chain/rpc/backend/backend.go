@@ -193,7 +193,7 @@ type EVMBackend interface {
 	GetWhitelistedAddresses(hyperionId uint64) ([]string, error)
 	GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error)
 	GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uint64) (bool, error)
-	GetHyperionUnObservedNonces(hyperionId uint64, startNonce uint64, endNonce uint64) ([]uint64, error)
+	GetHyperionSkippedNonces(hyperionId uint64) ([]*hyperiontypes.SkippedNonceFullInfo, error)
 
 	ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes.ParsedRPCTransaction, error)
 }

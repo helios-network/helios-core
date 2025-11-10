@@ -121,7 +121,7 @@ func (h *BlockHandler) pruneAttestations(ctx sdk.Context, counterParty *types.Co
 			if nonce < lastObservedEventNonce {
 				if att.Observed {
 					h.k.DeleteAttestation(ctx, att.HyperionId, att)
-					h.k.StoreNonceObserved(ctx, att.HyperionId, nonce)
+					h.k.StoreNonceObserved(ctx, att.HyperionId, nonce, att.Height)
 
 					claim, err := h.k.UnpackAttestationClaim(att)
 					if err != nil {

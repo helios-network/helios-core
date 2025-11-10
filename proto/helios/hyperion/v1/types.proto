@@ -198,3 +198,14 @@ message OrchestratorData {
 message WhitelistedAddresses {
   repeated string addresses = 1;
 }
+
+message SkippedNonceInfo {
+  uint64 start_height = 1 [(gogoproto.jsontag) = "startHeight"];
+  uint64 end_height = 2 [(gogoproto.jsontag) = "endHeight"];
+}
+
+message SkippedNonceFullInfo {
+  uint64 start_height = 1 [(gogoproto.jsontag) = "startHeight"];
+  uint64 end_height = 2 [(gogoproto.jsontag) = "endHeight"];
+  uint64 nonce = 3 [(gogoproto.jsontag) = "nonce"];
+}

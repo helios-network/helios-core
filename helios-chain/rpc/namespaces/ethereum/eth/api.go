@@ -187,7 +187,7 @@ type EthereumAPI interface {
 	GetWhitelistedAddresses(hyperionId uint64) ([]string, error)
 	GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error)
 	GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uint64) (bool, error)
-	GetHyperionUnObservedNonces(hyperionId uint64, startNonce uint64, endNonce uint64) ([]uint64, error)
+	GetHyperionSkippedNonces(hyperionId uint64) ([]*hyperiontypes.SkippedNonceFullInfo, error)
 
 	GetCosmosTransactionByHashFormatted(txHash string) (*map[string]interface{}, error)
 }
@@ -880,9 +880,9 @@ func (e *PublicAPI) GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uin
 	return e.backend.GetHyperionNonceAlreadyObserved(hyperionId, nonce)
 }
 
-func (e *PublicAPI) GetHyperionUnObservedNonces(hyperionId uint64, startNonce uint64, endNonce uint64) ([]uint64, error) {
-	e.logger.Debug("eth_getHyperionUnObservedNonces", "hyperionId", hyperionId, "startNonce", startNonce, "endNonce", endNonce)
-	return e.backend.GetHyperionUnObservedNonces(hyperionId, startNonce, endNonce)
+func (e *PublicAPI) GetHyperionSkippedNonces(hyperionId uint64) ([]*hyperiontypes.SkippedNonceFullInfo, error) {
+	e.logger.Debug("eth_getHyperionSkippedNonces", "hyperionId", hyperionId)
+	return e.backend.GetHyperionSkippedNonces(hyperionId)
 }
 
 // Dans helios-chain/rpc/namespaces/ethereum/eth/api.go

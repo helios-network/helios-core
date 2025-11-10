@@ -232,12 +232,23 @@ func (k *Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation, force b
 					k.setLastObservedEventNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
 					k.SetNewLastObservedEthereumBlockHeight(ctx, claim.GetHyperionId(), claim.GetBlockHeight())
 				}
-				k.StoreNonceObserved(ctx, claim.GetHyperionId(), claim.GetEventNonce())
+				// store the skipped nonces if the current nonce is more than 1 higher than the last observed nonce
+				if claim.GetEventNonce()-lastEventNonce > 1 {
+					for nonce := lastEventNonce + 1; nonce < claim.GetEventNonce(); nonce++ {
+						k.StoreSkippedNonce(ctx, claim.GetHyperionId(), nonce, lastEventNonce, claim.GetBlockHeight())
+					}
+				}
+				k.StoreNonceObserved(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.GetBlockHeight())
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetHyperionId(), claim.GetEventNonce(), claim.ClaimHash(), att)
 
 				k.processAttestation(ctx, claim, att)
 				k.emitObservedEvent(ctx, att, claim)
+
+				// remove the skipped nonce if it exists
+				if k.HasSkippedNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce()) {
+					k.RemoveSkippedNonce(ctx, claim.GetHyperionId(), claim.GetEventNonce())
+				}
 
 				// update the rpc used
 				if strings.Contains(claim.GetRpcUsed(), "https://") {
