@@ -165,7 +165,7 @@ func startMonitoring(
 		if goroutineCount > 10000 {
 			logger.Error("CRITICAL: Too many goroutines", "count", goroutineCount)
 		}
-		if m.HeapAlloc > 1<<30 { // 1GB
+		if m.HeapAlloc > 16<<30 { // 16GB
 			logger.Error("CRITICAL: High memory usage", "heap_alloc_mb", m.HeapAlloc/1024/1024)
 		}
 	}
