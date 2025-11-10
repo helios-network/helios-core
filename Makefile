@@ -220,6 +220,7 @@ grpc-ui:
 
 release: 
 	@docker build --platform=linux/amd64 -t helios-core-release -f Dockerfile .
+	# @docker cp helios-core-release:/usr/bin/heliades ./.release/heliades
 	@docker run --platform=linux/amd64 --rm \
 		helios-core-release
 

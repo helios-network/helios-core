@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	AppVersion = "1.0.0"
+	AppVersion = "v0.0.254"
 	GitCommit  = ""
 	BuildDate  = ""
 
@@ -17,10 +17,6 @@ var (
 )
 
 func init() {
-	if AppVersion == "" {
-		AppVersion = "dev"
-	}
-
 	GoVersion = runtime.Version()
 	GoArch = runtime.GOARCH
 }

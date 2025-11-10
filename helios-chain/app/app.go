@@ -1178,7 +1178,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(minttypes.RouterKey, mint.NewProposalHandler(app.MintKeeper)).
 		AddRoute(hyperiontypes.RouterKey, hyperion.NewHyperionProposalHandler(app.HyperionKeeper)).
 		AddRoute(slashingtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
-		AddRoute(erc20types.ModularRouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper))
+		AddRoute(erc20types.ModularRouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(upgradetypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
 

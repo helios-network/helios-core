@@ -52,3 +52,4 @@ cmd/heliades/heliades
 
 heliades
 helios-ai/
+.release/
