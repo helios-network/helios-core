@@ -283,7 +283,7 @@ func (k *Keeper) ValidateTokenMetaData(ctx sdk.Context, metadata *types.TokenMet
 		return nil, errors.Errorf("claim data is not a valid Decimals: %v", metadata.Decimals)
 	}
 
-	if len(metadata.Name) > 30 {
+	if len(metadata.Name) > 100 {
 		return nil, errors.Errorf("claim data is not a valid Name: %v len superior to 30", metadata.Name)
 	}
 
