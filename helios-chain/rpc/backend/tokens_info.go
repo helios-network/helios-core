@@ -19,7 +19,7 @@ func (b *Backend) GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint6
 	pageReq := &query.PageRequest{
 		Offset:     uint64((page - 1) * size),
 		Limit:      uint64(size),
-		CountTotal: true,
+		CountTotal: false,
 	}
 
 	res, err := b.queryClient.Bank.DenomsFullMetadata(b.ctx, &banktypes.QueryDenomsFullMetadataRequest{
