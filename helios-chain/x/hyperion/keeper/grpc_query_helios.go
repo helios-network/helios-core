@@ -843,14 +843,17 @@ func (k *Keeper) QueryIsNonceAlreadyObserved(c context.Context, req *types.Query
 
 func (k *Keeper) QueryGetSkippedNonces(c context.Context, req *types.QueryGetSkippedNoncesRequest) (*types.QueryGetSkippedNoncesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.GetHyperionParamsFromChainId(ctx, req.HyperionId)
-
-	if params.HyperionId != req.HyperionId {
-		return nil, errors.Wrap(types.ErrInvalid, "hyperionId not found")
-	}
 	skippedNonces := k.GetAllSkippedNonces(ctx, req.HyperionId)
 
 	return &types.QueryGetSkippedNoncesResponse{
+		SkippedNonces: skippedNonces,
+	}, nil
+}
+
+func (k *Keeper) QueryGetAllSkippedNonces(c context.Context, req *types.QueryGetAllSkippedNoncesRequest) (*types.QueryGetAllSkippedNoncesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	skippedNonces := k.GetAllSkippedNoncesWithHyperionId(ctx)
+	return &types.QueryGetAllSkippedNoncesResponse{
 		SkippedNonces: skippedNonces,
 	}, nil
 }

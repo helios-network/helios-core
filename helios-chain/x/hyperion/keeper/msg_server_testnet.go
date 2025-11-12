@@ -953,3 +953,31 @@ func (k msgServer) RemoveOneWhitelistedAddress(c context.Context, msg *types.Msg
 	k.Keeper.SetWhitelistedAddresses(ctx, msg.HyperionId, whitelistedAddresses)
 	return &types.MsgRemoveOneWhitelistedAddressResponse{Addresses: newAddresses}, nil
 }
+
+func (k msgServer) CleanSkippedTxs(c context.Context, msg *types.MsgCleanSkippedTxs) (*types.MsgCleanSkippedTxsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if k.Keeper.authority != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the authority")
+	}
+	k.Keeper.CleanSkippedTxs(ctx, msg.HyperionId)
+
+	return &types.MsgCleanSkippedTxsResponse{}, nil
+}
+
+func (k msgServer) CleanAllSkippedTxs(c context.Context, msg *types.MsgCleanAllSkippedTxs) (*types.MsgCleanAllSkippedTxsResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.svcTags)
+	defer doneFn()
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if k.Keeper.authority != msg.Signer {
+		return nil, errors.Wrap(types.ErrInvalidSigner, "signer is not the authority")
+	}
+
+	k.Keeper.CleanAllSkippedTxs(ctx)
+	return &types.MsgCleanAllSkippedTxsResponse{}, nil
+}

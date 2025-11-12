@@ -259,6 +259,16 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/remove_one_whitelisted_address";
   }
 
+  rpc CleanSkippedTxs(MsgCleanSkippedTxs)
+      returns (MsgCleanSkippedTxsResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/clean_skipped_txs";
+  }
+
+  rpc CleanAllSkippedTxs(MsgCleanAllSkippedTxs)
+      returns (MsgCleanAllSkippedTxsResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/clean_all_skipped_txs";
+  }
+
   // <-- Testnet
 }
 
@@ -1001,3 +1011,22 @@ message MsgRemoveOneWhitelistedAddress {
 message MsgRemoveOneWhitelistedAddressResponse {
   repeated string addresses = 1;
 }
+
+message MsgCleanSkippedTxs {
+  option (amino.name) = "hyperion/MsgCleanSkippedTxs";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 hyperion_id = 2;
+}
+
+message MsgCleanSkippedTxsResponse {}
+
+message MsgCleanAllSkippedTxs {
+  option (amino.name) = "hyperion/MsgCleanAllSkippedTxs";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+}
+
+message MsgCleanAllSkippedTxsResponse {}

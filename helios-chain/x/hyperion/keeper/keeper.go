@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/json"
 	"fmt"
 	gomath "math"
 	"math/big"
@@ -1440,12 +1439,7 @@ func (k *Keeper) StoreSkippedNonce(ctx sdk.Context, hyperionId uint64, nonce uin
 		StartHeight: startHeight,
 		EndHeight:   endHeight,
 	}
-	skippedNonceBytes, err := json.Marshal(skippedNonceInfo)
-	if err != nil {
-		ctx.Logger().Error("failed to marshal skipped nonce info", "error", err, "hyperion_id", hyperionId, "nonce", nonce)
-		return
-	}
-	skippedNonceStore.Set(types.GetSkippedNonceKey(hyperionId, nonce), skippedNonceBytes)
+	skippedNonceStore.Set(types.GetSkippedNonceKey(hyperionId, nonce), k.cdc.MustMarshal(skippedNonceInfo))
 }
 
 func (k *Keeper) HasSkippedNonce(ctx sdk.Context, hyperionId uint64, nonce uint64) bool {
@@ -1461,13 +1455,9 @@ func (k *Keeper) GetSkippedNonceInfo(ctx sdk.Context, hyperionId uint64, nonce u
 	if skippedNonceBytes == nil {
 		return nil
 	}
-	skippedNonceInfo := &types.SkippedNonceInfo{}
-	err := json.Unmarshal(skippedNonceBytes, skippedNonceInfo)
-	if err != nil {
-		ctx.Logger().Error("failed to unmarshal skipped nonce info", "error", err, "hyperion_id", hyperionId, "nonce", nonce)
-		return nil
-	}
-	return skippedNonceInfo
+	var skippedNonceInfo types.SkippedNonceInfo
+	k.cdc.MustUnmarshal(skippedNonceBytes, &skippedNonceInfo)
+	return &skippedNonceInfo
 }
 
 func (k *Keeper) RemoveSkippedNonce(ctx sdk.Context, hyperionId uint64, nonce uint64) {
@@ -1476,20 +1466,66 @@ func (k *Keeper) RemoveSkippedNonce(ctx sdk.Context, hyperionId uint64, nonce ui
 	skippedNonceStore.Delete(types.GetSkippedNonceKey(hyperionId, nonce))
 }
 
-func (k *Keeper) GetAllSkippedNonces(ctx sdk.Context, hyperionId uint64) []*types.SkippedNonceFullInfo {
+func (k *Keeper) CleanSkippedTxs(ctx sdk.Context, hyperionId uint64) {
+	store := ctx.KVStore(k.storeKey)
+	skippedNonceStore := prefix.NewStore(store, append(types.SkippedNonceKey, sdk.Uint64ToBigEndian(hyperionId)...))
+	iter := skippedNonceStore.Iterator(nil, nil)
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		skippedNonceStore.Delete(iter.Key())
+	}
+}
+
+func (k *Keeper) CleanAllSkippedTxs(ctx sdk.Context) {
 	store := ctx.KVStore(k.storeKey)
 	skippedNonceStore := prefix.NewStore(store, types.SkippedNonceKey)
 	iter := skippedNonceStore.Iterator(nil, nil)
 	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		fmt.Println("iter.Key(): ", iter.Key())
+		fmt.Println("iter.Value(): ", iter.Value())
+		skippedNonceStore.Delete(iter.Key())
+	}
+	fmt.Println("cleaned all skipped txs")
+}
+
+func (k *Keeper) GetAllSkippedNonces(ctx sdk.Context, hyperionId uint64) []*types.SkippedNonceFullInfo {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.SkippedNonceKey, sdk.Uint64ToBigEndian(hyperionId)...))
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
 	skippedNonceList := make([]*types.SkippedNonceFullInfo, 0)
 	for ; iter.Valid(); iter.Next() {
-		skippedNonceInfo := &types.SkippedNonceInfo{}
-		err := json.Unmarshal(iter.Value(), skippedNonceInfo)
+		var skippedNonceInfo types.SkippedNonceInfo
+		err := k.cdc.Unmarshal(iter.Value(), &skippedNonceInfo)
 		if err != nil {
-			ctx.Logger().Error("failed to unmarshal skipped nonce info", "error", err, "hyperion_id", hyperionId, "nonce", iter.Key())
-			continue
+			skippedNonceInfo = types.SkippedNonceInfo{}
 		}
 		skippedNonceFullInfo := &types.SkippedNonceFullInfo{
+			StartHeight: skippedNonceInfo.StartHeight,
+			EndHeight:   skippedNonceInfo.EndHeight,
+			Nonce:       types.UInt64FromBytes(iter.Key()),
+		}
+		skippedNonceList = append(skippedNonceList, skippedNonceFullInfo)
+	}
+	return skippedNonceList
+}
+
+func (k *Keeper) GetAllSkippedNoncesWithHyperionId(ctx sdk.Context) []*types.SkippedNonceFullInfoWithHyperionId {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.SkippedNonceKey)
+	iter := store.Iterator(nil, nil)
+	defer iter.Close()
+	skippedNonceList := make([]*types.SkippedNonceFullInfoWithHyperionId, 0)
+	for ; iter.Valid(); iter.Next() {
+		key := iter.Key()
+		hyperionId := types.UInt64FromBytes(key[:8])
+
+		var skippedNonceInfo types.SkippedNonceInfo
+		err := k.cdc.Unmarshal(iter.Value(), &skippedNonceInfo)
+		if err != nil {
+			skippedNonceInfo = types.SkippedNonceInfo{}
+		}
+		skippedNonceFullInfo := &types.SkippedNonceFullInfoWithHyperionId{
+			HyperionId:  hyperionId,
 			StartHeight: skippedNonceInfo.StartHeight,
 			EndHeight:   skippedNonceInfo.EndHeight,
 			Nonce:       types.UInt64FromBytes(iter.Key()),

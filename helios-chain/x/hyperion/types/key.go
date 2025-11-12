@@ -450,6 +450,10 @@ func GetSkippedNonceKey(hyperionId uint64, nonce uint64) []byte {
 	return buf
 }
 
+func GetSkippedNonceRangePrefixKey(hyperionId uint64) []byte {
+	return UInt64Bytes(hyperionId)
+}
+
 func GetOrchestratorDataKey(orchestrator sdk.AccAddress) []byte {
 	buf := make([]byte, 0, len(OrchestratorDataKey)+len(orchestrator))
 	buf = append(buf, OrchestratorDataKey...)

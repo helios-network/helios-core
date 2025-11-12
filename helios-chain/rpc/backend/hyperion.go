@@ -172,3 +172,12 @@ func (b *Backend) GetHyperionSkippedNonces(hyperionId uint64) ([]*hyperiontypes.
 	}
 	return res.SkippedNonces, nil
 }
+
+func (b *Backend) GetAllHyperionSkippedNonces() ([]*hyperiontypes.SkippedNonceFullInfoWithHyperionId, error) {
+	res, err := b.queryClient.Hyperion.QueryGetAllSkippedNonces(b.ctx, &hyperiontypes.QueryGetAllSkippedNoncesRequest{})
+	if err != nil {
+		b.logger.Error("GetAllHyperionSkippedNonces", "error", err)
+		return nil, err
+	}
+	return res.SkippedNonces, nil
+}

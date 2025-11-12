@@ -209,3 +209,10 @@ message SkippedNonceFullInfo {
   uint64 end_height = 2 [(gogoproto.jsontag) = "endHeight"];
   uint64 nonce = 3 [(gogoproto.jsontag) = "nonce"];
 }
+
+message SkippedNonceFullInfoWithHyperionId {
+  uint64 hyperion_id = 1 [(gogoproto.jsontag) = "hyperionId"];
+  uint64 start_height = 2 [(gogoproto.jsontag) = "startHeight"];
+  uint64 end_height = 3 [(gogoproto.jsontag) = "endHeight"];
+  uint64 nonce = 4 [(gogoproto.jsontag) = "nonce"];
+}

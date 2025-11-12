@@ -194,6 +194,7 @@ type EVMBackend interface {
 	GetHyperionProjectedCurrentNetworkHeight(hyperionId uint64) (uint64, error)
 	GetHyperionNonceAlreadyObserved(hyperionId uint64, nonce uint64) (bool, error)
 	GetHyperionSkippedNonces(hyperionId uint64) ([]*hyperiontypes.SkippedNonceFullInfo, error)
+	GetAllHyperionSkippedNonces() ([]*hyperiontypes.SkippedNonceFullInfoWithHyperionId, error)
 
 	ParseTransactions(txs []*rpctypes.RPCTransaction) ([]*rpctypes.ParsedRPCTransaction, error)
 }

@@ -224,6 +224,11 @@ service Query {
     option (google.api.http).get = "/hyperion/v1/skipped_nonces";
   }
 
+  rpc QueryGetAllSkippedNonces(QueryGetAllSkippedNoncesRequest)
+      returns (QueryGetAllSkippedNoncesResponse) {
+    option (google.api.http).get = "/hyperion/v1/all_skipped_nonces";
+  }
+
 }
 
 message QueryParamsRequest {}
@@ -573,4 +578,12 @@ message QueryGetSkippedNoncesRequest {
 
 message QueryGetSkippedNoncesResponse {
   repeated SkippedNonceFullInfo skipped_nonces = 1;
+}
+
+message QueryGetAllSkippedNoncesRequest {
+  uint64 hyperion_id = 1;
+}
+
+message QueryGetAllSkippedNoncesResponse {
+  repeated SkippedNonceFullInfoWithHyperionId skipped_nonces = 1;
 }

@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
+	"strings"
 
 	erc20types "helios-core/helios-chain/x/erc20/types"
 
@@ -190,10 +192,23 @@ func (k *Keeper) BurnToken(ctx sdk.Context, hyperionId uint64, tokenAddress comm
 	return nil
 }
 
+func (k *Keeper) sanitizeSymbol(symbol string) string {
+	// Compile a regex for everything that is NOT in the pattern
+	// Remove the anchor ^ and $ to keep only the content of the pattern
+	allowedChars := "a-zA-Z0-9/:._-"
+
+	// regex that matches all characters that are not in allowedChars
+	reNotAllowed := regexp.MustCompile(fmt.Sprintf(`[^%s]`, allowedChars))
+
+	// Replace the forbidden characters by empty
+	return reNotAllowed.ReplaceAllString(symbol, "")
+}
+
 func (k *Keeper) CreateOrLinkTokenToChain(ctx sdk.Context, chainId uint64, chainName string, token *types.TokenAddressToDenomWithGenesisInfos) *types.TokenAddressToDenom {
 	tokenPair, ok := k.erc20Keeper.GetTokenPair(ctx, k.erc20Keeper.GetTokenPairID(ctx, token.TokenAddressToDenom.Denom))
 
 	if !ok {
+
 		coinMetadata := banktypes.Metadata{
 			Description: fmt.Sprintf("Token %s created with Hyperion", token.TokenAddressToDenom.Denom),
 			Base:        token.TokenAddressToDenom.Denom,
@@ -215,8 +230,22 @@ func (k *Keeper) CreateOrLinkTokenToChain(ctx sdk.Context, chainId uint64, chain
 		}
 
 		if err := coinMetadata.Validate(); err != nil {
-			fmt.Println("error", err)
-			return nil
+			if strings.Contains(err.Error(), "invalid metadata display denom") {
+				sanitizedSymbol := k.sanitizeSymbol(token.TokenAddressToDenom.Symbol)
+				coinMetadata.Name = sanitizedSymbol
+				coinMetadata.Symbol = sanitizedSymbol
+				coinMetadata.Display = sanitizedSymbol
+				coinMetadata.DenomUnits[1].Denom = sanitizedSymbol
+				if err := coinMetadata.Validate(); err != nil {
+					fmt.Println("error validating symbol after tried to sanitize it", err)
+					return nil
+				}
+				fmt.Println("symbol sanitized", sanitizedSymbol)
+			} else {
+				fmt.Println("error", err)
+				return nil
+			}
+
 		}
 
 		contractAddr, err := k.erc20Keeper.DeployERC20Contract(ctx, coinMetadata)
