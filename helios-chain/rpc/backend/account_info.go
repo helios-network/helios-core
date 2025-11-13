@@ -233,6 +233,13 @@ func (b *Backend) GetAccountTokenBalance(address common.Address, tokenAddress co
 func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, page hexutil.Uint64, size hexutil.Uint64) (*rpctypes.AccountTokensBalance, error) {
 	balances := make([]rpctypes.TokenBalance, 0)
 
+	if page == 0 {
+		page = 1
+	}
+	if size == 0 {
+		size = 100
+	}
+
 	allBalances, err := b.queryClient.Bank.AllBalancesWithFullMetadata(b.ctx, &banktypes.QueryAllBalancesWithFullMetadataRequest{
 		Address: sdk.AccAddress(address.Bytes()).String(),
 		Pagination: &query.PageRequest{
