@@ -311,12 +311,13 @@ replace (
 	github.com/cometbft/cometbft => github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-27
 	// github.com/cometbft/cometbft => ../cometbft
 
-	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-155
+	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-156
 	// github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/Helios-Chain-Labs/ibc-apps/modules/ibc-hooks/v8 v8.50.10-helios-1
 	github.com/cosmos/ibc-go/v8 => github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-40
 	// github.com/cosmos/ibc-go/v8 => ../ibc-go
-	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc4
+	github.com/ethereum/go-ethereum => github.com/helios-network/go-ethereum v1.10.27
+	// github.com/ethereum/go-ethereum => ../go-ethereum
 	github.com/miguelmota/go-ethereum-hdwallet => github.com/Helios-Chain-Labs/go-ethereum-hdwallet v0.50.10-helios-1
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
