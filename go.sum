@@ -239,8 +239,8 @@ github.com/DataDog/sketches-go v1.4.2 h1:gppNudE9d19cQ98RYABOetxIhpTCl4m7CnbRZjv
 github.com/DataDog/sketches-go v1.4.2/go.mod h1:xJIXldczJyyjnbDop7ZZcLxJdV3+7Kra7H1KMgpgkLk=
 github.com/DataDog/zstd v1.5.6 h1:LbEglqepa/ipmmQJUDnSsfvA8e8IStVcGaFWDuxvGOY=
 github.com/DataDog/zstd v1.5.6/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwSAmyw=
-github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-27 h1:URbgj5Z4+A/oH/71dcT5sNLJhMQ1Hpc8Et3fo57SqiA=
-github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-27/go.mod h1:WreBJKC7CtZ9cNsb5p6uNpfCBwNWDu+risVb58GTLfY=
+github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-29 h1:2BvyqJ+tqmjIMTrhdsPYgxtT/O0PRykCt2gxdCcBFtc=
+github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-29/go.mod h1:WreBJKC7CtZ9cNsb5p6uNpfCBwNWDu+risVb58GTLfY=
 github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-156 h1:y7jJi6JvCU1aQXhax6JtlnSg4EGjfkpN9MsrUk9mvr8=
 github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-156/go.mod h1:OwTwQAiSTTDgDRbFMdsTklcmsOzmRPzXTmepcgGUAdw=
 github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-155 h1:oT5t8hF8LYKj97fHq5UhBf129Z998OP5GWzmM1s2IWk=
