@@ -2,6 +2,7 @@ package app
 
 import (
 	"io"
+	"strings"
 
 	// "io/fs"
 	// "net/http"
@@ -198,6 +199,7 @@ import (
 	revenuekeeper "helios-core/helios-chain/x/revenue/v1/keeper"
 	revenuetypes "helios-core/helios-chain/x/revenue/v1/types"
 
+	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	// Enable the tracers in debug_traceTransaction rpc method
 	_ "helios-core/helios-chain/x/evm/core/tracers/js"
@@ -205,6 +207,8 @@ import (
 
 	heliosserver "helios-core/helios-chain/server"     // Added import for server
 	svrconfig "helios-core/helios-chain/server/config" // Added import for server config
+
+	heliosversion "helios-core/version"
 )
 
 func init() {
@@ -813,6 +817,8 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		app.BaseApp,
 		authority,
+		heliosversion.AppVersion,
+		strings.Split(cast.ToString(appOpts.Get(sdkserver.FlagUpgradeTrustHosts)), ","),
 	)
 
 	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(

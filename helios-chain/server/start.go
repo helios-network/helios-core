@@ -228,6 +228,8 @@ which accepts a path for the resulting pprof file.
 
 	cmd.Flags().Bool(server.FlagArchiveMode, config.DefaultArchiveMode, "Enable archive mode")
 
+	cmd.Flags().String(server.FlagUpgradeTrustHosts, "", "Upgrade trust hosts something like 'https://host1.com/path1,https://host2.com/path2'")
+
 	// add support for all CometBFT-specific command line options
 	tcmd.AddNodeFlags(cmd)
 	return cmd

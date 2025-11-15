@@ -412,6 +412,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	options = append(options, baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))))
 	options = append(options, baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagDisableIAVLFastNode))))
 	options = append(options, baseapp.SetChainID(chainID))
+	options = append(options, baseapp.SetUpgradeTrustHosts(cast.ToString(appOpts.Get(sdkserver.FlagUpgradeTrustHosts))))
 
 	if cast.ToBool(appOpts.Get(sdkserver.FlagArchiveMode)) {
 		options = append(options, baseapp.SetArchiveMode(true))
