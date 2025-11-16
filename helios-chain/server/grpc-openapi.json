@@ -3125,6 +3125,93 @@
         ]
       }
     },
+    "/hyperion/v1/all_skipped_nonces": {
+      "get": {
+        "operationId": "QueryGetAllSkippedNonces",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "skipped_nonces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hyperion_id": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "start_height": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "end_height": {
+                        "type": "string",
+                        "format": "uint64"
+                      },
+                      "nonce": {
+                        "type": "string",
+                        "format": "uint64"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hyperion_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/hyperion/v1/attestation/{nonce}/{claim_hash}": {
       "get": {
         "summary": "attestation",
@@ -4723,6 +4810,9 @@
                                 },
                                 "is_originated": {
                                   "type": "boolean"
+                                },
+                                "total_supply": {
+                                  "type": "string"
                                 }
                               }
                             },
@@ -10578,6 +10668,9 @@
                                     },
                                     "is_originated": {
                                       "type": "boolean"
+                                    },
+                                    "total_supply": {
+                                      "type": "string"
                                     }
                                   }
                                 },
@@ -11164,6 +11257,9 @@
                                 },
                                 "is_originated": {
                                   "type": "boolean"
+                                },
+                                "total_supply": {
+                                  "type": "string"
                                 }
                               }
                             },
@@ -11405,6 +11501,9 @@
                                 },
                                 "is_originated": {
                                   "type": "boolean"
+                                },
+                                "total_supply": {
+                                  "type": "string"
                                 }
                               }
                             },
@@ -11628,6 +11727,9 @@
                               },
                               "is_originated": {
                                 "type": "boolean"
+                              },
+                              "total_supply": {
+                                "type": "string"
                               }
                             }
                           },
@@ -11803,6 +11905,9 @@
                               },
                               "is_originated": {
                                 "type": "boolean"
+                              },
+                              "total_supply": {
+                                "type": "string"
                               }
                             }
                           },
@@ -11977,6 +12082,9 @@
                             },
                             "is_originated": {
                               "type": "boolean"
+                            },
+                            "total_supply": {
+                              "type": "string"
                             }
                           }
                         },
@@ -12188,6 +12296,9 @@
                           },
                           "is_originated": {
                             "type": "boolean"
+                          },
+                          "total_supply": {
+                            "type": "string"
                           }
                         }
                       },
@@ -12350,6 +12461,9 @@
                           },
                           "is_originated": {
                             "type": "boolean"
+                          },
+                          "total_supply": {
+                            "type": "string"
                           }
                         }
                       },
@@ -18531,6 +18645,28 @@
                           }
                         }
                       },
+                      "current_tally_result": {
+                        "description": "current_tally_result is the current tally result of the proposal.",
+                        "type": "object",
+                        "properties": {
+                          "yes_count": {
+                            "type": "string",
+                            "description": "yes_count is the number of yes votes on a proposal."
+                          },
+                          "abstain_count": {
+                            "type": "string",
+                            "description": "abstain_count is the number of abstain votes on a proposal."
+                          },
+                          "no_count": {
+                            "type": "string",
+                            "description": "no_count is the number of no votes on a proposal."
+                          },
+                          "no_with_veto_count": {
+                            "type": "string",
+                            "description": "no_with_veto_count is the number of no with veto votes on a proposal."
+                          }
+                        }
+                      },
                       "submit_time": {
                         "type": "string",
                         "format": "date-time",
@@ -18690,6 +18826,13 @@
             "type": "string"
           },
           {
+            "name": "proposer",
+            "description": "proposer defines the proposer address for the proposals.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
             "name": "pagination.key",
             "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
             "in": "query",
@@ -18728,6 +18871,67 @@
             "type": "boolean"
           }
         ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/gov/v1/proposals/count": {
+      "get": {
+        "summary": "ProposalsCount queries the total count of existing proposals.",
+        "operationId": "ProposalsCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "string",
+                  "format": "uint64",
+                  "description": "count defines the total number of existing proposals."
+                }
+              },
+              "description": "QueryProposalsCountResponse is the response type for the Query/ProposalsCount RPC method."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
         "tags": [
           "Query"
         ]
@@ -18785,6 +18989,28 @@
                     },
                     "final_tally_result": {
                       "description": "final_tally_result is the final tally result of the proposal. When\nquerying a proposal via gRPC, this field is not populated until the\nproposal's voting period has ended.",
+                      "type": "object",
+                      "properties": {
+                        "yes_count": {
+                          "type": "string",
+                          "description": "yes_count is the number of yes votes on a proposal."
+                        },
+                        "abstain_count": {
+                          "type": "string",
+                          "description": "abstain_count is the number of abstain votes on a proposal."
+                        },
+                        "no_count": {
+                          "type": "string",
+                          "description": "no_count is the number of no votes on a proposal."
+                        },
+                        "no_with_veto_count": {
+                          "type": "string",
+                          "description": "no_with_veto_count is the number of no with veto votes on a proposal."
+                        }
+                      }
+                    },
+                    "current_tally_result": {
+                      "description": "current_tally_result is the current tally result of the proposal.",
                       "type": "object",
                       "properties": {
                         "yes_count": {
@@ -20239,6 +20465,141 @@
         ]
       }
     },
+    "/cosmos/staking/v1beta1/block_signatures/{height}": {
+      "get": {
+        "operationId": "BlockSignatures",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "signatures": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "signed": {
+                        "type": "boolean"
+                      },
+                      "index_offset": {
+                        "type": "string",
+                        "format": "int64"
+                      },
+                      "total_tokens": {
+                        "type": "string"
+                      },
+                      "asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
+                      },
+                      "epoch_number": {
+                        "type": "string",
+                        "format": "int64"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "jailed": {
+                        "type": "boolean"
+                      },
+                      "missed_block_count": {
+                        "type": "string",
+                        "format": "int64"
+                      }
+                    }
+                  }
+                },
+                "current_epoch": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "epoch_blocks_validated": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "epoch_blocks_remaining": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "block_height": {
+                  "type": "string",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "height",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/cosmos/staking/v1beta1/current_epoch": {
       "get": {
         "summary": "GetCurrentEpoch returns the current epoch number",
@@ -20314,6 +20675,82 @@
         ]
       }
     },
+    "/cosmos/staking/v1beta1/delegation/{validator_addr}/{delegator_addr}/total_boost": {
+      "get": {
+        "summary": "TotalBoostedDelegation queries the total boosted delegation for a given validator.",
+        "operationId": "TotalBoostedDelegation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total_boost": {
+                  "type": "string",
+                  "description": "total_boost defines the total boosted delegation amount for the validator."
+                }
+              },
+              "description": "QueryTotalBoostedDelegationResponse is the response type for the Query/TotalBoostedDelegation RPC method."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "validator_addr",
+            "description": "validator_addr defines the validator address to query.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "delegator_addr",
+            "description": "delegator_addr defines the delegator address to query for.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/cosmos/staking/v1beta1/delegations/{delegator_addr}": {
       "get": {
         "summary": "DelegatorDelegations queries all delegations of a given delegator address.",
@@ -20346,8 +20783,8 @@
                             "description": "shares define the delegation shares received."
                           },
                           "asset_weights": {
-                            "type": "object",
-                            "additionalProperties": {
+                            "type": "array",
+                            "items": {
                               "type": "object",
                               "properties": {
                                 "denom": {
@@ -20492,6 +20929,92 @@
             "in": "query",
             "required": false,
             "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/staking/v1beta1/delegations/{delegator_addr}/total_boost": {
+      "get": {
+        "operationId": "TotalBoostedDelegations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "delegation_boosts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "delegator_address": {
+                        "type": "string",
+                        "description": "delegator_address is the encoded address of the delegator."
+                      },
+                      "validator_address": {
+                        "type": "string",
+                        "description": "validator_address is the encoded address of the validator."
+                      },
+                      "shares": {
+                        "type": "string",
+                        "description": "shares define the delegation shares received."
+                      },
+                      "amount": {
+                        "type": "string",
+                        "title": "Total weighted amount across all assets"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "delegator_addr",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "tags": [
@@ -21070,6 +21593,27 @@
                       },
                       "delegate_authorization": {
                         "type": "boolean"
+                      },
+                      "total_asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -21327,6 +21871,27 @@
                     },
                     "delegate_authorization": {
                       "type": "boolean"
+                    },
+                    "total_asset_weights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "denom": {
+                            "type": "string",
+                            "title": "Denomination of the asset"
+                          },
+                          "base_amount": {
+                            "type": "string",
+                            "title": "Original base amount deposited"
+                          },
+                          "weighted_amount": {
+                            "type": "string",
+                            "title": "Weighted amount based on asset's market value"
+                          }
+                        },
+                        "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                      }
                     }
                   },
                   "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -21386,6 +21951,392 @@
             "in": "path",
             "required": true,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/staking/v1beta1/epoch/{block_height}": {
+      "get": {
+        "summary": "EpochComplete queries complete epoch information including all validators details",
+        "operationId": "EpochComplete2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "epoch": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "epoch_length": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "start_height": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "end_height": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "current_height": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "blocks_validated": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "blocks_remaining": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "blocks_until_next_epoch": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "validators": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "validator_address": {
+                        "type": "string"
+                      },
+                      "operator_address": {
+                        "type": "string"
+                      },
+                      "blocks_signed": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "signature": {
+                              "type": "boolean"
+                            },
+                            "height": {
+                              "type": "string",
+                              "format": "int64"
+                            }
+                          }
+                        }
+                      },
+                      "blocks_missed": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "int64"
+                        }
+                      },
+                      "bonded_tokens": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "is_slashed": {
+                        "type": "boolean"
+                      },
+                      "is_jailed": {
+                        "type": "boolean"
+                      },
+                      "asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
+                      },
+                      "missed_block_count": {
+                        "type": "string",
+                        "format": "int64"
+                      },
+                      "signing_info_start_height": {
+                        "type": "string"
+                      },
+                      "commission_rate": {
+                        "type": "string"
+                      },
+                      "voting_power": {
+                        "type": "string",
+                        "title": "Voting power for this validator"
+                      }
+                    }
+                  }
+                },
+                "total_tokens": {
+                  "type": "string"
+                },
+                "total_voting_power": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "block_height",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "epoch_id",
+            "description": "Can pass either epoch_id directly or block_height to calculate epoch_id.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/staking/v1beta1/epoch/{epoch_id}": {
+      "get": {
+        "summary": "EpochComplete queries complete epoch information including all validators details",
+        "operationId": "EpochComplete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "epoch": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "epoch_length": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "start_height": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "end_height": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "current_height": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "blocks_validated": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "blocks_remaining": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "blocks_until_next_epoch": {
+                  "type": "string",
+                  "format": "int64"
+                },
+                "validators": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "validator_address": {
+                        "type": "string"
+                      },
+                      "operator_address": {
+                        "type": "string"
+                      },
+                      "blocks_signed": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "signature": {
+                              "type": "boolean"
+                            },
+                            "height": {
+                              "type": "string",
+                              "format": "int64"
+                            }
+                          }
+                        }
+                      },
+                      "blocks_missed": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "int64"
+                        }
+                      },
+                      "bonded_tokens": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "is_slashed": {
+                        "type": "boolean"
+                      },
+                      "is_jailed": {
+                        "type": "boolean"
+                      },
+                      "asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
+                      },
+                      "missed_block_count": {
+                        "type": "string",
+                        "format": "int64"
+                      },
+                      "signing_info_start_height": {
+                        "type": "string"
+                      },
+                      "commission_rate": {
+                        "type": "string"
+                      },
+                      "voting_power": {
+                        "type": "string",
+                        "title": "Voting power for this validator"
+                      }
+                    }
+                  }
+                },
+                "total_tokens": {
+                  "type": "string"
+                },
+                "total_voting_power": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "epoch_id",
+            "description": "Can pass either epoch_id directly or block_height to calculate epoch_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "block_height",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -21739,6 +22690,27 @@
                       },
                       "delegate_authorization": {
                         "type": "boolean"
+                      },
+                      "total_asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -22089,6 +23061,187 @@
                           },
                           "delegate_authorization": {
                             "type": "boolean"
+                          },
+                          "total_asset_weights": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "denom": {
+                                  "type": "string",
+                                  "title": "Denomination of the asset"
+                                },
+                                "base_amount": {
+                                  "type": "string",
+                                  "title": "Original base amount deposited"
+                                },
+                                "weighted_amount": {
+                                  "type": "string",
+                                  "title": "Weighted amount based on asset's market value"
+                                }
+                              },
+                              "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                            }
+                          }
+                        },
+                        "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
+                      }
+                    },
+                    "inactive_valset": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "operator_address": {
+                            "type": "string",
+                            "description": "operator_address defines the address of the validator's operator; bech encoded in JSON."
+                          },
+                          "consensus_pubkey": {
+                            "type": "object",
+                            "properties": {
+                              "type_url": {
+                                "type": "string",
+                                "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                              },
+                              "value": {
+                                "type": "string",
+                                "format": "byte",
+                                "description": "Must be a valid serialized protocol buffer of the above specified type."
+                              }
+                            },
+                            "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                          },
+                          "jailed": {
+                            "type": "boolean",
+                            "description": "jailed defined whether the validator has been jailed from bonded status or not."
+                          },
+                          "status": {
+                            "description": "status is the validator status (bonded/unbonding/unbonded).",
+                            "type": "string",
+                            "enum": [
+                              "BOND_STATUS_UNSPECIFIED",
+                              "BOND_STATUS_UNBONDED",
+                              "BOND_STATUS_UNBONDING",
+                              "BOND_STATUS_BONDED"
+                            ],
+                            "default": "BOND_STATUS_UNSPECIFIED"
+                          },
+                          "tokens": {
+                            "type": "string",
+                            "description": "tokens define the delegated tokens (incl. self-delegation)."
+                          },
+                          "delegator_shares": {
+                            "type": "string",
+                            "description": "delegator_shares defines total shares issued to a validator's delegators."
+                          },
+                          "description": {
+                            "description": "description defines the description terms for the validator.",
+                            "type": "object",
+                            "properties": {
+                              "moniker": {
+                                "type": "string",
+                                "description": "moniker defines a human-readable name for the validator."
+                              },
+                              "identity": {
+                                "type": "string",
+                                "description": "identity defines an optional identity signature (ex. UPort or Keybase)."
+                              },
+                              "website": {
+                                "type": "string",
+                                "description": "website defines an optional website link."
+                              },
+                              "security_contact": {
+                                "type": "string",
+                                "description": "security_contact defines an optional email for security contact."
+                              },
+                              "details": {
+                                "type": "string",
+                                "description": "details define other optional details."
+                              }
+                            }
+                          },
+                          "unbonding_height": {
+                            "type": "string",
+                            "format": "int64",
+                            "description": "unbonding_height defines, if unbonding, the height at which this validator has begun unbonding."
+                          },
+                          "unbonding_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "unbonding_time defines, if unbonding, the min time for the validator to complete unbonding."
+                          },
+                          "commission": {
+                            "description": "commission defines the commission parameters.",
+                            "type": "object",
+                            "properties": {
+                              "commission_rates": {
+                                "description": "commission_rates defines the initial commission rates to be used for creating a validator.",
+                                "type": "object",
+                                "properties": {
+                                  "rate": {
+                                    "type": "string",
+                                    "description": "rate is the commission rate charged to delegators, as a fraction."
+                                  },
+                                  "max_rate": {
+                                    "type": "string",
+                                    "description": "max_rate defines the maximum commission rate which validator can ever charge, as a fraction."
+                                  },
+                                  "max_change_rate": {
+                                    "type": "string",
+                                    "description": "max_change_rate defines the maximum daily increase of the validator commission, as a fraction."
+                                  }
+                                }
+                              },
+                              "update_time": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "update_time is the last time the commission rate was changed."
+                              }
+                            }
+                          },
+                          "min_self_delegation": {
+                            "type": "string",
+                            "description": "min_self_delegation is the validator's self declared minimum self delegation.\n\nSince: cosmos-sdk 0.46"
+                          },
+                          "unbonding_on_hold_ref_count": {
+                            "type": "string",
+                            "format": "int64",
+                            "title": "strictly positive if this validator's unbonding has been stopped by external modules"
+                          },
+                          "unbonding_ids": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uint64"
+                            },
+                            "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                          },
+                          "min_delegation": {
+                            "type": "string"
+                          },
+                          "delegate_authorization": {
+                            "type": "boolean"
+                          },
+                          "total_asset_weights": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "denom": {
+                                  "type": "string",
+                                  "title": "Denomination of the asset"
+                                },
+                                "base_amount": {
+                                  "type": "string",
+                                  "title": "Original base amount deposited"
+                                },
+                                "weighted_amount": {
+                                  "type": "string",
+                                  "title": "Weighted amount based on asset's market value"
+                                }
+                              },
+                              "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                            }
                           }
                         },
                         "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -22514,6 +23667,27 @@
                       },
                       "delegate_authorization": {
                         "type": "boolean"
+                      },
+                      "total_asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -22887,6 +24061,27 @@
                       },
                       "delegate_authorization": {
                         "type": "boolean"
+                      },
+                      "total_asset_weights": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "denom": {
+                              "type": "string",
+                              "title": "Denomination of the asset"
+                            },
+                            "base_amount": {
+                              "type": "string",
+                              "title": "Original base amount deposited"
+                            },
+                            "weighted_amount": {
+                              "type": "string",
+                              "title": "Weighted amount based on asset's market value"
+                            }
+                          },
+                          "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                        }
                       }
                     },
                     "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -23144,6 +24339,27 @@
                     },
                     "delegate_authorization": {
                       "type": "boolean"
+                    },
+                    "total_asset_weights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "denom": {
+                            "type": "string",
+                            "title": "Denomination of the asset"
+                          },
+                          "base_amount": {
+                            "type": "string",
+                            "title": "Original base amount deposited"
+                          },
+                          "weighted_amount": {
+                            "type": "string",
+                            "title": "Weighted amount based on asset's market value"
+                          }
+                        },
+                        "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                      }
                     }
                   },
                   "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -23203,6 +24419,89 @@
         ]
       }
     },
+    "/cosmos/staking/v1beta1/validators/{validator_addr}/assets": {
+      "get": {
+        "operationId": "ValidatorAssets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "assets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "denom": {
+                        "type": "string",
+                        "title": "Denomination of the asset"
+                      },
+                      "base_amount": {
+                        "type": "string",
+                        "title": "Original base amount deposited"
+                      },
+                      "weighted_amount": {
+                        "type": "string",
+                        "title": "Weighted amount based on asset's market value"
+                      }
+                    },
+                    "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "validator_addr",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations": {
       "get": {
         "summary": "ValidatorDelegations queries delegate info for given validator.",
@@ -23235,8 +24534,8 @@
                             "description": "shares define the delegation shares received."
                           },
                           "asset_weights": {
-                            "type": "object",
-                            "additionalProperties": {
+                            "type": "array",
+                            "items": {
                               "type": "object",
                               "properties": {
                                 "denom": {
@@ -23417,8 +24716,8 @@
                           "description": "shares define the delegation shares received."
                         },
                         "asset_weights": {
-                          "type": "object",
-                          "additionalProperties": {
+                          "type": "array",
+                          "items": {
                             "type": "object",
                             "properties": {
                               "denom": {
@@ -23654,8 +24953,8 @@
     },
     "/cosmos/staking/v1beta1/validators/{validator_addr}/total_boost": {
       "get": {
-        "summary": "TotalBoostedDelegation queries the total boosted delegation for a given validator.",
-        "operationId": "TotalBoostedDelegation",
+        "summary": "TotalBoostedValidator queries the total boosted validator for a given validator.",
+        "operationId": "TotalBoostedValidator",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -23664,10 +24963,13 @@
               "properties": {
                 "total_boost": {
                   "type": "string",
-                  "description": "total_boost defines the total boosted delegation amount for the validator."
+                  "description": "total_boost defines the total boosted validator amount for the validator."
+                },
+                "boost_percentage": {
+                  "type": "string"
                 }
               },
-              "description": "QueryTotalBoostedDelegationResponse is the response type for the Query/TotalBoostedDelegation RPC method."
+              "description": "QueryTotalBoostedValidatorResponse is the response type for the Query/TotalBoostedValidator RPC method."
             }
           },
           "default": {
@@ -23962,7 +25264,7 @@
         ]
       }
     },
-    "/cosmos/upgrade/v1beta1/applied_plan/{name}": {
+    "/cosmos/upgrade/v1beta1/applied_plan/{version}": {
       "get": {
         "summary": "AppliedPlan queries a previously applied upgrade plan by its name.",
         "operationId": "AppliedPlan",
@@ -24020,13 +25322,112 @@
         },
         "parameters": [
           {
-            "name": "name",
-            "description": "name is the name of the applied plan to query for.",
+            "name": "version",
+            "description": "version is the version of the applied plan to query for.",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/cosmos/upgrade/v1beta1/applied_plans": {
+      "get": {
+        "summary": "AppliedPlans queries a list of previously applied upgrade plans.",
+        "operationId": "AppliedPlans",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "applied_plans": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Sets the name for the upgrade. This name will be used by the upgraded\nversion of the software to apply any special \"on-upgrade\" commands during\nthe first BeginBlock method after the upgrade is applied. It is also used\nto detect whether a software version can handle a given upgrade. If no\nupgrade handler with this name has been set in the software, it will be\nassumed that the software is out-of-date when the upgrade Time or Height is\nreached and the software will exit."
+                      },
+                      "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Deprecated: Time based upgrades have been deprecated. Time based upgrade logic\nhas been removed from the SDK.\nIf this field is not empty, an error will be thrown."
+                      },
+                      "height": {
+                        "type": "string",
+                        "format": "int64",
+                        "description": "The height at which the upgrade must be performed."
+                      },
+                      "info": {
+                        "type": "string",
+                        "title": "Any application specific upgrade info to be included on-chain\nsuch as a git commit that validators could automatically upgrade to"
+                      },
+                      "upgraded_client_state": {
+                        "type": "object",
+                        "properties": {
+                          "type_url": {
+                            "type": "string",
+                            "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "byte",
+                            "description": "Must be a valid serialized protocol buffer of the above specified type."
+                          }
+                        },
+                        "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                      }
+                    },
+                    "description": "Plan specifies information about a planned upgrade and when it should occur."
+                  },
+                  "description": "applied_plans is a list of applied upgrade plans."
+                }
+              },
+              "description": "QueryAppliedPlansResponse is the response type for the Query/AppliedPlans RPC\nmethod."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
         "tags": [
           "Query"
         ]
@@ -24104,7 +25505,6 @@
               "type": "object",
               "properties": {
                 "plan": {
-                  "description": "plan is the current upgrade plan.",
                   "type": "object",
                   "properties": {
                     "name": {
@@ -24140,7 +25540,8 @@
                       },
                       "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
                     }
-                  }
+                  },
+                  "description": "Plan specifies information about a planned upgrade and when it should occur."
                 }
               },
               "description": "QueryCurrentPlanResponse is the response type for the Query/CurrentPlan RPC\nmethod."
@@ -27827,7 +29228,7 @@
           },
           {
             "name": "latest_height",
-            "description": "latest_height overrrides the height field and queries the latest stored\nConsensusState.",
+            "description": "latest_height overrides the height field and queries the latest stored\nConsensusState.",
             "in": "query",
             "required": false,
             "type": "boolean"
@@ -28312,7 +29713,7 @@
                               "title": "list of features compatible with the specified identifier"
                             }
                           },
-                          "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+                          "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
                         },
                         "title": "IBC version which can be utilised to determine encodings or protocols for\nchannels or packets utilising this connection"
                       },
@@ -28517,7 +29918,7 @@
                             "title": "list of features compatible with the specified identifier"
                           }
                         },
-                        "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+                        "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
                       },
                       "description": "IBC version which can be utilised to determine encodings or protocols for\nchannels or packets utilising this connection."
                     },
@@ -32480,6 +33881,9 @@
         },
         "is_originated": {
           "type": "boolean"
+        },
+        "total_supply": {
+          "type": "string"
         }
       }
     },
@@ -32597,6 +34001,9 @@
               },
               "is_originated": {
                 "type": "boolean"
+              },
+              "total_supply": {
+                "type": "string"
               }
             }
           },
@@ -32987,6 +34394,9 @@
                   },
                   "is_originated": {
                     "type": "boolean"
+                  },
+                  "total_supply": {
+                    "type": "string"
                   }
                 }
               },
@@ -35114,6 +36524,35 @@
         }
       }
     },
+    "helios.hyperion.v1.QueryGetAllSkippedNoncesResponse": {
+      "type": "object",
+      "properties": {
+        "skipped_nonces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hyperion_id": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "start_height": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "end_height": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "nonce": {
+                "type": "string",
+                "format": "uint64"
+              }
+            }
+          }
+        }
+      }
+    },
     "helios.hyperion.v1.QueryGetCounterpartyChainParamsByChainIdResponse": {
       "type": "object",
       "properties": {
@@ -35728,6 +37167,9 @@
                         },
                         "is_originated": {
                           "type": "boolean"
+                        },
+                        "total_supply": {
+                          "type": "string"
                         }
                       }
                     },
@@ -37679,6 +39121,27 @@
         }
       }
     },
+    "helios.hyperion.v1.SkippedNonceFullInfoWithHyperionId": {
+      "type": "object",
+      "properties": {
+        "hyperion_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "start_height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "end_height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "nonce": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "helios.hyperion.v1.SlashData": {
       "type": "object",
       "properties": {
@@ -38674,6 +40137,9 @@
                   },
                   "is_originated": {
                     "type": "boolean"
+                  },
+                  "total_supply": {
+                    "type": "string"
                   }
                 }
               },
@@ -38857,6 +40323,9 @@
                             },
                             "is_originated": {
                               "type": "boolean"
+                            },
+                            "total_supply": {
+                              "type": "string"
                             }
                           }
                         },
@@ -39014,6 +40483,9 @@
                       },
                       "is_originated": {
                         "type": "boolean"
+                      },
+                      "total_supply": {
+                        "type": "string"
                       }
                     }
                   },
@@ -39133,6 +40605,9 @@
                       },
                       "is_originated": {
                         "type": "boolean"
+                      },
+                      "total_supply": {
+                        "type": "string"
                       }
                     }
                   },
@@ -39249,6 +40724,9 @@
                   },
                   "is_originated": {
                     "type": "boolean"
+                  },
+                  "total_supply": {
+                    "type": "string"
                   }
                 }
               },
@@ -39355,6 +40833,9 @@
                   },
                   "is_originated": {
                     "type": "boolean"
+                  },
+                  "total_supply": {
+                    "type": "string"
                   }
                 }
               },
@@ -39571,6 +41052,9 @@
                         },
                         "is_originated": {
                           "type": "boolean"
+                        },
+                        "total_supply": {
+                          "type": "string"
                         }
                       }
                     },
@@ -39710,6 +41194,9 @@
                         },
                         "is_originated": {
                           "type": "boolean"
+                        },
+                        "total_supply": {
+                          "type": "string"
                         }
                       }
                     },
@@ -39845,6 +41332,9 @@
                     },
                     "is_originated": {
                       "type": "boolean"
+                    },
+                    "total_supply": {
+                      "type": "string"
                     }
                   }
                 },
@@ -40164,6 +41654,9 @@
                       },
                       "is_originated": {
                         "type": "boolean"
+                      },
+                      "total_supply": {
+                        "type": "string"
                       }
                     }
                   },
@@ -48256,6 +49749,28 @@
             }
           }
         },
+        "current_tally_result": {
+          "description": "current_tally_result is the current tally result of the proposal.",
+          "type": "object",
+          "properties": {
+            "yes_count": {
+              "type": "string",
+              "description": "yes_count is the number of yes votes on a proposal."
+            },
+            "abstain_count": {
+              "type": "string",
+              "description": "abstain_count is the number of abstain votes on a proposal."
+            },
+            "no_count": {
+              "type": "string",
+              "description": "no_count is the number of no votes on a proposal."
+            },
+            "no_with_veto_count": {
+              "type": "string",
+              "description": "no_with_veto_count is the number of no with veto votes on a proposal."
+            }
+          }
+        },
         "submit_time": {
           "type": "string",
           "format": "date-time",
@@ -48659,6 +50174,28 @@
                 }
               }
             },
+            "current_tally_result": {
+              "description": "current_tally_result is the current tally result of the proposal.",
+              "type": "object",
+              "properties": {
+                "yes_count": {
+                  "type": "string",
+                  "description": "yes_count is the number of yes votes on a proposal."
+                },
+                "abstain_count": {
+                  "type": "string",
+                  "description": "abstain_count is the number of abstain votes on a proposal."
+                },
+                "no_count": {
+                  "type": "string",
+                  "description": "no_count is the number of no votes on a proposal."
+                },
+                "no_with_veto_count": {
+                  "type": "string",
+                  "description": "no_with_veto_count is the number of no with veto votes on a proposal."
+                }
+              }
+            },
             "submit_time": {
               "type": "string",
               "format": "date-time",
@@ -48730,6 +50267,17 @@
       },
       "description": "QueryProposalResponse is the response type for the Query/Proposal RPC method."
     },
+    "cosmos.gov.v1.QueryProposalsCountResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "string",
+          "format": "uint64",
+          "description": "count defines the total number of existing proposals."
+        }
+      },
+      "description": "QueryProposalsCountResponse is the response type for the Query/ProposalsCount RPC method."
+    },
     "cosmos.gov.v1.QueryProposalsResponse": {
       "type": "object",
       "properties": {
@@ -48777,6 +50325,28 @@
               },
               "final_tally_result": {
                 "description": "final_tally_result is the final tally result of the proposal. When\nquerying a proposal via gRPC, this field is not populated until the\nproposal's voting period has ended.",
+                "type": "object",
+                "properties": {
+                  "yes_count": {
+                    "type": "string",
+                    "description": "yes_count is the number of yes votes on a proposal."
+                  },
+                  "abstain_count": {
+                    "type": "string",
+                    "description": "abstain_count is the number of abstain votes on a proposal."
+                  },
+                  "no_count": {
+                    "type": "string",
+                    "description": "no_count is the number of no votes on a proposal."
+                  },
+                  "no_with_veto_count": {
+                    "type": "string",
+                    "description": "no_with_veto_count is the number of no with veto votes on a proposal."
+                  }
+                }
+              },
+              "current_tally_result": {
+                "description": "current_tally_result is the current tally result of the proposal.",
                 "type": "object",
                 "properties": {
                   "yes_count": {
@@ -49610,8 +51180,8 @@
           "description": "shares define the delegation shares received."
         },
         "asset_weights": {
-          "type": "object",
-          "additionalProperties": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
               "denom": {
@@ -49638,6 +51208,27 @@
       },
       "description": "Delegation represents the bond with tokens held by an account. It is\nowned by one delegator, and is associated with the voting power of one\nvalidator."
     },
+    "cosmos.staking.v1beta1.DelegationBoost": {
+      "type": "object",
+      "properties": {
+        "delegator_address": {
+          "type": "string",
+          "description": "delegator_address is the encoded address of the delegator."
+        },
+        "validator_address": {
+          "type": "string",
+          "description": "validator_address is the encoded address of the validator."
+        },
+        "shares": {
+          "type": "string",
+          "description": "shares define the delegation shares received."
+        },
+        "amount": {
+          "type": "string",
+          "title": "Total weighted amount across all assets"
+        }
+      }
+    },
     "cosmos.staking.v1beta1.DelegationResponse": {
       "type": "object",
       "properties": {
@@ -49657,8 +51248,8 @@
               "description": "shares define the delegation shares received."
             },
             "asset_weights": {
-              "type": "object",
-              "additionalProperties": {
+              "type": "array",
+              "items": {
                 "type": "object",
                 "properties": {
                   "denom": {
@@ -49725,6 +51316,98 @@
         }
       },
       "description": "Description defines a validator description."
+    },
+    "cosmos.staking.v1beta1.EpochValidatorDetail": {
+      "type": "object",
+      "properties": {
+        "validator_address": {
+          "type": "string"
+        },
+        "operator_address": {
+          "type": "string"
+        },
+        "blocks_signed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "signature": {
+                "type": "boolean"
+              },
+              "height": {
+                "type": "string",
+                "format": "int64"
+              }
+            }
+          }
+        },
+        "blocks_missed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "int64"
+          }
+        },
+        "bonded_tokens": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "is_slashed": {
+          "type": "boolean"
+        },
+        "is_jailed": {
+          "type": "boolean"
+        },
+        "asset_weights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denom": {
+                "type": "string",
+                "title": "Denomination of the asset"
+              },
+              "base_amount": {
+                "type": "string",
+                "title": "Original base amount deposited"
+              },
+              "weighted_amount": {
+                "type": "string",
+                "title": "Weighted amount based on asset's market value"
+              }
+            },
+            "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+          }
+        },
+        "missed_block_count": {
+          "type": "string",
+          "format": "int64"
+        },
+        "signing_info_start_height": {
+          "type": "string"
+        },
+        "commission_rate": {
+          "type": "string"
+        },
+        "voting_power": {
+          "type": "string",
+          "title": "Voting power for this validator"
+        }
+      }
+    },
+    "cosmos.staking.v1beta1.EpochValidatorSignature": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "boolean"
+        },
+        "height": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
     },
     "cosmos.staking.v1beta1.HistoricalInfo": {
       "type": "object",
@@ -49958,6 +51641,187 @@
               },
               "delegate_authorization": {
                 "type": "boolean"
+              },
+              "total_asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
+              }
+            },
+            "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
+          }
+        },
+        "inactive_valset": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "operator_address": {
+                "type": "string",
+                "description": "operator_address defines the address of the validator's operator; bech encoded in JSON."
+              },
+              "consensus_pubkey": {
+                "type": "object",
+                "properties": {
+                  "type_url": {
+                    "type": "string",
+                    "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                  },
+                  "value": {
+                    "type": "string",
+                    "format": "byte",
+                    "description": "Must be a valid serialized protocol buffer of the above specified type."
+                  }
+                },
+                "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+              },
+              "jailed": {
+                "type": "boolean",
+                "description": "jailed defined whether the validator has been jailed from bonded status or not."
+              },
+              "status": {
+                "description": "status is the validator status (bonded/unbonding/unbonded).",
+                "type": "string",
+                "enum": [
+                  "BOND_STATUS_UNSPECIFIED",
+                  "BOND_STATUS_UNBONDED",
+                  "BOND_STATUS_UNBONDING",
+                  "BOND_STATUS_BONDED"
+                ],
+                "default": "BOND_STATUS_UNSPECIFIED"
+              },
+              "tokens": {
+                "type": "string",
+                "description": "tokens define the delegated tokens (incl. self-delegation)."
+              },
+              "delegator_shares": {
+                "type": "string",
+                "description": "delegator_shares defines total shares issued to a validator's delegators."
+              },
+              "description": {
+                "description": "description defines the description terms for the validator.",
+                "type": "object",
+                "properties": {
+                  "moniker": {
+                    "type": "string",
+                    "description": "moniker defines a human-readable name for the validator."
+                  },
+                  "identity": {
+                    "type": "string",
+                    "description": "identity defines an optional identity signature (ex. UPort or Keybase)."
+                  },
+                  "website": {
+                    "type": "string",
+                    "description": "website defines an optional website link."
+                  },
+                  "security_contact": {
+                    "type": "string",
+                    "description": "security_contact defines an optional email for security contact."
+                  },
+                  "details": {
+                    "type": "string",
+                    "description": "details define other optional details."
+                  }
+                }
+              },
+              "unbonding_height": {
+                "type": "string",
+                "format": "int64",
+                "description": "unbonding_height defines, if unbonding, the height at which this validator has begun unbonding."
+              },
+              "unbonding_time": {
+                "type": "string",
+                "format": "date-time",
+                "description": "unbonding_time defines, if unbonding, the min time for the validator to complete unbonding."
+              },
+              "commission": {
+                "description": "commission defines the commission parameters.",
+                "type": "object",
+                "properties": {
+                  "commission_rates": {
+                    "description": "commission_rates defines the initial commission rates to be used for creating a validator.",
+                    "type": "object",
+                    "properties": {
+                      "rate": {
+                        "type": "string",
+                        "description": "rate is the commission rate charged to delegators, as a fraction."
+                      },
+                      "max_rate": {
+                        "type": "string",
+                        "description": "max_rate defines the maximum commission rate which validator can ever charge, as a fraction."
+                      },
+                      "max_change_rate": {
+                        "type": "string",
+                        "description": "max_change_rate defines the maximum daily increase of the validator commission, as a fraction."
+                      }
+                    }
+                  },
+                  "update_time": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "update_time is the last time the commission rate was changed."
+                  }
+                }
+              },
+              "min_self_delegation": {
+                "type": "string",
+                "description": "min_self_delegation is the validator's self declared minimum self delegation.\n\nSince: cosmos-sdk 0.46"
+              },
+              "unbonding_on_hold_ref_count": {
+                "type": "string",
+                "format": "int64",
+                "title": "strictly positive if this validator's unbonding has been stopped by external modules"
+              },
+              "unbonding_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+              },
+              "min_delegation": {
+                "type": "string"
+              },
+              "delegate_authorization": {
+                "type": "boolean"
+              },
+              "total_asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -50072,6 +51936,83 @@
       },
       "description": "Pool is used for tracking bonded and not-bonded token supply of the bond\ndenomination."
     },
+    "cosmos.staking.v1beta1.QueryBlockSignaturesResponse": {
+      "type": "object",
+      "properties": {
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "signed": {
+                "type": "boolean"
+              },
+              "index_offset": {
+                "type": "string",
+                "format": "int64"
+              },
+              "total_tokens": {
+                "type": "string"
+              },
+              "asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
+              },
+              "epoch_number": {
+                "type": "string",
+                "format": "int64"
+              },
+              "status": {
+                "type": "string"
+              },
+              "jailed": {
+                "type": "boolean"
+              },
+              "missed_block_count": {
+                "type": "string",
+                "format": "int64"
+              }
+            }
+          }
+        },
+        "current_epoch": {
+          "type": "string",
+          "format": "int64"
+        },
+        "epoch_blocks_validated": {
+          "type": "string",
+          "format": "int64"
+        },
+        "epoch_blocks_remaining": {
+          "type": "string",
+          "format": "int64"
+        },
+        "block_height": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "cosmos.staking.v1beta1.QueryCurrentEpochResponse": {
       "type": "object",
       "properties": {
@@ -50119,8 +52060,8 @@
                   "description": "shares define the delegation shares received."
                 },
                 "asset_weights": {
-                  "type": "object",
-                  "additionalProperties": {
+                  "type": "array",
+                  "items": {
                     "type": "object",
                     "properties": {
                       "denom": {
@@ -50189,8 +52130,8 @@
                     "description": "shares define the delegation shares received."
                   },
                   "asset_weights": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                       "type": "object",
                       "properties": {
                         "denom": {
@@ -50470,6 +52411,27 @@
             },
             "delegate_authorization": {
               "type": "boolean"
+            },
+            "total_asset_weights": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "denom": {
+                    "type": "string",
+                    "title": "Denomination of the asset"
+                  },
+                  "base_amount": {
+                    "type": "string",
+                    "title": "Original base amount deposited"
+                  },
+                  "weighted_amount": {
+                    "type": "string",
+                    "title": "Weighted amount based on asset's market value"
+                  }
+                },
+                "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+              }
             }
           },
           "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -50614,6 +52576,27 @@
               },
               "delegate_authorization": {
                 "type": "boolean"
+              },
+              "total_asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -50638,6 +52621,132 @@
         }
       },
       "description": "QueryDelegatorValidatorsResponse is response type for the\nQuery/DelegatorValidators RPC method."
+    },
+    "cosmos.staking.v1beta1.QueryEpochCompleteResponse": {
+      "type": "object",
+      "properties": {
+        "epoch": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "epoch_length": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "start_height": {
+          "type": "string",
+          "format": "int64"
+        },
+        "end_height": {
+          "type": "string",
+          "format": "int64"
+        },
+        "current_height": {
+          "type": "string",
+          "format": "int64"
+        },
+        "blocks_validated": {
+          "type": "string",
+          "format": "int64"
+        },
+        "blocks_remaining": {
+          "type": "string",
+          "format": "int64"
+        },
+        "blocks_until_next_epoch": {
+          "type": "string",
+          "format": "int64"
+        },
+        "validators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "validator_address": {
+                "type": "string"
+              },
+              "operator_address": {
+                "type": "string"
+              },
+              "blocks_signed": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "signature": {
+                      "type": "boolean"
+                    },
+                    "height": {
+                      "type": "string",
+                      "format": "int64"
+                    }
+                  }
+                }
+              },
+              "blocks_missed": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "int64"
+                }
+              },
+              "bonded_tokens": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "is_slashed": {
+                "type": "boolean"
+              },
+              "is_jailed": {
+                "type": "boolean"
+              },
+              "asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
+              },
+              "missed_block_count": {
+                "type": "string",
+                "format": "int64"
+              },
+              "signing_info_start_height": {
+                "type": "string"
+              },
+              "commission_rate": {
+                "type": "string"
+              },
+              "voting_power": {
+                "type": "string",
+                "title": "Voting power for this validator"
+              }
+            }
+          }
+        },
+        "total_tokens": {
+          "type": "string"
+        },
+        "total_voting_power": {
+          "type": "string"
+        }
+      }
     },
     "cosmos.staking.v1beta1.QueryEpochInfoResponse": {
       "type": "object",
@@ -50819,6 +52928,27 @@
               },
               "delegate_authorization": {
                 "type": "boolean"
+              },
+              "total_asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -50864,8 +52994,8 @@
                 "description": "shares define the delegation shares received."
               },
               "asset_weights": {
-                "type": "object",
-                "additionalProperties": {
+                "type": "array",
+                "items": {
                   "type": "object",
                   "properties": {
                     "denom": {
@@ -51133,6 +53263,187 @@
                   },
                   "delegate_authorization": {
                     "type": "boolean"
+                  },
+                  "total_asset_weights": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "denom": {
+                          "type": "string",
+                          "title": "Denomination of the asset"
+                        },
+                        "base_amount": {
+                          "type": "string",
+                          "title": "Original base amount deposited"
+                        },
+                        "weighted_amount": {
+                          "type": "string",
+                          "title": "Weighted amount based on asset's market value"
+                        }
+                      },
+                      "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                    }
+                  }
+                },
+                "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
+              }
+            },
+            "inactive_valset": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "operator_address": {
+                    "type": "string",
+                    "description": "operator_address defines the address of the validator's operator; bech encoded in JSON."
+                  },
+                  "consensus_pubkey": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  },
+                  "jailed": {
+                    "type": "boolean",
+                    "description": "jailed defined whether the validator has been jailed from bonded status or not."
+                  },
+                  "status": {
+                    "description": "status is the validator status (bonded/unbonding/unbonded).",
+                    "type": "string",
+                    "enum": [
+                      "BOND_STATUS_UNSPECIFIED",
+                      "BOND_STATUS_UNBONDED",
+                      "BOND_STATUS_UNBONDING",
+                      "BOND_STATUS_BONDED"
+                    ],
+                    "default": "BOND_STATUS_UNSPECIFIED"
+                  },
+                  "tokens": {
+                    "type": "string",
+                    "description": "tokens define the delegated tokens (incl. self-delegation)."
+                  },
+                  "delegator_shares": {
+                    "type": "string",
+                    "description": "delegator_shares defines total shares issued to a validator's delegators."
+                  },
+                  "description": {
+                    "description": "description defines the description terms for the validator.",
+                    "type": "object",
+                    "properties": {
+                      "moniker": {
+                        "type": "string",
+                        "description": "moniker defines a human-readable name for the validator."
+                      },
+                      "identity": {
+                        "type": "string",
+                        "description": "identity defines an optional identity signature (ex. UPort or Keybase)."
+                      },
+                      "website": {
+                        "type": "string",
+                        "description": "website defines an optional website link."
+                      },
+                      "security_contact": {
+                        "type": "string",
+                        "description": "security_contact defines an optional email for security contact."
+                      },
+                      "details": {
+                        "type": "string",
+                        "description": "details define other optional details."
+                      }
+                    }
+                  },
+                  "unbonding_height": {
+                    "type": "string",
+                    "format": "int64",
+                    "description": "unbonding_height defines, if unbonding, the height at which this validator has begun unbonding."
+                  },
+                  "unbonding_time": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "unbonding_time defines, if unbonding, the min time for the validator to complete unbonding."
+                  },
+                  "commission": {
+                    "description": "commission defines the commission parameters.",
+                    "type": "object",
+                    "properties": {
+                      "commission_rates": {
+                        "description": "commission_rates defines the initial commission rates to be used for creating a validator.",
+                        "type": "object",
+                        "properties": {
+                          "rate": {
+                            "type": "string",
+                            "description": "rate is the commission rate charged to delegators, as a fraction."
+                          },
+                          "max_rate": {
+                            "type": "string",
+                            "description": "max_rate defines the maximum commission rate which validator can ever charge, as a fraction."
+                          },
+                          "max_change_rate": {
+                            "type": "string",
+                            "description": "max_change_rate defines the maximum daily increase of the validator commission, as a fraction."
+                          }
+                        }
+                      },
+                      "update_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "update_time is the last time the commission rate was changed."
+                      }
+                    }
+                  },
+                  "min_self_delegation": {
+                    "type": "string",
+                    "description": "min_self_delegation is the validator's self declared minimum self delegation.\n\nSince: cosmos-sdk 0.46"
+                  },
+                  "unbonding_on_hold_ref_count": {
+                    "type": "string",
+                    "format": "int64",
+                    "title": "strictly positive if this validator's unbonding has been stopped by external modules"
+                  },
+                  "unbonding_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uint64"
+                    },
+                    "title": "list of unbonding ids, each uniquely identifing an unbonding of this validator"
+                  },
+                  "min_delegation": {
+                    "type": "string"
+                  },
+                  "delegate_authorization": {
+                    "type": "boolean"
+                  },
+                  "total_asset_weights": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "denom": {
+                          "type": "string",
+                          "title": "Denomination of the asset"
+                        },
+                        "base_amount": {
+                          "type": "string",
+                          "title": "Original base amount deposited"
+                        },
+                        "weighted_amount": {
+                          "type": "string",
+                          "title": "Weighted amount based on asset's market value"
+                        }
+                      },
+                      "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                    }
                   }
                 },
                 "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -51407,6 +53718,27 @@
               },
               "delegate_authorization": {
                 "type": "boolean"
+              },
+              "total_asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -51606,6 +53938,48 @@
       },
       "description": "QueryTotalBoostedDelegationResponse is the response type for the Query/TotalBoostedDelegation RPC method."
     },
+    "cosmos.staking.v1beta1.QueryTotalBoostedDelegationsResponse": {
+      "type": "object",
+      "properties": {
+        "delegation_boosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "delegator_address": {
+                "type": "string",
+                "description": "delegator_address is the encoded address of the delegator."
+              },
+              "validator_address": {
+                "type": "string",
+                "description": "validator_address is the encoded address of the validator."
+              },
+              "shares": {
+                "type": "string",
+                "description": "shares define the delegation shares received."
+              },
+              "amount": {
+                "type": "string",
+                "title": "Total weighted amount across all assets"
+              }
+            }
+          }
+        }
+      }
+    },
+    "cosmos.staking.v1beta1.QueryTotalBoostedValidatorResponse": {
+      "type": "object",
+      "properties": {
+        "total_boost": {
+          "type": "string",
+          "description": "total_boost defines the total boosted validator amount for the validator."
+        },
+        "boost_percentage": {
+          "type": "string"
+        }
+      },
+      "description": "QueryTotalBoostedValidatorResponse is the response type for the Query/TotalBoostedValidator RPC method."
+    },
     "cosmos.staking.v1beta1.QueryUnbondingDelegationResponse": {
       "type": "object",
       "properties": {
@@ -51670,6 +54044,32 @@
       },
       "description": "QueryDelegationResponse is response type for the Query/UnbondingDelegation\nRPC method."
     },
+    "cosmos.staking.v1beta1.QueryValidatorAssetsResponse": {
+      "type": "object",
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denom": {
+                "type": "string",
+                "title": "Denomination of the asset"
+              },
+              "base_amount": {
+                "type": "string",
+                "title": "Original base amount deposited"
+              },
+              "weighted_amount": {
+                "type": "string",
+                "title": "Weighted amount based on asset's market value"
+              }
+            },
+            "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+          }
+        }
+      }
+    },
     "cosmos.staking.v1beta1.QueryValidatorDelegationsResponse": {
       "type": "object",
       "properties": {
@@ -51694,8 +54094,8 @@
                     "description": "shares define the delegation shares received."
                   },
                   "asset_weights": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                       "type": "object",
                       "properties": {
                         "denom": {
@@ -51892,6 +54292,27 @@
             },
             "delegate_authorization": {
               "type": "boolean"
+            },
+            "total_asset_weights": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "denom": {
+                    "type": "string",
+                    "title": "Denomination of the asset"
+                  },
+                  "base_amount": {
+                    "type": "string",
+                    "title": "Original base amount deposited"
+                  },
+                  "weighted_amount": {
+                    "type": "string",
+                    "title": "Weighted amount based on asset's market value"
+                  }
+                },
+                "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+              }
             }
           },
           "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -52129,6 +54550,27 @@
               },
               "delegate_authorization": {
                 "type": "boolean"
+              },
+              "total_asset_weights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "denom": {
+                      "type": "string",
+                      "title": "Denomination of the asset"
+                    },
+                    "base_amount": {
+                      "type": "string",
+                      "title": "Original base amount deposited"
+                    },
+                    "weighted_amount": {
+                      "type": "string",
+                      "title": "Weighted amount based on asset's market value"
+                    }
+                  },
+                  "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+                }
               }
             },
             "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
@@ -52670,9 +55112,83 @@
         },
         "delegate_authorization": {
           "type": "boolean"
+        },
+        "total_asset_weights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denom": {
+                "type": "string",
+                "title": "Denomination of the asset"
+              },
+              "base_amount": {
+                "type": "string",
+                "title": "Original base amount deposited"
+              },
+              "weighted_amount": {
+                "type": "string",
+                "title": "Weighted amount based on asset's market value"
+              }
+            },
+            "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+          }
         }
       },
       "description": "Validator defines a validator, together with the total amount of the\nValidator's bond shares and their exchange rate to coins. Slashing results in\na decrease in the exchange rate, allowing correct calculation of future\nundelegations without iterating over delegators. When coins are delegated to\nthis validator, the validator is credited with a delegation whose number of\nbond shares is based on the amount of coins delegated divided by the current\nexchange rate. Voting power can be calculated as total bonded shares\nmultiplied by exchange rate."
+    },
+    "cosmos.staking.v1beta1.ValidatorSigningStatus": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "signed": {
+          "type": "boolean"
+        },
+        "index_offset": {
+          "type": "string",
+          "format": "int64"
+        },
+        "total_tokens": {
+          "type": "string"
+        },
+        "asset_weights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denom": {
+                "type": "string",
+                "title": "Denomination of the asset"
+              },
+              "base_amount": {
+                "type": "string",
+                "title": "Original base amount deposited"
+              },
+              "weighted_amount": {
+                "type": "string",
+                "title": "Weighted amount based on asset's market value"
+              }
+            },
+            "title": "Asset weight represent each sub-asset from helios consensus contained from governance proposals\nowned by one delegator"
+          }
+        },
+        "epoch_number": {
+          "type": "string",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "jailed": {
+          "type": "boolean"
+        },
+        "missed_block_count": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
     },
     "cosmos.upgrade.v1beta1.ModuleVersion": {
       "type": "object",
@@ -52739,6 +55255,55 @@
       },
       "description": "QueryAppliedPlanResponse is the response type for the Query/AppliedPlan RPC\nmethod."
     },
+    "cosmos.upgrade.v1beta1.QueryAppliedPlansResponse": {
+      "type": "object",
+      "properties": {
+        "applied_plans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Sets the name for the upgrade. This name will be used by the upgraded\nversion of the software to apply any special \"on-upgrade\" commands during\nthe first BeginBlock method after the upgrade is applied. It is also used\nto detect whether a software version can handle a given upgrade. If no\nupgrade handler with this name has been set in the software, it will be\nassumed that the software is out-of-date when the upgrade Time or Height is\nreached and the software will exit."
+              },
+              "time": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Deprecated: Time based upgrades have been deprecated. Time based upgrade logic\nhas been removed from the SDK.\nIf this field is not empty, an error will be thrown."
+              },
+              "height": {
+                "type": "string",
+                "format": "int64",
+                "description": "The height at which the upgrade must be performed."
+              },
+              "info": {
+                "type": "string",
+                "title": "Any application specific upgrade info to be included on-chain\nsuch as a git commit that validators could automatically upgrade to"
+              },
+              "upgraded_client_state": {
+                "type": "object",
+                "properties": {
+                  "type_url": {
+                    "type": "string",
+                    "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                  },
+                  "value": {
+                    "type": "string",
+                    "format": "byte",
+                    "description": "Must be a valid serialized protocol buffer of the above specified type."
+                  }
+                },
+                "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+              }
+            },
+            "description": "Plan specifies information about a planned upgrade and when it should occur."
+          },
+          "description": "applied_plans is a list of applied upgrade plans."
+        }
+      },
+      "description": "QueryAppliedPlansResponse is the response type for the Query/AppliedPlans RPC\nmethod."
+    },
     "cosmos.upgrade.v1beta1.QueryAuthorityResponse": {
       "type": "object",
       "properties": {
@@ -52753,7 +55318,6 @@
       "type": "object",
       "properties": {
         "plan": {
-          "description": "plan is the current upgrade plan.",
           "type": "object",
           "properties": {
             "name": {
@@ -52789,7 +55353,8 @@
               },
               "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
             }
-          }
+          },
+          "description": "Plan specifies information about a planned upgrade and when it should occur."
         }
       },
       "description": "QueryCurrentPlanResponse is the response type for the Query/CurrentPlan RPC\nmethod."
@@ -54829,7 +57394,7 @@
                 "title": "list of features compatible with the specified identifier"
               }
             },
-            "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+            "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
           },
           "description": "IBC version which can be utilised to determine encodings or protocols for\nchannels or packets utilising this connection."
         },
@@ -54930,7 +57495,7 @@
                 "title": "list of features compatible with the specified identifier"
               }
             },
-            "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+            "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
           },
           "title": "IBC version which can be utilised to determine encodings or protocols for\nchannels or packets utilising this connection"
         },
@@ -55172,7 +57737,7 @@
                     "title": "list of features compatible with the specified identifier"
                   }
                 },
-                "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+                "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
               },
               "description": "IBC version which can be utilised to determine encodings or protocols for\nchannels or packets utilising this connection."
             },
@@ -55278,7 +57843,7 @@
                       "title": "list of features compatible with the specified identifier"
                     }
                   },
-                  "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+                  "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
                 },
                 "title": "IBC version which can be utilised to determine encodings or protocols for\nchannels or packets utilising this connection"
               },
@@ -55391,7 +57956,7 @@
           "title": "list of features compatible with the specified identifier"
         }
       },
-      "description": "Version defines the versioning scheme used to negotiate the IBC verison in\nthe connection handshake."
+      "description": "Version defines the versioning scheme used to negotiate the IBC version in\nthe connection handshake."
     },
     "cosmwasm.wasm.v1.AbsoluteTxPosition": {
       "type": "object",

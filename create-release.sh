@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Config
 REPO="helios-network/helios-core"           # ex: "mon-org/mon-repo"
-TAG="v0.0.254"
+TAG="v0.0.271"
 TITLE="Release ${TAG}"
 NOTES="Release of the Helios Core"
 BINARY_PATH="/Users/jeremyguyet/go/bin/heliades"  # chemin vers ton binaire

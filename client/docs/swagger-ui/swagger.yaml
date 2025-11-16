@@ -2862,6 +2862,238 @@ paths:
           format: uint64
       tags:
         - Query
+  /hyperion/v1/all_skipped_nonces:
+    get:
+      operationId: QueryGetAllSkippedNonces
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              skipped_nonces:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hyperion_id:
+                      type: string
+                      format: uint64
+                    start_height:
+                      type: string
+                      format: uint64
+                    end_height:
+                      type: string
+                      format: uint64
+                    nonce:
+                      type: string
+                      format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: hyperion_id
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
   /hyperion/v1/attestation/{nonce}/{claim_hash}:
     get:
       summary: attestation
@@ -6503,6 +6735,8 @@ paths:
                                 type: string
                               is_originated:
                                 type: boolean
+                              total_supply:
+                                type: string
                           title: |-
                             chains_metadatas is the list of chain metadata
                             Optional.
@@ -20698,6 +20932,8 @@ paths:
                                     type: string
                                   is_originated:
                                     type: boolean
+                                  total_supply:
+                                    type: string
                               title: |-
                                 chains_metadatas is the list of chain metadata
                                 Optional.
@@ -21384,6 +21620,8 @@ paths:
                                 type: string
                               is_originated:
                                 type: boolean
+                              total_supply:
+                                type: string
                           title: |-
                             chains_metadatas is the list of chain metadata
                             Optional.
@@ -21672,6 +21910,8 @@ paths:
                                 type: string
                               is_originated:
                                 type: boolean
+                              total_supply:
+                                type: string
                           title: |-
                             chains_metadatas is the list of chain metadata
                             Optional.
@@ -21941,6 +22181,8 @@ paths:
                               type: string
                             is_originated:
                               type: boolean
+                            total_supply:
+                              type: string
                         title: |-
                           chains_metadatas is the list of chain metadata
                           Optional.
@@ -22131,6 +22373,8 @@ paths:
                               type: string
                             is_originated:
                               type: boolean
+                            total_supply:
+                              type: string
                         title: |-
                           chains_metadatas is the list of chain metadata
                           Optional.
@@ -22321,6 +22565,8 @@ paths:
                             type: string
                           is_originated:
                             type: boolean
+                          total_supply:
+                            type: string
                       title: |-
                         chains_metadatas is the list of chain metadata
                         Optional.
@@ -22580,6 +22826,8 @@ paths:
                           type: string
                         is_originated:
                           type: boolean
+                        total_supply:
+                          type: string
                     title: |-
                       chains_metadatas is the list of chain metadata
                       Optional.
@@ -22759,6 +23007,8 @@ paths:
                           type: string
                         is_originated:
                           type: boolean
+                        total_supply:
+                          type: string
                     title: |-
                       chains_metadatas is the list of chain metadata
                       Optional.
@@ -31865,6 +32115,28 @@ paths:
                           description: >-
                             no_with_veto_count is the number of no with veto
                             votes on a proposal.
+                    current_tally_result:
+                      description: >-
+                        current_tally_result is the current tally result of the
+                        proposal.
+                      type: object
+                      properties:
+                        yes_count:
+                          type: string
+                          description: yes_count is the number of yes votes on a proposal.
+                        abstain_count:
+                          type: string
+                          description: >-
+                            abstain_count is the number of abstain votes on a
+                            proposal.
+                        no_count:
+                          type: string
+                          description: no_count is the number of no votes on a proposal.
+                        no_with_veto_count:
+                          type: string
+                          description: >-
+                            no_with_veto_count is the number of no with veto
+                            votes on a proposal.
                     submit_time:
                       type: string
                       format: date-time
@@ -32195,6 +32467,11 @@ paths:
           in: query
           required: false
           type: string
+        - name: proposer
+          description: proposer defines the proposer address for the proposals.
+          in: query
+          required: false
+          type: string
         - name: pagination.key
           description: |-
             key is a value returned in PageResponse.next_key to begin
@@ -32251,6 +32528,223 @@ paths:
           in: query
           required: false
           type: boolean
+      tags:
+        - Query
+  /cosmos/gov/v1/proposals/count:
+    get:
+      summary: ProposalsCount queries the total count of existing proposals.
+      operationId: ProposalsCount
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              count:
+                type: string
+                format: uint64
+                description: count defines the total number of existing proposals.
+            description: >-
+              QueryProposalsCountResponse is the response type for the
+              Query/ProposalsCount RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
       tags:
         - Query
   /cosmos/gov/v1/proposals/{proposal_id}:
@@ -32481,6 +32975,28 @@ paths:
                       until the
 
                       proposal's voting period has ended.
+                    type: object
+                    properties:
+                      yes_count:
+                        type: string
+                        description: yes_count is the number of yes votes on a proposal.
+                      abstain_count:
+                        type: string
+                        description: >-
+                          abstain_count is the number of abstain votes on a
+                          proposal.
+                      no_count:
+                        type: string
+                        description: no_count is the number of no votes on a proposal.
+                      no_with_veto_count:
+                        type: string
+                        description: >-
+                          no_with_veto_count is the number of no with veto votes
+                          on a proposal.
+                  current_tally_result:
+                    description: >-
+                      current_tally_result is the current tally result of the
+                      proposal.
                     type: object
                     properties:
                       yes_count:
@@ -34840,6 +35356,276 @@ paths:
           type: string
       tags:
         - Query
+  /cosmos/staking/v1beta1/block_signatures/{height}:
+    get:
+      operationId: BlockSignatures
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              signatures:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    signed:
+                      type: boolean
+                    index_offset:
+                      type: string
+                      format: int64
+                    total_tokens:
+                      type: string
+                    asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
+                    epoch_number:
+                      type: string
+                      format: int64
+                    status:
+                      type: string
+                    jailed:
+                      type: boolean
+                    missed_block_count:
+                      type: string
+                      format: int64
+              current_epoch:
+                type: string
+                format: int64
+              epoch_blocks_validated:
+                type: string
+                format: int64
+              epoch_blocks_remaining:
+                type: string
+                format: int64
+              block_height:
+                type: string
+                format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: height
+          in: path
+          required: true
+          type: string
+          format: int64
+      tags:
+        - Query
   /cosmos/staking/v1beta1/current_epoch:
     get:
       summary: GetCurrentEpoch returns the current epoch number
@@ -35067,6 +35853,237 @@ paths:
                         }
       tags:
         - Query
+  /cosmos/staking/v1beta1/delegation/{validator_addr}/{delegator_addr}/total_boost:
+    get:
+      summary: >-
+        TotalBoostedDelegation queries the total boosted delegation for a given
+        validator.
+      operationId: TotalBoostedDelegation
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              total_boost:
+                type: string
+                description: >-
+                  total_boost defines the total boosted delegation amount for
+                  the validator.
+            description: >-
+              QueryTotalBoostedDelegationResponse is the response type for the
+              Query/TotalBoostedDelegation RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: validator_addr
+          description: validator_addr defines the validator address to query.
+          in: path
+          required: true
+          type: string
+        - name: delegator_addr
+          description: delegator_addr defines the delegator address to query for.
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
   /cosmos/staking/v1beta1/delegations/{delegator_addr}:
     get:
       summary: >-
@@ -35106,8 +36123,8 @@ paths:
                           type: string
                           description: shares define the delegation shares received.
                         asset_weights:
-                          type: object
-                          additionalProperties:
+                          type: array
+                          items:
                             type: object
                             properties:
                               denom:
@@ -35439,6 +36456,241 @@ paths:
           in: query
           required: false
           type: boolean
+      tags:
+        - Query
+  /cosmos/staking/v1beta1/delegations/{delegator_addr}/total_boost:
+    get:
+      operationId: TotalBoostedDelegations
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              delegation_boosts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    delegator_address:
+                      type: string
+                      description: >-
+                        delegator_address is the encoded address of the
+                        delegator.
+                    validator_address:
+                      type: string
+                      description: >-
+                        validator_address is the encoded address of the
+                        validator.
+                    shares:
+                      type: string
+                      description: shares define the delegation shares received.
+                    amount:
+                      type: string
+                      title: Total weighted amount across all assets
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: delegator_addr
+          in: path
+          required: true
+          type: string
       tags:
         - Query
   /cosmos/staking/v1beta1/delegators/{delegator_addr}/redelegations:
@@ -36597,6 +37849,25 @@ paths:
                       type: string
                     delegate_authorization:
                       type: boolean
+                    total_asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -37231,6 +38502,25 @@ paths:
                     type: string
                   delegate_authorization:
                     type: boolean
+                  total_asset_weights:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                          title: Denomination of the asset
+                        base_amount:
+                          type: string
+                          title: Original base amount deposited
+                        weighted_amount:
+                          type: string
+                          title: Weighted amount based on asset's market value
+                      title: >-
+                        Asset weight represent each sub-asset from helios
+                        consensus contained from governance proposals
+
+                        owned by one delegator
                 description: >-
                   Validator defines a validator, together with the total amount
                   of the
@@ -37466,6 +38756,636 @@ paths:
           in: path
           required: true
           type: string
+      tags:
+        - Query
+  /cosmos/staking/v1beta1/epoch/{block_height}:
+    get:
+      summary: >-
+        EpochComplete queries complete epoch information including all
+        validators details
+      operationId: EpochComplete2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              epoch:
+                type: string
+                format: uint64
+              epoch_length:
+                type: string
+                format: uint64
+              start_height:
+                type: string
+                format: int64
+              end_height:
+                type: string
+                format: int64
+              current_height:
+                type: string
+                format: int64
+              blocks_validated:
+                type: string
+                format: int64
+              blocks_remaining:
+                type: string
+                format: int64
+              blocks_until_next_epoch:
+                type: string
+                format: int64
+              validators:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    validator_address:
+                      type: string
+                    operator_address:
+                      type: string
+                    blocks_signed:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          signature:
+                            type: boolean
+                          height:
+                            type: string
+                            format: int64
+                    blocks_missed:
+                      type: array
+                      items:
+                        type: string
+                        format: int64
+                    bonded_tokens:
+                      type: string
+                    status:
+                      type: string
+                    is_slashed:
+                      type: boolean
+                    is_jailed:
+                      type: boolean
+                    asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
+                    missed_block_count:
+                      type: string
+                      format: int64
+                    signing_info_start_height:
+                      type: string
+                    commission_rate:
+                      type: string
+                    voting_power:
+                      type: string
+                      title: Voting power for this validator
+              total_tokens:
+                type: string
+              total_voting_power:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: block_height
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: epoch_id
+          description: >-
+            Can pass either epoch_id directly or block_height to calculate
+            epoch_id.
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /cosmos/staking/v1beta1/epoch/{epoch_id}:
+    get:
+      summary: >-
+        EpochComplete queries complete epoch information including all
+        validators details
+      operationId: EpochComplete
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              epoch:
+                type: string
+                format: uint64
+              epoch_length:
+                type: string
+                format: uint64
+              start_height:
+                type: string
+                format: int64
+              end_height:
+                type: string
+                format: int64
+              current_height:
+                type: string
+                format: int64
+              blocks_validated:
+                type: string
+                format: int64
+              blocks_remaining:
+                type: string
+                format: int64
+              blocks_until_next_epoch:
+                type: string
+                format: int64
+              validators:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    validator_address:
+                      type: string
+                    operator_address:
+                      type: string
+                    blocks_signed:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          signature:
+                            type: boolean
+                          height:
+                            type: string
+                            format: int64
+                    blocks_missed:
+                      type: array
+                      items:
+                        type: string
+                        format: int64
+                    bonded_tokens:
+                      type: string
+                    status:
+                      type: string
+                    is_slashed:
+                      type: boolean
+                    is_jailed:
+                      type: boolean
+                    asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
+                    missed_block_count:
+                      type: string
+                      format: int64
+                    signing_info_start_height:
+                      type: string
+                    commission_rate:
+                      type: string
+                    voting_power:
+                      type: string
+                      title: Voting power for this validator
+              total_tokens:
+                type: string
+              total_voting_power:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: epoch_id
+          description: >-
+            Can pass either epoch_id directly or block_height to calculate
+            epoch_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: block_height
+          in: query
+          required: false
+          type: string
+          format: int64
       tags:
         - Query
   /cosmos/staking/v1beta1/epoch_enabled:
@@ -38463,6 +40383,25 @@ paths:
                       type: string
                     delegate_authorization:
                       type: boolean
+                    total_asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -39186,6 +41125,388 @@ paths:
                           type: string
                         delegate_authorization:
                           type: boolean
+                        total_asset_weights:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                                title: Denomination of the asset
+                              base_amount:
+                                type: string
+                                title: Original base amount deposited
+                              weighted_amount:
+                                type: string
+                                title: Weighted amount based on asset's market value
+                            title: >-
+                              Asset weight represent each sub-asset from helios
+                              consensus contained from governance proposals
+
+                              owned by one delegator
+                      description: >-
+                        Validator defines a validator, together with the total
+                        amount of the
+
+                        Validator's bond shares and their exchange rate to
+                        coins. Slashing results in
+
+                        a decrease in the exchange rate, allowing correct
+                        calculation of future
+
+                        undelegations without iterating over delegators. When
+                        coins are delegated to
+
+                        this validator, the validator is credited with a
+                        delegation whose number of
+
+                        bond shares is based on the amount of coins delegated
+                        divided by the current
+
+                        exchange rate. Voting power can be calculated as total
+                        bonded shares
+
+                        multiplied by exchange rate.
+                  inactive_valset:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        operator_address:
+                          type: string
+                          description: >-
+                            operator_address defines the address of the
+                            validator's operator; bech encoded in JSON.
+                        consensus_pubkey:
+                          type: object
+                          properties:
+                            type_url:
+                              type: string
+                              description: >-
+                                A URL/resource name that uniquely identifies the
+                                type of the serialized
+
+                                protocol buffer message. This string must
+                                contain at least
+
+                                one "/" character. The last segment of the URL's
+                                path must represent
+
+                                the fully qualified name of the type (as in
+
+                                `path/google.protobuf.Duration`). The name
+                                should be in a canonical form
+
+                                (e.g., leading "." is not accepted).
+
+
+                                In practice, teams usually precompile into the
+                                binary all types that they
+
+                                expect it to use in the context of Any. However,
+                                for URLs which use the
+
+                                scheme `http`, `https`, or no scheme, one can
+                                optionally set up a type
+
+                                server that maps type URLs to message
+                                definitions as follows:
+
+
+                                * If no scheme is provided, `https` is assumed.
+
+                                * An HTTP GET on the URL must yield a
+                                [google.protobuf.Type][]
+                                  value in binary format, or produce an error.
+                                * Applications are allowed to cache lookup
+                                results based on the
+                                  URL, or have them precompiled into a binary to avoid any
+                                  lookup. Therefore, binary compatibility needs to be preserved
+                                  on changes to types. (Use versioned type names to manage
+                                  breaking changes.)
+
+                                Note: this functionality is not currently
+                                available in the official
+
+                                protobuf release, and it is not used for type
+                                URLs beginning with
+
+                                type.googleapis.com. As of May 2023, there are
+                                no widely used type server
+
+                                implementations and no plans to implement one.
+
+
+                                Schemes other than `http`, `https` (or the empty
+                                scheme) might be
+
+                                used with implementation specific semantics.
+                            value:
+                              type: string
+                              format: byte
+                              description: >-
+                                Must be a valid serialized protocol buffer of
+                                the above specified type.
+                          description: >-
+                            `Any` contains an arbitrary serialized protocol
+                            buffer message along with a
+
+                            URL that describes the type of the serialized
+                            message.
+
+
+                            Protobuf library provides support to pack/unpack Any
+                            values in the form
+
+                            of utility functions or additional generated methods
+                            of the Any type.
+
+
+                            Example 1: Pack and unpack a message in C++.
+
+                                Foo foo = ...;
+                                Any any;
+                                any.PackFrom(foo);
+                                ...
+                                if (any.UnpackTo(&foo)) {
+                                  ...
+                                }
+
+                            Example 2: Pack and unpack a message in Java.
+
+                                Foo foo = ...;
+                                Any any = Any.pack(foo);
+                                ...
+                                if (any.is(Foo.class)) {
+                                  foo = any.unpack(Foo.class);
+                                }
+                                // or ...
+                                if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                                  foo = any.unpack(Foo.getDefaultInstance());
+                                }
+
+                             Example 3: Pack and unpack a message in Python.
+
+                                foo = Foo(...)
+                                any = Any()
+                                any.Pack(foo)
+                                ...
+                                if any.Is(Foo.DESCRIPTOR):
+                                  any.Unpack(foo)
+                                  ...
+
+                             Example 4: Pack and unpack a message in Go
+
+                                 foo := &pb.Foo{...}
+                                 any, err := anypb.New(foo)
+                                 if err != nil {
+                                   ...
+                                 }
+                                 ...
+                                 foo := &pb.Foo{}
+                                 if err := any.UnmarshalTo(foo); err != nil {
+                                   ...
+                                 }
+
+                            The pack methods provided by protobuf library will
+                            by default use
+
+                            'type.googleapis.com/full.type.name' as the type URL
+                            and the unpack
+
+                            methods only use the fully qualified type name after
+                            the last '/'
+
+                            in the type URL, for example "foo.bar.com/x/y.z"
+                            will yield type
+
+                            name "y.z".
+
+
+                            JSON
+
+                            ====
+
+                            The JSON representation of an `Any` value uses the
+                            regular
+
+                            representation of the deserialized, embedded
+                            message, with an
+
+                            additional field `@type` which contains the type
+                            URL. Example:
+
+                                package google.profile;
+                                message Person {
+                                  string first_name = 1;
+                                  string last_name = 2;
+                                }
+
+                                {
+                                  "@type": "type.googleapis.com/google.profile.Person",
+                                  "firstName": <string>,
+                                  "lastName": <string>
+                                }
+
+                            If the embedded message type is well-known and has a
+                            custom JSON
+
+                            representation, that representation will be embedded
+                            adding a field
+
+                            `value` which holds the custom JSON in addition to
+                            the `@type`
+
+                            field. Example (for message
+                            [google.protobuf.Duration][]):
+
+                                {
+                                  "@type": "type.googleapis.com/google.protobuf.Duration",
+                                  "value": "1.212s"
+                                }
+                        jailed:
+                          type: boolean
+                          description: >-
+                            jailed defined whether the validator has been jailed
+                            from bonded status or not.
+                        status:
+                          description: >-
+                            status is the validator status
+                            (bonded/unbonding/unbonded).
+                          type: string
+                          enum:
+                            - BOND_STATUS_UNSPECIFIED
+                            - BOND_STATUS_UNBONDED
+                            - BOND_STATUS_UNBONDING
+                            - BOND_STATUS_BONDED
+                          default: BOND_STATUS_UNSPECIFIED
+                        tokens:
+                          type: string
+                          description: >-
+                            tokens define the delegated tokens (incl.
+                            self-delegation).
+                        delegator_shares:
+                          type: string
+                          description: >-
+                            delegator_shares defines total shares issued to a
+                            validator's delegators.
+                        description:
+                          description: >-
+                            description defines the description terms for the
+                            validator.
+                          type: object
+                          properties:
+                            moniker:
+                              type: string
+                              description: >-
+                                moniker defines a human-readable name for the
+                                validator.
+                            identity:
+                              type: string
+                              description: >-
+                                identity defines an optional identity signature
+                                (ex. UPort or Keybase).
+                            website:
+                              type: string
+                              description: website defines an optional website link.
+                            security_contact:
+                              type: string
+                              description: >-
+                                security_contact defines an optional email for
+                                security contact.
+                            details:
+                              type: string
+                              description: details define other optional details.
+                        unbonding_height:
+                          type: string
+                          format: int64
+                          description: >-
+                            unbonding_height defines, if unbonding, the height
+                            at which this validator has begun unbonding.
+                        unbonding_time:
+                          type: string
+                          format: date-time
+                          description: >-
+                            unbonding_time defines, if unbonding, the min time
+                            for the validator to complete unbonding.
+                        commission:
+                          description: commission defines the commission parameters.
+                          type: object
+                          properties:
+                            commission_rates:
+                              description: >-
+                                commission_rates defines the initial commission
+                                rates to be used for creating a validator.
+                              type: object
+                              properties:
+                                rate:
+                                  type: string
+                                  description: >-
+                                    rate is the commission rate charged to
+                                    delegators, as a fraction.
+                                max_rate:
+                                  type: string
+                                  description: >-
+                                    max_rate defines the maximum commission rate
+                                    which validator can ever charge, as a
+                                    fraction.
+                                max_change_rate:
+                                  type: string
+                                  description: >-
+                                    max_change_rate defines the maximum daily
+                                    increase of the validator commission, as a
+                                    fraction.
+                            update_time:
+                              type: string
+                              format: date-time
+                              description: >-
+                                update_time is the last time the commission rate
+                                was changed.
+                        min_self_delegation:
+                          type: string
+                          description: >-
+                            min_self_delegation is the validator's self declared
+                            minimum self delegation.
+
+
+                            Since: cosmos-sdk 0.46
+                        unbonding_on_hold_ref_count:
+                          type: string
+                          format: int64
+                          title: >-
+                            strictly positive if this validator's unbonding has
+                            been stopped by external modules
+                        unbonding_ids:
+                          type: array
+                          items:
+                            type: string
+                            format: uint64
+                          title: >-
+                            list of unbonding ids, each uniquely identifing an
+                            unbonding of this validator
+                        min_delegation:
+                          type: string
+                        delegate_authorization:
+                          type: boolean
+                        total_asset_weights:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                                title: Denomination of the asset
+                              base_amount:
+                                type: string
+                                title: Original base amount deposited
+                              weighted_amount:
+                                type: string
+                                title: Weighted amount based on asset's market value
+                            title: >-
+                              Asset weight represent each sub-asset from helios
+                              consensus contained from governance proposals
+
+                              owned by one delegator
                       description: >-
                         Validator defines a validator, together with the total
                         amount of the
@@ -40281,6 +42602,25 @@ paths:
                       type: string
                     delegate_authorization:
                       type: boolean
+                    total_asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -41213,6 +43553,25 @@ paths:
                       type: string
                     delegate_authorization:
                       type: boolean
+                    total_asset_weights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            title: Denomination of the asset
+                          base_amount:
+                            type: string
+                            title: Original base amount deposited
+                          weighted_amount:
+                            type: string
+                            title: Weighted amount based on asset's market value
+                        title: >-
+                          Asset weight represent each sub-asset from helios
+                          consensus contained from governance proposals
+
+                          owned by one delegator
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -41854,6 +44213,25 @@ paths:
                     type: string
                   delegate_authorization:
                     type: boolean
+                  total_asset_weights:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                          title: Denomination of the asset
+                        base_amount:
+                          type: string
+                          title: Original base amount deposited
+                        weighted_amount:
+                          type: string
+                          title: Weighted amount based on asset's market value
+                      title: >-
+                        Asset weight represent each sub-asset from helios
+                        consensus contained from governance proposals
+
+                        owned by one delegator
                 description: >-
                   Validator defines a validator, together with the total amount
                   of the
@@ -42086,6 +44464,239 @@ paths:
           type: string
       tags:
         - Query
+  /cosmos/staking/v1beta1/validators/{validator_addr}/assets:
+    get:
+      operationId: ValidatorAssets
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              assets:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                      title: Denomination of the asset
+                    base_amount:
+                      type: string
+                      title: Original base amount deposited
+                    weighted_amount:
+                      type: string
+                      title: Weighted amount based on asset's market value
+                  title: >-
+                    Asset weight represent each sub-asset from helios consensus
+                    contained from governance proposals
+
+                    owned by one delegator
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: validator_addr
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
   /cosmos/staking/v1beta1/validators/{validator_addr}/delegations:
     get:
       summary: ValidatorDelegations queries delegate info for given validator.
@@ -42123,8 +44734,8 @@ paths:
                           type: string
                           description: shares define the delegation shares received.
                         asset_weights:
-                          type: object
-                          additionalProperties:
+                          type: array
+                          items:
                             type: object
                             properties:
                               denom:
@@ -42497,8 +45108,8 @@ paths:
                         type: string
                         description: shares define the delegation shares received.
                       asset_weights:
-                        type: object
-                        additionalProperties:
+                        type: array
+                        items:
                           type: object
                           properties:
                             denom:
@@ -43050,9 +45661,9 @@ paths:
   /cosmos/staking/v1beta1/validators/{validator_addr}/total_boost:
     get:
       summary: >-
-        TotalBoostedDelegation queries the total boosted delegation for a given
+        TotalBoostedValidator queries the total boosted validator for a given
         validator.
-      operationId: TotalBoostedDelegation
+      operationId: TotalBoostedValidator
       responses:
         '200':
           description: A successful response.
@@ -43062,11 +45673,13 @@ paths:
               total_boost:
                 type: string
                 description: >-
-                  total_boost defines the total boosted delegation amount for
-                  the validator.
+                  total_boost defines the total boosted validator amount for the
+                  validator.
+              boost_percentage:
+                type: string
             description: >-
-              QueryTotalBoostedDelegationResponse is the response type for the
-              Query/TotalBoostedDelegation RPC method.
+              QueryTotalBoostedValidatorResponse is the response type for the
+              Query/TotalBoostedValidator RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -43870,7 +46483,7 @@ paths:
                         }
       tags:
         - Query
-  /cosmos/upgrade/v1beta1/applied_plan/{name}:
+  /cosmos/upgrade/v1beta1/applied_plan/{version}:
     get:
       summary: AppliedPlan queries a previously applied upgrade plan by its name.
       operationId: AppliedPlan
@@ -44088,11 +46701,465 @@ paths:
                           "value": "1.212s"
                         }
       parameters:
-        - name: name
-          description: name is the name of the applied plan to query for.
+        - name: version
+          description: version is the version of the applied plan to query for.
           in: path
           required: true
           type: string
+      tags:
+        - Query
+  /cosmos/upgrade/v1beta1/applied_plans:
+    get:
+      summary: AppliedPlans queries a list of previously applied upgrade plans.
+      operationId: AppliedPlans
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              applied_plans:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: >-
+                        Sets the name for the upgrade. This name will be used by
+                        the upgraded
+
+                        version of the software to apply any special
+                        "on-upgrade" commands during
+
+                        the first BeginBlock method after the upgrade is
+                        applied. It is also used
+
+                        to detect whether a software version can handle a given
+                        upgrade. If no
+
+                        upgrade handler with this name has been set in the
+                        software, it will be
+
+                        assumed that the software is out-of-date when the
+                        upgrade Time or Height is
+
+                        reached and the software will exit.
+                    time:
+                      type: string
+                      format: date-time
+                      description: >-
+                        Deprecated: Time based upgrades have been deprecated.
+                        Time based upgrade logic
+
+                        has been removed from the SDK.
+
+                        If this field is not empty, an error will be thrown.
+                    height:
+                      type: string
+                      format: int64
+                      description: The height at which the upgrade must be performed.
+                    info:
+                      type: string
+                      title: >-
+                        Any application specific upgrade info to be included
+                        on-chain
+
+                        such as a git commit that validators could automatically
+                        upgrade to
+                    upgraded_client_state:
+                      type: object
+                      properties:
+                        type_url:
+                          type: string
+                          description: >-
+                            A URL/resource name that uniquely identifies the
+                            type of the serialized
+
+                            protocol buffer message. This string must contain at
+                            least
+
+                            one "/" character. The last segment of the URL's
+                            path must represent
+
+                            the fully qualified name of the type (as in
+
+                            `path/google.protobuf.Duration`). The name should be
+                            in a canonical form
+
+                            (e.g., leading "." is not accepted).
+
+
+                            In practice, teams usually precompile into the
+                            binary all types that they
+
+                            expect it to use in the context of Any. However, for
+                            URLs which use the
+
+                            scheme `http`, `https`, or no scheme, one can
+                            optionally set up a type
+
+                            server that maps type URLs to message definitions as
+                            follows:
+
+
+                            * If no scheme is provided, `https` is assumed.
+
+                            * An HTTP GET on the URL must yield a
+                            [google.protobuf.Type][]
+                              value in binary format, or produce an error.
+                            * Applications are allowed to cache lookup results
+                            based on the
+                              URL, or have them precompiled into a binary to avoid any
+                              lookup. Therefore, binary compatibility needs to be preserved
+                              on changes to types. (Use versioned type names to manage
+                              breaking changes.)
+
+                            Note: this functionality is not currently available
+                            in the official
+
+                            protobuf release, and it is not used for type URLs
+                            beginning with
+
+                            type.googleapis.com. As of May 2023, there are no
+                            widely used type server
+
+                            implementations and no plans to implement one.
+
+
+                            Schemes other than `http`, `https` (or the empty
+                            scheme) might be
+
+                            used with implementation specific semantics.
+                        value:
+                          type: string
+                          format: byte
+                          description: >-
+                            Must be a valid serialized protocol buffer of the
+                            above specified type.
+                      description: >-
+                        `Any` contains an arbitrary serialized protocol buffer
+                        message along with a
+
+                        URL that describes the type of the serialized message.
+
+
+                        Protobuf library provides support to pack/unpack Any
+                        values in the form
+
+                        of utility functions or additional generated methods of
+                        the Any type.
+
+
+                        Example 1: Pack and unpack a message in C++.
+
+                            Foo foo = ...;
+                            Any any;
+                            any.PackFrom(foo);
+                            ...
+                            if (any.UnpackTo(&foo)) {
+                              ...
+                            }
+
+                        Example 2: Pack and unpack a message in Java.
+
+                            Foo foo = ...;
+                            Any any = Any.pack(foo);
+                            ...
+                            if (any.is(Foo.class)) {
+                              foo = any.unpack(Foo.class);
+                            }
+                            // or ...
+                            if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                              foo = any.unpack(Foo.getDefaultInstance());
+                            }
+
+                         Example 3: Pack and unpack a message in Python.
+
+                            foo = Foo(...)
+                            any = Any()
+                            any.Pack(foo)
+                            ...
+                            if any.Is(Foo.DESCRIPTOR):
+                              any.Unpack(foo)
+                              ...
+
+                         Example 4: Pack and unpack a message in Go
+
+                             foo := &pb.Foo{...}
+                             any, err := anypb.New(foo)
+                             if err != nil {
+                               ...
+                             }
+                             ...
+                             foo := &pb.Foo{}
+                             if err := any.UnmarshalTo(foo); err != nil {
+                               ...
+                             }
+
+                        The pack methods provided by protobuf library will by
+                        default use
+
+                        'type.googleapis.com/full.type.name' as the type URL and
+                        the unpack
+
+                        methods only use the fully qualified type name after the
+                        last '/'
+
+                        in the type URL, for example "foo.bar.com/x/y.z" will
+                        yield type
+
+                        name "y.z".
+
+
+                        JSON
+
+                        ====
+
+                        The JSON representation of an `Any` value uses the
+                        regular
+
+                        representation of the deserialized, embedded message,
+                        with an
+
+                        additional field `@type` which contains the type URL.
+                        Example:
+
+                            package google.profile;
+                            message Person {
+                              string first_name = 1;
+                              string last_name = 2;
+                            }
+
+                            {
+                              "@type": "type.googleapis.com/google.profile.Person",
+                              "firstName": <string>,
+                              "lastName": <string>
+                            }
+
+                        If the embedded message type is well-known and has a
+                        custom JSON
+
+                        representation, that representation will be embedded
+                        adding a field
+
+                        `value` which holds the custom JSON in addition to the
+                        `@type`
+
+                        field. Example (for message
+                        [google.protobuf.Duration][]):
+
+                            {
+                              "@type": "type.googleapis.com/google.protobuf.Duration",
+                              "value": "1.212s"
+                            }
+                  description: >-
+                    Plan specifies information about a planned upgrade and when
+                    it should occur.
+                description: applied_plans is a list of applied upgrade plans.
+            description: >-
+              QueryAppliedPlansResponse is the response type for the
+              Query/AppliedPlans RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
       tags:
         - Query
   /cosmos/upgrade/v1beta1/authority:
@@ -44321,7 +47388,6 @@ paths:
             type: object
             properties:
               plan:
-                description: plan is the current upgrade plan.
                 type: object
                 properties:
                   name:
@@ -44552,6 +47618,9 @@ paths:
                             "@type": "type.googleapis.com/google.protobuf.Duration",
                             "value": "1.212s"
                           }
+                description: >-
+                  Plan specifies information about a planned upgrade and when it
+                  should occur.
             description: >-
               QueryCurrentPlanResponse is the response type for the
               Query/CurrentPlan RPC
@@ -53801,7 +56870,7 @@ paths:
           format: uint64
         - name: latest_height
           description: >-
-            latest_height overrrides the height field and queries the latest
+            latest_height overrides the height field and queries the latest
             stored
 
             ConsensusState.
@@ -55424,7 +58493,7 @@ paths:
                               identifier
                         description: >-
                           Version defines the versioning scheme used to
-                          negotiate the IBC verison in
+                          negotiate the IBC version in
 
                           the connection handshake.
                       title: >-
@@ -55837,7 +58906,7 @@ paths:
                             identifier
                       description: >-
                         Version defines the versioning scheme used to negotiate
-                        the IBC verison in
+                        the IBC version in
 
                         the connection handshake.
                     description: >-
@@ -63031,6 +66100,8 @@ definitions:
         type: string
       is_originated:
         type: boolean
+      total_supply:
+        type: string
   cosmos.bank.v1beta1.DenomUnit:
     type: object
     properties:
@@ -63179,6 +66250,8 @@ definitions:
               type: string
             is_originated:
               type: boolean
+            total_supply:
+              type: string
         title: |-
           chains_metadatas is the list of chain metadata
           Optional.
@@ -63708,6 +66781,8 @@ definitions:
                   type: string
                 is_originated:
                   type: boolean
+                total_supply:
+                  type: string
             title: |-
               chains_metadatas is the list of chain metadata
               Optional.
@@ -66427,6 +69502,26 @@ definitions:
       latest_block:
         type: string
         format: uint64
+  helios.hyperion.v1.QueryGetAllSkippedNoncesResponse:
+    type: object
+    properties:
+      skipped_nonces:
+        type: array
+        items:
+          type: object
+          properties:
+            hyperion_id:
+              type: string
+              format: uint64
+            start_height:
+              type: string
+              format: uint64
+            end_height:
+              type: string
+              format: uint64
+            nonce:
+              type: string
+              format: uint64
   helios.hyperion.v1.QueryGetCounterpartyChainParamsByChainIdResponse:
     type: object
     properties:
@@ -66928,6 +70023,8 @@ definitions:
                         type: string
                       is_originated:
                         type: boolean
+                      total_supply:
+                        type: string
                   title: |-
                     chains_metadatas is the list of chain metadata
                     Optional.
@@ -69133,6 +72230,21 @@ definitions:
   helios.hyperion.v1.SkippedNonceFullInfo:
     type: object
     properties:
+      start_height:
+        type: string
+        format: uint64
+      end_height:
+        type: string
+        format: uint64
+      nonce:
+        type: string
+        format: uint64
+  helios.hyperion.v1.SkippedNonceFullInfoWithHyperionId:
+    type: object
+    properties:
+      hyperion_id:
+        type: string
+        format: uint64
       start_height:
         type: string
         format: uint64
@@ -71878,6 +74990,8 @@ definitions:
                   type: string
                 is_originated:
                   type: boolean
+                total_supply:
+                  type: string
             title: |-
               chains_metadatas is the list of chain metadata
               Optional.
@@ -72100,6 +75214,8 @@ definitions:
                             type: string
                           is_originated:
                             type: boolean
+                          total_supply:
+                            type: string
                       title: |-
                         chains_metadatas is the list of chain metadata
                         Optional.
@@ -72286,6 +75402,8 @@ definitions:
                       type: string
                     is_originated:
                       type: boolean
+                    total_supply:
+                      type: string
                 title: |-
                   chains_metadatas is the list of chain metadata
                   Optional.
@@ -72435,6 +75553,8 @@ definitions:
                       type: string
                     is_originated:
                       type: boolean
+                    total_supply:
+                      type: string
                 title: |-
                   chains_metadatas is the list of chain metadata
                   Optional.
@@ -72578,6 +75698,8 @@ definitions:
                   type: string
                 is_originated:
                   type: boolean
+                total_supply:
+                  type: string
             title: |-
               chains_metadatas is the list of chain metadata
               Optional.
@@ -72714,6 +75836,8 @@ definitions:
                   type: string
                 is_originated:
                   type: boolean
+                total_supply:
+                  type: string
             title: |-
               chains_metadatas is the list of chain metadata
               Optional.
@@ -73006,6 +76130,8 @@ definitions:
                         type: string
                       is_originated:
                         type: boolean
+                      total_supply:
+                        type: string
                   title: |-
                     chains_metadatas is the list of chain metadata
                     Optional.
@@ -73181,6 +76307,8 @@ definitions:
                         type: string
                       is_originated:
                         type: boolean
+                      total_supply:
+                        type: string
                   title: |-
                     chains_metadatas is the list of chain metadata
                     Optional.
@@ -73352,6 +76480,8 @@ definitions:
                     type: string
                   is_originated:
                     type: boolean
+                  total_supply:
+                    type: string
               title: |-
                 chains_metadatas is the list of chain metadata
                 Optional.
@@ -73758,6 +76888,8 @@ definitions:
                       type: string
                     is_originated:
                       type: boolean
+                    total_supply:
+                      type: string
                 title: |-
                   chains_metadatas is the list of chain metadata
                   Optional.
@@ -82103,6 +85235,24 @@ definitions:
             description: >-
               no_with_veto_count is the number of no with veto votes on a
               proposal.
+      current_tally_result:
+        description: current_tally_result is the current tally result of the proposal.
+        type: object
+        properties:
+          yes_count:
+            type: string
+            description: yes_count is the number of yes votes on a proposal.
+          abstain_count:
+            type: string
+            description: abstain_count is the number of abstain votes on a proposal.
+          no_count:
+            type: string
+            description: no_count is the number of no votes on a proposal.
+          no_with_veto_count:
+            type: string
+            description: >-
+              no_with_veto_count is the number of no with veto votes on a
+              proposal.
       submit_time:
         type: string
         format: date-time
@@ -82718,6 +85868,24 @@ definitions:
                 description: >-
                   no_with_veto_count is the number of no with veto votes on a
                   proposal.
+          current_tally_result:
+            description: current_tally_result is the current tally result of the proposal.
+            type: object
+            properties:
+              yes_count:
+                type: string
+                description: yes_count is the number of yes votes on a proposal.
+              abstain_count:
+                type: string
+                description: abstain_count is the number of abstain votes on a proposal.
+              no_count:
+                type: string
+                description: no_count is the number of no votes on a proposal.
+              no_with_veto_count:
+                type: string
+                description: >-
+                  no_with_veto_count is the number of no with veto votes on a
+                  proposal.
           submit_time:
             type: string
             format: date-time
@@ -82782,6 +85950,16 @@ definitions:
     description: >-
       QueryProposalResponse is the response type for the Query/Proposal RPC
       method.
+  cosmos.gov.v1.QueryProposalsCountResponse:
+    type: object
+    properties:
+      count:
+        type: string
+        format: uint64
+        description: count defines the total number of existing proposals.
+    description: >-
+      QueryProposalsCountResponse is the response type for the
+      Query/ProposalsCount RPC method.
   cosmos.gov.v1.QueryProposalsResponse:
     type: object
     properties:
@@ -82999,6 +86177,26 @@ definitions:
                 the
 
                 proposal's voting period has ended.
+              type: object
+              properties:
+                yes_count:
+                  type: string
+                  description: yes_count is the number of yes votes on a proposal.
+                abstain_count:
+                  type: string
+                  description: abstain_count is the number of abstain votes on a proposal.
+                no_count:
+                  type: string
+                  description: no_count is the number of no votes on a proposal.
+                no_with_veto_count:
+                  type: string
+                  description: >-
+                    no_with_veto_count is the number of no with veto votes on a
+                    proposal.
+            current_tally_result:
+              description: >-
+                current_tally_result is the current tally result of the
+                proposal.
               type: object
               properties:
                 yes_count:
@@ -83821,8 +87019,8 @@ definitions:
         type: string
         description: shares define the delegation shares received.
       asset_weights:
-        type: object
-        additionalProperties:
+        type: array
+        items:
           type: object
           properties:
             denom:
@@ -83847,6 +87045,21 @@ definitions:
       Delegation represents the bond with tokens held by an account. It is
       owned by one delegator, and is associated with the voting power of one
       validator.
+  cosmos.staking.v1beta1.DelegationBoost:
+    type: object
+    properties:
+      delegator_address:
+        type: string
+        description: delegator_address is the encoded address of the delegator.
+      validator_address:
+        type: string
+        description: validator_address is the encoded address of the validator.
+      shares:
+        type: string
+        description: shares define the delegation shares received.
+      amount:
+        type: string
+        title: Total weighted amount across all assets
   cosmos.staking.v1beta1.DelegationResponse:
     type: object
     properties:
@@ -83863,8 +87076,8 @@ definitions:
             type: string
             description: shares define the delegation shares received.
           asset_weights:
-            type: object
-            additionalProperties:
+            type: array
+            items:
               type: object
               properties:
                 denom:
@@ -83925,6 +87138,73 @@ definitions:
         type: string
         description: details define other optional details.
     description: Description defines a validator description.
+  cosmos.staking.v1beta1.EpochValidatorDetail:
+    type: object
+    properties:
+      validator_address:
+        type: string
+      operator_address:
+        type: string
+      blocks_signed:
+        type: array
+        items:
+          type: object
+          properties:
+            signature:
+              type: boolean
+            height:
+              type: string
+              format: int64
+      blocks_missed:
+        type: array
+        items:
+          type: string
+          format: int64
+      bonded_tokens:
+        type: string
+      status:
+        type: string
+      is_slashed:
+        type: boolean
+      is_jailed:
+        type: boolean
+      asset_weights:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              title: Denomination of the asset
+            base_amount:
+              type: string
+              title: Original base amount deposited
+            weighted_amount:
+              type: string
+              title: Weighted amount based on asset's market value
+          title: >-
+            Asset weight represent each sub-asset from helios consensus
+            contained from governance proposals
+
+            owned by one delegator
+      missed_block_count:
+        type: string
+        format: int64
+      signing_info_start_height:
+        type: string
+      commission_rate:
+        type: string
+      voting_power:
+        type: string
+        title: Voting power for this validator
+  cosmos.staking.v1beta1.EpochValidatorSignature:
+    type: object
+    properties:
+      signature:
+        type: boolean
+      height:
+        type: string
+        format: int64
   cosmos.staking.v1beta1.HistoricalInfo:
     type: object
     properties:
@@ -84307,6 +87587,367 @@ definitions:
               type: string
             delegate_authorization:
               type: boolean
+            total_asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
+          description: >-
+            Validator defines a validator, together with the total amount of the
+
+            Validator's bond shares and their exchange rate to coins. Slashing
+            results in
+
+            a decrease in the exchange rate, allowing correct calculation of
+            future
+
+            undelegations without iterating over delegators. When coins are
+            delegated to
+
+            this validator, the validator is credited with a delegation whose
+            number of
+
+            bond shares is based on the amount of coins delegated divided by the
+            current
+
+            exchange rate. Voting power can be calculated as total bonded shares
+
+            multiplied by exchange rate.
+      inactive_valset:
+        type: array
+        items:
+          type: object
+          properties:
+            operator_address:
+              type: string
+              description: >-
+                operator_address defines the address of the validator's
+                operator; bech encoded in JSON.
+            consensus_pubkey:
+              type: object
+              properties:
+                type_url:
+                  type: string
+                  description: >-
+                    A URL/resource name that uniquely identifies the type of the
+                    serialized
+
+                    protocol buffer message. This string must contain at least
+
+                    one "/" character. The last segment of the URL's path must
+                    represent
+
+                    the fully qualified name of the type (as in
+
+                    `path/google.protobuf.Duration`). The name should be in a
+                    canonical form
+
+                    (e.g., leading "." is not accepted).
+
+
+                    In practice, teams usually precompile into the binary all
+                    types that they
+
+                    expect it to use in the context of Any. However, for URLs
+                    which use the
+
+                    scheme `http`, `https`, or no scheme, one can optionally set
+                    up a type
+
+                    server that maps type URLs to message definitions as
+                    follows:
+
+
+                    * If no scheme is provided, `https` is assumed.
+
+                    * An HTTP GET on the URL must yield a
+                    [google.protobuf.Type][]
+                      value in binary format, or produce an error.
+                    * Applications are allowed to cache lookup results based on
+                    the
+                      URL, or have them precompiled into a binary to avoid any
+                      lookup. Therefore, binary compatibility needs to be preserved
+                      on changes to types. (Use versioned type names to manage
+                      breaking changes.)
+
+                    Note: this functionality is not currently available in the
+                    official
+
+                    protobuf release, and it is not used for type URLs beginning
+                    with
+
+                    type.googleapis.com. As of May 2023, there are no widely
+                    used type server
+
+                    implementations and no plans to implement one.
+
+
+                    Schemes other than `http`, `https` (or the empty scheme)
+                    might be
+
+                    used with implementation specific semantics.
+                value:
+                  type: string
+                  format: byte
+                  description: >-
+                    Must be a valid serialized protocol buffer of the above
+                    specified type.
+              description: >-
+                `Any` contains an arbitrary serialized protocol buffer message
+                along with a
+
+                URL that describes the type of the serialized message.
+
+
+                Protobuf library provides support to pack/unpack Any values in
+                the form
+
+                of utility functions or additional generated methods of the Any
+                type.
+
+
+                Example 1: Pack and unpack a message in C++.
+
+                    Foo foo = ...;
+                    Any any;
+                    any.PackFrom(foo);
+                    ...
+                    if (any.UnpackTo(&foo)) {
+                      ...
+                    }
+
+                Example 2: Pack and unpack a message in Java.
+
+                    Foo foo = ...;
+                    Any any = Any.pack(foo);
+                    ...
+                    if (any.is(Foo.class)) {
+                      foo = any.unpack(Foo.class);
+                    }
+                    // or ...
+                    if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                      foo = any.unpack(Foo.getDefaultInstance());
+                    }
+
+                 Example 3: Pack and unpack a message in Python.
+
+                    foo = Foo(...)
+                    any = Any()
+                    any.Pack(foo)
+                    ...
+                    if any.Is(Foo.DESCRIPTOR):
+                      any.Unpack(foo)
+                      ...
+
+                 Example 4: Pack and unpack a message in Go
+
+                     foo := &pb.Foo{...}
+                     any, err := anypb.New(foo)
+                     if err != nil {
+                       ...
+                     }
+                     ...
+                     foo := &pb.Foo{}
+                     if err := any.UnmarshalTo(foo); err != nil {
+                       ...
+                     }
+
+                The pack methods provided by protobuf library will by default
+                use
+
+                'type.googleapis.com/full.type.name' as the type URL and the
+                unpack
+
+                methods only use the fully qualified type name after the last
+                '/'
+
+                in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+                name "y.z".
+
+
+                JSON
+
+                ====
+
+                The JSON representation of an `Any` value uses the regular
+
+                representation of the deserialized, embedded message, with an
+
+                additional field `@type` which contains the type URL. Example:
+
+                    package google.profile;
+                    message Person {
+                      string first_name = 1;
+                      string last_name = 2;
+                    }
+
+                    {
+                      "@type": "type.googleapis.com/google.profile.Person",
+                      "firstName": <string>,
+                      "lastName": <string>
+                    }
+
+                If the embedded message type is well-known and has a custom JSON
+
+                representation, that representation will be embedded adding a
+                field
+
+                `value` which holds the custom JSON in addition to the `@type`
+
+                field. Example (for message [google.protobuf.Duration][]):
+
+                    {
+                      "@type": "type.googleapis.com/google.protobuf.Duration",
+                      "value": "1.212s"
+                    }
+            jailed:
+              type: boolean
+              description: >-
+                jailed defined whether the validator has been jailed from bonded
+                status or not.
+            status:
+              description: status is the validator status (bonded/unbonding/unbonded).
+              type: string
+              enum:
+                - BOND_STATUS_UNSPECIFIED
+                - BOND_STATUS_UNBONDED
+                - BOND_STATUS_UNBONDING
+                - BOND_STATUS_BONDED
+              default: BOND_STATUS_UNSPECIFIED
+            tokens:
+              type: string
+              description: tokens define the delegated tokens (incl. self-delegation).
+            delegator_shares:
+              type: string
+              description: >-
+                delegator_shares defines total shares issued to a validator's
+                delegators.
+            description:
+              description: description defines the description terms for the validator.
+              type: object
+              properties:
+                moniker:
+                  type: string
+                  description: moniker defines a human-readable name for the validator.
+                identity:
+                  type: string
+                  description: >-
+                    identity defines an optional identity signature (ex. UPort
+                    or Keybase).
+                website:
+                  type: string
+                  description: website defines an optional website link.
+                security_contact:
+                  type: string
+                  description: >-
+                    security_contact defines an optional email for security
+                    contact.
+                details:
+                  type: string
+                  description: details define other optional details.
+            unbonding_height:
+              type: string
+              format: int64
+              description: >-
+                unbonding_height defines, if unbonding, the height at which this
+                validator has begun unbonding.
+            unbonding_time:
+              type: string
+              format: date-time
+              description: >-
+                unbonding_time defines, if unbonding, the min time for the
+                validator to complete unbonding.
+            commission:
+              description: commission defines the commission parameters.
+              type: object
+              properties:
+                commission_rates:
+                  description: >-
+                    commission_rates defines the initial commission rates to be
+                    used for creating a validator.
+                  type: object
+                  properties:
+                    rate:
+                      type: string
+                      description: >-
+                        rate is the commission rate charged to delegators, as a
+                        fraction.
+                    max_rate:
+                      type: string
+                      description: >-
+                        max_rate defines the maximum commission rate which
+                        validator can ever charge, as a fraction.
+                    max_change_rate:
+                      type: string
+                      description: >-
+                        max_change_rate defines the maximum daily increase of
+                        the validator commission, as a fraction.
+                update_time:
+                  type: string
+                  format: date-time
+                  description: >-
+                    update_time is the last time the commission rate was
+                    changed.
+            min_self_delegation:
+              type: string
+              description: >-
+                min_self_delegation is the validator's self declared minimum
+                self delegation.
+
+
+                Since: cosmos-sdk 0.46
+            unbonding_on_hold_ref_count:
+              type: string
+              format: int64
+              title: >-
+                strictly positive if this validator's unbonding has been stopped
+                by external modules
+            unbonding_ids:
+              type: array
+              items:
+                type: string
+                format: uint64
+              title: >-
+                list of unbonding ids, each uniquely identifing an unbonding of
+                this validator
+            min_delegation:
+              type: string
+            delegate_authorization:
+              type: boolean
+            total_asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -84443,6 +88084,64 @@ definitions:
     description: |-
       Pool is used for tracking bonded and not-bonded token supply of the bond
       denomination.
+  cosmos.staking.v1beta1.QueryBlockSignaturesResponse:
+    type: object
+    properties:
+      signatures:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            signed:
+              type: boolean
+            index_offset:
+              type: string
+              format: int64
+            total_tokens:
+              type: string
+            asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
+            epoch_number:
+              type: string
+              format: int64
+            status:
+              type: string
+            jailed:
+              type: boolean
+            missed_block_count:
+              type: string
+              format: int64
+      current_epoch:
+        type: string
+        format: int64
+      epoch_blocks_validated:
+        type: string
+        format: int64
+      epoch_blocks_remaining:
+        type: string
+        format: int64
+      block_height:
+        type: string
+        format: int64
   cosmos.staking.v1beta1.QueryCurrentEpochResponse:
     type: object
     properties:
@@ -84482,8 +88181,8 @@ definitions:
                 type: string
                 description: shares define the delegation shares received.
               asset_weights:
-                type: object
-                additionalProperties:
+                type: array
+                items:
                   type: object
                   properties:
                     denom:
@@ -84557,8 +88256,8 @@ definitions:
                   type: string
                   description: shares define the delegation shares received.
                 asset_weights:
-                  type: object
-                  additionalProperties:
+                  type: array
+                  items:
                     type: object
                     properties:
                       denom:
@@ -85009,6 +88708,25 @@ definitions:
             type: string
           delegate_authorization:
             type: boolean
+          total_asset_weights:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                  title: Denomination of the asset
+                base_amount:
+                  type: string
+                  title: Original base amount deposited
+                weighted_amount:
+                  type: string
+                  title: Weighted amount based on asset's market value
+              title: >-
+                Asset weight represent each sub-asset from helios consensus
+                contained from governance proposals
+
+                owned by one delegator
         description: >-
           Validator defines a validator, together with the total amount of the
 
@@ -85338,6 +89056,25 @@ definitions:
               type: string
             delegate_authorization:
               type: boolean
+            total_asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -85382,6 +89119,98 @@ definitions:
     description: |-
       QueryDelegatorValidatorsResponse is response type for the
       Query/DelegatorValidators RPC method.
+  cosmos.staking.v1beta1.QueryEpochCompleteResponse:
+    type: object
+    properties:
+      epoch:
+        type: string
+        format: uint64
+      epoch_length:
+        type: string
+        format: uint64
+      start_height:
+        type: string
+        format: int64
+      end_height:
+        type: string
+        format: int64
+      current_height:
+        type: string
+        format: int64
+      blocks_validated:
+        type: string
+        format: int64
+      blocks_remaining:
+        type: string
+        format: int64
+      blocks_until_next_epoch:
+        type: string
+        format: int64
+      validators:
+        type: array
+        items:
+          type: object
+          properties:
+            validator_address:
+              type: string
+            operator_address:
+              type: string
+            blocks_signed:
+              type: array
+              items:
+                type: object
+                properties:
+                  signature:
+                    type: boolean
+                  height:
+                    type: string
+                    format: int64
+            blocks_missed:
+              type: array
+              items:
+                type: string
+                format: int64
+            bonded_tokens:
+              type: string
+            status:
+              type: string
+            is_slashed:
+              type: boolean
+            is_jailed:
+              type: boolean
+            asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
+            missed_block_count:
+              type: string
+              format: int64
+            signing_info_start_height:
+              type: string
+            commission_rate:
+              type: string
+            voting_power:
+              type: string
+              title: Voting power for this validator
+      total_tokens:
+        type: string
+      total_voting_power:
+        type: string
   cosmos.staking.v1beta1.QueryEpochInfoResponse:
     type: object
     properties:
@@ -85722,6 +89551,25 @@ definitions:
               type: string
             delegate_authorization:
               type: boolean
+            total_asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -85790,8 +89638,8 @@ definitions:
               type: string
               description: shares define the delegation shares received.
             asset_weights:
-              type: object
-              additionalProperties:
+              type: array
+              items:
                 type: object
                 properties:
                   denom:
@@ -86215,6 +90063,375 @@ definitions:
                   type: string
                 delegate_authorization:
                   type: boolean
+                total_asset_weights:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                        title: Denomination of the asset
+                      base_amount:
+                        type: string
+                        title: Original base amount deposited
+                      weighted_amount:
+                        type: string
+                        title: Weighted amount based on asset's market value
+                    title: >-
+                      Asset weight represent each sub-asset from helios
+                      consensus contained from governance proposals
+
+                      owned by one delegator
+              description: >-
+                Validator defines a validator, together with the total amount of
+                the
+
+                Validator's bond shares and their exchange rate to coins.
+                Slashing results in
+
+                a decrease in the exchange rate, allowing correct calculation of
+                future
+
+                undelegations without iterating over delegators. When coins are
+                delegated to
+
+                this validator, the validator is credited with a delegation
+                whose number of
+
+                bond shares is based on the amount of coins delegated divided by
+                the current
+
+                exchange rate. Voting power can be calculated as total bonded
+                shares
+
+                multiplied by exchange rate.
+          inactive_valset:
+            type: array
+            items:
+              type: object
+              properties:
+                operator_address:
+                  type: string
+                  description: >-
+                    operator_address defines the address of the validator's
+                    operator; bech encoded in JSON.
+                consensus_pubkey:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com. As of May 2023, there are no widely
+                        used type server
+
+                        implementations and no plans to implement one.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+                        // or ...
+                        if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                          foo = any.unpack(Foo.getDefaultInstance());
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+                jailed:
+                  type: boolean
+                  description: >-
+                    jailed defined whether the validator has been jailed from
+                    bonded status or not.
+                status:
+                  description: status is the validator status (bonded/unbonding/unbonded).
+                  type: string
+                  enum:
+                    - BOND_STATUS_UNSPECIFIED
+                    - BOND_STATUS_UNBONDED
+                    - BOND_STATUS_UNBONDING
+                    - BOND_STATUS_BONDED
+                  default: BOND_STATUS_UNSPECIFIED
+                tokens:
+                  type: string
+                  description: tokens define the delegated tokens (incl. self-delegation).
+                delegator_shares:
+                  type: string
+                  description: >-
+                    delegator_shares defines total shares issued to a
+                    validator's delegators.
+                description:
+                  description: description defines the description terms for the validator.
+                  type: object
+                  properties:
+                    moniker:
+                      type: string
+                      description: moniker defines a human-readable name for the validator.
+                    identity:
+                      type: string
+                      description: >-
+                        identity defines an optional identity signature (ex.
+                        UPort or Keybase).
+                    website:
+                      type: string
+                      description: website defines an optional website link.
+                    security_contact:
+                      type: string
+                      description: >-
+                        security_contact defines an optional email for security
+                        contact.
+                    details:
+                      type: string
+                      description: details define other optional details.
+                unbonding_height:
+                  type: string
+                  format: int64
+                  description: >-
+                    unbonding_height defines, if unbonding, the height at which
+                    this validator has begun unbonding.
+                unbonding_time:
+                  type: string
+                  format: date-time
+                  description: >-
+                    unbonding_time defines, if unbonding, the min time for the
+                    validator to complete unbonding.
+                commission:
+                  description: commission defines the commission parameters.
+                  type: object
+                  properties:
+                    commission_rates:
+                      description: >-
+                        commission_rates defines the initial commission rates to
+                        be used for creating a validator.
+                      type: object
+                      properties:
+                        rate:
+                          type: string
+                          description: >-
+                            rate is the commission rate charged to delegators,
+                            as a fraction.
+                        max_rate:
+                          type: string
+                          description: >-
+                            max_rate defines the maximum commission rate which
+                            validator can ever charge, as a fraction.
+                        max_change_rate:
+                          type: string
+                          description: >-
+                            max_change_rate defines the maximum daily increase
+                            of the validator commission, as a fraction.
+                    update_time:
+                      type: string
+                      format: date-time
+                      description: >-
+                        update_time is the last time the commission rate was
+                        changed.
+                min_self_delegation:
+                  type: string
+                  description: >-
+                    min_self_delegation is the validator's self declared minimum
+                    self delegation.
+
+
+                    Since: cosmos-sdk 0.46
+                unbonding_on_hold_ref_count:
+                  type: string
+                  format: int64
+                  title: >-
+                    strictly positive if this validator's unbonding has been
+                    stopped by external modules
+                unbonding_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uint64
+                  title: >-
+                    list of unbonding ids, each uniquely identifing an unbonding
+                    of this validator
+                min_delegation:
+                  type: string
+                delegate_authorization:
+                  type: boolean
+                total_asset_weights:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                        title: Denomination of the asset
+                      base_amount:
+                        type: string
+                        title: Original base amount deposited
+                      weighted_amount:
+                        type: string
+                        title: Weighted amount based on asset's market value
+                    title: >-
+                      Asset weight represent each sub-asset from helios
+                      consensus contained from governance proposals
+
+                      owned by one delegator
               description: >-
                 Validator defines a validator, together with the total amount of
                 the
@@ -86665,6 +90882,25 @@ definitions:
               type: string
             delegate_authorization:
               type: boolean
+            total_asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -86908,6 +91144,39 @@ definitions:
     description: >-
       QueryTotalBoostedDelegationResponse is the response type for the
       Query/TotalBoostedDelegation RPC method.
+  cosmos.staking.v1beta1.QueryTotalBoostedDelegationsResponse:
+    type: object
+    properties:
+      delegation_boosts:
+        type: array
+        items:
+          type: object
+          properties:
+            delegator_address:
+              type: string
+              description: delegator_address is the encoded address of the delegator.
+            validator_address:
+              type: string
+              description: validator_address is the encoded address of the validator.
+            shares:
+              type: string
+              description: shares define the delegation shares received.
+            amount:
+              type: string
+              title: Total weighted amount across all assets
+  cosmos.staking.v1beta1.QueryTotalBoostedValidatorResponse:
+    type: object
+    properties:
+      total_boost:
+        type: string
+        description: >-
+          total_boost defines the total boosted validator amount for the
+          validator.
+      boost_percentage:
+        type: string
+    description: >-
+      QueryTotalBoostedValidatorResponse is the response type for the
+      Query/TotalBoostedValidator RPC method.
   cosmos.staking.v1beta1.QueryUnbondingDelegationResponse:
     type: object
     properties:
@@ -86967,6 +91236,28 @@ definitions:
     description: |-
       QueryDelegationResponse is response type for the Query/UnbondingDelegation
       RPC method.
+  cosmos.staking.v1beta1.QueryValidatorAssetsResponse:
+    type: object
+    properties:
+      assets:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              title: Denomination of the asset
+            base_amount:
+              type: string
+              title: Original base amount deposited
+            weighted_amount:
+              type: string
+              title: Weighted amount based on asset's market value
+          title: >-
+            Asset weight represent each sub-asset from helios consensus
+            contained from governance proposals
+
+            owned by one delegator
   cosmos.staking.v1beta1.QueryValidatorDelegationsResponse:
     type: object
     properties:
@@ -86988,8 +91279,8 @@ definitions:
                   type: string
                   description: shares define the delegation shares received.
                 asset_weights:
-                  type: object
-                  additionalProperties:
+                  type: array
+                  items:
                     type: object
                     properties:
                       denom:
@@ -87365,6 +91656,25 @@ definitions:
             type: string
           delegate_authorization:
             type: boolean
+          total_asset_weights:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                  title: Denomination of the asset
+                base_amount:
+                  type: string
+                  title: Original base amount deposited
+                weighted_amount:
+                  type: string
+                  title: Weighted amount based on asset's market value
+              title: >-
+                Asset weight represent each sub-asset from helios consensus
+                contained from governance proposals
+
+                owned by one delegator
         description: >-
           Validator defines a validator, together with the total amount of the
 
@@ -87790,6 +92100,25 @@ definitions:
               type: string
             delegate_authorization:
               type: boolean
+            total_asset_weights:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                    title: Denomination of the asset
+                  base_amount:
+                    type: string
+                    title: Original base amount deposited
+                  weighted_amount:
+                    type: string
+                    title: Weighted amount based on asset's market value
+                title: >-
+                  Asset weight represent each sub-asset from helios consensus
+                  contained from governance proposals
+
+                  owned by one delegator
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -88518,6 +92847,25 @@ definitions:
         type: string
       delegate_authorization:
         type: boolean
+      total_asset_weights:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              title: Denomination of the asset
+            base_amount:
+              type: string
+              title: Original base amount deposited
+            weighted_amount:
+              type: string
+              title: Weighted amount based on asset's market value
+          title: >-
+            Asset weight represent each sub-asset from helios consensus
+            contained from governance proposals
+
+            owned by one delegator
     description: >-
       Validator defines a validator, together with the total amount of the
 
@@ -88538,6 +92886,47 @@ definitions:
       exchange rate. Voting power can be calculated as total bonded shares
 
       multiplied by exchange rate.
+  cosmos.staking.v1beta1.ValidatorSigningStatus:
+    type: object
+    properties:
+      address:
+        type: string
+      signed:
+        type: boolean
+      index_offset:
+        type: string
+        format: int64
+      total_tokens:
+        type: string
+      asset_weights:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              title: Denomination of the asset
+            base_amount:
+              type: string
+              title: Original base amount deposited
+            weighted_amount:
+              type: string
+              title: Weighted amount based on asset's market value
+          title: >-
+            Asset weight represent each sub-asset from helios consensus
+            contained from governance proposals
+
+            owned by one delegator
+      epoch_number:
+        type: string
+        format: int64
+      status:
+        type: string
+      jailed:
+        type: boolean
+      missed_block_count:
+        type: string
+        format: int64
   cosmos.upgrade.v1beta1.ModuleVersion:
     type: object
     properties:
@@ -88777,6 +93166,244 @@ definitions:
       RPC
 
       method.
+  cosmos.upgrade.v1beta1.QueryAppliedPlansResponse:
+    type: object
+    properties:
+      applied_plans:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: >-
+                Sets the name for the upgrade. This name will be used by the
+                upgraded
+
+                version of the software to apply any special "on-upgrade"
+                commands during
+
+                the first BeginBlock method after the upgrade is applied. It is
+                also used
+
+                to detect whether a software version can handle a given upgrade.
+                If no
+
+                upgrade handler with this name has been set in the software, it
+                will be
+
+                assumed that the software is out-of-date when the upgrade Time
+                or Height is
+
+                reached and the software will exit.
+            time:
+              type: string
+              format: date-time
+              description: >-
+                Deprecated: Time based upgrades have been deprecated. Time based
+                upgrade logic
+
+                has been removed from the SDK.
+
+                If this field is not empty, an error will be thrown.
+            height:
+              type: string
+              format: int64
+              description: The height at which the upgrade must be performed.
+            info:
+              type: string
+              title: >-
+                Any application specific upgrade info to be included on-chain
+
+                such as a git commit that validators could automatically upgrade
+                to
+            upgraded_client_state:
+              type: object
+              properties:
+                type_url:
+                  type: string
+                  description: >-
+                    A URL/resource name that uniquely identifies the type of the
+                    serialized
+
+                    protocol buffer message. This string must contain at least
+
+                    one "/" character. The last segment of the URL's path must
+                    represent
+
+                    the fully qualified name of the type (as in
+
+                    `path/google.protobuf.Duration`). The name should be in a
+                    canonical form
+
+                    (e.g., leading "." is not accepted).
+
+
+                    In practice, teams usually precompile into the binary all
+                    types that they
+
+                    expect it to use in the context of Any. However, for URLs
+                    which use the
+
+                    scheme `http`, `https`, or no scheme, one can optionally set
+                    up a type
+
+                    server that maps type URLs to message definitions as
+                    follows:
+
+
+                    * If no scheme is provided, `https` is assumed.
+
+                    * An HTTP GET on the URL must yield a
+                    [google.protobuf.Type][]
+                      value in binary format, or produce an error.
+                    * Applications are allowed to cache lookup results based on
+                    the
+                      URL, or have them precompiled into a binary to avoid any
+                      lookup. Therefore, binary compatibility needs to be preserved
+                      on changes to types. (Use versioned type names to manage
+                      breaking changes.)
+
+                    Note: this functionality is not currently available in the
+                    official
+
+                    protobuf release, and it is not used for type URLs beginning
+                    with
+
+                    type.googleapis.com. As of May 2023, there are no widely
+                    used type server
+
+                    implementations and no plans to implement one.
+
+
+                    Schemes other than `http`, `https` (or the empty scheme)
+                    might be
+
+                    used with implementation specific semantics.
+                value:
+                  type: string
+                  format: byte
+                  description: >-
+                    Must be a valid serialized protocol buffer of the above
+                    specified type.
+              description: >-
+                `Any` contains an arbitrary serialized protocol buffer message
+                along with a
+
+                URL that describes the type of the serialized message.
+
+
+                Protobuf library provides support to pack/unpack Any values in
+                the form
+
+                of utility functions or additional generated methods of the Any
+                type.
+
+
+                Example 1: Pack and unpack a message in C++.
+
+                    Foo foo = ...;
+                    Any any;
+                    any.PackFrom(foo);
+                    ...
+                    if (any.UnpackTo(&foo)) {
+                      ...
+                    }
+
+                Example 2: Pack and unpack a message in Java.
+
+                    Foo foo = ...;
+                    Any any = Any.pack(foo);
+                    ...
+                    if (any.is(Foo.class)) {
+                      foo = any.unpack(Foo.class);
+                    }
+                    // or ...
+                    if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                      foo = any.unpack(Foo.getDefaultInstance());
+                    }
+
+                 Example 3: Pack and unpack a message in Python.
+
+                    foo = Foo(...)
+                    any = Any()
+                    any.Pack(foo)
+                    ...
+                    if any.Is(Foo.DESCRIPTOR):
+                      any.Unpack(foo)
+                      ...
+
+                 Example 4: Pack and unpack a message in Go
+
+                     foo := &pb.Foo{...}
+                     any, err := anypb.New(foo)
+                     if err != nil {
+                       ...
+                     }
+                     ...
+                     foo := &pb.Foo{}
+                     if err := any.UnmarshalTo(foo); err != nil {
+                       ...
+                     }
+
+                The pack methods provided by protobuf library will by default
+                use
+
+                'type.googleapis.com/full.type.name' as the type URL and the
+                unpack
+
+                methods only use the fully qualified type name after the last
+                '/'
+
+                in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+                name "y.z".
+
+
+                JSON
+
+                ====
+
+                The JSON representation of an `Any` value uses the regular
+
+                representation of the deserialized, embedded message, with an
+
+                additional field `@type` which contains the type URL. Example:
+
+                    package google.profile;
+                    message Person {
+                      string first_name = 1;
+                      string last_name = 2;
+                    }
+
+                    {
+                      "@type": "type.googleapis.com/google.profile.Person",
+                      "firstName": <string>,
+                      "lastName": <string>
+                    }
+
+                If the embedded message type is well-known and has a custom JSON
+
+                representation, that representation will be embedded adding a
+                field
+
+                `value` which holds the custom JSON in addition to the `@type`
+
+                field. Example (for message [google.protobuf.Duration][]):
+
+                    {
+                      "@type": "type.googleapis.com/google.protobuf.Duration",
+                      "value": "1.212s"
+                    }
+          description: >-
+            Plan specifies information about a planned upgrade and when it
+            should occur.
+        description: applied_plans is a list of applied upgrade plans.
+    description: >-
+      QueryAppliedPlansResponse is the response type for the Query/AppliedPlans
+      RPC
+
+      method.
   cosmos.upgrade.v1beta1.QueryAuthorityResponse:
     type: object
     properties:
@@ -88788,7 +93415,6 @@ definitions:
     type: object
     properties:
       plan:
-        description: plan is the current upgrade plan.
         type: object
         properties:
           name:
@@ -89008,6 +93634,9 @@ definitions:
                     "@type": "type.googleapis.com/google.protobuf.Duration",
                     "value": "1.212s"
                   }
+        description: >-
+          Plan specifies information about a planned upgrade and when it should
+          occur.
     description: >-
       QueryCurrentPlanResponse is the response type for the Query/CurrentPlan
       RPC
@@ -93173,7 +97802,7 @@ definitions:
               title: list of features compatible with the specified identifier
           description: >-
             Version defines the versioning scheme used to negotiate the IBC
-            verison in
+            version in
 
             the connection handshake.
         description: >-
@@ -93295,7 +97924,7 @@ definitions:
               title: list of features compatible with the specified identifier
           description: >-
             Version defines the versioning scheme used to negotiate the IBC
-            verison in
+            version in
 
             the connection handshake.
         title: >-
@@ -93888,7 +98517,7 @@ definitions:
                   title: list of features compatible with the specified identifier
               description: >-
                 Version defines the versioning scheme used to negotiate the IBC
-                verison in
+                version in
 
                 the connection handshake.
             description: >-
@@ -94025,7 +98654,7 @@ definitions:
                     title: list of features compatible with the specified identifier
                 description: >-
                   Version defines the versioning scheme used to negotiate the
-                  IBC verison in
+                  IBC version in
 
                   the connection handshake.
               title: >-
@@ -94171,7 +98800,7 @@ definitions:
           type: string
         title: list of features compatible with the specified identifier
     description: |-
-      Version defines the versioning scheme used to negotiate the IBC verison in
+      Version defines the versioning scheme used to negotiate the IBC version in
       the connection handshake.
   cosmwasm.wasm.v1.AbsoluteTxPosition:
     type: object
