@@ -520,6 +520,29 @@ func (c *CachedPublicAPI) GetProposalsByPageAndSizeWithFilter(page hexutil.Uint6
 	return nil, fmt.Errorf("invalid return type for GetProposalsByPageAndSizeWithFilter")
 }
 
+// GetValidatorCount returns validator count with caching
+func (c *CachedPublicAPI) GetValidatorCount() (int, error) {
+	methodName := "GetValidatorCount"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return 0, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(results) > 0 {
+		if count, ok := results[0].(int); ok {
+			return count, nil
+		}
+	}
+	return 0, fmt.Errorf("invalid return type for GetValidatorCount")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

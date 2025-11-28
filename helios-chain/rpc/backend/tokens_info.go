@@ -58,6 +58,21 @@ func (b *Backend) GetTokenDetails(tokenAddress common.Address) (*banktypes.FullM
 	return &bankRes.Metadata, nil
 }
 
+func (b *Backend) GetTokensDetails(tokenAddresses []common.Address) ([]*banktypes.FullMetadata, error) {
+	// todo optimize this
+	metadatas := make([]*banktypes.FullMetadata, len(tokenAddresses))
+
+	for i, tokenAddress := range tokenAddresses {
+		metadata, err := b.GetTokenDetails(tokenAddress)
+		if err != nil {
+			return nil, err
+		}
+		metadatas[i] = metadata
+	}
+
+	return metadatas, nil
+}
+
 func (b *Backend) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 
 	pageReq := &query.PageRequest{

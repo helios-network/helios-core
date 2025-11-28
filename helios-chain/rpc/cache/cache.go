@@ -57,6 +57,7 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetAccountLastTransactionsInfo":                                    60 * time.Second,
 		"GetTokensByChainIdAndPageAndSize":                                  60 * time.Second,
 		"GetActiveValidatorCount":                                           60 * time.Second,
+		"GetValidatorCount":                                                 60 * time.Second,
 		"GetTokenDetails":                                                   5 * time.Minute,
 		"ChainId":                                                           5 * time.Minute,
 		"BlockNumber":                                                       5 * time.Second,

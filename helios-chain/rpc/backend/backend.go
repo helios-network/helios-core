@@ -115,6 +115,7 @@ type EVMBackend interface {
 	// Tokens Info
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error)
 	GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error)
+	GetTokensDetails(tokenAddresses []common.Address) ([]*banktypes.FullMetadata, error)
 	GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error)
 
 	// Tx Info
@@ -161,6 +162,7 @@ type EVMBackend interface {
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
 	GetActiveValidatorCount() (int, error)
+	GetValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)

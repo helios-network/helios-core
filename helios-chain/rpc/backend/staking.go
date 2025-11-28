@@ -379,6 +379,15 @@ func (b *Backend) GetActiveValidatorCount() (int, error) {
 	return validatorCount, nil
 }
 
+func (b *Backend) GetValidatorCount() (int, error) {
+	queryMsg := &stakingtypes.QueryValidatorsRequest{}
+	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get validators: %w", err)
+	}
+	return len(validatorsResp.Validators), nil
+}
+
 // Helper function to calculate APR
 func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) string {
 	apr := (1 - communityTax) * (1 - commissionRate) * inflation / bondedRatio

@@ -110,6 +110,7 @@ type EthereumAPI interface {
 	// Tokens Information
 	GetTokensByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error)
 	GetTokenDetails(tokenAddress common.Address) (*banktypes.FullMetadata, error)
+	GetTokensDetails(tokenAddresses []common.Address) ([]*banktypes.FullMetadata, error)
 	GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error)
 
 	// Getting Uncles
@@ -155,6 +156,7 @@ type EthereumAPI interface {
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
 	GetActiveValidatorCount() (int, error)
+	GetValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
@@ -524,6 +526,11 @@ func (e *PublicAPI) GetTokenDetails(tokenAddress common.Address) (*banktypes.Ful
 	return e.backend.GetTokenDetails(tokenAddress)
 }
 
+func (e *PublicAPI) GetTokensDetails(tokenAddresses []common.Address) ([]*banktypes.FullMetadata, error) {
+	e.logger.Debug("eth_getTokensDetails", "tokenAddresses", tokenAddresses)
+	return e.backend.GetTokensDetails(tokenAddresses)
+}
+
 func (e *PublicAPI) GetTokensByChainIdAndPageAndSize(chainId uint64, page hexutil.Uint64, size hexutil.Uint64) ([]*banktypes.FullMetadata, error) {
 	e.logger.Debug("eth_getTokensByChainIdAndPageAndSize", "chainId", chainId, "page", page, "size", size)
 	return e.backend.GetTokensByChainIdAndPageAndSize(chainId, page, size)
@@ -749,6 +756,11 @@ func (e *PublicAPI) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil
 func (e *PublicAPI) GetActiveValidatorCount() (int, error) {
 	e.logger.Debug("eth_GetActiveValidatorCount")
 	return e.backend.GetActiveValidatorCount()
+}
+
+func (e *PublicAPI) GetValidatorCount() (int, error) {
+	e.logger.Debug("eth_getValidatorCount")
+	return e.backend.GetValidatorCount()
 }
 
 func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {

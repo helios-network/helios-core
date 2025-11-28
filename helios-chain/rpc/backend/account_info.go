@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -266,14 +267,25 @@ func (b *Backend) GetAccountTokensBalanceByPageAndSize(address common.Address, p
 		divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil))
 		balanceFloat.Quo(balanceFloat, divisor)
 
+		origin := "42000"
+
+		if balance.FullMetadata.Metadata.ChainsMetadatas != nil {
+			for _, chainMetadata := range balance.FullMetadata.Metadata.ChainsMetadatas {
+				if chainMetadata.IsOriginated {
+					origin = strconv.FormatUint(chainMetadata.ChainId, 10)
+				}
+			}
+		}
+
 		balances = append(balances, rpctypes.TokenBalance{
-			Address:     common.HexToAddress(balance.FullMetadata.Metadata.ContractAddress),
-			Denom:       balance.FullMetadata.Metadata.Base,
-			Symbol:      balance.FullMetadata.Metadata.Symbol,
-			Balance:     (*hexutil.Big)(balance.Balance.BigInt()),
-			BalanceUI:   balanceFloat.Text('f', int(decimals)), // Convert to user-friendly format
-			Decimals:    uint32(decimals),
-			Description: balance.FullMetadata.Metadata.Description,
+			Address:       common.HexToAddress(balance.FullMetadata.Metadata.ContractAddress),
+			Denom:         balance.FullMetadata.Metadata.Base,
+			Symbol:        balance.FullMetadata.Metadata.Symbol,
+			Balance:       (*hexutil.Big)(balance.Balance.BigInt()),
+			BalanceUI:     balanceFloat.Text('f', int(decimals)), // Convert to user-friendly format
+			Decimals:      uint32(decimals),
+			Description:   balance.FullMetadata.Metadata.Description,
+			OriginChainId: origin,
 		})
 	}
 
