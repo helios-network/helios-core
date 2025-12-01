@@ -298,10 +298,10 @@ require (
 )
 
 replace (
-	cosmossdk.io/store => github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-158
+	cosmossdk.io/store => github.com/Helios-Chain-Labs/cosmos-sdk/store v0.50.10-helios-162
 	// cosmossdk.io/store => ../cosmos-sdk/store
-	cosmossdk.io/x/evidence => github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-158
-	cosmossdk.io/x/feegrant => github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-158
+	cosmossdk.io/x/evidence => github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-162
+	cosmossdk.io/x/feegrant => github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-162
 	// cosmossdk.io/x/upgrade => github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-157
 	cosmossdk.io/x/upgrade => ../cosmos-sdk/x/upgrade
 
@@ -311,7 +311,7 @@ replace (
 	github.com/cometbft/cometbft => github.com/Helios-Chain-Labs/cometbft v0.50.10-helios-29
 	// github.com/cometbft/cometbft => ../cometbft
 
-	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-158
+	github.com/cosmos/cosmos-sdk => github.com/Helios-Chain-Labs/cosmos-sdk v0.50.10-helios-162
 	// github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/Helios-Chain-Labs/ibc-apps/modules/ibc-hooks/v8 v8.50.10-helios-1
 	github.com/cosmos/ibc-go/v8 => github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-41

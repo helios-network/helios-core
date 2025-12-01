@@ -362,30 +362,23 @@ func (b *Backend) GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegat
 }
 
 func (b *Backend) GetActiveValidatorCount() (int, error) {
-	queryMsg := &stakingtypes.QueryValidatorsRequest{}
-	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
+	validatorsResp, err := b.queryClient.Staking.ValidatorsCount(b.ctx, &stakingtypes.QueryValidatorsCountRequest{
+		Status: stakingtypes.Bonded.String(),
+	})
 	if err != nil {
-		return 0, fmt.Errorf("failed to get validators: %w", err)
+		return 0, fmt.Errorf("failed to get validators count: %w", err)
 	}
-
-	validatorCount := 0
-
-	for _, validator := range validatorsResp.Validators {
-		if validator.Status == 3 {
-			validatorCount++
-		}
-	}
-
-	return validatorCount, nil
+	return int(validatorsResp.Count), nil
 }
 
 func (b *Backend) GetValidatorCount() (int, error) {
-	queryMsg := &stakingtypes.QueryValidatorsRequest{}
-	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
+	validatorsResp, err := b.queryClient.Staking.ValidatorsCount(b.ctx, &stakingtypes.QueryValidatorsCountRequest{
+		Status: "",
+	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to get validators: %w", err)
 	}
-	return len(validatorsResp.Validators), nil
+	return int(validatorsResp.Count), nil
 }
 
 // Helper function to calculate APR
