@@ -201,7 +201,18 @@ func (k *Keeper) sanitizeSymbol(symbol string) string {
 	reNotAllowed := regexp.MustCompile(fmt.Sprintf(`[^%s]`, allowedChars))
 
 	// Replace the forbidden characters by empty
-	return reNotAllowed.ReplaceAllString(symbol, "")
+	finalSymbol := reNotAllowed.ReplaceAllString(symbol, "")
+
+	if finalSymbol == "" {
+		return symbol
+	}
+	if len(finalSymbol) > 127 {
+		return finalSymbol[:127]
+	}
+	if len(finalSymbol) < 3 {
+		return "HEL-" + symbol
+	}
+	return finalSymbol
 }
 
 func (k *Keeper) CreateOrLinkTokenToChain(ctx sdk.Context, chainId uint64, chainName string, token *types.TokenAddressToDenomWithGenesisInfos) *types.TokenAddressToDenom {
