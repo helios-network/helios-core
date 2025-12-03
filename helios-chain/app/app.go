@@ -1185,7 +1185,19 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		AddRoute(hyperiontypes.RouterKey, hyperion.NewHyperionProposalHandler(app.HyperionKeeper)).
 		AddRoute(slashingtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
 		AddRoute(erc20types.ModularRouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
-		AddRoute(upgradetypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper))
+		AddRoute(minttypes.ModularRouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(upgradetypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(banktypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(distrtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(stakingtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(authtypes.ModuleName, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(crisistypes.ModuleName, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(evmtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(feemarkettypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(revenuetypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(tokenfactorytypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(logostypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper)).
+		AddRoute(inflationtypes.RouterKey, NewGenericProposalHandler(app.AppCodec(), app.MsgServiceRouter(), app.GovKeeper))
 
 	app.GovKeeper.SetLegacyRouter(govRouter)
 

@@ -252,8 +252,7 @@ func (k Keeper) UpdateAssetInConsensusWhitelist(ctx sdk.Context, asset types.Ass
 }
 
 func (k Keeper) UpdateAssetNativeSharesWeight(ctx sdk.Context, denom string, percentage math.LegacyDec, increase bool, originalWeight uint64) error {
-	// If percentage is zero, no update needed
-	if percentage.IsZero() {
+	if percentage.IsZero() && originalWeight == 0 {
 		return nil
 	}
 

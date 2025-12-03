@@ -848,6 +848,269 @@ async function testERC20RemoveAssetModular() {
   }
 }
 
+async function testDistributionCommunityPoolSpendModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.distribution.v1beta1.MsgCommunityPoolSpend",
+    authority: "", // Will be overridden by the handler
+    recipient: "helios1zun8av07cvqcfr2t29qwmh8ufz29gfatfue0cf", // genesis address
+    amount: [{
+      denom: "ahelios",
+      amount: "1000000000000000000" // 1 HELIOS
+    }]
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Distribution CommunityPoolSpend...');
+    const tx = await contract.modularProposal(
+      'Spend Community Pool',
+      'Testing modular proposal for Community Pool Spend',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Distribution CommunityPoolSpend :', error);
+  }
+}
+
+async function testConsensusUpdateParamsModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  // Note: Consensus params update requires providing all params structures
+  // Using snake_case for keys as per Cosmos SDK/CometBFT standard
+  const message = JSON.stringify({
+    "@type": "/cosmos.consensus.v1.MsgUpdateParams",
+    authority: "",
+    block: {
+      max_bytes: "22020096",  // Exemple: 21MB
+      max_gas: "-1"           // -1 = pas de limite
+    },
+    evidence: {
+      max_age_num_blocks: "100000",
+      max_age_duration: "172800000000000",  // 2 jours en nanosecondes
+      max_bytes: "1048576"                 // 1MB
+    },
+    validator: {
+      pub_key_types: ["ed25519", "secp256k1"]
+    },
+    abci: {
+      vote_extensions_enable_height: "0"
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Consensus UpdateParams...');
+    const tx = await contract.modularProposal(
+      'Update Consensus Params',
+      'Testing modular proposal for Consensus Params Update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Consensus UpdateParams :', error);
+  }
+}
+
+async function testConsensusUpdateParamsLegacy() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  try {
+    console.log('Soumission d\'une UpdateBlockParamsProposal (Legacy)...');
+    // Arguments: title, description, maxGas, maxBytes, initialDeposit
+    const tx = await contract.updateBlockParamsProposal(
+      'Legacy Consensus Update',
+      'Testing legacy proposal for consensus parameters update',
+      -1,           // maxGas
+      22020096,     // maxBytes
+      '1000000000000000000' // initialDeposit
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Legacy Consensus Update :', error);
+  }
+}
+
+async function testBankUpdateParamsModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.bank.v1beta1.MsgUpdateParams",
+    authority: "",
+    params: {
+      send_enabled: [],  // Empty array for send_enabled (deprecated but required)
+      default_send_enabled: true
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Bank UpdateParams...');
+    const tx = await contract.modularProposal(
+      'Update Bank Params',
+      'Testing modular proposal for Bank Params Update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Bank UpdateParams :', error);
+  }
+}
+
+async function testDistributionUpdateParamsModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.distribution.v1beta1.MsgUpdateParams",
+    authority: "",
+    params: {
+      community_tax: "0.02",  // 2% community tax
+      base_proposer_reward: "0.01",  // Deprecated but required
+      bonus_proposer_reward: "0.04",  // Deprecated but required
+      withdraw_addr_enabled: true
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Distribution UpdateParams...');
+    const tx = await contract.modularProposal(
+      'Update Distribution Params',
+      'Testing modular proposal for Distribution Params Update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Distribution UpdateParams :', error);
+  }
+}
+
+async function testStakingUpdateParamsModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.staking.v1beta1.MsgUpdateParams",
+    authority: "",
+    params: {
+      unbonding_time: "300s",  // 5 minutes
+      max_validators: 100,
+      max_entries: 7,
+      historical_entries: 10000,
+      bond_denom: "ahelios",
+      min_commission_rate: "0.00"  // 0% minimum commission
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Staking UpdateParams...');
+    const tx = await contract.modularProposal(
+      'Update Staking Params',
+      'Testing modular proposal for Staking Params Update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Staking UpdateParams :', error);
+  }
+}
+
+async function testAuthUpdateParamsModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.auth.v1beta1.MsgUpdateParams",
+    authority: "",
+    params: {
+      max_memo_characters: "512",
+      tx_sig_limit: "7",
+      tx_size_cost_per_byte: "10",
+      sig_verify_cost_ed25519: "590",
+      sig_verify_cost_secp256k1: "1000"
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Auth UpdateParams...');
+    const tx = await contract.modularProposal(
+      'Update Auth Params',
+      'Testing modular proposal for Auth Params Update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Auth UpdateParams :', error);
+  }
+}
+
+async function testCrisisUpdateParamsModular() {
+  const govAbi = JSON.parse(fs.readFileSync('../helios-chain/precompiles/gov/abi.json').toString()).abi;
+  const contract = new ethers.Contract('0x0000000000000000000000000000000000000805', govAbi, wallet);
+
+  const message = JSON.stringify({
+    "@type": "/cosmos.crisis.v1beta1.MsgUpdateParams",
+    authority: "",
+    constant_fee: {
+      denom: "ahelios",
+      amount: "1000000000000000000"  // 1 HELIOS
+    }
+  });
+
+  try {
+    console.log('Soumission d\'une modularProposal Crisis UpdateParams...');
+    const tx = await contract.modularProposal(
+      'Update Crisis Params',
+      'Testing modular proposal for Crisis Params Update',
+      message,
+      '1000000000000000000',
+      ''  // Let backend infer route from @type
+    );
+
+    console.log('Transaction envoyée, hash :', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+  } catch (error) {
+    console.error('Erreur lors de la soumission de la proposition Crisis UpdateParams :', error);
+  }
+}
+
 async function main() {
   // await createCronCallBackData();
   //await createCron();
@@ -855,7 +1118,7 @@ async function main() {
   // await getEventsCronCancelled();
   // await cancelCron();
   // await getEventsEVMCallScheduled();
-  await testERC20RemoveAssetModular();
+  // await testERC20RemoveAssetModular();
   //await fetch();
   //await delegate();
   // await addNewConsensusProposal();
@@ -864,7 +1127,20 @@ async function main() {
   // await undelegate();
   //await testSlashingUpdateParamsProposal();
 
+  // await testMintUpdateInflationRateModular();
+  // await testDistributionCommunityPoolSpendModular();
+  // await testConsensusUpdateParamsModular();
+  // await testConsensusUpdateParamsLegacy();
+  
+  // New modular tests for Bank, Distribution, Staking, Auth, and Crisis
+  await testBankUpdateParamsModular();
+  await testDistributionUpdateParamsModular();
+  await testStakingUpdateParamsModular();
+  await testAuthUpdateParamsModular();
+  await testCrisisUpdateParamsModular();
+
   // await getEventsCronCreated();
+
 
   // await getRewards();
 

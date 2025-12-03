@@ -22,6 +22,7 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 const (
@@ -483,6 +484,8 @@ func computeModuleRoute(explicitRoute string, msg sdk.Msg) string {
 	switch msg.(type) {
 	case *types.MsgAddAssetConsensus, *types.MsgUpdateAssetConsensus, *types.MsgRemoveAssetConsensus:
 		return types.ModularRouterKey
+	case *minttypes.MsgUpdateInflationRate:
+		return minttypes.ModularRouterKey
 	default:
 		return route
 	}
