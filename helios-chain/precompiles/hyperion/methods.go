@@ -210,10 +210,10 @@ func (p Precompile) SendToChain(
 
 	bridgeFee, ok := args[4].(*big.Int)
 	if !ok {
-		return nil, fmt.Errorf("invalid uint256 for AmountToDeposit")
+		return nil, fmt.Errorf("invalid uint256 for bridgeFee")
 	}
 	if bridgeFee.Cmp(big.NewInt(0)) <= 0 {
-		return nil, fmt.Errorf("invalid zero AmountToDeposit")
+		return nil, fmt.Errorf("invalid zero bridgeFee")
 	}
 
 	amountV := cosmosmath.NewIntFromBigInt(amount)
