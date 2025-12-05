@@ -302,8 +302,8 @@ replace (
 	// cosmossdk.io/store => ../cosmos-sdk/store
 	cosmossdk.io/x/evidence => github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-162
 	cosmossdk.io/x/feegrant => github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-162
-	// cosmossdk.io/x/upgrade => github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-157
-	cosmossdk.io/x/upgrade => ../cosmos-sdk/x/upgrade
+	cosmossdk.io/x/upgrade => github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-162
+	// cosmossdk.io/x/upgrade => ../cosmos-sdk/x/upgrade
 
 	github.com/CosmWasm/wasmd => github.com/Helios-Chain-Labs/wasmd v0.50.10-helios-9
 	// github.com/CosmWasm/wasmd => ../tests/wasmd

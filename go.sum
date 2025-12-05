@@ -249,6 +249,8 @@ github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-162 h1:QZmJ25
 github.com/Helios-Chain-Labs/cosmos-sdk/x/evidence v0.50.10-helios-162/go.mod h1:/5BJ6rqcaDZgfdhFGHsqwoD3sCqMPU6M/RMhKTPxV6Y=
 github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-162 h1:m3LnahhbjuFEt/YDOaAumVkap7yBfEIbPzPHFr/3oSs=
 github.com/Helios-Chain-Labs/cosmos-sdk/x/feegrant v0.50.10-helios-162/go.mod h1:Tnwfp0+AmtSF3sktmOwt5Sk4PbRMrDAWsJTr6cX1Hj8=
+github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-162 h1:DEmUgsyCtBsbUQ49RiWr6Nh0M5jEHaZu7grW5sQUf1o=
+github.com/Helios-Chain-Labs/cosmos-sdk/x/upgrade v0.50.10-helios-162/go.mod h1:Cn5qF2yRpXZcd+yJM6mu0UGt1p75IherhBhfeAvkmPc=
 github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-41 h1:caRjYCOfIgVES+eBgbf9QxNoPHOaoKuqKwbFZ9peSLM=
 github.com/Helios-Chain-Labs/ibc-go/v8 v8.50.10-helios-41/go.mod h1:oH1aHOIyPbLU6wDdR28TmQBIPFBihoLXukfopsuV0hM=
 github.com/Helios-Chain-Labs/metrics v0.50.10-helios-2 h1:os51E5nojjXF2N5NKn0BN8MsLzgZAvueg3SLiUGxGCA=
