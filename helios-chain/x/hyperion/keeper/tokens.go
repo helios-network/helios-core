@@ -356,7 +356,7 @@ func (k *Keeper) parseClaimData(ctx sdk.Context, claimData string) (*types.Token
 	claimDataFull := claimData
 
 	if err := json.Unmarshal([]byte(claimData), &data); err != nil {
-		return nil, nil, errors.Errorf("claim data is not a json valid or empty (%s)", claimData)
+		return nil, nil, nil
 	}
 
 	if data.Metadata != nil {
