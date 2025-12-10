@@ -66,6 +66,8 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetCoinbase":                                                       60 * time.Second,
 		"GetProposalsByPageAndSize":                                         15 * time.Second,
 		"GetProposalsByPageAndSizeWithFilter":                               15 * time.Second,
+		"GetValidatorAPYDetails":                                            60 * time.Second,
+		"GetValidatorsAPYByPageAndSize":                                     60 * time.Second,
 	}
 
 	for method, ttl := range cachedMethods {
