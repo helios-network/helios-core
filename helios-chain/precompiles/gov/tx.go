@@ -366,6 +366,44 @@ func (p *Precompile) HyperionProposal(
 
 	proposer := sdk.AccAddress(origin.Bytes())
 
+	// Check if this is a Text Proposal (empty message)
+	if strings.TrimSpace(hyperionProposalArgs.Msg) == "" {
+		// Create a Text Proposal (no messages, just title and description)
+		textProposal := &v1beta1.TextProposal{
+			Title:       hyperionProposalArgs.Title,
+			Description: hyperionProposalArgs.Description,
+		}
+
+		contentMsg, err := v1.NewLegacyContent(textProposal, govKeeper.GetAuthority())
+		if err != nil {
+			return nil, fmt.Errorf("error converting text proposal to legacy content: %w", err)
+		}
+
+		contentAny, err := codectypes.NewAnyWithValue(contentMsg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to pack content message: %w", err)
+		}
+
+		msg := &v1.MsgSubmitProposal{
+			Messages: []*codectypes.Any{contentAny},
+			InitialDeposit: sdk.NewCoins(
+				sdk.NewCoin("ahelios", math.NewIntFromBigInt(hyperionProposalArgs.InitialDeposit)),
+			),
+			Proposer: proposer.String(),
+			Title:    hyperionProposalArgs.Title,
+			Summary:  hyperionProposalArgs.Description,
+		}
+
+		msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+		proposal, err := msgSrv.SubmitProposal(ctx, msg)
+		if err != nil {
+			return nil, err
+		}
+
+		return method.Outputs.Pack(proposal.ProposalId)
+	}
+
+	// Regular Hyperion proposal with a message
 	proposalContent := &hyperiontypes.HyperionProposal{
 		Title:       hyperionProposalArgs.Title,
 		Description: hyperionProposalArgs.Description,
