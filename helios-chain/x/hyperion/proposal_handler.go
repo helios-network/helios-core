@@ -1,6 +1,8 @@
 package hyperion
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -26,6 +28,11 @@ func NewHyperionProposalHandler(k keeper.Keeper) govtypes.Handler {
 func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.HyperionProposal) error {
 	if err := proposal.ValidateBasic(); err != nil {
 		return err
+	}
+
+	// Text proposals have empty messages - return no-op
+	if strings.TrimSpace(proposal.Msg) == "" {
+		return nil
 	}
 
 	var msg sdk.Msg
