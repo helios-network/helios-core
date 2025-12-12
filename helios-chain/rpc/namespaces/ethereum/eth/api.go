@@ -163,6 +163,7 @@ type EthereumAPI interface {
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
 	GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error)
+	GetCoinInfo() (*rpctypes.CoinInfoRPC, error)
 	// eth_getDelegations
 
 	// cron
@@ -763,6 +764,10 @@ func (e *PublicAPI) GetActiveValidatorCount() (int, error) {
 func (e *PublicAPI) GetValidatorCount() (int, error) {
 	e.logger.Debug("eth_getValidatorCount")
 	return e.backend.GetValidatorCount()
+}
+
+func (e *PublicAPI) GetCoinInfo() (*rpctypes.CoinInfoRPC, error) {
+	return e.backend.GetCoinInfo()
 }
 
 func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {

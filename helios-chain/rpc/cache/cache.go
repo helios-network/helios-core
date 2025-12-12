@@ -64,6 +64,7 @@ func (c *RPCCache) setDefaultCachedMethods() {
 		"GetHyperionHistoricalFees":                                         15 * time.Second,
 		"GetValidatorHyperionData":                                          60 * time.Second,
 		"GetCoinbase":                                                       60 * time.Second,
+		"GetCoinInfo":                                                       15 * time.Second,
 		"GetProposalsByPageAndSize":                                         15 * time.Second,
 		"GetProposalsByPageAndSizeWithFilter":                               15 * time.Second,
 		"GetValidatorAPYDetails":                                            60 * time.Second,
