@@ -344,6 +344,21 @@ type ProposalRPC struct {
 	CurrentTallyResult govtypes.TallyResult     `json:"currentTallyResult"`
 }
 
+type ValidatorAPYDetailsRPC struct {
+	ValidatorAddress           string `json:"validatorAddress"`
+	DelegatorAPY               string `json:"delegatorAPY"`
+	ParticipationProbability   string `json:"participationProbability"`
+	WeightedShares             string `json:"weightedShares"`
+	TotalNetworkWeightedShares string `json:"totalNetworkWeightedShares"`
+	SharePercentage            string `json:"sharePercentage"`
+	RewardsPerBlock            string `json:"rewardsPerBlock"`
+	RewardsPerEpoch            string `json:"rewardsPerEpoch"`
+	RewardsPerDay              string `json:"rewardsPerDay"`
+	AnnualRewards              string `json:"annualRewards"`
+	CommissionRate             string `json:"commissionRate"`
+	CommunityTax               string `json:"communityTax"`
+}
+
 type MsgCatalogEntry struct {
 	TypeURL       string                 `json:"type_url"`
 	ProtoFullName string                 `json:"proto_full_name"`
