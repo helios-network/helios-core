@@ -589,6 +589,29 @@ func (c *CachedPublicAPI) GetValidatorsAPYByPageAndSize(page hexutil.Uint64, siz
 	return nil, fmt.Errorf("invalid return type for GetValidatorsAPYByPageAndSize")
 }
 
+// GetCoinInfo returns coin information with caching
+func (c *CachedPublicAPI) GetCoinInfo() (*rpctypes.CoinInfoRPC, error) {
+	methodName := "GetCoinInfo"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if coinInfo, ok := results[0].(*rpctypes.CoinInfoRPC); ok {
+			return coinInfo, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetCoinInfo")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

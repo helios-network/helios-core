@@ -142,6 +142,9 @@ import (
 	logos "helios-core/helios-chain/x/logos"
 	logosKeeper "helios-core/helios-chain/x/logos/keeper"
 	logostypes "helios-core/helios-chain/x/logos/types"
+	chaininfo "helios-core/helios-chain/x/chaininfo"
+	chaininfokeeper "helios-core/helios-chain/x/chaininfo/keeper"
+	chaininfotypes "helios-core/helios-chain/x/chaininfo/types"
 	"helios-core/helios-chain/x/tokenfactory"
 	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
 	tokenfactorytypes "helios-core/helios-chain/x/tokenfactory/types"
@@ -336,6 +339,7 @@ type HeliosApp struct {
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 	HyperionKeeper     hyperionKeeper.Keeper
 	LogosKeeper        logosKeeper.Keeper
+	ChainInfoKeeper    chaininfokeeper.Keeper
 
 	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -1160,6 +1164,14 @@ func (app *HeliosApp) initKeepers(authority string, appOpts servertypes.AppOptio
 		authtypes.NewModuleAddress(govtypes.ModuleName),
 	)
 
+	// chaininfo keeper (query-only module, no store key needed)
+	app.ChainInfoKeeper = chaininfokeeper.NewKeeper(
+		app.codec,
+		app.BankKeeper,
+		app.MintKeeper,
+		app.StakingKeeper,
+	)
+
 	epochsKeeper := epochskeeper.NewKeeper(app.codec, app.keys[epochstypes.StoreKey])
 
 	app.StakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(
@@ -1292,6 +1304,7 @@ func (app *HeliosApp) initManagers() {
 		// Helios app modules
 		hyperion.NewAppModule(app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
 		logos.NewAppModule(app.LogosKeeper, app.GetSubspace(logostypes.ModuleName)),
+		chaininfo.NewAppModule(app.ChainInfoKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName), app.BankKeeper),
@@ -1422,6 +1435,7 @@ func initGenesisOrder() []string {
 		erc20types.ModuleName,
 		hyperiontypes.ModuleName,
 		logostypes.ModuleName,
+		chaininfotypes.ModuleName,
 		epochstypes.ModuleName,
 		ratelimittypes.ModuleName,
 		chronostypes.ModuleName,
@@ -1450,6 +1464,7 @@ func beginBlockerOrder() []string {
 		govtypes.ModuleName,
 		hyperiontypes.ModuleName,
 		logostypes.ModuleName,
+		chaininfotypes.ModuleName,
 		paramstypes.ModuleName,
 		authtypes.ModuleName,
 		crisistypes.ModuleName,
@@ -1501,6 +1516,7 @@ func endBlockerOrder() []string {
 		feemarkettypes.ModuleName,
 		hyperiontypes.ModuleName,
 		logostypes.ModuleName,
+		chaininfotypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		erc20types.ModuleName,
 		packetforwardtypes.ModuleName,

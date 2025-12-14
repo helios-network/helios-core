@@ -14,6 +14,20 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
+// CoinInfoRPC represents comprehensive coin information for JSON-RPC
+type CoinInfoRPC struct {
+	TotalSupply             string                `json:"totalSupply"`
+	RewardsPerBlock         string                `json:"rewardsPerBlock"`
+	RewardsSinceGenesis     string                `json:"rewardsSinceGenesis"`
+	GenesisSupply           string                `json:"genesisSupply"`
+	InflationPercentage365D cosmossdk_io_math.LegacyDec `json:"inflationPercentage365D"`
+	RewardsPerYear          string                `json:"rewardsPerYear"`
+	LastRefreshDate         string                `json:"lastRefreshDate"`
+	ChainStatus             string                `json:"chainStatus"`
+	CurrentBlockHeight      uint64                `json:"currentBlockHeight"`
+	GenesisBlockHeight      uint64                `json:"genesisBlockHeight"`
+}
+
 // Copied the Account and StorageResult types since they are registered under an
 // internal pkg on geth.
 

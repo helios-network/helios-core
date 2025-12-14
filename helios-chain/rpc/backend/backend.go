@@ -163,6 +163,7 @@ type EVMBackend interface {
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
 	GetValidatorAPYDetails(address common.Address) (*rpctypes.ValidatorAPYDetailsRPC, error)
 	GetValidatorsAPYByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorAPYDetailsRPC, error)
+	GetCoinInfo() (*rpctypes.CoinInfoRPC, error)
 	GetActiveValidatorCount() (int, error)
 	GetValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
