@@ -67,6 +67,56 @@ func extractMethodFromRequestBody(r *http.Request) string {
 	return ""
 }
 
+// extractIDFromRequestBody extracts the 'id' from a JSON-RPC request body
+func extractIDFromRequestBody(r *http.Request) (interface{}, error) {
+	// Only process POST requests with JSON content
+	if r.Method != "POST" || r.Header.Get("Content-Type") != "application/json" {
+		return nil, nil
+	}
+
+	// Check if body is nil
+	if r.Body == nil {
+		return nil, nil
+	}
+
+	// Read the body to extract the 'id' field
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Restore the body for actual processing
+	r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+	// Parse JSON to extract id
+	var request struct {
+		ID json.RawMessage `json:"id"`
+	}
+
+	if err := json.Unmarshal(bodyBytes, &request); err == nil {
+		var id interface{}
+		if err := json.Unmarshal(request.ID, &id); err == nil {
+			return id, nil
+		}
+	}
+
+	return nil, nil
+}
+
+// validateRequestID validates the extracted 'id' from a JSON-RPC request
+func validateRequestID(id interface{}, maxIDLength int) error {
+	if maxIDLength <= 0 {
+		return nil // No length restriction if maxIDLength is not positive
+	}
+
+	if idStr, ok := id.(string); ok {
+		if len(idStr) > maxIDLength {
+			return fmt.Errorf("JSON-RPC ID exceeds maximum allowed length of %d characters", maxIDLength)
+		}
+	}
+	return nil
+}
+
 // parseMethodRateLimits parses the method rate limits configuration string
 // Format: "method1:limit1,method2:limit2" (e.g., "eth_call:1,eth_estimateGas:1")
 func parseMethodRateLimits(configString string) map[string]int {
@@ -279,6 +329,40 @@ func StartJSONRPC(ctx *server.Context,
 		// Extract method from request body before processing
 		method := extractMethodFromRequestBody(r)
 
+		// Extract and validate the 'id' from the request body
+		requestID, err := extractIDFromRequestBody(r)
+		if err != nil {
+			ctx.Logger.Error("Failed to extract ID from request body", "error", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      nil,
+				"error": map[string]interface{}{
+					"code":    -32700, // Parse error
+					"message": "Parse error",
+					"data":    "Failed to parse request ID",
+				},
+			})
+			return
+		}
+
+		if err := validateRequestID(requestID, 256); err != nil {
+			ctx.Logger.Warn("JSON-RPC ID validation failed", "id", requestID, "error", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      requestID,
+				"error": map[string]interface{}{
+					"code":    -32001, // Invalid JSON-RPC 2.0 Request
+					"message": "Invalid request: ID too long",
+					"data":    err.Error(),
+				},
+			})
+			return
+		}
+
 		// Get client IP for rate limiting
 		clientIP := middleware.GetClientIP(r)
 
@@ -292,7 +376,7 @@ func StartJSONRPC(ctx *server.Context,
 			w.WriteHeader(http.StatusTooManyRequests)
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"jsonrpc": "2.0",
-				"id":      nil,
+				"id":      requestID,
 				"error": map[string]interface{}{
 					"code":    -32029,
 					"message": "Method rate limit exceeded",
@@ -314,7 +398,7 @@ func StartJSONRPC(ctx *server.Context,
 			w.WriteHeader(http.StatusTooManyRequests)
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"jsonrpc": "2.0",
-				"id":      nil,
+				"id":      requestID,
 				"error": map[string]interface{}{
 					"code":    -32030,
 					"message": "Predicted compute time limit exceeded",
@@ -349,7 +433,7 @@ func StartJSONRPC(ctx *server.Context,
 					w.WriteHeader(http.StatusInternalServerError)
 					json.NewEncoder(w).Encode(map[string]interface{}{
 						"jsonrpc": "2.0",
-						"id":      nil,
+						"id":      requestID,
 						"error": map[string]interface{}{
 							"code":    -32603,
 							"message": "Internal error",
@@ -423,7 +507,7 @@ func StartJSONRPC(ctx *server.Context,
 			w.WriteHeader(http.StatusRequestTimeout)
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"jsonrpc": "2.0",
-				"id":      nil,
+				"id":      requestID,
 				"error": map[string]interface{}{
 					"code":    -32000,
 					"message": "Request timeout exceeded",
@@ -443,7 +527,7 @@ func StartJSONRPC(ctx *server.Context,
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"jsonrpc": "2.0",
-				"id":      nil,
+				"id":      requestID,
 				"error": map[string]interface{}{
 					"code":    -32603,
 					"message": "Internal error",
