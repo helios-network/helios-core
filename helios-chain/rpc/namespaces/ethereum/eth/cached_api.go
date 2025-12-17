@@ -543,6 +543,75 @@ func (c *CachedPublicAPI) GetValidatorCount() (int, error) {
 	return 0, fmt.Errorf("invalid return type for GetValidatorCount")
 }
 
+// GetValidatorAPYDetails returns validator APY details with caching
+func (c *CachedPublicAPI) GetValidatorAPYDetails(address common.Address) (*rpctypes.ValidatorAPYDetailsRPC, error) {
+	methodName := "GetValidatorAPYDetails"
+	args := []interface{}{address}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if details, ok := results[0].(*rpctypes.ValidatorAPYDetailsRPC); ok {
+			return details, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetValidatorAPYDetails")
+}
+
+// GetValidatorsAPYByPageAndSize returns validators APY by page and size with caching
+func (c *CachedPublicAPI) GetValidatorsAPYByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorAPYDetailsRPC, error) {
+	methodName := "GetValidatorsAPYByPageAndSize"
+	args := []interface{}{page, size}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if validators, ok := results[0].([]rpctypes.ValidatorAPYDetailsRPC); ok {
+			return validators, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetValidatorsAPYByPageAndSize")
+}
+
+// GetCoinInfo returns coin information with caching
+func (c *CachedPublicAPI) GetCoinInfo() (*rpctypes.CoinInfoRPC, error) {
+	methodName := "GetCoinInfo"
+	args := []interface{}{}
+
+	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("method %s not found", methodName)
+	}
+
+	results, err := c.interceptMethodCall(methodName, args, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) > 0 {
+		if coinInfo, ok := results[0].(*rpctypes.CoinInfoRPC); ok {
+			return coinInfo, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid return type for GetCoinInfo")
+}
+
 // Generic method interceptor using reflection
 func (c *CachedPublicAPI) InterceptMethod(methodName string, args ...interface{}) (interface{}, error) {
 	method := reflect.ValueOf(c.PublicAPI).MethodByName(methodName)

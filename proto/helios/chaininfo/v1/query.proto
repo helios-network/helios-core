@@ -1,0 +1,57 @@
+syntax = "proto3";
+package helios.chaininfo.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "amino/amino.proto";
+
+option go_package = "helios-core/helios-chain/x/chaininfo/types";
+
+// Query defines the gRPC querier service
+service Query {
+  // CoinInfo returns comprehensive information about the chain's coin
+  rpc CoinInfo(QueryCoinInfoRequest) returns (QueryCoinInfoResponse) {
+    option (google.api.http).get = "/helios/chaininfo/v1/coin_info";
+  }
+}
+
+// QueryCoinInfoRequest is the request type for the Query/CoinInfo RPC method
+message QueryCoinInfoRequest {}
+
+// QueryCoinInfoResponse is the response type for the Query/CoinInfo RPC method
+message QueryCoinInfoResponse {
+  // total_supply is the total supply of the coin
+  string total_supply = 1;
+  
+  // rewards_per_block is the amount of rewards minted per block
+  string rewards_per_block = 2;
+  
+  // rewards_since_genesis is the total rewards minted since genesis
+  string rewards_since_genesis = 3;
+  
+  // genesis_supply is the initial supply at genesis (calculated)
+  string genesis_supply = 4;
+  
+  // inflation_percentage_365d is the inflation percentage over the last 365 days
+  string inflation_percentage_365d = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+  
+  // rewards_per_year is the annual provisions (rewards per year)
+  string rewards_per_year = 6;
+  
+  // last_refresh_date is the timestamp of when this data was generated
+  string last_refresh_date = 7;
+  
+  // chain_status indicates if the chain is live
+  string chain_status = 8;
+  
+  // current_block_height is the current block height
+  uint64 current_block_height = 9;
+  
+  // genesis_block_height is the genesis block height (typically 0 or 1)
+  uint64 genesis_block_height = 10;
+}
+

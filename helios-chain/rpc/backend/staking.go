@@ -161,7 +161,6 @@ func (b *Backend) GetValidatorWithHisDelegationAndCommission(address common.Addr
 	}, nil
 }
 
-// GetValidatorWithHisAssetsAndCommission returns validator info with assets and commission
 func (b *Backend) GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error) {
 	validator, err := b.GetValidator(address)
 	if err != nil {
@@ -211,7 +210,6 @@ func (b *Backend) GetValidatorWithHisAssetsAndCommission(address common.Address)
 	}, nil
 }
 
-// GetValidatorWithHisAssets returns validator info with assets
 func (b *Backend) GetValidatorAssets(address common.Address) ([]rpctypes.ValidatorAssetRPC, error) {
 	validatorBech32Addr := sdk.AccAddress(address.Bytes())
 	valAddr := sdk.ValAddress(validatorBech32Addr)
@@ -251,7 +249,7 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 	if page <= 0 {
 		return nil, fmt.Errorf("page must be greater than 0")
 	}
-	if size <= 0 || size > 100 { // prevent excessive page sizes
+	if size <= 0 || size > 100 {
 		return nil, fmt.Errorf("size must be between 1 and 100")
 	}
 
@@ -277,7 +275,6 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		return nil, fmt.Errorf("failed to get supply: %w", err)
 	}
 
-	// Calculate common values once
 	inflation := inflationRes.Inflation.MustFloat64()
 	communityTax := distributionParams.Params.CommunityTax.MustFloat64()
 	bondedRatio, err := stakingPool.Pool.BondedTokens.ToLegacyDec().Quo(supply.Amount.Amount.ToLegacyDec()).Float64()
@@ -285,7 +282,6 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 		return nil, fmt.Errorf("failed to calculate bonded ratio: %w", err)
 	}
 
-	// Get validators with pagination
 	queryMsg := &stakingtypes.QueryValidatorsRequest{
 		Pagination: &query.PageRequest{
 			Offset: (uint64(page) - 1) * uint64(size),
@@ -305,10 +301,9 @@ func (b *Backend) GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.U
 			b.logger.Error("failed to parse validator address",
 				"validator", validator.OperatorAddress,
 				"error", err)
-			continue // Skip invalid validators instead of failing entirely
+			continue
 		}
 
-		// calculate APR inline using the pre calculated common factors
 		commissionRate := validator.Commission.CommissionRates.Rate.MustFloat64()
 		apr := calculateAPR(inflation, communityTax, commissionRate, bondedRatio)
 
@@ -381,13 +376,11 @@ func (b *Backend) GetValidatorCount() (int, error) {
 	return int(validatorsResp.Count), nil
 }
 
-// Helper function to calculate APR
 func calculateAPR(inflation, communityTax, commissionRate, bondedRatio float64) string {
 	apr := (1 - communityTax) * (1 - commissionRate) * inflation / bondedRatio
 	return fmt.Sprintf("%f%%", apr*100.0)
 }
 
-// Helper function to format validator response
 func formatValidatorResponse(validator stakingtypes.Validator, evmAddress string, apr string, totalBoost string, boostPercentage string) rpctypes.ValidatorRPC {
 	return rpctypes.ValidatorRPC{
 		ValidatorAddress:        evmAddress,
@@ -417,7 +410,14 @@ func (b *Backend) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, err
 		b.logger.Error("GetAllWhitelistedAssets", "err", err)
 		return nil, err
 	}
-	repartitionMap, err := b.queryClient.Staking.ShareRepartitionMap(b.ctx, &stakingtypes.QueryShareRepartitionMapRequest{})
+	repartitionMap, err := b.queryClient.Staking.ShareRepartitionMap(b.ctx, &stakingtypes.QueryShareRepartitionMapRequest{
+		Pagination: &query.PageRequest{
+			Limit:      10000,
+			Offset:     0,
+			CountTotal: false,
+			Reverse:    false,
+		},
+	})
 	if err != nil {
 		b.logger.Error("GetAllWhitelistedAssets", "err", err)
 		return nil, err
@@ -439,7 +439,6 @@ func (b *Backend) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, err
 	return whitelistedAssets, err
 }
 
-// GetTransactionCount returns the number of transactions at the given address up to the given block number.
 func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.DelegationRPC, error) {
 	delegations := make([]rpctypes.DelegationRPC, 0)
 	queryMsg := &stakingtypes.QueryGetDelegationsRequest{
@@ -579,7 +578,6 @@ func (b *Backend) GetDelegations(delegatorAddress common.Address) ([]rpctypes.De
 }
 
 func (b *Backend) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
-	// transform evm address to validator cosmos address
 	validatorBech32Addr := sdk.AccAddress(validatorAddress.Bytes())
 	valAddr := sdk.ValAddress(validatorBech32Addr)
 
@@ -607,7 +605,7 @@ func (b *Backend) GetDelegation(address common.Address, validatorAddress common.
 		}
 
 		boostRes, err := b.queryClient.Staking.TotalBoostedDelegation(b.ctx, boostQuery)
-		if err == nil { // if the delegation doesnt exists and boost exists, return the boost
+		if err == nil {
 			return &rpctypes.DelegationRPC{
 				ValidatorAddress: validatorAddress.String(),
 				Shares:           "0",
@@ -700,8 +698,15 @@ func (b *Backend) GetDelegationForValidators(address common.Address, validatorAd
 	return delegations, nil
 }
 
+// GetValidatorAPR returns a simple APR calculation using the legacy formula.
+//
+// Deprecated: This method does not account for epoch rotation and participationProba.
+// For accurate APY calculation that includes epoch-based validator selection,
+// weighted shares, and participation probability, use GetValidatorAPYDetails() instead.
+//
+// The legacy formula: (1 - communityTax) × (1 - commissionRate) × inflation / bondedRatio
+// This provides a uniform APR for all validators regardless of their stake or epoch participation.
 func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
-	// Get validator commission rate
 	validator, err := b.queryClient.Staking.Validator(b.ctx, &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: validatorAddress,
 	})
@@ -710,47 +715,350 @@ func (b *Backend) GetValidatorAPR(validatorAddress string) (string, error) {
 	}
 	commissionRate := validator.Validator.Commission.CommissionRates.Rate.MustFloat64()
 
-	// Get inflation rate
 	inflationRes, err := b.queryClient.Mint.Inflation(b.ctx, &minttypes.QueryInflationRequest{})
 	if err != nil {
 		return "0%", err
 	}
 	inflation := inflationRes.Inflation.MustFloat64()
 
-	// Get community tax
 	distributionParams, err := b.queryClient.Distribution.Params(b.ctx, &distributiontypes.QueryParamsRequest{})
 	if err != nil {
 		return "0%", err
 	}
 	communityTax := distributionParams.Params.CommunityTax.MustFloat64()
 
-	// Get bonded ratio
 	stakingPool, err := b.queryClient.Staking.Pool(b.ctx, &stakingtypes.QueryPoolRequest{})
 	if err != nil {
 		return "0%", err
 	}
 
 	supply, err := b.queryClient.Bank.SupplyOf(b.ctx, &banktypes.QuerySupplyOfRequest{
-		Denom: "ahelios", // stakingPool.Pool.BondedTokens.Denom,
+		Denom: "ahelios",
 	})
 	if err != nil {
 		return "0%", err
 	}
 
-	// todo: voir si le montant est bien comparable au shared bonded tokens par apport a l'inflation
 	bondedRatio, err := stakingPool.Pool.BondedTokens.ToLegacyDec().Quo(supply.Amount.Amount.ToLegacyDec()).Float64()
 	if err != nil {
 		return "0%", err
 	}
-	// Calculer l'APR
 	apr := (1 - communityTax) * (1 - commissionRate) * inflation / bondedRatio
 
 	return fmt.Sprintf("%f%%", apr*100.0), nil
 }
 
-// GetBlockSignatures queries block signatures with address conversion
+func (b *Backend) GetValidatorAPYDetails(address common.Address) (*rpctypes.ValidatorAPYDetailsRPC, error) {
+	validatorBech32Addr := sdk.AccAddress(address.Bytes())
+	valAddr := sdk.ValAddress(validatorBech32Addr)
+
+	validator, err := b.queryClient.Staking.Validator(b.ctx, &stakingtypes.QueryValidatorRequest{
+		ValidatorAddr: valAddr.String(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get validator: %w", err)
+	}
+
+	assetsResp, err := b.queryClient.Staking.ValidatorAssets(b.ctx, &stakingtypes.QueryValidatorAssetsRequest{
+		ValidatorAddr: valAddr.String(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get validator assets: %w", err)
+	}
+
+	validatorWeightedShares := math.NewInt(0)
+	validatorBaseAmount := math.NewInt(0)
+	for _, asset := range assetsResp.Assets {
+		validatorWeightedShares = validatorWeightedShares.Add(asset.WeightedAmount)
+		validatorBaseAmount = validatorBaseAmount.Add(asset.BaseAmount)
+	}
+
+	repartitionMap, err := b.queryClient.Staking.ShareRepartitionMap(b.ctx, &stakingtypes.QueryShareRepartitionMapRequest{
+		Pagination: &query.PageRequest{
+			Limit:      10000,
+			Offset:     0,
+			CountTotal: false,
+			Reverse:    false,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get share repartition map: %w", err)
+	}
+
+	totalNetworkWeightedShares := math.NewInt(0)
+	for _, shareInfo := range repartitionMap.SharesRepartitionMap {
+		totalNetworkWeightedShares = totalNetworkWeightedShares.Add(shareInfo.NetworkShares)
+	}
+
+	if totalNetworkWeightedShares.IsZero() {
+		return nil, fmt.Errorf("total network weighted shares is zero")
+	}
+
+	annualProvisionsRes, err := b.queryClient.Mint.AnnualProvisions(b.ctx, &minttypes.QueryAnnualProvisionsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get annual provisions: %w", err)
+	}
+
+	mintParams, err := b.queryClient.Mint.Params(b.ctx, &minttypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get mint params: %w", err)
+	}
+
+	distributionParams, err := b.queryClient.Distribution.Params(b.ctx, &distributiontypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get distribution params: %w", err)
+	}
+
+	stakingParams, err := b.queryClient.Staking.Params(b.ctx, &stakingtypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get staking params: %w", err)
+	}
+
+	blocksPerYear := int64(mintParams.Params.BlocksPerYear)
+	blockPerDay := blocksPerYear / 365
+
+	blocksParEpoch := stakingParams.Params.EpochLength
+	epochsPerDay := float64(blockPerDay) / float64(blocksParEpoch)
+
+	stakeWeightFactorDec := math.LegacyNewDecFromInt(math.NewInt(int64(stakingParams.Params.StakeWeightFactor))).QuoInt64(100)
+	baselineChanceFactorDec := math.LegacyNewDecFromInt(math.NewInt(int64(stakingParams.Params.BaselineChanceFactor))).QuoInt64(100)
+	randomnessFactorDec := math.LegacyNewDecFromInt(math.NewInt(int64(stakingParams.Params.RandomnessFactor))).QuoInt64(100)
+
+	rewardsPerBlock := annualProvisionsRes.AnnualProvisions.QuoInt64(blocksPerYear)
+	rewardsPerEpoch := rewardsPerBlock.MulInt64(int64(blocksParEpoch))
+
+	validatorSharePercent := math.LegacyNewDecFromInt(validatorWeightedShares).Quo(math.LegacyNewDecFromInt(totalNetworkWeightedShares))
+	validatorRewardsPerEpoch := rewardsPerEpoch.Mul(validatorSharePercent)
+
+	communityTax := distributionParams.Params.CommunityTax
+	validatorCommission := validator.Validator.Commission.CommissionRates.Rate
+
+	netRewardsForDelegators := validatorRewardsPerEpoch.
+		Mul(math.LegacyOneDec().Sub(communityTax)).
+		Mul(math.LegacyOneDec().Sub(validatorCommission))
+
+	activeValidatorsCount, err := b.GetActiveValidatorCount()
+	if err != nil {
+		b.logger.Error("failed to get active validators count", "error", err)
+		activeValidatorsCount = 0
+	}
+
+	validatorsPerEpoch := int(stakingParams.Params.ValidatorsPerEpoch)
+
+	var participationProba math.LegacyDec
+
+	if activeValidatorsCount > 0 && activeValidatorsCount < validatorsPerEpoch {
+		participationProba = math.LegacyOneDec()
+	} else {
+		participationProba = validatorSharePercent.Mul(stakeWeightFactorDec).
+			Add(baselineChanceFactorDec).
+			Add(randomnessFactorDec)
+
+		if participationProba.GT(math.LegacyOneDec()) {
+			participationProba = math.LegacyOneDec()
+		}
+	}
+
+	epochsPerDayDec := math.LegacyMustNewDecFromStr(fmt.Sprintf("%.8f", epochsPerDay))
+	actualRewardsPerDay := netRewardsForDelegators.Mul(epochsPerDayDec).Mul(participationProba)
+	annualRewards := actualRewardsPerDay.MulInt64(365)
+
+	validatorTotalStake := validatorWeightedShares
+	if validatorTotalStake.IsZero() {
+		validatorTotalStake = validator.Validator.Tokens
+	}
+	var delegatorAPY math.LegacyDec
+	if validatorTotalStake.IsPositive() {
+		validatorTotalStakeDec := math.LegacyNewDecFromInt(validatorTotalStake)
+		delegatorAPY = annualRewards.Quo(validatorTotalStakeDec).MulInt64(100)
+	} else {
+		delegatorAPY = math.LegacyZeroDec()
+	}
+
+	return &rpctypes.ValidatorAPYDetailsRPC{
+		ValidatorAddress:           address.Hex(),
+		DelegatorAPY:               fmt.Sprintf("%.2f%%", delegatorAPY.MustFloat64()),
+		ParticipationProbability:   fmt.Sprintf("%.4f", participationProba.MustFloat64()),
+		WeightedShares:             validatorWeightedShares.String(),
+		TotalNetworkWeightedShares: totalNetworkWeightedShares.String(),
+		SharePercentage:            fmt.Sprintf("%.4f%%", validatorSharePercent.MulInt64(100).MustFloat64()),
+		RewardsPerBlock:            rewardsPerBlock.String(),
+		RewardsPerEpoch:            rewardsPerEpoch.String(),
+		RewardsPerDay:              actualRewardsPerDay.String(),
+		AnnualRewards:              annualRewards.String(),
+		CommissionRate:             fmt.Sprintf("%.2f%%", validatorCommission.MulInt64(100).MustFloat64()),
+		CommunityTax:               fmt.Sprintf("%.2f%%", communityTax.MulInt64(100).MustFloat64()),
+	}, nil
+}
+
+func (b *Backend) GetValidatorsAPYByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorAPYDetailsRPC, error) {
+	if page <= 0 {
+		return nil, fmt.Errorf("page must be greater than 0")
+	}
+	if size <= 0 || size > 100 {
+		return nil, fmt.Errorf("size must be between 1 and 100")
+	}
+
+	repartitionMap, err := b.queryClient.Staking.ShareRepartitionMap(b.ctx, &stakingtypes.QueryShareRepartitionMapRequest{
+		Pagination: &query.PageRequest{
+			Limit:      10000,
+			Offset:     0,
+			CountTotal: false,
+			Reverse:    false,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get share repartition map: %w", err)
+	}
+
+	totalNetworkWeightedShares := math.NewInt(0)
+	for _, shareInfo := range repartitionMap.SharesRepartitionMap {
+		totalNetworkWeightedShares = totalNetworkWeightedShares.Add(shareInfo.NetworkShares)
+	}
+
+	if totalNetworkWeightedShares.IsZero() {
+		return nil, fmt.Errorf("total network weighted shares is zero")
+	}
+
+	annualProvisionsRes, err := b.queryClient.Mint.AnnualProvisions(b.ctx, &minttypes.QueryAnnualProvisionsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get annual provisions: %w", err)
+	}
+
+	mintParams, err := b.queryClient.Mint.Params(b.ctx, &minttypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get mint params: %w", err)
+	}
+
+	distributionParams, err := b.queryClient.Distribution.Params(b.ctx, &distributiontypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get distribution params: %w", err)
+	}
+
+	stakingParams, err := b.queryClient.Staking.Params(b.ctx, &stakingtypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get staking params: %w", err)
+	}
+
+	queryMsg := &stakingtypes.QueryValidatorsRequest{
+		Pagination: &query.PageRequest{
+			Offset: (uint64(page) - 1) * uint64(size),
+			Limit:  uint64(size),
+		},
+	}
+	validatorsResp, err := b.queryClient.Staking.Validators(b.ctx, queryMsg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get validators: %w", err)
+	}
+
+	blocksPerYear := int64(mintParams.Params.BlocksPerYear)
+	blockPerDay := blocksPerYear / 365
+
+	blocksParEpoch := stakingParams.Params.EpochLength
+	epochsPerDay := float64(blockPerDay) / float64(blocksParEpoch)
+
+	rewardsPerBlock := annualProvisionsRes.AnnualProvisions.QuoInt64(blocksPerYear)
+	rewardsPerEpoch := rewardsPerBlock.MulInt64(int64(blocksParEpoch))
+	communityTax := distributionParams.Params.CommunityTax
+
+	validatorsResult := make([]rpctypes.ValidatorAPYDetailsRPC, 0, len(validatorsResp.Validators))
+
+	for _, validator := range validatorsResp.Validators {
+		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+		if err != nil {
+			b.logger.Error("failed to parse validator address", "validator", validator.OperatorAddress, "error", err)
+			continue
+		}
+
+		assetsResp, err := b.queryClient.Staking.ValidatorAssets(b.ctx, &stakingtypes.QueryValidatorAssetsRequest{
+			ValidatorAddr: validator.OperatorAddress,
+		})
+		if err != nil {
+			b.logger.Error("failed to get validator assets", "validator", validator.OperatorAddress, "error", err)
+			continue
+		}
+
+		validatorWeightedShares := math.NewInt(0)
+		validatorBaseAmount := math.NewInt(0)
+		for _, asset := range assetsResp.Assets {
+			validatorWeightedShares = validatorWeightedShares.Add(asset.WeightedAmount)
+			validatorBaseAmount = validatorBaseAmount.Add(asset.BaseAmount)
+		}
+
+		validatorSharePercent := math.LegacyNewDecFromInt(validatorWeightedShares).Quo(math.LegacyNewDecFromInt(totalNetworkWeightedShares))
+		validatorRewardsPerEpoch := rewardsPerEpoch.Mul(validatorSharePercent)
+
+		validatorCommission := validator.Commission.CommissionRates.Rate
+
+		netRewardsForDelegators := validatorRewardsPerEpoch.
+			Mul(math.LegacyOneDec().Sub(communityTax)).
+			Mul(math.LegacyOneDec().Sub(validatorCommission))
+
+		stakeWeightFactorDec := math.LegacyNewDecFromInt(math.NewInt(int64(stakingParams.Params.StakeWeightFactor))).QuoInt64(100)
+		baselineChanceFactorDec := math.LegacyNewDecFromInt(math.NewInt(int64(stakingParams.Params.BaselineChanceFactor))).QuoInt64(100)
+		randomnessFactorDec := math.LegacyNewDecFromInt(math.NewInt(int64(stakingParams.Params.RandomnessFactor))).QuoInt64(100)
+
+		activeValidatorsCount, err := b.GetActiveValidatorCount()
+		if err != nil {
+			b.logger.Error("failed to get active validators count", "error", err)
+			activeValidatorsCount = 0
+		}
+
+		validatorsPerEpoch := int(stakingParams.Params.ValidatorsPerEpoch)
+
+		var participationProba math.LegacyDec
+
+		if activeValidatorsCount > 0 && activeValidatorsCount < validatorsPerEpoch {
+			participationProba = math.LegacyOneDec()
+		} else {
+			participationProba = validatorSharePercent.Mul(stakeWeightFactorDec).
+				Add(baselineChanceFactorDec).
+				Add(randomnessFactorDec)
+
+			if participationProba.GT(math.LegacyOneDec()) {
+				participationProba = math.LegacyOneDec()
+			}
+		}
+
+		epochsPerDayDec := math.LegacyMustNewDecFromStr(fmt.Sprintf("%.8f", epochsPerDay))
+		actualRewardsPerDay := netRewardsForDelegators.Mul(epochsPerDayDec).Mul(participationProba)
+		annualRewards := actualRewardsPerDay.MulInt64(365)
+
+		validatorTotalStake := validatorWeightedShares
+		if validatorTotalStake.IsZero() {
+			validatorTotalStake = validator.Tokens
+		}
+		var delegatorAPY math.LegacyDec
+		if validatorTotalStake.IsPositive() {
+			validatorTotalStakeDec := math.LegacyNewDecFromInt(validatorTotalStake)
+			delegatorAPY = annualRewards.Quo(validatorTotalStakeDec).MulInt64(100)
+		} else {
+			delegatorAPY = math.LegacyZeroDec()
+		}
+
+		validatorCosmosAddress := sdk.AccAddress(valAddr.Bytes())
+		validatorEVMAddress := common.BytesToAddress(validatorCosmosAddress.Bytes()).Hex()
+
+		validatorsResult = append(validatorsResult, rpctypes.ValidatorAPYDetailsRPC{
+			ValidatorAddress:           validatorEVMAddress,
+			DelegatorAPY:               fmt.Sprintf("%.2f%%", delegatorAPY.MustFloat64()),
+			ParticipationProbability:   fmt.Sprintf("%.4f", participationProba.MustFloat64()),
+			WeightedShares:             validatorWeightedShares.String(),
+			TotalNetworkWeightedShares: totalNetworkWeightedShares.String(),
+			SharePercentage:            fmt.Sprintf("%.4f%%", validatorSharePercent.MulInt64(100).MustFloat64()),
+			RewardsPerBlock:            rewardsPerBlock.String(),
+			RewardsPerEpoch:            rewardsPerEpoch.String(),
+			RewardsPerDay:              actualRewardsPerDay.String(),
+			AnnualRewards:              annualRewards.String(),
+			CommissionRate:             fmt.Sprintf("%.2f%%", validatorCommission.MulInt64(100).MustFloat64()),
+			CommunityTax:               fmt.Sprintf("%.2f%%", communityTax.MulInt64(100).MustFloat64()),
+		})
+	}
+
+	return validatorsResult, nil
+}
+
 func (b *Backend) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error) {
-	// Call the gRPC query
 	req := &stakingtypes.QueryBlockSignaturesRequest{
 		Height: int64(blockHeight),
 	}
@@ -761,10 +1069,8 @@ func (b *Backend) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.Va
 		return nil, err
 	}
 
-	// Convert response with address conversion
 	signatures := make([]*rpctypes.ValidatorSignature, len(res.Signatures))
 	for i, sig := range res.Signatures {
-		// Convert operator address to ETH format - CORRECTION ICI
 		valAddr, err := sdk.ValAddressFromBech32(sig.Address)
 		var ethAddr string
 		if err != nil {
@@ -774,7 +1080,6 @@ func (b *Backend) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.Va
 			ethAddr = common.BytesToAddress(valAddr.Bytes()).Hex()
 		}
 
-		// Convert AssetWeights
 		var assetWeights []*rpctypes.AssetWeight
 		for _, aw := range sig.AssetWeights {
 			assetWeights = append(assetWeights, &rpctypes.AssetWeight{
@@ -800,9 +1105,7 @@ func (b *Backend) GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.Va
 	return signatures, nil
 }
 
-// GetEpochComplete queries complete epoch data with address conversion
 func (b *Backend) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error) {
-	// Call the gRPC query
 	req := &stakingtypes.QueryEpochCompleteRequest{
 		EpochId: uint64(epochId),
 	}
@@ -811,10 +1114,8 @@ func (b *Backend) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompl
 		b.logger.Error("GetEpochComplete", "err", err)
 		return nil, err
 	}
-	// Convert response with address conversion
 	validators := make([]*rpctypes.EpochValidatorDetail, len(res.Validators))
 	for i, val := range res.Validators {
-		// Convert operator address to ETH format
 		valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
 		var ethAddress string
 		if err != nil {
@@ -824,7 +1125,6 @@ func (b *Backend) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompl
 			ethAddress = common.BytesToAddress(valAddr.Bytes()).Hex()
 		}
 
-		// Convert BlocksSigned
 		var blocksSigned []*rpctypes.EpochValidatorSignature
 		for _, bs := range val.BlocksSigned {
 			blocksSigned = append(blocksSigned, &rpctypes.EpochValidatorSignature{
@@ -832,7 +1132,6 @@ func (b *Backend) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompl
 				Height:    bs.Height,
 			})
 		}
-		// Convert AssetWeights
 		var assetWeights []*rpctypes.AssetWeight
 		for _, aw := range val.AssetWeights {
 			assetWeights = append(assetWeights, &rpctypes.AssetWeight{
@@ -842,8 +1141,8 @@ func (b *Backend) GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompl
 			})
 		}
 		validators[i] = &rpctypes.EpochValidatorDetail{
-			ValidatorAddress:       ethAddress, // Même adresse que l'opérateur
-			OperatorAddress:        ethAddress, // L'adresse de l'opérateur
+			ValidatorAddress:       ethAddress,
+			OperatorAddress:        ethAddress,
 			BlocksSigned:           blocksSigned,
 			BlocksMissed:           val.BlocksMissed,
 			BondedTokens:           val.BondedTokens.String(),

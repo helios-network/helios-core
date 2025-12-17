@@ -155,12 +155,15 @@ type EthereumAPI interface {
 	GetValidatorWithHisAssetsAndCommission(address common.Address) (*rpctypes.ValidatorWithCommissionAndAssetsRPC, error)
 	GetValidatorAndHisCommission(address common.Address) (*rpctypes.ValidatorWithCommissionRPC, error)
 	GetValidatorsByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorRPC, error)
+	GetValidatorAPYDetails(address common.Address) (*rpctypes.ValidatorAPYDetailsRPC, error)
+	GetValidatorsAPYByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorAPYDetailsRPC, error)
 	GetActiveValidatorCount() (int, error)
 	GetValidatorCount() (int, error)
 	GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error)
 	GetBlockSignatures(blockHeight hexutil.Uint64) ([]*rpctypes.ValidatorSignature, error)
 	GetEpochComplete(epochId hexutil.Uint64) (*rpctypes.EpochCompleteResponse, error)
 	GetValidatorsByPageAndSizeWithHisAssetsAndCommissionAndDelegation(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorWithAssetsAndCommissionAndDelegationRPC, error)
+	GetCoinInfo() (*rpctypes.CoinInfoRPC, error)
 	// eth_getDelegations
 
 	// cron
@@ -763,6 +766,10 @@ func (e *PublicAPI) GetValidatorCount() (int, error) {
 	return e.backend.GetValidatorCount()
 }
 
+func (e *PublicAPI) GetCoinInfo() (*rpctypes.CoinInfoRPC, error) {
+	return e.backend.GetCoinInfo()
+}
+
 func (e *PublicAPI) GetDelegation(address common.Address, validatorAddress common.Address) (*rpctypes.DelegationRPC, error) {
 	e.logger.Debug("eth_getDelegation", "address", address.Hex(), "validatorAddress", validatorAddress)
 	return e.backend.GetDelegation(address, validatorAddress)
@@ -776,6 +783,16 @@ func (e *PublicAPI) GetDelegationForValidators(address common.Address, validator
 func (e *PublicAPI) GetAllWhitelistedAssets() ([]rpctypes.WhitelistedAssetRPC, error) {
 	e.logger.Debug("eth_getAllWhitelistedAssets")
 	return e.backend.GetAllWhitelistedAssets()
+}
+
+func (e *PublicAPI) GetValidatorAPYDetails(address common.Address) (*rpctypes.ValidatorAPYDetailsRPC, error) {
+	e.logger.Debug("eth_getValidatorAPYDetails", "address", address.Hex())
+	return e.backend.GetValidatorAPYDetails(address)
+}
+
+func (e *PublicAPI) GetValidatorsAPYByPageAndSize(page hexutil.Uint64, size hexutil.Uint64) ([]rpctypes.ValidatorAPYDetailsRPC, error) {
+	e.logger.Debug("eth_getValidatorsAPYByPageAndSize", "page", page, "size", size)
+	return e.backend.GetValidatorsAPYByPageAndSize(page, size)
 }
 
 func (e *PublicAPI) GetCron(id uint64) (*chronostypes.Cron, error) {

@@ -14,6 +14,20 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
+// CoinInfoRPC represents comprehensive coin information for JSON-RPC
+type CoinInfoRPC struct {
+	TotalSupply             string                `json:"totalSupply"`
+	RewardsPerBlock         string                `json:"rewardsPerBlock"`
+	RewardsSinceGenesis     string                `json:"rewardsSinceGenesis"`
+	GenesisSupply           string                `json:"genesisSupply"`
+	InflationPercentage365D cosmossdk_io_math.LegacyDec `json:"inflationPercentage365D"`
+	RewardsPerYear          string                `json:"rewardsPerYear"`
+	LastRefreshDate         string                `json:"lastRefreshDate"`
+	ChainStatus             string                `json:"chainStatus"`
+	CurrentBlockHeight      uint64                `json:"currentBlockHeight"`
+	GenesisBlockHeight      uint64                `json:"genesisBlockHeight"`
+}
+
 // Copied the Account and StorageResult types since they are registered under an
 // internal pkg on geth.
 
@@ -342,6 +356,21 @@ type ProposalRPC struct {
 	MinDeposit         sdk.Coins                `json:"minDeposit"`
 	FinalTallyResult   govtypes.TallyResult     `json:"finalTallyResult"`
 	CurrentTallyResult govtypes.TallyResult     `json:"currentTallyResult"`
+}
+
+type ValidatorAPYDetailsRPC struct {
+	ValidatorAddress           string `json:"validatorAddress"`
+	DelegatorAPY               string `json:"delegatorAPY"`
+	ParticipationProbability   string `json:"participationProbability"`
+	WeightedShares             string `json:"weightedShares"`
+	TotalNetworkWeightedShares string `json:"totalNetworkWeightedShares"`
+	SharePercentage            string `json:"sharePercentage"`
+	RewardsPerBlock            string `json:"rewardsPerBlock"`
+	RewardsPerEpoch            string `json:"rewardsPerEpoch"`
+	RewardsPerDay              string `json:"rewardsPerDay"`
+	AnnualRewards              string `json:"annualRewards"`
+	CommissionRate             string `json:"commissionRate"`
+	CommunityTax               string `json:"communityTax"`
 }
 
 type MsgCatalogEntry struct {
