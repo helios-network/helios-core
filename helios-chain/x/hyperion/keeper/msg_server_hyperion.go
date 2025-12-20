@@ -147,7 +147,8 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 		txHash = fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	}
 
-	// Fees validation
+	// Fees validation (looks not working) Todo check Better @Jiji @JeremyGuyet
+	///////////////////////////////
 	lowestFeeValidator := k.Keeper.GetLowestFeeValidator(ctx, msg.DestChainId)
 	if lowestFeeValidator == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "no lowest fee validator found")
@@ -156,6 +157,7 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	if lowestFee == nil {
 		return nil, errors.Wrap(types.ErrInvalid, "no lowest fee found")
 	}
+	///////////////////////////////
 
 	if msg.BridgeFee.Denom != "ahelios" {
 		return nil, errors.Wrap(types.ErrInvalid, "fee denom must be ahelios")
@@ -163,6 +165,10 @@ func (k msgServer) SendToChain(c context.Context, msg *types.MsgSendToChain) (*t
 	if msg.BridgeFee.Amount.LT(lowestFee.Amount) {
 		return nil, errors.Wrap(types.ErrInvalid, "fee is less than the lowest fee")
 	}
+	// fmt.Println("chainId :", msg.DestChainId)
+	// fmt.Println("denom :", msg.Amount.Denom)
+	// fmt.Println("lowestFee :", lowestFee)
+	// fmt.Println("msg.BridgeFee :", msg.BridgeFee)
 	//-------------------------------------
 
 	dest := common.HexToAddress(msg.Dest)
