@@ -2,9 +2,8 @@ const ethers = require('ethers');
 const WebSocket = require('ws');
 const fs = require('fs');
 
-const RPC_URL = 'https://testnet1.helioschainlabs.org';
-// const RPC_URL = 'http://localhost:8545';
-const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
+// const RPC_URL = 'https://testnet1.helioschainlabs.org';
+const RPC_URL = 'http://localhost:8545';
 
 const PRIVATE_KEY = '';
 
@@ -19,15 +18,21 @@ async function hyperionProposal({ title, description, msg }) {
   try {
     console.log('Ajout d\'une nouvelle proposition au consensus...');
     console.log('Arguments envoyés au contrat :', { title, description });
-    
-    const tx = await contract.hyperionProposal(title, description, msg, "1000000000000000000", {
+
+    const call = await contract.hyperionProposal.estimateGas(title, description, msg, "1000000000000000000", {
       gasPrice: 50000000000,
       gasLimit: 5000000
     });
-    console.log('Transaction envoyée, hash :', tx.hash);
+    console.log('call: ', call);
+    
+    // const tx = await contract.hyperionProposal(title, description, msg, "1000000000000000000", {
+    //   gasPrice: 50000000000,
+    //   gasLimit: 5000000
+    // });
+    // console.log('Transaction envoyée, hash :', tx.hash);
 
-    const receipt = await tx.wait();
-    console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
+    // const receipt = await tx.wait();
+    // console.log('Transaction confirmée dans le bloc :', receipt.blockNumber);
 
     console.log('Proposition soumise avec succès !');
   } catch (error) {
@@ -232,6 +237,17 @@ async function removeTokenFromChainProposal(chainId) {
   })
 }
 
+async function cleanAllSkippedTxsProposal() {
+  await hyperionProposal({
+    title: `Clean All Skipped Txs`,
+    description: `Clean All Skipped Txs`,
+    msg: JSON.stringify({
+      "@type": "/helios.hyperion.v1.MsgCleanAllSkippedTxs",
+      "signer": wallet.address
+    })
+  })
+}
+
 async function main() {
 
   // await setPauseProposal(97);
@@ -251,24 +267,26 @@ async function main() {
 
   // await removeTokenFromChainProposal(11155111);
 
-  await modularProposal({
-    title: "Update slashing params",
-    description: "Update slashing params",
-    msg: JSON.stringify({
-      "@type": "/cosmos.slashing.v1beta1.MsgUpdateParams",
-      "params": {
-        // "@type": "/cosmos.slashing.v1beta1.Params", / not neccessary to define the type of childs protos
-        "signedBlocksWindow": 1000,
-        "minSignedPerWindow": "0.2",
-        "downtimeJailDuration": "600s",
-        "slashFractionDoubleSign": "0.05",
-        "slashFractionDowntime": "0.01",
-      },
-      "authority": wallet.address
-    }),
-    proposalType: "slashing",
-    initialDepositAmount: "1000000000000000000"
-  });
+  // await modularProposal({
+  //   title: "Update slashing params",
+  //   description: "Update slashing params",
+  //   msg: JSON.stringify({
+  //     "@type": "/cosmos.slashing.v1beta1.MsgUpdateParams",
+  //     "params": {
+  //       // "@type": "/cosmos.slashing.v1beta1.Params", / not neccessary to define the type of childs protos
+  //       "signedBlocksWindow": 1000,
+  //       "minSignedPerWindow": "0.2",
+  //       "downtimeJailDuration": "600s",
+  //       "slashFractionDoubleSign": "0.05",
+  //       "slashFractionDowntime": "0.01",
+  //     },
+  //     "authority": wallet.address
+  //   }),
+  //   proposalType: "slashing",
+  //   initialDepositAmount: "1000000000000000000"
+  // });
+
+  cleanAllSkippedTxsProposal();
 }
 
 main();

@@ -6,9 +6,9 @@ const fs = require('fs');
 const RPC_URL = 'http://localhost:8545';
 const COSMOS_RPC_WS = 'ws://localhost:26657/websocket'; // WebSocket Cosmos RPC
 
-const PRIVATE_KEY = '2c37c3d09d7a1c957f01ad200cec69bc287d0a9cc85b4dce694611a4c9c24036';
+const PRIVATE_KEY = '';
 
-const PRIVATE_KEY2 = 'e1ab51c450698b0af4722e074e39394bd99822f0b00f1a787a131b48c14d4483'
+const PRIVATE_KEY2 = ''
 
 const PRECOMPILE_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000806';
 
