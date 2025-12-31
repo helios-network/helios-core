@@ -136,15 +136,15 @@ import (
 	"helios-core/helios-chain/app/ante"
 	"helios-core/helios-chain/stream"
 	chaintypes "helios-core/helios-chain/types"
+	chaininfo "helios-core/helios-chain/x/chaininfo"
+	chaininfokeeper "helios-core/helios-chain/x/chaininfo/keeper"
+	chaininfotypes "helios-core/helios-chain/x/chaininfo/types"
 	hyperion "helios-core/helios-chain/x/hyperion"
 	hyperionKeeper "helios-core/helios-chain/x/hyperion/keeper"
 	hyperiontypes "helios-core/helios-chain/x/hyperion/types"
 	logos "helios-core/helios-chain/x/logos"
 	logosKeeper "helios-core/helios-chain/x/logos/keeper"
 	logostypes "helios-core/helios-chain/x/logos/types"
-	chaininfo "helios-core/helios-chain/x/chaininfo"
-	chaininfokeeper "helios-core/helios-chain/x/chaininfo/keeper"
-	chaininfotypes "helios-core/helios-chain/x/chaininfo/types"
 	"helios-core/helios-chain/x/tokenfactory"
 	tokenfactorykeeper "helios-core/helios-chain/x/tokenfactory/keeper"
 	tokenfactorytypes "helios-core/helios-chain/x/tokenfactory/types"
@@ -1302,7 +1302,7 @@ func (app *HeliosApp) initManagers() {
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Helios app modules
-		hyperion.NewAppModule(app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
+		hyperion.NewAppModule(&app.HyperionKeeper, app.BankKeeper, app.GetSubspace(hyperiontypes.ModuleName)),
 		logos.NewAppModule(app.LogosKeeper, app.GetSubspace(logostypes.ModuleName)),
 		chaininfo.NewAppModule(app.ChainInfoKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
