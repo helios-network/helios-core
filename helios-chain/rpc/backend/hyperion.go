@@ -63,7 +63,7 @@ func (b *Backend) GetAllHyperionTransferTxs(size hexutil.Uint64) ([]*hyperiontyp
 }
 
 func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
-	res, err := b.queryClient.Hyperion.Params(b.ctx, &hyperiontypes.QueryParamsRequest{})
+	res, err := b.queryClient.Hyperion.QueryGetCounterpartyChainParamsWithComplemetaryInfo(b.ctx, &hyperiontypes.QueryGetCounterpartyChainParamsWithComplemetaryInfoRequest{})
 	if err != nil {
 		b.logger.Error("GetHyperionChains", "error", err)
 		return nil, err
@@ -71,30 +71,57 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 
 	counterpartyChainParams := make([]*rpctypes.HyperionChainRPC, 0)
 
-	for _, chain := range res.Params.CounterpartyChainParams {
+	for _, chain := range res.CounterpartyChainParamsWithComplemetaryInfo {
 		counterpartyChainParams = append(counterpartyChainParams, &rpctypes.HyperionChainRPC{
-			HyperionContractAddress: chain.BridgeCounterpartyAddress,
-			ChainId:                 chain.BridgeChainId,
-			Name:                    chain.BridgeChainName,
-			ChainType:               chain.BridgeChainType,
-			Logo:                    chain.BridgeChainLogo,
-			HyperionId:              chain.HyperionId,
-			Paused:                  chain.Paused,
+			HyperionContractAddress:      chain.CounterpartyChainParams.BridgeCounterpartyAddress,
+			ChainId:                      chain.CounterpartyChainParams.BridgeChainId,
+			Name:                         chain.CounterpartyChainParams.BridgeChainName,
+			ChainType:                    chain.CounterpartyChainParams.BridgeChainType,
+			Logo:                         chain.CounterpartyChainParams.BridgeChainLogo,
+			HyperionId:                   chain.CounterpartyChainParams.HyperionId,
+			Paused:                       chain.CounterpartyChainParams.Paused,
+			AverageCounterpartyBlockTime: chain.ComplemetaryInfo.AverageCounterpartyBlockTime,
+			LatestObservedBlockHeight:    chain.ComplemetaryInfo.LatestObservedBlockHeight,
+			LatestObservedBlockTime:      chain.ComplemetaryInfo.LatestObservedBlockTime,
 		})
+
+		// to know the timeout of one tx, we need to know the latest observed block height and time
+		// example:
+		// latest observed block height: 100000
+		// average counterparty block time: 2 seconds
+		// target outgoing tx timeout block height: 100100
+		// projected current ethereum height: 100000
+		// blocks to add: 100100 - 100000 = 100
+		// timeout in time: 100 * 2 seconds = 200 seconds = in 3 minutes and 20 seconds from now
 	}
 
 	bankRes, _ := b.queryClient.Bank.DenomFullMetadata(b.ctx, &banktypes.QueryDenomFullMetadataRequest{
 		Denom: evmtypes.DefaultEVMDenom,
 	})
 
+	resAvgBlockTime, err := b.queryClient.Hyperion.QueryGetHeliosEffectiveAverageBlockTime(b.ctx, &hyperiontypes.QueryGetHeliosEffectiveAverageBlockTimeRequest{})
+	if err != nil {
+		b.logger.Error("GetHyperionEffectiveAverageBlockTime", "error", err)
+		return nil, err
+	}
+
+	latestBlock, err := b.GetBlockByNumber(rpctypes.EthLatestBlockNumber, false)
+	if err != nil {
+		b.logger.Error("GetHyperionEffectiveAverageBlockTime", "error", err)
+		return nil, err
+	}
+
 	counterpartyChainParams = append(counterpartyChainParams, &rpctypes.HyperionChainRPC{
-		HyperionContractAddress: evmtypes.HyperionPrecompileAddress,
-		ChainId:                 uint64(b.chainID.Int64()),
-		Name:                    "Helios",
-		ChainType:               "evm",
-		Logo:                    bankRes.Metadata.Metadata.Logo,
-		HyperionId:              0,
-		Paused:                  false,
+		HyperionContractAddress:      evmtypes.HyperionPrecompileAddress,
+		ChainId:                      uint64(b.chainID.Int64()),
+		Name:                         "Helios",
+		ChainType:                    "evm",
+		Logo:                         bankRes.Metadata.Metadata.Logo,
+		HyperionId:                   0,
+		Paused:                       false,
+		AverageCounterpartyBlockTime: resAvgBlockTime.AverageBlockTime,
+		LatestObservedBlockHeight:    uint64(latestBlock["number"].(hexutil.Uint64)),
+		LatestObservedBlockTime:      uint64(latestBlock["timestamp"].(hexutil.Uint64)),
 	})
 
 	return counterpartyChainParams, nil

@@ -288,6 +288,11 @@ func startStandAlone(svrCtx *server.Context, opts StartOptions) error {
 	svr.SetLogger(servercmtlog.CometLoggerWrapper{Logger: svrCtx.Logger.With("server", "abci")})
 	g, ctx := getCtx(svrCtx, false)
 
+	appWithCometBftConfig, ok := app.(AppWithCometBftConfig)
+	if ok {
+		appWithCometBftConfig.RegisterCometBftConfig(svrCtx.Config)
+	}
+
 	g.Go(func() error {
 		if err := svr.Start(); err != nil {
 			svrCtx.Logger.Error("failed to start out-of-process ABCI server", "err", err)

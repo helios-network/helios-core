@@ -16,16 +16,16 @@ import (
 
 // CoinInfoRPC represents comprehensive coin information for JSON-RPC
 type CoinInfoRPC struct {
-	TotalSupply             string                `json:"totalSupply"`
-	RewardsPerBlock         string                `json:"rewardsPerBlock"`
-	RewardsSinceGenesis     string                `json:"rewardsSinceGenesis"`
-	GenesisSupply           string                `json:"genesisSupply"`
+	TotalSupply             string                      `json:"totalSupply"`
+	RewardsPerBlock         string                      `json:"rewardsPerBlock"`
+	RewardsSinceGenesis     string                      `json:"rewardsSinceGenesis"`
+	GenesisSupply           string                      `json:"genesisSupply"`
 	InflationPercentage365D cosmossdk_io_math.LegacyDec `json:"inflationPercentage365D"`
-	RewardsPerYear          string                `json:"rewardsPerYear"`
-	LastRefreshDate         string                `json:"lastRefreshDate"`
-	ChainStatus             string                `json:"chainStatus"`
-	CurrentBlockHeight      uint64                `json:"currentBlockHeight"`
-	GenesisBlockHeight      uint64                `json:"genesisBlockHeight"`
+	RewardsPerYear          string                      `json:"rewardsPerYear"`
+	LastRefreshDate         string                      `json:"lastRefreshDate"`
+	ChainStatus             string                      `json:"chainStatus"`
+	CurrentBlockHeight      uint64                      `json:"currentBlockHeight"`
+	GenesisBlockHeight      uint64                      `json:"genesisBlockHeight"`
 }
 
 // Copied the Account and StorageResult types since they are registered under an
@@ -261,13 +261,16 @@ type WhitelistedAssetRPC struct {
 }
 
 type HyperionChainRPC struct {
-	HyperionContractAddress string `json:"hyperionContractAddress"`
-	ChainId                 uint64 `json:"chainId"`
-	Name                    string `json:"name"`
-	ChainType               string `json:"chainType"`
-	Logo                    string `json:"logo"`
-	HyperionId              uint64 `json:"hyperionId"`
-	Paused                  bool   `json:"paused"`
+	HyperionContractAddress      string `json:"hyperionContractAddress"`
+	ChainId                      uint64 `json:"chainId"`
+	Name                         string `json:"name"`
+	ChainType                    string `json:"chainType"`
+	Logo                         string `json:"logo"`
+	HyperionId                   uint64 `json:"hyperionId"`
+	Paused                       bool   `json:"paused"`
+	AverageCounterpartyBlockTime uint64 `json:"averageCounterpartyBlockTime"`
+	LatestObservedBlockHeight    uint64 `json:"latestObservedBlockHeight"`
+	LatestObservedBlockTime      uint64 `json:"latestObservedBlockTime"`
 }
 
 // ValidatorSignature struct for block signature information

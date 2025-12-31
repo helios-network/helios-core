@@ -156,3 +156,14 @@ message CounterpartyChainParams {
 
   bool paused = 30;
 }
+
+message ComplemetaryInfo {
+  uint64 average_counterparty_block_time = 1 [(gogoproto.jsontag) = "averageCounterpartyBlockTime"];
+  uint64 latest_observed_block_height = 2 [(gogoproto.jsontag) = "latestObservedBlockHeight"];
+  uint64 latest_observed_block_time = 3 [(gogoproto.jsontag) = "latestObservedBlockTime"];
+}
+
+message CounterpartyChainParamsWithComplemetaryInfo {
+  CounterpartyChainParams counterparty_chain_params = 1 [(gogoproto.jsontag) = "counterpartyChainParams"];
+  ComplemetaryInfo complemetary_info = 2 [(gogoproto.jsontag) = "complemetaryInfo"];
+}

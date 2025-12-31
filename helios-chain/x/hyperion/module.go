@@ -97,7 +97,7 @@ func (b AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry
 // AppModule object for module implementation
 type AppModule struct {
 	AppModuleBasic
-	keeper         keeper.Keeper
+	keeper         *keeper.Keeper
 	bankKeeper     bankkeeper.Keeper
 	legacySubspace exported.Subspace // used for x/params migration
 	blockHandler   *BlockHandler
@@ -112,7 +112,7 @@ func (am AppModule) ConsensusVersion() uint64 {
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
-	k keeper.Keeper,
+	k *keeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	ss exported.Subspace,
 ) AppModule {
@@ -121,7 +121,7 @@ func NewAppModule(
 		keeper:         k,
 		bankKeeper:     bankKeeper,
 		legacySubspace: ss,
-		blockHandler:   NewBlockHandler(k),
+		blockHandler:   NewBlockHandler(*k),
 	}
 }
 
@@ -143,10 +143,10 @@ func (am AppModule) QuerierRoute() string {
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), &am.keeper)
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(*am.keeper))
+	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	migrator := keeper.NewMigrator(am.keeper, am.legacySubspace)
+	migrator := keeper.NewMigrator(*am.keeper, am.legacySubspace)
 	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate hyperion from version 1 to 2: %v", err))
 	}
@@ -156,12 +156,12 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) {
 	genesisState := new(types.GenesisState)
 	cdc.MustUnmarshalJSON(data, genesisState)
-	keeper.InitGenesis(ctx, am.keeper, genesisState)
+	keeper.InitGenesis(ctx, *am.keeper, genesisState)
 }
 
 // ExportGenesis exports the current genesis state to a json.RawMessage
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	gs := keeper.ExportGenesis(ctx, am.keeper)
+	gs := keeper.ExportGenesis(ctx, *am.keeper)
 	return cdc.MustMarshalJSON(&gs)
 }
 

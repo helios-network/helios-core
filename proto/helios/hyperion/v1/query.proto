@@ -229,6 +229,16 @@ service Query {
     option (google.api.http).get = "/hyperion/v1/all_skipped_nonces";
   }
 
+  rpc QueryGetCounterpartyChainParamsWithComplemetaryInfo(QueryGetCounterpartyChainParamsWithComplemetaryInfoRequest)
+      returns (QueryGetCounterpartyChainParamsWithComplemetaryInfoResponse) {
+    option (google.api.http).get = "/hyperion/v1/counterparty_chain_params_with_complemetary_info";
+  }
+
+  rpc QueryGetHeliosEffectiveAverageBlockTime(QueryGetHeliosEffectiveAverageBlockTimeRequest)
+      returns (QueryGetHeliosEffectiveAverageBlockTimeResponse) {
+    option (google.api.http).get = "/hyperion/v1/helios_effective_average_block_time";
+  }
+
 }
 
 message QueryParamsRequest {}
@@ -586,4 +596,18 @@ message QueryGetAllSkippedNoncesRequest {
 
 message QueryGetAllSkippedNoncesResponse {
   repeated SkippedNonceFullInfoWithHyperionId skipped_nonces = 1;
+}
+
+message QueryGetCounterpartyChainParamsWithComplemetaryInfoRequest {
+}
+
+message QueryGetCounterpartyChainParamsWithComplemetaryInfoResponse {
+  repeated CounterpartyChainParamsWithComplemetaryInfo counterparty_chain_params_with_complemetary_info = 1;
+}
+
+message QueryGetHeliosEffectiveAverageBlockTimeRequest {
+}
+
+message QueryGetHeliosEffectiveAverageBlockTimeResponse {
+  uint64 average_block_time = 1;
 }

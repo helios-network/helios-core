@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -23,6 +24,48 @@ func (k *Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.
 	defer doneFn()
 
 	return &types.QueryParamsResponse{Params: *k.GetParams(sdk.UnwrapSDKContext(c))}, nil
+}
+
+func (k *Keeper) QueryGetHeliosEffectiveAverageBlockTime(c context.Context, req *types.QueryGetHeliosEffectiveAverageBlockTimeRequest) (*types.QueryGetHeliosEffectiveAverageBlockTimeResponse, error) {
+	c, doneFn := metrics.ReportFuncCallAndTimingCtx(c, k.grpcTags)
+	defer doneFn()
+	ctx := sdk.UnwrapSDKContext(c)
+	return &types.QueryGetHeliosEffectiveAverageBlockTimeResponse{AverageBlockTime: k.GetHeliosEffectiveAverageBlockTime(ctx)}, nil
+}
+
+// [Used In Hyperion] QueryGetCounterpartyChainParamsWithComplemetaryInfo queries the counterparty chain params with complemetary info
+func (k *Keeper) QueryGetCounterpartyChainParamsWithComplemetaryInfo(c context.Context, req *types.QueryGetCounterpartyChainParamsWithComplemetaryInfoRequest) (*types.QueryGetCounterpartyChainParamsWithComplemetaryInfoResponse, error) {
+
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetParams(ctx)
+
+	result := make([]*types.CounterpartyChainParamsWithComplemetaryInfo, 0)
+
+	for _, chain := range params.CounterpartyChainParams {
+		lastObserved := k.GetLastObservedEthereumBlockHeight(ctx, chain.HyperionId)
+
+		var blocksSince uint64
+		if ctx.BlockHeight() > int64(lastObserved.CosmosBlockHeight) {
+			blocksSince = uint64(ctx.BlockHeight()) - lastObserved.CosmosBlockHeight
+		}
+		estimatedDuration :=
+			time.Duration((blocksSince * k.GetHeliosEffectiveAverageBlockTime(ctx))) * time.Millisecond
+		estimatedBlockTime :=
+			ctx.BlockTime().Add(-estimatedDuration)
+		chainWithComplemetaryInfo :=
+			&types.CounterpartyChainParamsWithComplemetaryInfo{
+				CounterpartyChainParams: chain,
+				ComplemetaryInfo: &types.ComplemetaryInfo{
+					AverageCounterpartyBlockTime: chain.AverageCounterpartyBlockTime,
+					LatestObservedBlockHeight:    lastObserved.EthereumBlockHeight,
+					LatestObservedBlockTime:      uint64(estimatedBlockTime.Unix()),
+				},
+			}
+
+		result = append(result, chainWithComplemetaryInfo)
+	}
+
+	return &types.QueryGetCounterpartyChainParamsWithComplemetaryInfoResponse{CounterpartyChainParamsWithComplemetaryInfo: result}, nil
 }
 
 // [Used In Hyperion] CurrentValset queries the CurrentValset of the hyperion module
