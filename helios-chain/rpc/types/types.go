@@ -271,6 +271,8 @@ type HyperionChainRPC struct {
 	AverageCounterpartyBlockTime uint64 `json:"averageCounterpartyBlockTime"`
 	LatestObservedBlockHeight    uint64 `json:"latestObservedBlockHeight"`
 	LatestObservedBlockTime      uint64 `json:"latestObservedBlockTime"`
+	TargetBatchTimeout           uint64 `json:"targetBatchTimeout"`
+	TargetOutgoingTxTimeout      uint64 `json:"targetOutgoingTxTimeout"`
 }
 
 // ValidatorSignature struct for block signature information

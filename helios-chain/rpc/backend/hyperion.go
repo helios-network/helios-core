@@ -83,6 +83,8 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 			AverageCounterpartyBlockTime: chain.ComplemetaryInfo.AverageCounterpartyBlockTime,
 			LatestObservedBlockHeight:    chain.ComplemetaryInfo.LatestObservedBlockHeight,
 			LatestObservedBlockTime:      chain.ComplemetaryInfo.LatestObservedBlockTime,
+			TargetBatchTimeout:           chain.CounterpartyChainParams.TargetBatchTimeout,
+			TargetOutgoingTxTimeout:      chain.CounterpartyChainParams.TargetOutgoingTxTimeout,
 		})
 
 		// to know the timeout of one tx, we need to know the latest observed block height and time
@@ -122,6 +124,8 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 		AverageCounterpartyBlockTime: resAvgBlockTime.AverageBlockTime,
 		LatestObservedBlockHeight:    uint64(latestBlock["number"].(hexutil.Uint64)),
 		LatestObservedBlockTime:      uint64(latestBlock["timestamp"].(hexutil.Uint64)),
+		TargetBatchTimeout:           0,
+		TargetOutgoingTxTimeout:      0,
 	})
 
 	return counterpartyChainParams, nil
