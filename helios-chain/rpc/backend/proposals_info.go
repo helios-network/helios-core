@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -20,8 +21,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
+	
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	logostypes "helios-core/helios-chain/x/logos/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -412,6 +421,20 @@ func (b *Backend) GovCatalog() ([]rpctypes.MsgCatalogEntry, error) {
 		requiresAuth := mdHasAuthority(md)
 		tmpl := buildJSONTemplateFromDescriptor(md)
 
+		// Enrichir le template avec les valeurs actuelles si applicable
+		if requiresAuth {
+			currentValues := b.getCurrentValuesForMessage(b.ctx, module, protoName, tmpl)
+			if currentValues != nil {
+				fmt.Printf("Enriching template for %s with current values: %+v\n", protoName, currentValues)
+				tmpl = enrichTemplateWithCurrentValues(tmpl, currentValues)
+			} else {
+				// Log pour déboguer si currentValues est nil
+				if strings.Contains(protoName, "UpdateParams") {
+					fmt.Printf("No current values found for %s (module: %s)\n", protoName, module)
+				}
+			}
+		}
+
 		entry := rpctypes.MsgCatalogEntry{
 			TypeURL:       typeURL,
 			ProtoFullName: protoName,
@@ -486,7 +509,17 @@ func buildJSONTemplateFromDescriptor(md protoreflect.MessageDescriptor) map[stri
 
 		// gestion des repeated
 		if f.Cardinality() == protoreflect.Repeated {
-			out[jsonName] = []interface{}{val}
+			// Pour les arrays de Coins, mettre un exemple plus clair
+			if _, ok := val.(map[string]string); ok {
+				// C'est un Coin, créer un exemple avec une valeur réaliste
+				exampleCoin := map[string]string{
+					"denom":  "ahelios",
+					"amount": "1000000000000000000", // 1 HLS en wei
+				}
+				out[jsonName] = []interface{}{exampleCoin}
+			} else {
+				out[jsonName] = []interface{}{val}
+			}
 		} else {
 			out[jsonName] = val
 		}
@@ -516,6 +549,286 @@ func buildJSONTemplateFromDescriptor(md protoreflect.MessageDescriptor) map[stri
 // 	})
 // 	return "", nil
 // }
+
+// getCurrentValuesForMessage récupère les valeurs actuelles pour un message donné
+// Fonction générique qui détecte automatiquement le type de message
+func (b *Backend) getCurrentValuesForMessage(ctx context.Context, module, protoName string, template map[string]interface{}) map[string]interface{} {
+	// Détecter le type de message depuis le nom
+	msgName := extractMessageName(protoName)
+	
+	// Pour MsgUpdateParams, récupérer les params actuels du module
+	if strings.Contains(msgName, "UpdateParams") {
+		params := b.getCurrentModuleParams(ctx, module)
+		if params == nil {
+			return nil
+		}
+		
+		// Le template a une structure {"params": {...}}, donc wrapper les params
+		// Vérifier si le template a une clé "params"
+		if _, hasParams := template["params"]; hasParams {
+			return map[string]interface{}{
+				"params": params,
+			}
+		}
+		
+		// Sinon, retourner directement les params (pour les cas où la structure est différente)
+		return params
+	}
+	
+	// Pour d'autres types de messages, on pourrait ajouter d'autres stratégies ici
+	// Par exemple : MsgSoftwareUpgrade -> récupérer le plan actuel
+	// MsgCommunityPoolSpend -> récupérer le solde du community pool
+	// etc.
+	
+	return nil
+}
+
+// getCurrentModuleParams récupère les paramètres actuels d'un module via gRPC
+// Fonction générique qui utilise les clients QueryClient existants
+func (b *Backend) getCurrentModuleParams(ctx context.Context, module string) map[string]interface{} {
+	// Utiliser les clients QueryClient existants de manière générique
+	// Convertir la réponse en JSON puis parser
+	var paramsResp map[string]interface{}
+	
+	switch module {
+	case "bank":
+		res, err := b.queryClient.Bank.Params(ctx, &banktypes.QueryParamsRequest{})
+		if err == nil {
+			paramsBytes, _ := b.clientCtx.Codec.MarshalJSON(&res.Params)
+			json.Unmarshal(paramsBytes, &paramsResp)
+			paramsResp = convertKeysToCamelCase(paramsResp)
+		}
+	case "staking":
+		res, err := b.queryClient.Staking.Params(ctx, &stakingtypes.QueryParamsRequest{})
+		if err == nil {
+			paramsBytes, _ := b.clientCtx.Codec.MarshalJSON(&res.Params)
+			json.Unmarshal(paramsBytes, &paramsResp)
+			paramsResp = convertKeysToCamelCase(paramsResp)
+		}
+	case "distribution":
+		res, err := b.queryClient.Distribution.Params(ctx, &distributiontypes.QueryParamsRequest{})
+		if err == nil {
+			paramsBytes, _ := b.clientCtx.Codec.MarshalJSON(&res.Params)
+			json.Unmarshal(paramsBytes, &paramsResp)
+			paramsResp = convertKeysToCamelCase(paramsResp)
+		}
+	case "gov":
+		res, err := b.queryClient.Gov.Params(ctx, &govtypes.QueryParamsRequest{ParamsType: "params"})
+		if err == nil {
+			// res.Params est déjà un pointeur pour gov
+			paramsBytes, _ := b.clientCtx.Codec.MarshalJSON(res.Params)
+			json.Unmarshal(paramsBytes, &paramsResp)
+			paramsResp = convertKeysToCamelCase(paramsResp)
+		}
+	case "mint":
+		res, err := b.queryClient.Mint.Params(ctx, &minttypes.QueryParamsRequest{})
+		if err == nil {
+			paramsBytes, _ := b.clientCtx.Codec.MarshalJSON(&res.Params)
+			json.Unmarshal(paramsBytes, &paramsResp)
+			paramsResp = convertKeysToCamelCase(paramsResp)
+		}
+	case "slashing":
+		// Utiliser clientCtx pour créer un client slashing
+		slashingClient := slashingtypes.NewQueryClient(b.clientCtx)
+		res, err := slashingClient.Params(ctx, &slashingtypes.QueryParamsRequest{})
+		if err != nil {
+			// Log l'erreur pour déboguer
+			fmt.Printf("Error fetching slashing params: %v\n", err)
+			return nil
+		}
+		paramsBytes, marshalErr := b.clientCtx.Codec.MarshalJSON(&res.Params)
+		if marshalErr != nil {
+			fmt.Printf("Error marshaling slashing params: %v\n", marshalErr)
+			return nil
+		}
+		if unmarshalErr := json.Unmarshal(paramsBytes, &paramsResp); unmarshalErr != nil {
+			fmt.Printf("Error unmarshaling slashing params: %v\n", unmarshalErr)
+			return nil
+		}
+		// Convertir les clés snake_case en camelCase pour correspondre au template
+		paramsResp = convertKeysToCamelCase(paramsResp)
+		// Log pour déboguer
+		fmt.Printf("Slashing params retrieved (converted): %+v\n", paramsResp)
+	case "logos":
+		// Utiliser clientCtx pour créer un client logos
+		logosClient := logostypes.NewQueryClient(b.clientCtx)
+		res, err := logosClient.Params(ctx, &logostypes.QueryParamsRequest{})
+		if err != nil {
+			fmt.Printf("Error fetching logos params: %v\n", err)
+			return nil
+		}
+		paramsBytes, marshalErr := b.clientCtx.Codec.MarshalJSON(&res.Params)
+		if marshalErr != nil {
+			fmt.Printf("Error marshaling logos params: %v\n", marshalErr)
+			return nil
+		}
+		if unmarshalErr := json.Unmarshal(paramsBytes, &paramsResp); unmarshalErr != nil {
+			fmt.Printf("Error unmarshaling logos params: %v\n", unmarshalErr)
+			return nil
+		}
+		// Convertir les clés snake_case en camelCase pour correspondre au template
+		paramsResp = convertKeysToCamelCase(paramsResp)
+		fmt.Printf("Logos params retrieved (converted): %+v\n", paramsResp)
+	case "consensus", "core":
+		// Utiliser clientCtx pour créer un client consensus
+		consensusClient := consensustypes.NewQueryClient(b.clientCtx)
+		res, err := consensusClient.Params(ctx, &consensustypes.QueryParamsRequest{})
+		if err != nil {
+			fmt.Printf("Error fetching consensus params: %v\n", err)
+			return nil
+		}
+		// Consensus params a une structure différente (ConsensusParams avec block, evidence, validator, abci)
+		// On doit extraire les champs individuels
+		if res.Params != nil {
+			paramsResp = make(map[string]interface{})
+			if res.Params.Block != nil {
+				blockBytes, _ := b.clientCtx.Codec.MarshalJSON(res.Params.Block)
+				var blockMap map[string]interface{}
+				json.Unmarshal(blockBytes, &blockMap)
+				paramsResp["block"] = convertKeysToCamelCase(blockMap)
+			}
+			if res.Params.Evidence != nil {
+				evidenceBytes, _ := b.clientCtx.Codec.MarshalJSON(res.Params.Evidence)
+				var evidenceMap map[string]interface{}
+				json.Unmarshal(evidenceBytes, &evidenceMap)
+				paramsResp["evidence"] = convertKeysToCamelCase(evidenceMap)
+			}
+			if res.Params.Validator != nil {
+				validatorBytes, _ := b.clientCtx.Codec.MarshalJSON(res.Params.Validator)
+				var validatorMap map[string]interface{}
+				json.Unmarshal(validatorBytes, &validatorMap)
+				paramsResp["validator"] = convertKeysToCamelCase(validatorMap)
+			}
+			if res.Params.Abci != nil {
+				abciBytes, _ := b.clientCtx.Codec.MarshalJSON(res.Params.Abci)
+				var abciMap map[string]interface{}
+				json.Unmarshal(abciBytes, &abciMap)
+				paramsResp["abci"] = convertKeysToCamelCase(abciMap)
+			}
+		}
+		fmt.Printf("Consensus params retrieved (converted): %+v\n", paramsResp)
+	// Ajouter d'autres modules au besoin
+	default:
+		// Pour les modules non supportés, retourner nil
+		return nil
+	}
+	
+	return paramsResp
+}
+
+// enrichTemplateWithCurrentValues enrichit le template avec les valeurs actuelles
+// Structure : chaque champ peut avoir "_current" (valeur actuelle) et "_template" (valeur par défaut)
+func enrichTemplateWithCurrentValues(template, currentValues map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	
+	// Créer un index des clés currentValues avec normalisation (insensible à la casse et aux underscores)
+	currentIndex := make(map[string]interface{})
+	for k, v := range currentValues {
+		normalized := normalizeKey(k)
+		currentIndex[normalized] = v
+		// Garder aussi la clé originale
+		currentIndex[k] = v
+	}
+	
+	for key, templateValue := range template {
+		if key == "authority" || key == "@type" {
+			result[key] = templateValue
+			continue
+		}
+		
+		// Chercher la valeur actuelle avec normalisation
+		var currentValue interface{}
+		var exists bool
+		
+		// Essayer d'abord avec la clé exacte
+		if currentValue, exists = currentIndex[key]; !exists {
+			// Essayer avec la clé normalisée
+			normalizedKey := normalizeKey(key)
+			currentValue, exists = currentIndex[normalizedKey]
+		}
+		
+		if exists {
+			// Si c'est un objet, merger récursivement
+			if templateObj, ok := templateValue.(map[string]interface{}); ok {
+				if currentObj, ok := currentValue.(map[string]interface{}); ok {
+					result[key] = enrichTemplateWithCurrentValues(templateObj, currentObj)
+				} else {
+					// Objet dans template mais pas dans current, garder template
+					result[key] = templateValue
+				}
+			} else {
+				// Champ simple : ajouter template et current
+				result[key] = map[string]interface{}{
+					"_template": templateValue,
+					"_current":  currentValue,
+				}
+			}
+		} else {
+			// Pas de valeur actuelle, garder le template
+			result[key] = templateValue
+		}
+	}
+	
+	return result
+}
+
+// normalizeKey normalise une clé pour le matching (insensible à la casse et aux underscores)
+func normalizeKey(key string) string {
+	// Convertir en minuscule et remplacer les underscores
+	normalized := strings.ToLower(key)
+	normalized = strings.ReplaceAll(normalized, "_", "")
+	return normalized
+}
+
+// convertKeysToCamelCase convertit les clés snake_case en camelCase récursivement
+func convertKeysToCamelCase(m map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	for k, v := range m {
+		camelKey := snakeToCamel(k)
+		// Si la valeur est un map, convertir récursivement
+		if nestedMap, ok := v.(map[string]interface{}); ok {
+			result[camelKey] = convertKeysToCamelCase(nestedMap)
+		} else if nestedArray, ok := v.([]interface{}); ok {
+			// Si c'est un array, convertir chaque élément si c'est un map
+			convertedArray := make([]interface{}, len(nestedArray))
+			for i, item := range nestedArray {
+				if itemMap, ok := item.(map[string]interface{}); ok {
+					convertedArray[i] = convertKeysToCamelCase(itemMap)
+				} else {
+					convertedArray[i] = item
+				}
+			}
+			result[camelKey] = convertedArray
+		} else {
+			result[camelKey] = v
+		}
+	}
+	return result
+}
+
+// snakeToCamel convertit snake_case en camelCase
+func snakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+	if len(parts) == 1 {
+		return s
+	}
+	result := parts[0]
+	for i := 1; i < len(parts); i++ {
+		if len(parts[i]) > 0 {
+			result += strings.ToUpper(parts[i][:1]) + parts[i][1:]
+		}
+	}
+	return result
+}
+
+// extractMessageName extrait le nom du message depuis le proto full name
+func extractMessageName(protoFullName string) string {
+	parts := strings.Split(protoFullName, ".")
+	if len(parts) > 0 {
+		return parts[len(parts)-1]
+	}
+	return protoFullName
+}
 
 // func (b *Backend) DebugProtoRegistry(targets []string) {
 
