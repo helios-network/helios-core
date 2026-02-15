@@ -224,6 +224,11 @@ service Msg {
     option (google.api.http).post = "/helios/hyperion/v1/update_average_block_time";
   }
 
+  rpc UpdateAverageCounterpartyBlockTime(MsgUpdateAverageCounterpartyBlockTime)
+      returns (MsgUpdateAverageCounterpartyBlockTimeResponse) {
+    option (google.api.http).post = "/helios/hyperion/v1/update_average_counterparty_block_time";
+  }
+
   rpc SetOrchestratorAddressesWithFee(MsgSetOrchestratorAddressesWithFee)
       returns (MsgSetOrchestratorAddressesWithFeeResponse) {
     option (google.api.http).post = "/helios/hyperion/v1/set_orchestrator_addresses_with_fee";
@@ -929,6 +934,17 @@ message MsgUpdateAverageBlockTime {
 }
 
 message MsgUpdateAverageBlockTimeResponse {}
+
+message MsgUpdateAverageCounterpartyBlockTime {
+  option (amino.name) = "hyperion/MsgUpdateAverageCounterpartyBlockTime";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1;
+  uint64 chain_id = 2;
+  uint64 average_counterparty_block_time = 3;
+}
+
+message MsgUpdateAverageCounterpartyBlockTimeResponse {}
 
 message MsgSetOrchestratorAddressesWithFee {
   option (amino.name) = "hyperion/MsgSetOrchestratorAddressesWithFee";

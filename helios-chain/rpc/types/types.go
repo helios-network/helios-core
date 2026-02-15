@@ -261,18 +261,19 @@ type WhitelistedAssetRPC struct {
 }
 
 type HyperionChainRPC struct {
-	HyperionContractAddress      string `json:"hyperionContractAddress"`
-	ChainId                      uint64 `json:"chainId"`
-	Name                         string `json:"name"`
-	ChainType                    string `json:"chainType"`
-	Logo                         string `json:"logo"`
-	HyperionId                   uint64 `json:"hyperionId"`
-	Paused                       bool   `json:"paused"`
-	AverageCounterpartyBlockTime uint64 `json:"averageCounterpartyBlockTime"`
-	LatestObservedBlockHeight    uint64 `json:"latestObservedBlockHeight"`
-	LatestObservedBlockTime      uint64 `json:"latestObservedBlockTime"`
-	TargetBatchTimeout           uint64 `json:"targetBatchTimeout"`
-	TargetOutgoingTxTimeout      uint64 `json:"targetOutgoingTxTimeout"`
+	HyperionContractAddress           string `json:"hyperionContractAddress"`
+	ChainId                           uint64 `json:"chainId"`
+	Name                              string `json:"name"`
+	ChainType                         string `json:"chainType"`
+	Logo                              string `json:"logo"`
+	HyperionId                        uint64 `json:"hyperionId"`
+	Paused                            bool   `json:"paused"`
+	AverageCounterpartyBlockTime      uint64 `json:"averageCounterpartyBlockTime"`
+	LatestObservedBlockHeight         uint64 `json:"latestObservedBlockHeight"`
+	LatestObservedBlockTime           uint64 `json:"latestObservedBlockTime"`
+	TargetBatchTimeout                uint64 `json:"targetBatchTimeout"`
+	TargetOutgoingTxTimeout           uint64 `json:"targetOutgoingTxTimeout"`
+	EstimatedCounterpartyCurrentBlock uint64 `json:"estimatedCounterpartyCurrentBlock"`
 }
 
 // ValidatorSignature struct for block signature information

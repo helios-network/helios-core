@@ -1,6 +1,9 @@
 package backend
 
 import (
+	"math"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -72,29 +75,32 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 	counterpartyChainParams := make([]*rpctypes.HyperionChainRPC, 0)
 
 	for _, chain := range res.CounterpartyChainParamsWithComplemetaryInfo {
-		counterpartyChainParams = append(counterpartyChainParams, &rpctypes.HyperionChainRPC{
-			HyperionContractAddress:      chain.CounterpartyChainParams.BridgeCounterpartyAddress,
-			ChainId:                      chain.CounterpartyChainParams.BridgeChainId,
-			Name:                         chain.CounterpartyChainParams.BridgeChainName,
-			ChainType:                    chain.CounterpartyChainParams.BridgeChainType,
-			Logo:                         chain.CounterpartyChainParams.BridgeChainLogo,
-			HyperionId:                   chain.CounterpartyChainParams.HyperionId,
-			Paused:                       chain.CounterpartyChainParams.Paused,
-			AverageCounterpartyBlockTime: chain.ComplemetaryInfo.AverageCounterpartyBlockTime,
-			LatestObservedBlockHeight:    chain.ComplemetaryInfo.LatestObservedBlockHeight,
-			LatestObservedBlockTime:      chain.ComplemetaryInfo.LatestObservedBlockTime,
-			TargetBatchTimeout:           chain.CounterpartyChainParams.TargetBatchTimeout,
-			TargetOutgoingTxTimeout:      chain.CounterpartyChainParams.TargetOutgoingTxTimeout,
-		})
 
-		// to know the timeout of one tx, we need to know the latest observed block height and time
-		// example:
-		// latest observed block height: 100000
-		// average counterparty block time: 2 seconds
-		// target outgoing tx timeout block height: 100100
-		// projected current ethereum height: 100000
-		// blocks to add: 100100 - 100000 = 100
-		// timeout in time: 100 * 2 seconds = 200 seconds = in 3 minutes and 20 seconds from now
+		estimatedCurrentBlock := uint64(0)
+
+		if chain.ComplemetaryInfo.LatestObservedBlockTime != 0 {
+			currentTime := time.Now().UnixMilli()
+			lastObservedTimeMs := chain.ComplemetaryInfo.LatestObservedBlockTime * 1000
+			timeSinceLastObservedMs := currentTime - int64(lastObservedTimeMs)
+			blocksSinceLastObserved := math.Floor(float64(uint64(timeSinceLastObservedMs) / chain.ComplemetaryInfo.AverageCounterpartyBlockTime))
+			estimatedCurrentBlock = chain.ComplemetaryInfo.LatestObservedBlockHeight + uint64(blocksSinceLastObserved)
+		}
+
+		counterpartyChainParams = append(counterpartyChainParams, &rpctypes.HyperionChainRPC{
+			HyperionContractAddress:           chain.CounterpartyChainParams.BridgeCounterpartyAddress,
+			ChainId:                           chain.CounterpartyChainParams.BridgeChainId,
+			Name:                              chain.CounterpartyChainParams.BridgeChainName,
+			ChainType:                         chain.CounterpartyChainParams.BridgeChainType,
+			Logo:                              chain.CounterpartyChainParams.BridgeChainLogo,
+			HyperionId:                        chain.CounterpartyChainParams.HyperionId,
+			Paused:                            chain.CounterpartyChainParams.Paused,
+			AverageCounterpartyBlockTime:      chain.ComplemetaryInfo.AverageCounterpartyBlockTime,
+			LatestObservedBlockHeight:         chain.ComplemetaryInfo.LatestObservedBlockHeight,
+			LatestObservedBlockTime:           chain.ComplemetaryInfo.LatestObservedBlockTime,
+			TargetBatchTimeout:                chain.CounterpartyChainParams.TargetBatchTimeout,
+			TargetOutgoingTxTimeout:           chain.CounterpartyChainParams.TargetOutgoingTxTimeout,
+			EstimatedCounterpartyCurrentBlock: estimatedCurrentBlock,
+		})
 	}
 
 	bankRes, _ := b.queryClient.Bank.DenomFullMetadata(b.ctx, &banktypes.QueryDenomFullMetadataRequest{
@@ -114,18 +120,19 @@ func (b *Backend) GetHyperionChains() ([]*rpctypes.HyperionChainRPC, error) {
 	}
 
 	counterpartyChainParams = append(counterpartyChainParams, &rpctypes.HyperionChainRPC{
-		HyperionContractAddress:      evmtypes.HyperionPrecompileAddress,
-		ChainId:                      uint64(b.chainID.Int64()),
-		Name:                         "Helios",
-		ChainType:                    "evm",
-		Logo:                         bankRes.Metadata.Metadata.Logo,
-		HyperionId:                   0,
-		Paused:                       false,
-		AverageCounterpartyBlockTime: resAvgBlockTime.AverageBlockTime,
-		LatestObservedBlockHeight:    uint64(latestBlock["number"].(hexutil.Uint64)),
-		LatestObservedBlockTime:      uint64(latestBlock["timestamp"].(hexutil.Uint64)),
-		TargetBatchTimeout:           0,
-		TargetOutgoingTxTimeout:      0,
+		HyperionContractAddress:           evmtypes.HyperionPrecompileAddress,
+		ChainId:                           uint64(b.chainID.Int64()),
+		Name:                              "Helios",
+		ChainType:                         "evm",
+		Logo:                              bankRes.Metadata.Metadata.Logo,
+		HyperionId:                        0,
+		Paused:                            false,
+		AverageCounterpartyBlockTime:      resAvgBlockTime.AverageBlockTime,
+		LatestObservedBlockHeight:         uint64(latestBlock["number"].(hexutil.Uint64)),
+		LatestObservedBlockTime:           uint64(latestBlock["timestamp"].(hexutil.Uint64)),
+		TargetBatchTimeout:                0,
+		TargetOutgoingTxTimeout:           0,
+		EstimatedCounterpartyCurrentBlock: uint64(latestBlock["number"].(hexutil.Uint64)),
 	})
 
 	return counterpartyChainParams, nil

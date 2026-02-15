@@ -203,6 +203,12 @@ func HandleHyperionProposal(ctx sdk.Context, k keeper.Keeper, proposal *types.Hy
 		if err != nil {
 			return err
 		}
+	case *types.MsgUpdateAverageCounterpartyBlockTime:
+		msg.Signer = k.GetAuthority()
+		_, err := keeper.NewMsgServerImpl(k).UpdateAverageCounterpartyBlockTime(ctx, msg)
+		if err != nil {
+			return err
+		}
 	case *types.MsgSetLastBatchNonce:
 		msg.Signer = k.GetAuthority()
 		_, err := keeper.NewMsgServerImpl(k).SetLastBatchNonce(ctx, msg)
